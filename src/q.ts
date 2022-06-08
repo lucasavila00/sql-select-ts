@@ -160,6 +160,19 @@ export const where =
         where: [...it.where, ...makeArray(f(proxy as any))],
     });
 
+export const orderBy =
+    <With extends string, Scope extends string, Selection extends string>(
+        f: (
+            fields: Record<Scope | Selection, SafeString>
+        ) => SafeString[] | SafeString
+    ) =>
+    (
+        it: SelectStatement<With, Scope, Selection>
+    ): SelectStatement<With, Scope, Selection> => ({
+        ...it,
+        orderBy: [...it.orderBy, ...makeArray(f(proxy as any))],
+    });
+
 const printFrom_ = (q: TableOrSubquery<any, any, any>): string => {
     switch (q._tag) {
         // case "JoinClause": {
@@ -204,7 +217,14 @@ const printPrintable = (q: SelectStatement<any, any, any>): string => {
             ? `WHERE ${q.where.map((it) => it.content).join(" AND ")}`
             : "";
 
-    return [`SELECT ${sel}`, `FROM ${printFrom_(q.from_)}`, where].join(" ");
+    const orderBy =
+        q.orderBy.length > 0
+            ? `ORDER BY ${q.orderBy.map((it) => it.content).join(", ")}`
+            : "";
+
+    return [`SELECT ${sel}`, `FROM ${printFrom_(q.from_)}`, where, orderBy]
+        .filter((it) => it.length > 0)
+        .join(" ");
 };
 
 export const qToString = (q: SelectStatement<any, any, any>): string =>

@@ -63,7 +63,7 @@ describe("sqlite select1", () => {
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1 ;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -83,7 +83,7 @@ describe("sqlite select1", () => {
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT f3 AS f1 FROM test1 ;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT f3 AS f1 FROM test1;"`);
         expect(await fail(q)).toMatchInlineSnapshot(
             `"Error: SQLITE_ERROR: no such column: f3"`
         );
@@ -95,7 +95,7 @@ describe("sqlite select1", () => {
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1 ;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -112,7 +112,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1, f2 AS f2 FROM test1 ;"`
+            `"SELECT f1 AS f1, f2 AS f2 FROM test1;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -131,7 +131,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1, f2 AS f2 FROM test1 ;"`
+            `"SELECT f1 AS f1, f2 AS f2 FROM test1;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -149,7 +149,7 @@ describe("sqlite select1", () => {
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1 ;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -167,7 +167,7 @@ describe("sqlite select1", () => {
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1 ;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -187,7 +187,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM test1 ) ;"`
+            `"SELECT * FROM (SELECT * FROM test1);"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -207,7 +207,7 @@ describe("sqlite select1", () => {
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT *, * FROM test1 ;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT *, * FROM test1;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -230,7 +230,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT *, min(f1, f2) AS min, max(f1, f2) AS max FROM test1 ;"`
+            `"SELECT *, min(f1, f2) AS min, max(f1, f2) AS max FROM test1;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -255,7 +255,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT 'one' AS one, *, 'two' AS two, * FROM test1 ;"`
+            `"SELECT 'one' AS one, *, 'two' AS two, * FROM test1;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -276,7 +276,7 @@ describe("sqlite select1", () => {
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1, test2 ;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1, test2;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -298,7 +298,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT *, 'hi' AS hi FROM test1, test2 ;"`
+            `"SELECT *, 'hi' AS hi FROM test1, test2;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -324,7 +324,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT 'one' AS one, *, 'two' AS two, * FROM test1, test2 ;"`
+            `"SELECT 'one' AS one, *, 'two' AS two, * FROM test1, test2;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -351,7 +351,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1, r1 AS r1 FROM test1, test2 ;"`
+            `"SELECT f1 AS f1, r1 AS r1 FROM test1, test2;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -377,7 +377,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1, f2 AS f2 FROM test1, test1_dup ;"`
+            `"SELECT f1 AS f1, f2 AS f2 FROM test1, test1_dup;"`
         );
         expect(await fail(q)).toMatchInlineSnapshot(
             `"Error: SQLITE_ERROR: ambiguous column name: f1"`
@@ -396,7 +396,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT test1.f1 AS f1, test1_dup.f2 AS f2 FROM test1, test1_dup ;"`
+            `"SELECT test1.f1 AS f1, test1_dup.f2 AS f2 FROM test1, test1_dup;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -419,7 +419,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT test1.f1 AS f1, test2.r1 AS r1 FROM test1, test2 ;"`
+            `"SELECT test1.f1 AS f1, test2.r1 AS r1 FROM test1, test2;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -438,7 +438,7 @@ describe("sqlite select1", () => {
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1, test2 ;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1, test2;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -460,7 +460,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM test1 AS a, test1 AS b ;"`
+            `"SELECT * FROM test1 AS a, test1 AS b;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -484,7 +484,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a.f1 AS f1, b.f2 AS f2 FROM test1 AS a, test1 AS b ;"`
+            `"SELECT a.f1 AS f1, b.f2 AS f2 FROM test1 AS a, test1 AS b;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -509,7 +509,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT max(test1.f1, test2.r1) AS max, min(test1.f2, test2.r2) AS min FROM test1, test2 ;"`
+            `"SELECT max(test1.f1, test2.r1) AS max, min(test1.f2, test2.r2) AS min FROM test1, test2;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -525,12 +525,90 @@ describe("sqlite select1", () => {
             //
             fromTest1,
             select(({ f1 }) => ({ f1 })),
-            where((f) => sql`${f.f1} < 11`),
+            where(({ f1 }) => sql`${f1} < 11`),
             qToString
         );
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT f1 AS f1 FROM test1 WHERE f1 < 11;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("select1-3.1 -- from selection", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f3: f1 })),
+            where(({ f3 }) => sql`${f3} < 11`),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f3 FROM test1 WHERE f3 < 11;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("select1-3.1 -- warns of missing columns", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f3: f1 })),
+            where(
+                ({
+                    //@ts-expect-error
+                    f5,
+                }) => sql`${f5} < 11`
+            ),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f3 FROM test1 WHERE f5 < 11;"`
+        );
+        expect(await fail(q)).toMatchInlineSnapshot(
+            `"Error: SQLITE_ERROR: no such column: f5"`
+        );
+    });
+    it("select1-3.1 -- two calls", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f1 })),
+            where(({ f1 }) => sql`${f1} < 11`),
+            where(({ f2 }) => sql`${f2} > 0`),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1 FROM test1 WHERE f1 < 11 AND f2 > 0;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("select1-3.1 -- return list", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f1 })),
+            where(({ f1 }) => [sql`${f1} < 11`]),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1 FROM test1 WHERE f1 < 11;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("select1-3.1 -- return list with 2 items", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f1 })),
+            where(({ f1, f2 }) => [sql`${f1} < 11`, sql`${f2} > 0`]),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1 FROM test1 WHERE f1 < 11 AND f2 > 0;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
