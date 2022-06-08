@@ -1,9 +1,19 @@
 import { hole, pipe } from "fp-ts/lib/function";
 import * as A from "fp-ts/lib/Array";
-import * as Eq from "fp-ts/lib/Eq";
 import { castSafe, SafeString } from "./safe-string";
 
-type Table<Scope> = {
+const proxy = new Proxy(
+    {
+        SQL_PROXY_TARGET: true,
+    },
+    {
+        get: function (_target, prop, _receiver) {
+            return castSafe(String(prop));
+        },
+    }
+);
+
+type Table<_Selection> = {
     _tag: "Table";
     names: { name: string; alias: string }[];
 };
@@ -22,6 +32,7 @@ type SelectStatement<
     selection: (Record<Selection, SafeString> | StarSymbol)[];
     orderBy: SafeString[];
     limit: SafeString | null;
+    where: SafeString[];
 };
 
 // type JoinClauseTailItem = {
@@ -63,17 +74,6 @@ export const appendTable =
         names: [...t1.names, ...t2.names],
     });
 
-const proxy = new Proxy(
-    {
-        SQL_PROXY_TARGET: true,
-    },
-    {
-        get: function (_target, prop, _receiver) {
-            return castSafe(String(prop));
-        },
-    }
-);
-
 export const selectStar = <
     With extends string,
     Scope extends string,
@@ -86,6 +86,7 @@ export const selectStar = <
     selection: [StarSymbol],
     orderBy: [],
     limit: null,
+    where: [],
 });
 
 export const appendSelectStar = <
@@ -98,6 +99,7 @@ export const appendSelectStar = <
     ...source,
     selection: [...source.selection, StarSymbol],
 });
+
 export const appendSelect =
     <
         With extends string,
@@ -135,6 +137,27 @@ export const select =
         selection: [f(proxy as any)],
         orderBy: [],
         limit: null,
+        where: [],
+    });
+
+const makeArray = <T>(it: T | T[]): T[] => {
+    if (Array.isArray(it)) {
+        return it;
+    }
+    return [it];
+};
+
+export const where =
+    <With extends string, Scope extends string, Selection extends string>(
+        f: (
+            fields: Record<Scope | Selection, SafeString>
+        ) => SafeString[] | SafeString
+    ) =>
+    (
+        it: SelectStatement<With, Scope, Selection>
+    ): SelectStatement<With, Scope, Selection> => ({
+        ...it,
+        where: [...it.where, ...makeArray(f(proxy as any))],
     });
 
 const printFrom_ = (q: TableOrSubquery<any, any, any>): string => {
@@ -162,7 +185,8 @@ const printPrintable = (q: SelectStatement<any, any, any>): string => {
     const sel = pipe(
         q.selection,
         A.chain((it) => {
-            if ((it as any).SQL_PROXY_TARGET != null) {
+            // check if the proxy was returned in an identity function
+            if ((it as any)?.SQL_PROXY_TARGET != null) {
                 return ["*"];
             }
             if (it === StarSymbol) {
@@ -175,7 +199,12 @@ const printPrintable = (q: SelectStatement<any, any, any>): string => {
         (it) => it.join(", ")
     );
 
-    return `SELECT ${sel} FROM ${printFrom_(q.from_)}`;
+    const where =
+        q.where.length > 0
+            ? `WHERE ${q.where.map((it) => it.content).join(" AND ")}`
+            : "";
+
+    return [`SELECT ${sel}`, `FROM ${printFrom_(q.from_)}`, where].join(" ");
 };
 
 export const qToString = (q: SelectStatement<any, any, any>): string =>

@@ -8,23 +8,24 @@ import {
     qToString,
     select,
     selectStar,
+    where,
 } from "../src/q";
 import { SafeString, sql } from "../src/safe-string";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
 
 describe("sqlite select1", () => {
-    const test1 = fromTable<"f1" | "f2", "test1">("test1", "test1");
-    const test1_dup = fromTable<"f1" | "f2", "test1_dup">(
+    const fromTest1 = fromTable<"f1" | "f2", "test1">("test1", "test1");
+    const fromTest1_dup = fromTable<"f1" | "f2", "test1_dup">(
         "test1_dup",
         "test1_dup"
     );
-    const test2 = fromTable<"r1" | "r2", "test2">("test2", "test2");
+    const fromTest2 = fromTable<"r1" | "r2", "test2">("test2", "test2");
 
-    const test1And2 = pipe(
+    const fromTest1And2 = pipe(
         //
-        test1,
-        appendTable(test2)
+        fromTest1,
+        appendTable(fromTest2)
     );
 
     let db: sqlite.Database;
@@ -57,12 +58,12 @@ describe("sqlite select1", () => {
 
     it("select1-1.4", async () => {
         const q = pipe(
-            test1,
+            fromTest1,
             select((f) => ({ f1: f.f1 })),
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1 ;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -71,14 +72,30 @@ describe("sqlite select1", () => {
             ]
         `);
     });
+    it("select1-1.4 -- ts check identifiers", async () => {
+        const q = pipe(
+            fromTest1,
+            select((f) => ({
+                f1:
+                    //@ts-expect-error
+                    f.f3,
+            })),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(`"SELECT f3 AS f1 FROM test1 ;"`);
+        expect(await fail(q)).toMatchInlineSnapshot(
+            `"Error: SQLITE_ERROR: no such column: f3"`
+        );
+    });
     it("select1-1.4 -- destructuring", async () => {
         const q = pipe(
-            test1,
+            fromTest1,
             select(({ f1 }) => ({ f1 })),
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1 ;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -89,13 +106,13 @@ describe("sqlite select1", () => {
     });
     it("select1-1.7", async () => {
         const q = pipe(
-            test1,
+            fromTest1,
             select((f) => ({ f1: f.f1, f2: f.f2 })),
             qToString
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1, f2 AS f2 FROM test1;"`
+            `"SELECT f1 AS f1, f2 AS f2 FROM test1 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -108,13 +125,13 @@ describe("sqlite select1", () => {
     });
     it("select1-1.7 -- destructuring", async () => {
         const q = pipe(
-            test1,
+            fromTest1,
             select(({ f1, f2 }) => ({ f1, f2 })),
             qToString
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1, f2 AS f2 FROM test1;"`
+            `"SELECT f1 AS f1, f2 AS f2 FROM test1 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -127,12 +144,12 @@ describe("sqlite select1", () => {
     });
     it("select1-1.7 -- identity function", async () => {
         const q = pipe(
-            test1,
+            fromTest1,
             select((it) => it),
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1 ;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -145,12 +162,12 @@ describe("sqlite select1", () => {
     it("select1-1.8", async () => {
         const q = pipe(
             //
-            test1,
+            fromTest1,
             selectStar,
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1 ;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -163,14 +180,14 @@ describe("sqlite select1", () => {
     it("select1-1.8 -- 2 layers", async () => {
         const q = pipe(
             //
-            test1,
+            fromTest1,
             selectStar,
             selectStar,
             qToString
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM test1);"`
+            `"SELECT * FROM (SELECT * FROM test1 ) ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -184,13 +201,13 @@ describe("sqlite select1", () => {
     it("select1-1.8.1", async () => {
         const q = pipe(
             //
-            test1,
+            fromTest1,
             selectStar,
             appendSelectStar,
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT *, * FROM test1;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT *, * FROM test1 ;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -203,7 +220,7 @@ describe("sqlite select1", () => {
     it("select1-1.8.2", async () => {
         const q = pipe(
             //
-            test1,
+            fromTest1,
             selectStar,
             appendSelect(({ f1, f2 }) => ({
                 min: sql`min(${f1}, ${f2})`,
@@ -213,7 +230,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT *, min(f1, f2) AS min, max(f1, f2) AS max FROM test1;"`
+            `"SELECT *, min(f1, f2) AS min, max(f1, f2) AS max FROM test1 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -229,7 +246,7 @@ describe("sqlite select1", () => {
     it("select1-1.8.3", async () => {
         const q = pipe(
             //
-            test1,
+            fromTest1,
             select((_f) => ({ one: sql("one") })),
             appendSelectStar,
             appendSelect((_f) => ({ two: sql("two") })),
@@ -238,7 +255,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT 'one' AS one, *, 'two' AS two, * FROM test1;"`
+            `"SELECT 'one' AS one, *, 'two' AS two, * FROM test1 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -254,12 +271,12 @@ describe("sqlite select1", () => {
     it("select1-1.9", async () => {
         const q = pipe(
             //
-            test1And2,
+            fromTest1And2,
             selectStar,
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1, test2;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1, test2 ;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -274,14 +291,14 @@ describe("sqlite select1", () => {
     it("select1-1.9.1", async () => {
         const q = pipe(
             //
-            test1And2,
+            fromTest1And2,
             selectStar,
             appendSelect((_f) => ({ hi: sql("hi") })),
             qToString
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT *, 'hi' AS hi FROM test1, test2;"`
+            `"SELECT *, 'hi' AS hi FROM test1, test2 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -298,7 +315,7 @@ describe("sqlite select1", () => {
     it("select1-1.9.2", async () => {
         const q = pipe(
             //
-            test1And2,
+            fromTest1And2,
             select((_f) => ({ one: sql("one") })),
             appendSelectStar,
             appendSelect((_f) => ({ two: sql("two") })),
@@ -307,7 +324,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT 'one' AS one, *, 'two' AS two, * FROM test1, test2;"`
+            `"SELECT 'one' AS one, *, 'two' AS two, * FROM test1, test2 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -325,7 +342,7 @@ describe("sqlite select1", () => {
     it("select1-1.10 -- no alias", async () => {
         const q = pipe(
             //
-            test1And2,
+            fromTest1And2,
             select((f) => ({
                 f1: f.f1,
                 r1: f.r1,
@@ -334,7 +351,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1, r1 AS r1 FROM test1, test2;"`
+            `"SELECT f1 AS f1, r1 AS r1 FROM test1, test2 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -348,8 +365,8 @@ describe("sqlite select1", () => {
     it("select1-1.10 -- collision", async () => {
         const q = pipe(
             //
-            test1,
-            appendTable(test1_dup),
+            fromTest1,
+            appendTable(fromTest1_dup),
             select((f) => ({
                 //@ts-expect-error
                 f1: f.f1,
@@ -360,7 +377,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1, f2 AS f2 FROM test1, test1_dup;"`
+            `"SELECT f1 AS f1, f2 AS f2 FROM test1, test1_dup ;"`
         );
         expect(await fail(q)).toMatchInlineSnapshot(
             `"Error: SQLITE_ERROR: ambiguous column name: f1"`
@@ -369,8 +386,8 @@ describe("sqlite select1", () => {
     it("select1-1.10 -- collision fixed", async () => {
         const q = pipe(
             //
-            test1,
-            appendTable(test1_dup),
+            fromTest1,
+            appendTable(fromTest1_dup),
             select((f) => ({
                 f1: f["test1.f1"],
                 f2: f["test1_dup.f2"],
@@ -379,7 +396,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT test1.f1 AS f1, test1_dup.f2 AS f2 FROM test1, test1_dup;"`
+            `"SELECT test1.f1 AS f1, test1_dup.f2 AS f2 FROM test1, test1_dup ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -393,7 +410,7 @@ describe("sqlite select1", () => {
     it("select1-1.10", async () => {
         const q = pipe(
             //
-            test1And2,
+            fromTest1And2,
             select((f) => ({
                 f1: f["test1.f1"],
                 r1: f["test2.r1"],
@@ -402,7 +419,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT test1.f1 AS f1, test2.r1 AS r1 FROM test1, test2;"`
+            `"SELECT test1.f1 AS f1, test2.r1 AS r1 FROM test1, test2 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -416,12 +433,12 @@ describe("sqlite select1", () => {
     it("select1-1.11.1", async () => {
         const q = pipe(
             //
-            test1And2,
+            fromTest1And2,
             selectStar,
             qToString
         );
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1, test2;"`);
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1, test2 ;"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -443,7 +460,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM test1 AS a, test1 AS b;"`
+            `"SELECT * FROM test1 AS a, test1 AS b ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -467,7 +484,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a.f1 AS f1, b.f2 AS f2 FROM test1 AS a, test1 AS b;"`
+            `"SELECT a.f1 AS f1, b.f2 AS f2 FROM test1 AS a, test1 AS b ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -483,7 +500,7 @@ describe("sqlite select1", () => {
         const min = (...it: SafeString[]) => sql`min(${it})`;
         const q = pipe(
             //
-            test1And2,
+            fromTest1And2,
             select((f) => ({
                 max: max(f["test1.f1"], f["test2.r1"]),
                 min: min(f["test1.f2"], f["test2.r2"]),
@@ -492,7 +509,7 @@ describe("sqlite select1", () => {
         );
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT max(test1.f1, test2.r1) AS max, min(test1.f2, test2.r2) AS min FROM test1, test2;"`
+            `"SELECT max(test1.f1, test2.r1) AS max, min(test1.f2, test2.r2) AS min FROM test1, test2 ;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -502,5 +519,19 @@ describe("sqlite select1", () => {
               },
             ]
         `);
+    });
+    it("select1-3.1", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f1 })),
+            where((f) => sql`${f.f1} < 11`),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1 FROM test1 WHERE f1 < 11;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 });
