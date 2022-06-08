@@ -5,6 +5,7 @@ import {
     appendSelectStar,
     appendTable,
     fromTable,
+    limit,
     orderBy,
     qToString,
     select,
@@ -16,12 +17,10 @@ import { SafeString, sql } from "../src/safe-string";
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
 
 describe("sqlite select1", () => {
-    const fromTest1 = fromTable<"f1" | "f2", "test1">("test1", "test1");
-    const fromTest1_dup = fromTable<"f1" | "f2", "test1_dup">(
-        "test1_dup",
-        "test1_dup"
-    );
-    const fromTest2 = fromTable<"r1" | "r2", "test2">("test2", "test2");
+    const fromTest1 = fromTable(["f1", "f2"], "test1");
+    const fromTest1_dup = fromTable(["f1", "f2"], "test1_dup");
+    const fromTest2 = fromTable(["r1", "r2"], "test2");
+    const fromTest3 = fromTable(["r1", "r2"], "test3");
 
     const fromTest1And2 = pipe(
         //
@@ -55,6 +54,10 @@ describe("sqlite select1", () => {
 
         await run(`CREATE TABLE test2(r1 real, r2 real)`);
         await run(`INSERT INTO test2(r1,r2) VALUES(1.1,2.2)`);
+
+        await run(`CREATE TABLE test3(r1 real, r2 real)`);
+        await run(`INSERT INTO test3(r1,r2) VALUES(1.1,2.2)`);
+        await run(`INSERT INTO test3(r1,r2) VALUES(11.11,22.22)`);
     });
 
     it("select1-1.4", async () => {
@@ -164,7 +167,7 @@ describe("sqlite select1", () => {
         const q = pipe(
             //
             fromTest1,
-            selectStar,
+            selectStar(),
             qToString
         );
 
@@ -182,8 +185,8 @@ describe("sqlite select1", () => {
         const q = pipe(
             //
             fromTest1,
-            selectStar,
-            selectStar,
+            selectStar(),
+            selectStar(),
             qToString
         );
 
@@ -203,8 +206,8 @@ describe("sqlite select1", () => {
         const q = pipe(
             //
             fromTest1,
-            selectStar,
-            appendSelectStar,
+            selectStar(),
+            appendSelectStar(),
             qToString
         );
 
@@ -222,7 +225,7 @@ describe("sqlite select1", () => {
         const q = pipe(
             //
             fromTest1,
-            selectStar,
+            selectStar(),
             appendSelect(({ f1, f2 }) => ({
                 min: sql`min(${f1}, ${f2})`,
                 max: sql`max(${f1}, ${f2})`,
@@ -249,9 +252,9 @@ describe("sqlite select1", () => {
             //
             fromTest1,
             select((_f) => ({ one: sql("one") })),
-            appendSelectStar,
+            appendSelectStar(),
             appendSelect((_f) => ({ two: sql("two") })),
-            appendSelectStar,
+            appendSelectStar(),
             qToString
         );
 
@@ -273,7 +276,7 @@ describe("sqlite select1", () => {
         const q = pipe(
             //
             fromTest1And2,
-            selectStar,
+            selectStar(),
             qToString
         );
 
@@ -293,7 +296,7 @@ describe("sqlite select1", () => {
         const q = pipe(
             //
             fromTest1And2,
-            selectStar,
+            selectStar(),
             appendSelect((_f) => ({ hi: sql("hi") })),
             qToString
         );
@@ -318,9 +321,9 @@ describe("sqlite select1", () => {
             //
             fromTest1And2,
             select((_f) => ({ one: sql("one") })),
-            appendSelectStar,
+            appendSelectStar(),
             appendSelect((_f) => ({ two: sql("two") })),
-            appendSelectStar,
+            appendSelectStar(),
             qToString
         );
 
@@ -435,7 +438,7 @@ describe("sqlite select1", () => {
         const q = pipe(
             //
             fromTest1And2,
-            selectStar,
+            selectStar(),
             qToString
         );
 
@@ -454,9 +457,9 @@ describe("sqlite select1", () => {
     it("select1-1.11.2", async () => {
         const q = pipe(
             //
-            fromTable<"f1" | "f2", "a">("test1", "a"),
-            appendTable(fromTable<"f1" | "f2", "b">("test1", "b")),
-            selectStar,
+            fromTable(["f1", "f2"], "a", "test1"),
+            appendTable(fromTable(["f1", "f2"], "b", "test1")),
+            selectStar(),
             qToString
         );
 
@@ -475,8 +478,8 @@ describe("sqlite select1", () => {
     it("select1-1.11.2 -- select alias", async () => {
         const q = pipe(
             //
-            fromTable<"f1" | "f2", "a">("test1", "a"),
-            appendTable(fromTable<"f1" | "f2", "b">("test1", "b")),
+            fromTable(["f1", "f2"], "a", "test1"),
+            appendTable(fromTable(["f1", "f2"], "b", "test1")),
             select((f) => ({
                 f1: f["a.f1"],
                 f2: f["b.f2"],
@@ -717,6 +720,227 @@ describe("sqlite select1", () => {
             ]
         `);
     });
+    it("select1-6.1.3", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            selectStar(),
+            where((f) => sql`${f.f1} == 11`),
+            qToString
+        );
 
-    // select1-6.1.3
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1 WHERE f1 == 11;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-6.1.4", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            selectStar(true),
+            where((f) => sql`${f.f1} == 11`),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT DISTINCT * FROM test1 WHERE f1 == 11;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-6.3.1", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select((f) => ({ ["xyzzy "]: f.f1 })),
+            orderBy((f) => f.f2),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS 'xyzzy ' FROM test1 ORDER BY f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "xyzzy ": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-6.5", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select((f) => ({ it: sql`${f["test1.f1"]} + ${f.f2}` })),
+            orderBy((f) => f.f2),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT test1.f1 + f2 AS it FROM test1 ORDER BY f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "it": 33,
+              },
+            ]
+        `);
+    });
+
+    it("select1-6.6", async () => {
+        const q = pipe(
+            //
+            fromTest1And2,
+            select((f) => ({ it: sql`${f["test1.f1"]} + ${f.f2}`, r2: f.r2 })),
+            orderBy((f) => f.f2),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT test1.f1 + f2 AS it, r2 AS r2 FROM test1, test2 ORDER BY f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "it": 33,
+                "r2": 2.2,
+              },
+            ]
+        `);
+    });
+
+    it("select1-6.7", async () => {
+        const q = pipe(
+            //
+            fromTable(["f1", "f2"], "a", "test1"),
+            appendTable(fromTable(["r1", "r2"], "test2")),
+            select((f) => ({ it: f["a.f1"], r2: f.r2 })),
+            orderBy((f) => f.f2),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a.f1 AS it, r2 AS r2 FROM test1 AS a, test2 ORDER BY f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "it": 11,
+                "r2": 2.2,
+              },
+            ]
+        `);
+    });
+    it("select1-6.9.1", async () => {
+        const q = pipe(
+            //
+            fromTable(["f1", "f2"], "a", "test1"),
+            appendTable(fromTable(["r1", "r2"], "b", "test2")),
+            select((f) => ({ it: f["a.f1"], r2: f["b.r2"] })),
+            orderBy((f) => f["a.f1"]),
+            orderBy((f) => f["b.r2"]),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a.f1 AS it, b.r2 AS r2 FROM test1 AS a, test2 AS b ORDER BY a.f1, b.r2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "it": 11,
+                "r2": 2.2,
+              },
+            ]
+        `);
+    });
+    it("select1-6.9.6", async () => {
+        const q = pipe(
+            //
+            fromTable(["f1", "f2"], "a", "test1"),
+            appendTable(fromTable(["r1", "r2"], "b", "test3")),
+            selectStar(),
+            limit(1),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1 AS a, test3 AS b LIMIT 1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+                "r1": 1.1,
+                "r2": 2.2,
+              },
+            ]
+        `);
+    });
+
+    // limit
+    //
+    // 1-6.9.7~8
+    // 1-6.9.9
+
+    // wrap
+    // select1-15.3
+
+    // IN compound
+    // select1-6.21
+
+    // subquery
+    // select1-9.3
+    // select1-9.4
+    // select1-9.5
+    // select1-12.8
+
+    // sub query as table
+    // select1-11.12
+    // select1-11.13
+    // select1-11.14
+    // select1-11.15
+    // select1-11.16
+    // select1-17.2
+    // select1-17.3
+
+    // compound && subquery
+    // select1-12.9
+    // select1-12.10
+
+    // nested where
+    // select1-18.3
+    // select1-18.4
+
+    // from nothing
+    // select1-12.1
+    // select1-12.2
+    // select1-12.3
+    // select1-12.4
+
+    // union
+    // select1-6.10
+    // select1-6.11
+    // select1-12.5
+    // select1-12.6
 });

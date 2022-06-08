@@ -1,6 +1,7 @@
 import { hole, pipe } from "fp-ts/lib/function";
 import * as A from "fp-ts/lib/Array";
 import { castSafe, SafeString } from "./safe-string";
+import { isNumber } from "fp-ts/lib/number";
 
 const proxy = new Proxy(
     {
@@ -18,8 +19,8 @@ type Table<_Selection> = {
     names: { name: string; alias: string }[];
 };
 
-const StarSymbol = "*" as const;
-type StarSymbol = typeof StarSymbol;
+const StarSymbolURI = "*" as const;
+type StarSymbol = { _tag: typeof StarSymbolURI; distinct: boolean };
 
 type SelectStatement<
     With extends string,
@@ -31,7 +32,7 @@ type SelectStatement<
     //    | JoinClause<any, any>;
     selection: (Record<Selection, SafeString> | StarSymbol)[];
     orderBy: SafeString[];
-    limit: SafeString | null;
+    limit: SafeString | number | null;
     where: SafeString[];
 };
 
@@ -55,9 +56,13 @@ type TableOrSubquery<
 > = SelectStatement<With, Scope, Selection> | Table<Selection>;
 //   | JoinClause<Scope, Selection>;
 
-export const fromTable = <Selection extends string, Alias extends string>(
-    name: string,
-    alias: Alias
+export const fromTable = <
+    Selection extends string,
+    Alias extends string = never
+>(
+    columns: Selection[],
+    alias: Alias,
+    name: string = alias
 ): Table<Selection | `${Alias}.${Selection}`> => ({
     _tag: "Table",
     names: [{ name, alias }],
@@ -74,31 +79,31 @@ export const appendTable =
         names: [...t1.names, ...t2.names],
     });
 
-export const selectStar = <
-    With extends string,
-    Scope extends string,
-    Selection extends string
->(
-    source: TableOrSubquery<With, Scope, Selection>
-): SelectStatement<never, Selection, Selection> => ({
-    _tag: "Query",
-    from_: source,
-    selection: [StarSymbol],
-    orderBy: [],
-    limit: null,
-    where: [],
-});
+export const selectStar =
+    <With extends string, Scope extends string, Selection extends string>(
+        distinct: boolean = false
+    ) =>
+    (
+        source: TableOrSubquery<With, Scope, Selection>
+    ): SelectStatement<never, Selection, Selection> => ({
+        _tag: "Query",
+        from_: source,
+        selection: [{ _tag: StarSymbolURI, distinct }],
+        orderBy: [],
+        limit: null,
+        where: [],
+    });
 
-export const appendSelectStar = <
-    With extends string,
-    Scope extends string,
-    Selection extends string
->(
-    source: SelectStatement<With, Scope, Selection>
-): SelectStatement<With, Scope, Selection> => ({
-    ...source,
-    selection: [...source.selection, StarSymbol],
-});
+export const appendSelectStar =
+    <With extends string, Scope extends string, Selection extends string>(
+        distinct: boolean = false
+    ) =>
+    (
+        source: SelectStatement<With, Scope, Selection>
+    ): SelectStatement<With, Scope, Selection> => ({
+        ...source,
+        selection: [...source.selection, { _tag: StarSymbolURI, distinct }],
+    });
 
 export const appendSelect =
     <
@@ -173,6 +178,24 @@ export const orderBy =
         orderBy: [...it.orderBy, ...makeArray(f(proxy as any))],
     });
 
+export const limit =
+    <With extends string, Scope extends string, Selection extends string>(
+        limit: SafeString | number
+    ) =>
+    (
+        it: SelectStatement<With, Scope, Selection>
+    ): SelectStatement<With, Scope, Selection> => ({
+        ...it,
+        limit,
+    });
+
+const wrapAlias = (alias: string) => {
+    if (alias.includes(" ")) {
+        return `'${alias}'`;
+    }
+    return alias;
+};
+
 const printTableOrSubquery = (q: TableOrSubquery<any, any, any>): string => {
     switch (q._tag) {
         // case "JoinClause": {
@@ -187,7 +210,7 @@ const printTableOrSubquery = (q: TableOrSubquery<any, any, any>): string => {
                     if (it.name === it.alias) {
                         return it.name;
                     }
-                    return `${it.name} AS ${it.alias}`;
+                    return `${it.name} AS ${wrapAlias(it.alias)}`;
                 })
                 .join(", ");
         }
@@ -202,11 +225,14 @@ const printSelectStatement = (q: SelectStatement<any, any, any>): string => {
             if ((it as any)?.SQL_PROXY_TARGET != null) {
                 return ["*"];
             }
-            if (it === StarSymbol) {
+            if (it._tag === StarSymbolURI) {
+                if (it.distinct) {
+                    return ["DISTINCT *"];
+                }
                 return ["*"];
             }
             return Object.entries(it).map(([k, v]) => {
-                return `${v.content} AS ${k}`;
+                return `${v.content} AS ${wrapAlias(k)}`;
             });
         }),
         (it) => it.join(", ")
@@ -222,11 +248,18 @@ const printSelectStatement = (q: SelectStatement<any, any, any>): string => {
             ? `ORDER BY ${q.orderBy.map((it) => it.content).join(", ")}`
             : "";
 
+    const limit = q.limit
+        ? isNumber(q.limit)
+            ? `LIMIT ${q.limit}`
+            : `LIMIT ${q.limit.content}`
+        : "";
+
     return [
         `SELECT ${sel}`,
         `FROM ${printTableOrSubquery(q.from_)}`,
         where,
         orderBy,
+        limit,
     ]
         .filter((it) => it.length > 0)
         .join(" ");
