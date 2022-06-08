@@ -1,11 +1,11 @@
-import { pipe } from "fp-ts/lib/function";
+import { hole, pipe } from "fp-ts/lib/function";
 import * as A from "fp-ts/lib/Array";
 import * as Eq from "fp-ts/lib/Eq";
 import { castSafe, SafeString } from "./safe-string";
 
 type Table<Scope> = {
     _tag: "Table";
-    names: string[];
+    names: { name: string; alias: string }[];
 };
 
 const StarSymbol = "*" as const;
@@ -44,12 +44,24 @@ type TableOrSubquery<
 > = SelectStatement<With, Scope, Selection> | Table<Selection>;
 //   | JoinClause<Scope, Selection>;
 
-export const fromTable = <Selection extends string>(
-    name: string
-): Table<Selection> => ({
+export const fromTable = <Selection extends string, Alias extends string>(
+    name: string,
+    alias: Alias
+): Table<Selection | `${Alias}.${Selection}`> => ({
     _tag: "Table",
-    names: [name],
+    names: [{ name, alias }],
 });
+
+export const appendTable =
+    <Selection2 extends string>(t2: Table<Selection2>) =>
+    <Selection1 extends string>(
+        t1: Table<Selection1>
+    ): Table<
+        Exclude<Selection1, Selection2> | Exclude<Selection2, Selection1>
+    > => ({
+        ...t1,
+        names: [...t1.names, ...t2.names],
+    });
 
 const proxy = new Proxy(
     {
@@ -134,7 +146,14 @@ const printFrom_ = (q: TableOrSubquery<any, any, any>): string => {
             return `(${printPrintable(q)})`;
         }
         case "Table": {
-            return q.names.join(", ");
+            return q.names
+                .map((it) => {
+                    if (it.name === it.alias) {
+                        return it.name;
+                    }
+                    return `${it.name} AS ${it.alias}`;
+                })
+                .join(", ");
         }
     }
 };
