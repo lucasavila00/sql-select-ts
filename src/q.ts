@@ -173,13 +173,13 @@ export const orderBy =
         orderBy: [...it.orderBy, ...makeArray(f(proxy as any))],
     });
 
-const printFrom_ = (q: TableOrSubquery<any, any, any>): string => {
+const printTableOrSubquery = (q: TableOrSubquery<any, any, any>): string => {
     switch (q._tag) {
         // case "JoinClause": {
         //   return "";
         // }
         case "Query": {
-            return `(${printPrintable(q)})`;
+            return `(${printSelectStatement(q)})`;
         }
         case "Table": {
             return q.names
@@ -194,7 +194,7 @@ const printFrom_ = (q: TableOrSubquery<any, any, any>): string => {
     }
 };
 
-const printPrintable = (q: SelectStatement<any, any, any>): string => {
+const printSelectStatement = (q: SelectStatement<any, any, any>): string => {
     const sel = pipe(
         q.selection,
         A.chain((it) => {
@@ -222,10 +222,15 @@ const printPrintable = (q: SelectStatement<any, any, any>): string => {
             ? `ORDER BY ${q.orderBy.map((it) => it.content).join(", ")}`
             : "";
 
-    return [`SELECT ${sel}`, `FROM ${printFrom_(q.from_)}`, where, orderBy]
+    return [
+        `SELECT ${sel}`,
+        `FROM ${printTableOrSubquery(q.from_)}`,
+        where,
+        orderBy,
+    ]
         .filter((it) => it.length > 0)
         .join(" ");
 };
 
 export const qToString = (q: SelectStatement<any, any, any>): string =>
-    `${printPrintable(q)};`;
+    `${printSelectStatement(q)};`;

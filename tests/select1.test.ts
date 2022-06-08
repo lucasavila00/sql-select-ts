@@ -5,6 +5,7 @@ import {
     appendSelectStar,
     appendTable,
     fromTable,
+    orderBy,
     qToString,
     select,
     selectStar,
@@ -612,4 +613,110 @@ describe("sqlite select1", () => {
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
+    it("select1-4.1", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f1 })),
+            orderBy(({ f1 }) => f1),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1 FROM test1 ORDER BY f1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-4.1 -- two calls", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f1 })),
+            orderBy(({ f1 }) => f1),
+            orderBy(({ f2 }) => f2),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1 FROM test1 ORDER BY f1, f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+              },
+            ]
+        `);
+    });
+    it("select1-4.1 -- array with 2 items", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f1 })),
+            orderBy(({ f1, f2 }) => [f1, f2]),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1 FROM test1 ORDER BY f1, f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-4.1 -- desc asc", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f1 })),
+            orderBy(({ f1, f2 }) => [sql`${f1} ASC`, sql`${f2} DESC`]),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1 FROM test1 ORDER BY f1 ASC, f2 DESC;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-4.1 -- from selection", async () => {
+        const q = pipe(
+            //
+            fromTest1,
+            select(({ f1 }) => ({ f3: f1 })),
+            orderBy(({ f3 }) => f3),
+            qToString
+        );
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f3 FROM test1 ORDER BY f3;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f3": 11,
+              },
+            ]
+        `);
+    });
+
+    // select1-6.1.3
 });
