@@ -1,6 +1,6 @@
-import sqlite from "sqlite3";
 import { SelectStatement, Table } from "../src/cla";
 import { SafeString, sql } from "../src/safe-string";
+import { configureSqlite } from "./utils";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
 
@@ -12,25 +12,9 @@ describe("sqlite select1", () => {
     const t6 = Table.define(["a", "b"], "t6");
 
     const fromTest1And2 = test1.crossJoinTable(test2);
-
-    let db: sqlite.Database;
-    let run: (query: string) => Promise<any[]>;
-    let fail: (query: string) => Promise<string>;
+    const { run, fail } = configureSqlite();
 
     beforeAll(async () => {
-        const it = sqlite.verbose();
-        db = new it.Database(":memory:");
-
-        run = (it: string) =>
-            new Promise((rs, rj) => db.all(it, (e, r) => (e ? rj(e) : rs(r))));
-
-        fail = (it: string) =>
-            new Promise((rs, rj) =>
-                db.all(it, (e, r) =>
-                    e ? rs(String(e)) : rj(`Expected error, got ${r}`)
-                )
-            );
-
         await run(`CREATE TABLE test1(f1 int, f2 int)`);
         await run(`INSERT INTO test1(f1,f2) VALUES(11,22)`);
 
@@ -1024,40 +1008,53 @@ describe("sqlite select1", () => {
     it("select1-18.3", async () => {
         const subquery = test1
             .select((f) => ({ f1: f.f1 }))
-            .where((f) => sql`${f.f1} = ${f.f2}`)
-            .select((_f) => ({ it: sql(3) }))
+            .where(
+                (f) =>
+                    sql`${f.f1} = ${f.f2} OR ${f.f1} = ${test2.select(
+                        (_test2Fields) => ({
+                            it: f.f1,
+                        })
+                    )}`
+            )
+            .select(() => ({ it: sql(3) }))
             .where((f) => sql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
 
         const subquery2 = test2
-            .select((f) => ({ ["2"]: sql(2) }))
-            .where((f) => sql`${subquery}`);
+            .select(() => ({ ["2"]: sql(2) }))
+            .where(() => sql`${subquery}`);
 
         const q = test1
-            .select((f) => ({ ["1"]: sql(1) }))
-            .where((f) => sql`${subquery2}`)
+            .select(() => ({ ["1"]: sql(1) }))
+            .where(() => sql`${subquery2}`)
             .print();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT 1 AS \`1\` FROM test1 WHERE (SELECT 2 AS \`2\` FROM test2 WHERE (SELECT 3 AS it FROM (SELECT f1 AS f1 FROM test1 WHERE f1 = f2) WHERE f1 > it OR f1 = it));"`
+            `"SELECT 1 AS \`1\` FROM test1 WHERE (SELECT 2 AS \`2\` FROM test2 WHERE (SELECT 3 AS it FROM (SELECT f1 AS f1 FROM test1 WHERE f1 = f2 OR f1 = (SELECT f1 AS it FROM test2)) WHERE f1 > it OR f1 = it));"`
         );
-        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "1": 1,
+              },
+            ]
+        `);
     });
 
     it("select1-18.4", async () => {
         const subquery = test1
             .select((f) => ({ f1: f.f1 }))
             .where((f) => sql`${f.f1} = ${f.f2}`)
-            .select((_f) => ({ it: sql(3) }))
+            .select(() => ({ it: sql(3) }))
             .where((f) => sql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
 
         const subquery2 = test2
-            .select((f) => ({ ["2"]: sql(2) }))
-            .where((f) => sql`${subquery}`);
+            .select(() => ({ ["2"]: sql(2) }))
+            .where(() => sql`${subquery}`);
 
         const q = test1
             .crossJoinTable(test2)
-            .select((f) => ({ ["1"]: sql(1) }))
-            .where((f) => sql`${subquery2}`)
+            .select(() => ({ ["1"]: sql(1) }))
+            .where(() => sql`${subquery2}`)
             .print();
 
         expect(q).toMatchInlineSnapshot(

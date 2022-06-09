@@ -22,8 +22,53 @@ type AliasedRows<Selection extends string> = {
     content: Record<Selection, SafeString>;
 };
 
+class JoinClause<Selection extends string> {
+    constructor(
+        private names: {
+            code: string;
+            alias: string;
+        }[]
+    ) {}
+
+    public select = <NewSelection extends string>(
+        f: (
+            f: Record<Selection, SafeString>
+        ) => Record<NewSelection, SafeString>
+    ): SelectStatement<never, Selection, NewSelection> =>
+        new SelectStatement(
+            //
+            this,
+            [{ _tag: AliasedRowsURI, content: f(proxy as any) }],
+            [],
+            null,
+            []
+        );
+
+    public selectStar = (
+        distinct: boolean = false
+    ): SelectStatement<never, Selection, Selection> =>
+        new SelectStatement(
+            //
+            this,
+            [{ _tag: StarSymbolURI, distinct }],
+            [],
+            null,
+            []
+        );
+
+    public printProtected = (): string =>
+        this.names
+            .map((it) => {
+                if (it.code === it.alias) {
+                    return it.code;
+                }
+                return `${it.code} AS ${wrapAlias(it.alias)}`;
+            })
+            .join(", ");
+}
+
 export class Table<Selection extends string> {
-    private constructor(private names: { name: string; alias: string }[]) {}
+    private constructor(private alias: string, private name: string) {}
 
     public static define = <
         Selection extends string,
@@ -32,10 +77,9 @@ export class Table<Selection extends string> {
         columns: Selection[],
         alias: Alias,
         name: string = alias
-    ): Table<Selection | `${Alias}.${Selection}`> =>
-        new Table([{ name, alias }]);
+    ): Table<Selection | `${Alias}.${Selection}`> => new Table(alias, name);
 
-    private copy = (): Table<Selection> => new Table(this.names);
+    private copy = (): Table<Selection> => new Table(this.alias, this.name);
 
     public select = <NewSelection extends string>(
         f: (
@@ -65,13 +109,19 @@ export class Table<Selection extends string> {
 
     public crossJoinTable = <Selection2 extends string>(
         t2: Table<Selection2>
-    ): Table<
+    ): JoinClause<
         Exclude<Selection, Selection2> | Exclude<Selection2, Selection>
-    > => {
-        const t = this.copy();
-        t.names = [...t.names, ...t2.names];
-        return t as any;
-    };
+    > =>
+        new JoinClause([
+            {
+                code: this.name,
+                alias: this.alias,
+            },
+            {
+                code: t2.name,
+                alias: t2.alias,
+            },
+        ]);
 
     public crossJoinQuery = <
         With2 extends string,
@@ -81,32 +131,38 @@ export class Table<Selection extends string> {
     >(
         alias: Alias2,
         t2: SelectStatement<With2, Scope2, Selection2>
-    ): Table<
+    ): JoinClause<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
-    > => {
-        const t = this.copy();
-        t.names = [...t.names, { alias, name: t2.printProtected() }];
-        return t as any;
-    };
+    > =>
+        new JoinClause([
+            {
+                code: this.name,
+                alias: this.alias,
+            },
+            {
+                code: t2.printProtected(),
+                alias: alias,
+            },
+        ]);
 
-    public printProtected = (): string =>
-        this.names
-            .map((it) => {
-                if (it.name === it.alias) {
-                    return it.name;
-                }
-                return `${it.name} AS ${wrapAlias(it.alias)}`;
-            })
-            .join(", ");
+    public printProtected = (): string => {
+        if (this.name === this.alias) {
+            return this.name;
+        }
+        return `${this.name} AS ${wrapAlias(this.alias)}`;
+    };
 }
 
 type TableOrSubquery<
     With extends string,
     Scope extends string,
     Selection extends string
-> = SelectStatement<With, Scope, Selection> | Table<Selection>;
+> =
+    | SelectStatement<With, Scope, Selection>
+    | Table<Selection>
+    | JoinClause<Selection>;
 
 const wrapAlias = (alias: string) => {
     if (alias[0].charCodeAt(0) >= 48 && alias[0].charCodeAt(0) <= 57) {
@@ -130,7 +186,7 @@ export class SelectStatement<
 > {
     constructor(
         public from_: TableOrSubquery<any, any, any> | null,
-        //    | JoinClause<any, any>;
+
         public selection_: (AliasedRows<Selection> | StarSymbol)[],
         public orderBy_: SafeString[],
         public limit_: SafeString | number | null,
@@ -168,7 +224,6 @@ export class SelectStatement<
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
         new SelectStatement(
-            //
             this,
             [{ _tag: AliasedRowsURI, content: f(proxy as any) }],
             [],
@@ -180,7 +235,6 @@ export class SelectStatement<
         distinct: boolean = false
     ): SelectStatement<never, Selection, Selection> =>
         new SelectStatement(
-            //
             this,
             [{ _tag: StarSymbolURI, distinct }],
             [],
