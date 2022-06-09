@@ -17,6 +17,14 @@ const proxy = new Proxy(
 const StarSymbolURI = "*" as const;
 type StarSymbol = { _tag: typeof StarSymbolURI; distinct: boolean };
 
+type SelectStarArgs = {
+    distinct?: boolean;
+};
+const StarSymbol = ({ distinct = false }: SelectStarArgs = {}): StarSymbol => ({
+    _tag: StarSymbolURI,
+    distinct,
+});
+
 const AliasedRowsURI = "AliasedRows" as const;
 type AliasedRows<Selection extends string> = {
     _tag: typeof AliasedRowsURI;
@@ -27,7 +35,7 @@ type CrossJoinHead = {
     code: string;
     alias: string;
 }[];
-class JoinClause<Selection extends string> {
+class JoinClause<Selection extends string, Aliases extends string> {
     private constructor(private __crossJoins: CrossJoinHead) {}
 
     public static __fromCrossJoinHead = (crossJoins: CrossJoinHead) =>
@@ -43,16 +51,15 @@ class JoinClause<Selection extends string> {
         ]);
 
     public selectStar = (
-        distinct: boolean = false
+        args?: SelectStarArgs
     ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.__fromTableOrSubquery(this, [
-            { _tag: StarSymbolURI, distinct },
-        ]);
+        SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
 
-    public crossJoinTable = <Selection2 extends string>(
-        t2: Table<Selection2>
+    public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
+        t2: Table<Selection2, Alias2>
     ): JoinClause<
-        Exclude<Selection, Selection2> | Exclude<Selection2, Selection>
+        Exclude<Selection, Selection2> | Exclude<Selection2, Selection>,
+        Aliases | Alias2
     > =>
         JoinClause.__fromCrossJoinHead([
             ...this.__crossJoins,
@@ -73,7 +80,8 @@ class JoinClause<Selection extends string> {
     ): JoinClause<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias2}.${Selection2}`
+        | `${Alias2}.${Selection2}`,
+        Aliases | Alias2
     > =>
         JoinClause.__fromCrossJoinHead([
             ...this.__crossJoins,
@@ -94,7 +102,7 @@ class JoinClause<Selection extends string> {
             .join(", ");
 }
 
-class Table<Selection extends string> {
+class Table<Selection extends string, Alias extends string> {
     private constructor(public __alias: string, public __name: string) {}
 
     public static define = <
@@ -104,7 +112,8 @@ class Table<Selection extends string> {
         _columns: Selection[],
         alias: Alias,
         name: string = alias
-    ): Table<Selection | `${Alias}.${Selection}`> => new Table(alias, name);
+    ): Table<Selection | `${Alias}.${Selection}`, Alias> =>
+        new Table(alias, name);
 
     public select = <NewSelection extends string>(
         f: (
@@ -116,16 +125,15 @@ class Table<Selection extends string> {
         ]);
 
     public selectStar = (
-        distinct: boolean = false
+        args?: SelectStarArgs
     ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.__fromTableOrSubquery(this, [
-            { _tag: StarSymbolURI, distinct },
-        ]);
+        SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
 
-    public crossJoinTable = <Selection2 extends string>(
-        t2: Table<Selection2>
+    public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
+        t2: Table<Selection2, Alias2>
     ): JoinClause<
-        Exclude<Selection, Selection2> | Exclude<Selection2, Selection>
+        Exclude<Selection, Selection2> | Exclude<Selection2, Selection>,
+        Alias | Alias2
     > =>
         JoinClause.__fromCrossJoinHead([
             {
@@ -149,7 +157,8 @@ class Table<Selection extends string> {
     ): JoinClause<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias2}.${Selection2}`
+        | `${Alias2}.${Selection2}`,
+        Alias | Alias2
     > =>
         JoinClause.__fromCrossJoinHead([
             {
@@ -171,13 +180,14 @@ class Table<Selection extends string> {
 }
 
 type TableOrSubquery<
+    Alias extends string,
     With extends string,
     Scope extends string,
     Selection extends string
 > =
     | SelectStatement<With, Scope, Selection>
-    | Table<Selection>
-    | JoinClause<Selection>;
+    | Table<Alias, Selection>
+    | JoinClause<Alias, Selection>;
 
 const wrapAlias = (alias: string) => {
     if (alias[0].charCodeAt(0) >= 48 && alias[0].charCodeAt(0) <= 57) {
@@ -206,22 +216,17 @@ export class SelectStatement<
     Selection extends string
 > {
     private constructor(
-        public __from: TableOrSubquery<any, any, any> | null,
+        public __from: TableOrSubquery<any, any, any, any> | null,
         public __selection: SelectStatementSelection<Selection>,
         public __orderBy: SafeString[],
         public __limit: SafeString | number | null,
         public __where: SafeString[]
     ) {}
 
-    public static __fromTableOrSubquery = <
-        With2 extends string,
-        Scope2 extends string,
-        Selection2 extends string,
-        NewSelection extends string
-    >(
-        it: TableOrSubquery<With2, Scope2, Selection2>,
-        selection: SelectStatementSelection<NewSelection>
-    ): SelectStatement<never, Selection2, NewSelection> =>
+    public static __fromTableOrSubquery = (
+        it: TableOrSubquery<any, any, any, any>,
+        selection: SelectStatementSelection<any>
+    ): SelectStatement<any, any, any> =>
         new SelectStatement(
             //
             it,
@@ -266,23 +271,15 @@ export class SelectStatement<
         ]);
 
     public selectStar = (
-        distinct: boolean = false
+        args?: SelectStarArgs
     ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.__fromTableOrSubquery(this, [
-            { _tag: StarSymbolURI, distinct },
-        ]);
+        SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
 
     public appendSelectStar = (
-        distinct: boolean = false
+        args?: SelectStarArgs
     ): SelectStatement<never, Selection, Selection> => {
         const t = this.copy();
-        t.__selection = [
-            ...t.__selection,
-            {
-                _tag: StarSymbolURI,
-                distinct,
-            },
-        ];
+        t.__selection = [...t.__selection, StarSymbol(args)];
         return t;
     };
 
@@ -330,13 +327,18 @@ export class SelectStatement<
         return t;
     };
 
-    public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
-        thisQueryAlias: Alias2,
-        t2: Table<Selection2>
+    public crossJoinTable = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisQueryAlias: Alias1,
+        t2: Table<Selection2, Alias2>
     ): JoinClause<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias2}.${Selection}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2
     > =>
         JoinClause.__fromCrossJoinHead([
             {
@@ -363,7 +365,8 @@ export class SelectStatement<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
-        | `${Alias1}.${Selection}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2
     > =>
         JoinClause.__fromCrossJoinHead([
             {

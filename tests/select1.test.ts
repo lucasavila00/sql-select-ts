@@ -3,6 +3,8 @@ import { configureSqlite } from "./utils";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
 
+const max = (...it: SafeString[]) => sql`max(${it})`;
+const min = (...it: SafeString[]) => sql`min(${it})`;
 describe("sqlite select1", () => {
     const test1 = fromTable(["f1", "f2"], "test1");
 
@@ -432,8 +434,6 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-1.12", async () => {
-        const max = (...it: SafeString[]) => sql`max(${it})`;
-        const min = (...it: SafeString[]) => sql`min(${it})`;
         const q = fromTest1And2
             .select((f) => ({
                 max: max(f["test1.f1"], f["test2.r1"]),
@@ -644,7 +644,9 @@ describe("sqlite select1", () => {
 
     it("select1-6.1.4", async () => {
         const q = test1
-            .selectStar(true)
+            .selectStar({
+                distinct: true,
+            })
             .where((f) => sql`${f.f1} == 11`)
             .print();
 
@@ -1136,8 +1138,22 @@ describe("sqlite select1", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
+    it("select1-11.12", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = test1.crossJoinQuery("it", subquery).selectStar().print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT 1 AS \`1\` FROM test1, test2 WHERE (SELECT 2 AS \`2\` FROM test2 WHERE (SELECT 3 AS it FROM (SELECT f1 AS f1 FROM test1 WHERE f1 = f2) WHERE f1 > it OR f1 = it));"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
     // sub query as table
-    // select1-11.12
+    //
     // select1-11.13
     // select1-11.14
     // select1-11.15
