@@ -58,12 +58,75 @@ type FilterFromAlias<
     Selection extends string
 > = Selection extends `${Alias}.${infer R}` ? R : never;
 
-class JoinClause<Selection extends string, Aliases extends string> {
+export class Compound<Selection extends string> {
+    private constructor(
+        public __content: TableOrSubquery<any, any, any, any>[],
+        public __qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT",
+        public __orderBy: SafeString[],
+        public __limit: SafeString | number | null
+    ) {}
+
+    public static union = <CS extends TableOrSubquery<any, any, any, any>[]>(
+        content: CS
+    ): Compound<SelectionOf<CS[number]>> =>
+        new Compound(content, "UNION", [], null);
+
+    private copy = (): Compound<Selection> =>
+        new Compound(
+            this.__content,
+            this.__qualifier,
+            this.__orderBy,
+            this.__limit
+        );
+
+    public orderBy = (
+        f: (fields: Record<Selection, SafeString>) => SafeString[] | SafeString
+    ): Compound<Selection> => {
+        const t = this.copy();
+        t.__orderBy = [...t.__orderBy, ...makeArray(f(proxy as any))];
+        return t;
+    };
+
+    public limit = (limit: SafeString | number): Compound<Selection> => {
+        const t = this.copy();
+        t.__limit = limit;
+        return t;
+    };
+
+    public __printProtected = (parenthesis: boolean): string => {
+        const sel = this.__content
+            .map((it) => it.__printProtected(false))
+            .join(` ${this.__qualifier} `);
+
+        const orderBy =
+            this.__orderBy.length > 0
+                ? `ORDER BY ${this.__orderBy
+                      .map((it) => it.content)
+                      .join(", ")}`
+                : "";
+
+        const limit = this.__limit
+            ? isNumber(this.__limit)
+                ? `LIMIT ${this.__limit}`
+                : `LIMIT ${this.__limit.content}`
+            : "";
+
+        const q = [sel, orderBy, limit].filter((it) => it.length > 0).join(" ");
+
+        if (parenthesis) {
+            return `(${q})`;
+        }
+        return q;
+    };
+    public print = (): string => this.__printProtected(false);
+}
+
+class Joined<Selection extends string, Aliases extends string> {
     private constructor(private __crossJoins: CrossJoinHead) {}
 
     public static __fromCrossJoinHead = (
         crossJoins: CrossJoinHead
-    ): JoinClause<any, any> => new JoinClause(crossJoins);
+    ): Joined<any, any> => new Joined(crossJoins);
 
     public select = <NewSelection extends string>(
         f: (
@@ -93,11 +156,11 @@ class JoinClause<Selection extends string, Aliases extends string> {
 
     public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
         t2: Table<Selection2, Alias2>
-    ): JoinClause<
+    ): Joined<
         Exclude<Selection, Selection2> | Exclude<Selection2, Selection>,
         Aliases | Alias2
     > =>
-        JoinClause.__fromCrossJoinHead([
+        Joined.__fromCrossJoinHead([
             ...this.__crossJoins,
             {
                 code: t2.__name,
@@ -113,16 +176,16 @@ class JoinClause<Selection extends string, Aliases extends string> {
     >(
         alias: Alias2,
         t2: SelectStatement<With2, Scope2, Selection2>
-    ): JoinClause<
+    ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2
     > =>
-        JoinClause.__fromCrossJoinHead([
+        Joined.__fromCrossJoinHead([
             ...this.__crossJoins,
             {
-                code: t2.__printProtected(),
+                code: t2.__printProtected(true),
                 alias: alias,
             },
         ]);
@@ -167,11 +230,11 @@ class Table<Selection extends string, Alias extends string> {
 
     public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
         t2: Table<Selection2, Alias2>
-    ): JoinClause<
+    ): Joined<
         Exclude<Selection, Selection2> | Exclude<Selection2, Selection>,
         Alias | Alias2
     > =>
-        JoinClause.__fromCrossJoinHead([
+        Joined.__fromCrossJoinHead([
             {
                 code: this.__name,
                 alias: this.__alias,
@@ -190,19 +253,19 @@ class Table<Selection extends string, Alias extends string> {
     >(
         aliasOfQuery: Alias2,
         t2: SelectStatement<With2, Scope2, Selection2>
-    ): JoinClause<
+    ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        JoinClause.__fromCrossJoinHead([
+        Joined.__fromCrossJoinHead([
             {
                 code: this.__name,
                 alias: this.__alias,
             },
             {
-                code: t2.__printProtected(),
+                code: t2.__printProtected(true),
                 alias: aliasOfQuery,
             },
         ]);
@@ -223,7 +286,17 @@ type TableOrSubquery<
 > =
     | SelectStatement<With, Scope, Selection>
     | Table<Alias, Selection>
-    | JoinClause<Alias, Selection>;
+    | Joined<Alias, Selection>
+    | Compound<Selection>;
+
+type SelectionOf<T> = T extends TableOrSubquery<
+    infer Alias,
+    infer With,
+    infer Scope,
+    infer Selection
+>
+    ? Selection
+    : never;
 
 const wrapAlias = (alias: string) => {
     if (alias[0].charCodeAt(0) >= 48 && alias[0].charCodeAt(0) <= 57) {
@@ -371,15 +444,15 @@ export class SelectStatement<
     >(
         thisQueryAlias: Alias1,
         t2: Table<Selection2, Alias2>
-    ): JoinClause<
+    ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2
     > =>
-        JoinClause.__fromCrossJoinHead([
+        Joined.__fromCrossJoinHead([
             {
-                code: this.__printProtected(),
+                code: this.__printProtected(true),
                 alias: thisQueryAlias,
             },
             {
@@ -398,20 +471,20 @@ export class SelectStatement<
         thisQueryAlias: Alias1,
         t2Alias: Alias2,
         t2: SelectStatement<With2, Scope2, Selection2>
-    ): JoinClause<
+    ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2
     > =>
-        JoinClause.__fromCrossJoinHead([
+        Joined.__fromCrossJoinHead([
             {
-                code: this.__printProtected(),
+                code: this.__printProtected(true),
                 alias: thisQueryAlias,
             },
             {
-                code: t2.__printProtected(),
+                code: t2.__printProtected(true),
                 alias: t2Alias,
             },
         ]);
@@ -463,17 +536,23 @@ export class SelectStatement<
             : "";
 
         const from =
-            this.__from != null ? `FROM ${this.__from.__printProtected()}` : "";
+            this.__from != null
+                ? `FROM ${this.__from.__printProtected(true)}`
+                : "";
 
         return [`SELECT ${sel}`, from, where, orderBy, limit]
             .filter((it) => it.length > 0)
             .join(" ");
     };
 
-    public __printProtected = (): string => `(${this.printSelectStatement()})`;
+    public __printProtected = (parenthesis: boolean): string =>
+        parenthesis
+            ? `(${this.printSelectStatement()})`
+            : this.printSelectStatement();
 
-    public print = (): string => `${this.printSelectStatement()};`;
+    public print = (): string => `${this.__printProtected(false)};`;
 }
 
 export const fromNothing = SelectStatement.fromNothing;
 export const fromTable = Table.define;
+export const union = Compound.union;

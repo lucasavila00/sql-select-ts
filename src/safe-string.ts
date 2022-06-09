@@ -1,5 +1,5 @@
 import * as Eq from "fp-ts/lib/Eq";
-import { SelectStatement } from "./cla";
+import { Compound, SelectStatement } from "./cla";
 // moment.tz.setDefault("UTC");
 
 export const SafeStringURI = "SafeString" as const;
@@ -29,7 +29,8 @@ export type SqlSupportedTypes =
     | boolean
     | null
     | undefined
-    | SelectStatement<any, any, any>;
+    | SelectStatement<any, any, any>
+    | Compound<any>;
 
 export const escapeIdentifier = (it: string): SafeString =>
     castSafe(escapeNoQuotes(it));
@@ -110,7 +111,9 @@ export const escapeForSql = function (val: any, stringifyObjects = false) {
             if (isSafeString(val)) {
                 return val.content;
             } else if (val instanceof SelectStatement) {
-                return val.__printProtected();
+                return val.__printProtected(true);
+            } else if (val instanceof Compound) {
+                return val.__printProtected(true);
             }
             //  else if (moment.isMoment(val)) {
             //     return dateToString(val);
