@@ -1144,22 +1144,241 @@ describe("sqlite select1", () => {
             r1: max(f.r1),
         }));
 
+        const q = test1
+            .crossJoinQuery("it", subquery)
+            .selectStarOfAliases(["test1"])
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT test1.* FROM test1, (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-11.12 -- select 1 more level", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = test1
+            .crossJoinQuery("it", subquery)
+            .selectStarOfAliases(["test1"])
+            .select((f) => ({
+                a: f.f1,
+                b: f.f2,
+            }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS a, f2 AS b FROM (SELECT test1.* FROM test1, (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 11,
+                "b": 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-11.12 -- no prefixes", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = test1
+            .crossJoinQuery("it", subquery)
+            .selectStarOfAliases(["test1"])
+            .select((f) => ({
+                a: f.f1,
+                b: f.f2,
+                //@ts-expect-error
+                c: f["test1.f1"],
+                //@ts-expect-error
+                d: f["test1.f2"],
+            }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS a, f2 AS b, test1.f1 AS c, test1.f2 AS d FROM (SELECT test1.* FROM test1, (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it);"`
+        );
+        expect(await fail(q)).toMatchInlineSnapshot(
+            `"Error: SQLITE_ERROR: no such column: test1.f1"`
+        );
+    });
+
+    it("select1-11.12 -- knows from which table", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = test1
+            .crossJoinQuery("it", subquery)
+            .selectStarOfAliases(["test1"])
+            .select((f) => ({
+                a: f.f1,
+                //@ts-expect-error
+                e: f.r2,
+                //@ts-expect-error
+                f: f["it.r2"],
+            }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS a, r2 AS e, it.r2 AS f FROM (SELECT test1.* FROM test1, (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it);"`
+        );
+        expect(await fail(q)).toMatchInlineSnapshot(
+            `"Error: SQLITE_ERROR: no such column: r2"`
+        );
+    });
+
+    it("select1-11.13", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = subquery
+            .crossJoinTable("it", test1)
+            .selectStarOfAliases(["test1"])
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT test1.* FROM (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it, test1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-11.13 -- other selection", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = subquery
+            .crossJoinTable("it", test1)
+            .selectStarOfAliases(["it"])
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT it.* FROM (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it, test1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "r1": 1.1,
+                "r2": 2.2,
+              },
+            ]
+        `);
+    });
+
+    it("select1-11.13 -- other selection inversed", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = test1
+            .crossJoinQuery("it", subquery)
+            .selectStarOfAliases(["it"])
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT it.* FROM test1, (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "r1": 1.1,
+                "r2": 2.2,
+              },
+            ]
+        `);
+    });
+    it("select1-11.15", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = subquery
+            .crossJoinTable("it", test1)
+            .selectStarOfAliases(["it", "test1"])
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT it.*, test1.* FROM (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it, test1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+                "r1": 1.1,
+                "r2": 2.2,
+              },
+            ]
+        `);
+    });
+
+    it("select1-11.15 -- distinct", async () => {
+        const subquery = test2.select((f) => ({
+            r2: max(f.r2),
+            r1: max(f.r1),
+        }));
+
+        const q = subquery
+            .crossJoinTable("it", test1)
+            .selectStarOfAliases(["it", "test1"], { distinct: true })
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT DISTINCT it.*, test1.* FROM (SELECT max(r2) AS r2, max(r1) AS r1 FROM test2) AS it, test1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+                "r1": 1.1,
+                "r2": 2.2,
+              },
+            ]
+        `);
+    });
+    it("select1-17.2", async () => {
+        const subquery = test2
+            .selectStar()
+            .where((f) => sql`${f.r2} = 2`)
+            .orderBy((f) => sql`${f.r1},${f.r2}`)
+            .limit(4);
+
         const q = test1.crossJoinQuery("it", subquery).selectStar().print();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT 1 AS \`1\` FROM test1, test2 WHERE (SELECT 2 AS \`2\` FROM test2 WHERE (SELECT 3 AS it FROM (SELECT f1 AS f1 FROM test1 WHERE f1 = f2) WHERE f1 > it OR f1 = it));"`
+            `"SELECT * FROM test1, (SELECT * FROM test2 WHERE r2 = 2 ORDER BY r1,r2 LIMIT 4) AS it;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
-
-    // sub query as table
-    //
-    // select1-11.13
-    // select1-11.14
-    // select1-11.15
-    // select1-11.16
-    // select1-17.2
-    // select1-17.3
 
     // union
     // select1-6.10
@@ -1167,6 +1386,9 @@ describe("sqlite select1", () => {
     // select1-12.5
     // select1-12.6
     // select1-6.21
+
+    // sub query as table && union
+    // select1-17.3
 
     // compound && subquery && union
     // select1-12.9

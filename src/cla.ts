@@ -14,7 +14,8 @@ const proxy = new Proxy(
         },
     }
 );
-const StarSymbolURI = "*" as const;
+
+const StarSymbolURI = "StarSymbolURI" as const;
 type StarSymbol = { _tag: typeof StarSymbolURI; distinct: boolean };
 
 type SelectStarArgs = {
@@ -23,6 +24,22 @@ type SelectStarArgs = {
 const StarSymbol = ({ distinct = false }: SelectStarArgs = {}): StarSymbol => ({
     _tag: StarSymbolURI,
     distinct,
+});
+
+const StarOfAliasSymbolURI = "StarOfAliasSymbol" as const;
+type StarOfAliasSymbol = {
+    _tag: typeof StarOfAliasSymbolURI;
+    distinct: boolean;
+    aliases: string[];
+};
+
+const StarOfAliasesSymbol = (
+    aliases: string[],
+    { distinct = false }: SelectStarArgs = {}
+): StarOfAliasSymbol => ({
+    _tag: StarOfAliasSymbolURI,
+    distinct,
+    aliases,
 });
 
 const AliasedRowsURI = "AliasedRows" as const;
@@ -35,11 +52,18 @@ type CrossJoinHead = {
     code: string;
     alias: string;
 }[];
+
+type FilterFromAlias<
+    Alias extends string,
+    Selection extends string
+> = Selection extends `${Alias}.${infer R}` ? R : never;
+
 class JoinClause<Selection extends string, Aliases extends string> {
     private constructor(private __crossJoins: CrossJoinHead) {}
 
-    public static __fromCrossJoinHead = (crossJoins: CrossJoinHead) =>
-        new JoinClause(crossJoins);
+    public static __fromCrossJoinHead = (
+        crossJoins: CrossJoinHead
+    ): JoinClause<any, any> => new JoinClause(crossJoins);
 
     public select = <NewSelection extends string>(
         f: (
@@ -54,6 +78,18 @@ class JoinClause<Selection extends string, Aliases extends string> {
         args?: SelectStarArgs
     ): SelectStatement<never, Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
+
+    public selectStarOfAliases = <TheAliases extends Aliases>(
+        aliases: TheAliases[],
+        args?: SelectStarArgs
+    ): SelectStatement<
+        never,
+        FilterFromAlias<TheAliases, Selection>,
+        FilterFromAlias<TheAliases, Selection>
+    > =>
+        SelectStatement.__fromTableOrSubquery(this, [
+            StarOfAliasesSymbol(aliases, args),
+        ]);
 
     public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
         t2: Table<Selection2, Alias2>
@@ -152,7 +188,7 @@ class Table<Selection extends string, Alias extends string> {
         Selection2 extends string,
         Alias2 extends string
     >(
-        alias: Alias2,
+        aliasOfQuery: Alias2,
         t2: SelectStatement<With2, Scope2, Selection2>
     ): JoinClause<
         | Exclude<Selection, Selection2>
@@ -167,7 +203,7 @@ class Table<Selection extends string, Alias extends string> {
             },
             {
                 code: t2.__printProtected(),
-                alias: alias,
+                alias: aliasOfQuery,
             },
         ]);
 
@@ -208,6 +244,7 @@ const makeArray = <T>(it: T | T[]): T[] => {
 type SelectStatementSelection<Selection extends string> = (
     | AliasedRows<Selection>
     | StarSymbol
+    | StarOfAliasSymbol
 )[];
 
 export class SelectStatement<
@@ -388,6 +425,13 @@ export class SelectStatement<
                         return ["DISTINCT *"];
                     }
                     return ["*"];
+                }
+                if (it._tag === StarOfAliasSymbolURI) {
+                    const content = it.aliases.map((alias) => `${alias}.*`);
+                    if (it.distinct) {
+                        return [`DISTINCT ${content.join(", ")}`];
+                    }
+                    return content;
                 }
                 // check if the proxy was returned in an identity function
                 if ((it.content as any)?.SQL_PROXY_TARGET != null) {
