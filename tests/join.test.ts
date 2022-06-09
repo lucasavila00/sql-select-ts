@@ -1,12 +1,11 @@
-import { SelectStatement, Table } from "../src/cla";
-import { SafeString, sql } from "../src/safe-string";
+import { fromTable } from "../src";
 import { configureSqlite } from "./utils";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/join.test
 
 describe("sqlite join", () => {
-    const t1 = Table.define(["a", "b", "c"], "t1");
-    const t2 = Table.define(["b", "c", "d"], "t2");
+    const t1 = fromTable(["a", "b", "c"], "t1");
+    const t2 = fromTable(["b", "c", "d"], "t2");
 
     const { run, fail } = configureSqlite();
 

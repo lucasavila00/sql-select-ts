@@ -23,28 +23,29 @@ type AliasedRows<Selection extends string> = {
     content: Record<Selection, SafeString>;
 };
 
-type JoinNames = {
+type CrossJoinHead = {
     code: string;
     alias: string;
 }[];
 class JoinClause<Selection extends string> {
-    private constructor(private names: JoinNames) {}
+    private constructor(private __crossJoins: CrossJoinHead) {}
 
-    public static fromNames = (names: JoinNames) => new JoinClause(names);
+    public static __fromCrossJoinHead = (crossJoins: CrossJoinHead) =>
+        new JoinClause(crossJoins);
 
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection, SafeString>
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
-        SelectStatement.fromTableOrSubquery(this, [
+        SelectStatement.__fromTableOrSubquery(this, [
             { _tag: AliasedRowsURI, content: f(proxy as any) },
         ]);
 
     public selectStar = (
         distinct: boolean = false
     ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.fromTableOrSubquery(this, [
+        SelectStatement.__fromTableOrSubquery(this, [
             { _tag: StarSymbolURI, distinct },
         ]);
 
@@ -53,11 +54,11 @@ class JoinClause<Selection extends string> {
     ): JoinClause<
         Exclude<Selection, Selection2> | Exclude<Selection2, Selection>
     > =>
-        JoinClause.fromNames([
-            ...this.names,
+        JoinClause.__fromCrossJoinHead([
+            ...this.__crossJoins,
             {
-                code: t2.name,
-                alias: t2.alias,
+                code: t2.__name,
+                alias: t2.__alias,
             },
         ]);
 
@@ -74,16 +75,16 @@ class JoinClause<Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
     > =>
-        JoinClause.fromNames([
-            ...this.names,
+        JoinClause.__fromCrossJoinHead([
+            ...this.__crossJoins,
             {
-                code: t2.printProtected(),
+                code: t2.__printProtected(),
                 alias: alias,
             },
         ]);
 
-    public printProtected = (): string =>
-        this.names
+    public __printProtected = (): string =>
+        this.__crossJoins
             .map((it) => {
                 if (it.code === it.alias) {
                     return it.code;
@@ -93,33 +94,31 @@ class JoinClause<Selection extends string> {
             .join(", ");
 }
 
-export class Table<Selection extends string> {
-    private constructor(public alias: string, public name: string) {}
+class Table<Selection extends string> {
+    private constructor(public __alias: string, public __name: string) {}
 
     public static define = <
         Selection extends string,
         Alias extends string = never
     >(
-        columns: Selection[],
+        _columns: Selection[],
         alias: Alias,
         name: string = alias
     ): Table<Selection | `${Alias}.${Selection}`> => new Table(alias, name);
-
-    private copy = (): Table<Selection> => new Table(this.alias, this.name);
 
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection, SafeString>
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
-        SelectStatement.fromTableOrSubquery(this, [
+        SelectStatement.__fromTableOrSubquery(this, [
             { _tag: AliasedRowsURI, content: f(proxy as any) },
         ]);
 
     public selectStar = (
         distinct: boolean = false
     ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.fromTableOrSubquery(this, [
+        SelectStatement.__fromTableOrSubquery(this, [
             { _tag: StarSymbolURI, distinct },
         ]);
 
@@ -128,14 +127,14 @@ export class Table<Selection extends string> {
     ): JoinClause<
         Exclude<Selection, Selection2> | Exclude<Selection2, Selection>
     > =>
-        JoinClause.fromNames([
+        JoinClause.__fromCrossJoinHead([
             {
-                code: this.name,
-                alias: this.alias,
+                code: this.__name,
+                alias: this.__alias,
             },
             {
-                code: t2.name,
-                alias: t2.alias,
+                code: t2.__name,
+                alias: t2.__alias,
             },
         ]);
 
@@ -152,22 +151,22 @@ export class Table<Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
     > =>
-        JoinClause.fromNames([
+        JoinClause.__fromCrossJoinHead([
             {
-                code: this.name,
-                alias: this.alias,
+                code: this.__name,
+                alias: this.__alias,
             },
             {
-                code: t2.printProtected(),
+                code: t2.__printProtected(),
                 alias: alias,
             },
         ]);
 
-    public printProtected = (): string => {
-        if (this.name === this.alias) {
-            return this.name;
+    public __printProtected = (): string => {
+        if (this.__name === this.__alias) {
+            return this.__name;
         }
-        return `${this.name} AS ${wrapAlias(this.alias)}`;
+        return `${this.__name} AS ${wrapAlias(this.__alias)}`;
     };
 }
 
@@ -200,20 +199,21 @@ type SelectStatementSelection<Selection extends string> = (
     | AliasedRows<Selection>
     | StarSymbol
 )[];
+
 export class SelectStatement<
     With extends string,
     Scope extends string,
     Selection extends string
 > {
     private constructor(
-        public from_: TableOrSubquery<any, any, any> | null,
-        public selection_: SelectStatementSelection<Selection>,
-        public orderBy_: SafeString[],
-        public limit_: SafeString | number | null,
-        public where_: SafeString[]
+        public __from: TableOrSubquery<any, any, any> | null,
+        public __selection: SelectStatementSelection<Selection>,
+        public __orderBy: SafeString[],
+        public __limit: SafeString | number | null,
+        public __where: SafeString[]
     ) {}
 
-    public static fromTableOrSubquery = <
+    public static __fromTableOrSubquery = <
         With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
@@ -249,11 +249,11 @@ export class SelectStatement<
 
     private copy = (): SelectStatement<With, Scope, Selection> =>
         new SelectStatement(
-            this.from_,
-            this.selection_,
-            this.orderBy_,
-            this.limit_,
-            this.where_
+            this.__from,
+            this.__selection,
+            this.__orderBy,
+            this.__limit,
+            this.__where
         );
 
     public select = <NewSelection extends string>(
@@ -261,14 +261,14 @@ export class SelectStatement<
             f: Record<Selection, SafeString>
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
-        SelectStatement.fromTableOrSubquery(this, [
+        SelectStatement.__fromTableOrSubquery(this, [
             { _tag: AliasedRowsURI, content: f(proxy as any) },
         ]);
 
     public selectStar = (
         distinct: boolean = false
     ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.fromTableOrSubquery(this, [
+        SelectStatement.__fromTableOrSubquery(this, [
             { _tag: StarSymbolURI, distinct },
         ]);
 
@@ -276,8 +276,8 @@ export class SelectStatement<
         distinct: boolean = false
     ): SelectStatement<never, Selection, Selection> => {
         const t = this.copy();
-        t.selection_ = [
-            ...t.selection_,
+        t.__selection = [
+            ...t.__selection,
             {
                 _tag: StarSymbolURI,
                 distinct,
@@ -292,8 +292,8 @@ export class SelectStatement<
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<With, Scope, Selection | NewSelection> => {
         const t = this.copy();
-        t.selection_ = [
-            ...(t.selection_ as any),
+        t.__selection = [
+            ...(t.__selection as any),
             {
                 _tag: AliasedRowsURI,
                 content: f(proxy as any),
@@ -301,13 +301,14 @@ export class SelectStatement<
         ];
         return t as any;
     };
+
     public where = (
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
     ): SelectStatement<With, Scope, Selection> => {
         const t = this.copy();
-        t.where_ = [...t.where_, ...makeArray(f(proxy as any))];
+        t.__where = [...t.__where, ...makeArray(f(proxy as any))];
         return t;
     };
 
@@ -317,14 +318,15 @@ export class SelectStatement<
         ) => SafeString[] | SafeString
     ): SelectStatement<With, Scope, Selection> => {
         const t = this.copy();
-        t.orderBy_ = [...t.orderBy_, ...makeArray(f(proxy as any))];
+        t.__orderBy = [...t.__orderBy, ...makeArray(f(proxy as any))];
         return t;
     };
+
     public limit = (
         limit: SafeString | number
     ): SelectStatement<With, Scope, Selection> => {
         const t = this.copy();
-        t.limit_ = limit;
+        t.__limit = limit;
         return t;
     };
 
@@ -336,14 +338,14 @@ export class SelectStatement<
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection}`
     > =>
-        JoinClause.fromNames([
+        JoinClause.__fromCrossJoinHead([
             {
-                code: this.printProtected(),
+                code: this.__printProtected(),
                 alias: thisQueryAlias,
             },
             {
-                code: t2.name,
-                alias: t2.alias,
+                code: t2.__name,
+                alias: t2.__alias,
             },
         ]);
 
@@ -363,20 +365,20 @@ export class SelectStatement<
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`
     > =>
-        JoinClause.fromNames([
+        JoinClause.__fromCrossJoinHead([
             {
-                code: this.printProtected(),
+                code: this.__printProtected(),
                 alias: thisQueryAlias,
             },
             {
-                code: t2.printProtected(),
+                code: t2.__printProtected(),
                 alias: t2Alias,
             },
         ]);
 
     private printSelectStatement = (): string => {
         const sel = pipe(
-            this.selection_,
+            this.__selection,
             A.chain((it) => {
                 if (it._tag === StarSymbolURI) {
                     if (it.distinct) {
@@ -396,29 +398,35 @@ export class SelectStatement<
         );
 
         const where =
-            this.where_.length > 0
-                ? `WHERE ${this.where_.map((it) => it.content).join(" AND ")}`
+            this.__where.length > 0
+                ? `WHERE ${this.__where.map((it) => it.content).join(" AND ")}`
                 : "";
 
         const orderBy =
-            this.orderBy_.length > 0
-                ? `ORDER BY ${this.orderBy_.map((it) => it.content).join(", ")}`
+            this.__orderBy.length > 0
+                ? `ORDER BY ${this.__orderBy
+                      .map((it) => it.content)
+                      .join(", ")}`
                 : "";
 
-        const limit = this.limit_
-            ? isNumber(this.limit_)
-                ? `LIMIT ${this.limit_}`
-                : `LIMIT ${this.limit_.content}`
+        const limit = this.__limit
+            ? isNumber(this.__limit)
+                ? `LIMIT ${this.__limit}`
+                : `LIMIT ${this.__limit.content}`
             : "";
 
         const from =
-            this.from_ != null ? `FROM ${this.from_.printProtected()}` : "";
+            this.__from != null ? `FROM ${this.__from.__printProtected()}` : "";
 
         return [`SELECT ${sel}`, from, where, orderBy, limit]
             .filter((it) => it.length > 0)
             .join(" ");
     };
-    public printProtected = (): string => `(${this.printSelectStatement()})`;
+
+    public __printProtected = (): string => `(${this.printSelectStatement()})`;
 
     public print = (): string => `${this.printSelectStatement()};`;
 }
+
+export const fromNothing = SelectStatement.fromNothing;
+export const fromTable = Table.define;

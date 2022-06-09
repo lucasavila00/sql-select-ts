@@ -110,7 +110,7 @@ export const escapeForSql = function (val: any, stringifyObjects = false) {
             if (isSafeString(val)) {
                 return val.content;
             } else if (val instanceof SelectStatement) {
-                return val.printProtected();
+                return val.__printProtected();
             }
             //  else if (moment.isMoment(val)) {
             //     return dateToString(val);
