@@ -777,10 +777,10 @@ describe("sqlite select1", () => {
         const q = Table.define(["f1", "f2"], "a", "test1")
             .crossJoinQuery(
                 "it",
-                SelectStatement.fromNothing().appendSelect((_f) => ({
+                SelectStatement.fromNothing({
                     ["5"]: sql(5),
                     ["6"]: sql(6),
-                }))
+                })
             )
             .selectStar()
             .limit(1)
@@ -804,10 +804,10 @@ describe("sqlite select1", () => {
         const q = Table.define(["f1", "f2"], "a", "test1")
             .crossJoinQuery(
                 "b",
-                SelectStatement.fromNothing().appendSelect((_f) => ({
+                SelectStatement.fromNothing({
                     x: sql(5),
                     y: sql(6),
-                }))
+                })
             )
             .selectStar()
             .limit(1)
@@ -831,10 +831,10 @@ describe("sqlite select1", () => {
         const q = Table.define(["f1", "f2"], "a", "test1")
             .crossJoinQuery(
                 "b",
-                SelectStatement.fromNothing().appendSelect((_f) => ({
+                SelectStatement.fromNothing({
                     x: sql(5),
                     y: sql(6),
-                }))
+                })
             )
             .select((f) => ({
                 a: f["a.f1"],
@@ -881,11 +881,9 @@ describe("sqlite select1", () => {
     });
     it("select1-15.3", async () => {
         const subquery = test1.select((f) => ({ f1: f.f1 }));
-        const q = SelectStatement.fromNothing()
-            .appendSelect((_f) => ({
-                it: sql`2 IN ${subquery}`,
-            }))
-            .print();
+        const q = SelectStatement.fromNothing({
+            it: sql`2 IN ${subquery}`,
+        }).print();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT 2 IN (SELECT f1 AS f1 FROM test1) AS it;"`
@@ -948,16 +946,122 @@ describe("sqlite select1", () => {
     });
 
     it("select1-12.8", async () => {
-        const subquery = SelectStatement.fromNothing().appendSelect((f) => ({
-            "2": sql(2),
-        }));
+        const subquery = SelectStatement.fromNothing({
+            it: sql(11),
+        });
         const q = test1
             .selectStar()
             .where((f) => sql`${f.f1} = ${subquery}`)
             .print();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM test1 WHERE f1 = (SELECT 2 AS \`2\`);"`
+            `"SELECT * FROM test1 WHERE f1 = (SELECT 11 AS it);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+    it("select1-12.1", async () => {
+        const q = SelectStatement.fromNothing({
+            it: sql`1+2+3`,
+        }).print();
+
+        expect(q).toMatchInlineSnapshot(`"SELECT 1+2+3 AS it;"`);
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "it": 6,
+              },
+            ]
+        `);
+    });
+    it("select1-12.2", async () => {
+        const q = SelectStatement.fromNothing({
+            ["1"]: sql(1),
+            hello: sql("hello"),
+            ["2"]: sql(2),
+        }).print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT 1 AS \`1\`, 2 AS \`2\`, 'hello' AS hello;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "1": 1,
+                "2": 2,
+                "hello": "hello",
+              },
+            ]
+        `);
+    });
+    it("select1-12.3", async () => {
+        const q = SelectStatement.fromNothing({
+            a: sql(1),
+            b: sql("hello"),
+            c: sql(2),
+        }).print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT 1 AS a, 'hello' AS b, 2 AS c;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": "hello",
+                "c": 2,
+              },
+            ]
+        `);
+    });
+
+    it("select1-18.3", async () => {
+        const subquery = test1
+            .select((f) => ({ f1: f.f1 }))
+            .where((f) => sql`${f.f1} = ${f.f2}`)
+            .select((_f) => ({ it: sql(3) }))
+            .where((f) => sql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
+
+        const subquery2 = test2
+            .select((f) => ({ ["2"]: sql(2) }))
+            .where((f) => sql`${subquery}`);
+
+        const q = test1
+            .select((f) => ({ ["1"]: sql(1) }))
+            .where((f) => sql`${subquery2}`)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT 1 AS \`1\` FROM test1 WHERE (SELECT 2 AS \`2\` FROM test2 WHERE (SELECT 3 AS it FROM (SELECT f1 AS f1 FROM test1 WHERE f1 = f2) WHERE f1 > it OR f1 = it));"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("select1-18.4", async () => {
+        const subquery = test1
+            .select((f) => ({ f1: f.f1 }))
+            .where((f) => sql`${f.f1} = ${f.f2}`)
+            .select((_f) => ({ it: sql(3) }))
+            .where((f) => sql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
+
+        const subquery2 = test2
+            .select((f) => ({ ["2"]: sql(2) }))
+            .where((f) => sql`${subquery}`);
+
+        const q = test1
+            .crossJoinTable(test2)
+            .select((f) => ({ ["1"]: sql(1) }))
+            .where((f) => sql`${subquery2}`)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT 1 AS \`1\` FROM test1, test2 WHERE (SELECT 2 AS \`2\` FROM test2 WHERE (SELECT 3 AS it FROM (SELECT f1 AS f1 FROM test1 WHERE f1 = f2) WHERE f1 > it OR f1 = it));"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -971,24 +1075,14 @@ describe("sqlite select1", () => {
     // select1-17.2
     // select1-17.3
 
-    // compound && subquery
-    // select1-12.9
-    // select1-12.10
-
-    // nested where
-    // select1-18.3
-    // select1-18.4
-
-    // from nothing
-    // select1-12.1
-    // select1-12.2
-    // select1-12.3
-    // select1-12.4
-
     // union
     // select1-6.10
     // select1-6.11
     // select1-12.5
     // select1-12.6
     // select1-6.21
+
+    // compound && subquery && union
+    // select1-12.9
+    // select1-12.10
 });

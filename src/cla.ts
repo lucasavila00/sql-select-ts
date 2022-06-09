@@ -63,16 +63,6 @@ export class Table<Selection extends string> {
             []
         );
 
-    public printProtected = (): string =>
-        this.names
-            .map((it) => {
-                if (it.name === it.alias) {
-                    return it.name;
-                }
-                return `${it.name} AS ${wrapAlias(it.alias)}`;
-            })
-            .join(", ");
-
     public crossJoinTable = <Selection2 extends string>(
         t2: Table<Selection2>
     ): Table<
@@ -100,6 +90,16 @@ export class Table<Selection extends string> {
         t.names = [...t.names, { alias, name: t2.printProtected() }];
         return t as any;
     };
+
+    public printProtected = (): string =>
+        this.names
+            .map((it) => {
+                if (it.name === it.alias) {
+                    return it.name;
+                }
+                return `${it.name} AS ${wrapAlias(it.alias)}`;
+            })
+            .join(", ");
 }
 
 type TableOrSubquery<
@@ -137,8 +137,21 @@ export class SelectStatement<
         public where_: SafeString[]
     ) {}
 
-    public static fromNothing = (): SelectStatement<never, never, never> =>
-        new SelectStatement(null, [], [], null, []);
+    public static fromNothing = <NewSelection extends string>(
+        it: Record<NewSelection, SafeString>
+    ): SelectStatement<never, never, NewSelection> =>
+        new SelectStatement(
+            null,
+            [
+                {
+                    _tag: AliasedRowsURI,
+                    content: it,
+                },
+            ],
+            [],
+            null,
+            []
+        );
 
     private copy = (): SelectStatement<With, Scope, Selection> =>
         new SelectStatement(
@@ -149,50 +162,19 @@ export class SelectStatement<
             this.where_
         );
 
-    private printSelectStatement = (): string => {
-        const sel = pipe(
-            this.selection_,
-            A.chain((it) => {
-                if (it._tag === StarSymbolURI) {
-                    if (it.distinct) {
-                        return ["DISTINCT *"];
-                    }
-                    return ["*"];
-                }
-                // check if the proxy was returned in an identity function
-                if ((it.content as any)?.SQL_PROXY_TARGET != null) {
-                    return ["*"];
-                }
-                return Object.entries(it.content).map(([k, v]) => {
-                    return `${(v as SafeString).content} AS ${wrapAlias(k)}`;
-                });
-            }),
-            (it) => it.join(", ")
+    public select = <NewSelection extends string>(
+        f: (
+            f: Record<Selection, SafeString>
+        ) => Record<NewSelection, SafeString>
+    ): SelectStatement<never, Selection, NewSelection> =>
+        new SelectStatement(
+            //
+            this,
+            [{ _tag: AliasedRowsURI, content: f(proxy as any) }],
+            [],
+            null,
+            []
         );
-
-        const where =
-            this.where_.length > 0
-                ? `WHERE ${this.where_.map((it) => it.content).join(" AND ")}`
-                : "";
-
-        const orderBy =
-            this.orderBy_.length > 0
-                ? `ORDER BY ${this.orderBy_.map((it) => it.content).join(", ")}`
-                : "";
-
-        const limit = this.limit_
-            ? isNumber(this.limit_)
-                ? `LIMIT ${this.limit_}`
-                : `LIMIT ${this.limit_.content}`
-            : "";
-
-        const from =
-            this.from_ != null ? `FROM ${this.from_.printProtected()}` : "";
-
-        return [`SELECT ${sel}`, from, where, orderBy, limit]
-            .filter((it) => it.length > 0)
-            .join(" ");
-    };
 
     public selectStar = (
         distinct: boolean = false
@@ -262,6 +244,50 @@ export class SelectStatement<
         return t;
     };
 
+    private printSelectStatement = (): string => {
+        const sel = pipe(
+            this.selection_,
+            A.chain((it) => {
+                if (it._tag === StarSymbolURI) {
+                    if (it.distinct) {
+                        return ["DISTINCT *"];
+                    }
+                    return ["*"];
+                }
+                // check if the proxy was returned in an identity function
+                if ((it.content as any)?.SQL_PROXY_TARGET != null) {
+                    return ["*"];
+                }
+                return Object.entries(it.content).map(([k, v]) => {
+                    return `${(v as SafeString).content} AS ${wrapAlias(k)}`;
+                });
+            }),
+            (it) => it.join(", ")
+        );
+
+        const where =
+            this.where_.length > 0
+                ? `WHERE ${this.where_.map((it) => it.content).join(" AND ")}`
+                : "";
+
+        const orderBy =
+            this.orderBy_.length > 0
+                ? `ORDER BY ${this.orderBy_.map((it) => it.content).join(", ")}`
+                : "";
+
+        const limit = this.limit_
+            ? isNumber(this.limit_)
+                ? `LIMIT ${this.limit_}`
+                : `LIMIT ${this.limit_.content}`
+            : "";
+
+        const from =
+            this.from_ != null ? `FROM ${this.from_.printProtected()}` : "";
+
+        return [`SELECT ${sel}`, from, where, orderBy, limit]
+            .filter((it) => it.length > 0)
+            .join(" ");
+    };
     public printProtected = (): string => `(${this.printSelectStatement()})`;
 
     public print = (): string => `${this.printSelectStatement()};`;
