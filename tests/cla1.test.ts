@@ -1,5 +1,5 @@
 import sqlite from "sqlite3";
-import { Table } from "../src/cla";
+import { SelectStatement, Table } from "../src/cla";
 import { SafeString, sql } from "../src/safe-string";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
@@ -657,7 +657,7 @@ describe("sqlite select1", () => {
             .print();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS 'xyzzy ' FROM test1 ORDER BY f2;"`
+            `"SELECT f1 AS \`xyzzy \` FROM test1 ORDER BY f2;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -767,4 +767,151 @@ describe("sqlite select1", () => {
             ]
         `);
     });
+    it("select1-6.9.7", async () => {
+        const q = Table.define(["f1", "f2"], "a", "test1")
+            .crossJoinQuery(
+                "it",
+                SelectStatement.fromNothing().appendSelect((_f) => ({
+                    ["5"]: sql(5),
+                    ["6"]: sql(6),
+                }))
+            )
+            .selectStar()
+            .limit(1)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1 AS a, (SELECT 5 AS \`5\`, 6 AS \`6\`) AS it LIMIT 1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "5": 5,
+                "6": 6,
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+    it("select1-6.9.8", async () => {
+        const q = Table.define(["f1", "f2"], "a", "test1")
+            .crossJoinQuery(
+                "b",
+                SelectStatement.fromNothing().appendSelect((_f) => ({
+                    ["x"]: sql(5),
+                    ["y"]: sql(6),
+                }))
+            )
+            .selectStar()
+            .limit(1)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1 AS a, (SELECT 5 AS x, 6 AS y) AS b LIMIT 1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+                "x": 5,
+                "y": 6,
+              },
+            ]
+        `);
+    });
+    it("select1-6.9.8 -- use alias", async () => {
+        const q = Table.define(["f1", "f2"], "a", "test1")
+            .crossJoinQuery(
+                "b",
+                SelectStatement.fromNothing().appendSelect((_f) => ({
+                    ["x"]: sql(5),
+                    ["y"]: sql(6),
+                }))
+            )
+            .select((f) => ({
+                a: f["a.f1"],
+                b: f.x,
+                b2: f["b.y"],
+            }))
+            .limit(1)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a.f1 AS a, x AS b, b.y AS b2 FROM test1 AS a, (SELECT 5 AS x, 6 AS y) AS b LIMIT 1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 11,
+                "b": 5,
+                "b2": 6,
+              },
+            ]
+        `);
+    });
+    it("select1-6.9.9", async () => {
+        const q = Table.define(["f1", "f2"], "a", "test1")
+            .crossJoinTable(Table.define(["f1", "f2"], "b", "test1"))
+            .select((f) => ({
+                f1: f["a.f1"],
+                f2: f["b.f2"],
+            }))
+            .limit(1)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a.f1 AS f1, b.f2 AS f2 FROM test1 AS a, test1 AS b LIMIT 1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+
+    // wrap
+    // select1-15.3
+
+    // IN compound
+    // select1-6.21
+
+    // subquery
+    // select1-9.3
+    // select1-9.4
+    // select1-9.5
+    // select1-12.8
+
+    // sub query as table
+    // select1-11.12
+    // select1-11.13
+    // select1-11.14
+    // select1-11.15
+    // select1-11.16
+    // select1-17.2
+    // select1-17.3
+
+    // compound && subquery
+    // select1-12.9
+    // select1-12.10
+
+    // nested where
+    // select1-18.3
+    // select1-18.4
+
+    // from nothing
+    // select1-12.1
+    // select1-12.2
+    // select1-12.3
+    // select1-12.4
+
+    // union
+    // select1-6.10
+    // select1-6.11
+    // select1-12.5
+    // select1-12.6
 });

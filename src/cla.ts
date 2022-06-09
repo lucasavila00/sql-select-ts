@@ -1,5 +1,5 @@
 import { castSafe, SafeString } from "./safe-string";
-import { pipe } from "fp-ts/lib/function";
+import { hole, pipe } from "fp-ts/lib/function";
 import * as A from "fp-ts/lib/Array";
 import { isNumber } from "fp-ts/lib/number";
 
@@ -79,7 +79,25 @@ export class Table<Selection extends string> {
         Exclude<Selection, Selection2> | Exclude<Selection2, Selection>
     > => {
         const t = this.copy();
-        t.names = [...this.names, ...t2.names];
+        t.names = [...t.names, ...t2.names];
+        return t as any;
+    };
+
+    public crossJoinQuery = <
+        With2 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        alias: Alias2,
+        t2: SelectStatement<With2, Scope2, Selection2>
+    ): Table<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+    > => {
+        const t = this.copy();
+        t.names = [...t.names, { alias, name: t2.printProtected() }];
         return t as any;
     };
 }
@@ -91,8 +109,11 @@ type TableOrSubquery<
 > = SelectStatement<With, Scope, Selection> | Table<Selection>;
 
 const wrapAlias = (alias: string) => {
+    if (alias[0].charCodeAt(0) >= 48 && alias[0].charCodeAt(0) <= 57) {
+        return `\`${alias}\``;
+    }
     if (alias.includes(" ")) {
-        return `'${alias}'`;
+        return `\`${alias}\``;
     }
     return alias;
 };
@@ -102,19 +123,22 @@ const makeArray = <T>(it: T | T[]): T[] => {
     }
     return [it];
 };
-class SelectStatement<
+export class SelectStatement<
     With extends string,
     Scope extends string,
     Selection extends string
 > {
     constructor(
-        public from_: TableOrSubquery<any, any, any>,
+        public from_: TableOrSubquery<any, any, any> | null,
         //    | JoinClause<any, any>;
         public selection_: (AliasedRows<Selection> | StarSymbol)[],
         public orderBy_: SafeString[],
         public limit_: SafeString | number | null,
         public where_: SafeString[]
     ) {}
+
+    public static fromNothing = (): SelectStatement<never, never, never> =>
+        new SelectStatement(null, [], [], null, []);
 
     private copy = (): SelectStatement<With, Scope, Selection> =>
         new SelectStatement(
@@ -162,13 +186,10 @@ class SelectStatement<
                 : `LIMIT ${this.limit_.content}`
             : "";
 
-        return [
-            `SELECT ${sel}`,
-            `FROM ${this.from_.printProtected()}`,
-            where,
-            orderBy,
-            limit,
-        ]
+        const from =
+            this.from_ != null ? `FROM ${this.from_.printProtected()}` : "";
+
+        return [`SELECT ${sel}`, from, where, orderBy, limit]
             .filter((it) => it.length > 0)
             .join(" ");
     };
