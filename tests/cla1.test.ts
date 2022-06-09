@@ -9,7 +9,7 @@ describe("sqlite select1", () => {
 
     const test1_dup = Table.define(["f1", "f2"], "test1_dup");
     const test2 = Table.define(["r1", "r2"], "test2");
-    const fromTest3 = Table.define(["r1", "r2"], "test3");
+    const t6 = Table.define(["a", "b"], "t6");
 
     const fromTest1And2 = test1.crossJoinTable(test2);
 
@@ -43,6 +43,12 @@ describe("sqlite select1", () => {
         await run(`CREATE TABLE test3(r1 real, r2 real)`);
         await run(`INSERT INTO test3(r1,r2) VALUES(1.1,2.2)`);
         await run(`INSERT INTO test3(r1,r2) VALUES(11.11,22.22)`);
+
+        await run(`CREATE TABLE t6(a TEXT, b TEXT);`);
+        await run(`INSERT INTO t6 VALUES('a','0');`);
+        await run(`INSERT INTO t6 VALUES('b','1');`);
+        await run(`INSERT INTO t6 VALUES('c','2');`);
+        await run(`INSERT INTO t6 VALUES('d','3');`);
     });
 
     it("select1-1.4", async () => {
@@ -799,8 +805,8 @@ describe("sqlite select1", () => {
             .crossJoinQuery(
                 "b",
                 SelectStatement.fromNothing().appendSelect((_f) => ({
-                    ["x"]: sql(5),
-                    ["y"]: sql(6),
+                    x: sql(5),
+                    y: sql(6),
                 }))
             )
             .selectStar()
@@ -826,8 +832,8 @@ describe("sqlite select1", () => {
             .crossJoinQuery(
                 "b",
                 SelectStatement.fromNothing().appendSelect((_f) => ({
-                    ["x"]: sql(5),
-                    ["y"]: sql(6),
+                    x: sql(5),
+                    y: sql(6),
                 }))
             )
             .select((f) => ({
@@ -873,18 +879,88 @@ describe("sqlite select1", () => {
             ]
         `);
     });
+    it("select1-15.3", async () => {
+        const subquery = test1.select((f) => ({ f1: f.f1 }));
+        const q = SelectStatement.fromNothing()
+            .appendSelect((_f) => ({
+                it: sql`2 IN ${subquery}`,
+            }))
+            .print();
 
-    // wrap
-    // select1-15.3
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT 2 IN (SELECT f1 AS f1 FROM test1) AS it;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "it": 0,
+              },
+            ]
+        `);
+    });
+    it("select1-6.21 -- no union", async () => {
+        const subquery = t6
+            .select((f) => ({ b: f.b }))
+            .where((f) => sql`a<='b'`);
 
-    // IN compound
-    // select1-6.21
+        const q = t6
+            .select((f) => ({ a: f.a }))
+            .where((f) => sql`${f.b} IN ${subquery}`)
+            .print();
 
-    // subquery
-    // select1-9.3
-    // select1-9.4
-    // select1-9.5
-    // select1-12.8
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a AS a FROM t6 WHERE b IN (SELECT b AS b FROM t6 WHERE a<='b');"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": "a",
+              },
+              Object {
+                "a": "b",
+              },
+            ]
+        `);
+    });
+    it("select1-9.3", async () => {
+        const subquery = test2.select((f) => ({ c: sql`count(*)` }));
+        const q = test1
+            .selectStar()
+            .where((f) => sql`${f.f1} < ${subquery}`)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1 WHERE f1 < (SELECT count(*) AS c FROM test2);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("select1-9.4", async () => {
+        const subquery = test2.select((f) => ({ c: sql`count(*)` }));
+        const q = test1
+            .selectStar()
+            .where((f) => sql`${f.f1} < ${subquery}`)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1 WHERE f1 < (SELECT count(*) AS c FROM test2);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("select1-12.8", async () => {
+        const subquery = SelectStatement.fromNothing().appendSelect((f) => ({
+            "2": sql(2),
+        }));
+        const q = test1
+            .selectStar()
+            .where((f) => sql`${f.f1} = ${subquery}`)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1 WHERE f1 = (SELECT 2 AS \`2\`);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
 
     // sub query as table
     // select1-11.12
@@ -914,4 +990,5 @@ describe("sqlite select1", () => {
     // select1-6.11
     // select1-12.5
     // select1-12.6
+    // select1-6.21
 });

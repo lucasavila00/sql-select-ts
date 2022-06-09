@@ -1,4 +1,4 @@
-import { castSafe, SafeString } from "./safe-string";
+import { castSafe, SafeString, sql } from "./safe-string";
 import { hole, pipe } from "fp-ts/lib/function";
 import * as A from "fp-ts/lib/Array";
 import { isNumber } from "fp-ts/lib/number";
