@@ -335,6 +335,28 @@ describe("sqlite select1", () => {
             ]
         `);
     });
+    it("select1-1.10 -- collision fixed", async () => {
+        const q = test1
+            .crossJoinTable(test1_dup)
+            .crossJoinTable(test2)
+            .select((f) => ({
+                f1: f["test1.f1"],
+                f2: f["test1_dup.f2"],
+            }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT test1.f1 AS f1, test1_dup.f2 AS f2 FROM test1, test1_dup, test2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
 
     it("select1-1.10", async () => {
         const q = fromTest1And2
@@ -780,6 +802,58 @@ describe("sqlite select1", () => {
                 "6": 6,
                 "f1": 11,
                 "f2": 22,
+              },
+            ]
+        `);
+    });
+    it("select1-6.9.7 -- inverse", async () => {
+        const q = SelectStatement.fromNothing({
+            ["5"]: sql(5),
+            ["6"]: sql(6),
+        })
+            .crossJoinTable("it", Table.define(["f1", "f2"], "a", "test1"))
+            .selectStar()
+            .limit(1)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT 5 AS \`5\`, 6 AS \`6\`) AS it, test1 AS a LIMIT 1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "5": 5,
+                "6": 6,
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+    it("select1-6.9.7 -- 2 queries", async () => {
+        const q = SelectStatement.fromNothing({
+            ["5"]: sql(5),
+            ["6"]: sql(6),
+        })
+            .crossJoinQuery(
+                "it",
+                "it2",
+                SelectStatement.fromNothing({
+                    ["5"]: sql(5),
+                    ["6"]: sql(6),
+                })
+            )
+            .selectStar()
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT 5 AS \`5\`, 6 AS \`6\`) AS it, (SELECT 5 AS \`5\`, 6 AS \`6\`) AS it2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "5": 5,
+                "6": 6,
               },
             ]
         `);
