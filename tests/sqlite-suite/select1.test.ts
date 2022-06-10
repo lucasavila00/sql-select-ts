@@ -167,17 +167,13 @@ describe("sqlite select1", () => {
         `);
     });
 
-    it("select1-1.7 -- identity function", async () => {
-        const q = test1.select((it) => it).print();
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM test1;"`);
-        expect(await run(q)).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "f1": 11,
-                "f2": 22,
-              },
-            ]
-        `);
+    it("select1-1.7 -- identity function is invalid", async () => {
+        const q = test1
+            .select(
+                // @ts-expect-error
+                (it) => it
+            )
+            .print();
     });
 
     it("select1-1.8", async () => {

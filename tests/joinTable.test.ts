@@ -1,6 +1,5 @@
 import { SafeString, sql, table, unionAll } from "../src";
 
-// mostly from https://github.com/sqlite/sqlite/blob/master/test/join.test
 const equals = (a: SafeString, b: SafeString) => sql`${a} = ${b}`;
 
 describe("joinTable", () => {

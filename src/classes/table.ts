@@ -27,7 +27,9 @@ export class Table<Selection extends string, Alias extends string> {
 
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection | `${Alias}.${Selection}`, SafeString>
+            f: Record<Selection | `${Alias}.${Selection}`, SafeString> & {
+                _tag: "CompileError";
+            }
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<
         never,

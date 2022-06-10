@@ -119,10 +119,7 @@ export const printSelectStatementInternal = <
                 }
                 return content;
             }
-            // check if the proxy was returned in an identity function
-            if ((it.content as any)?.SQL_PROXY_TARGET != null) {
-                return ["*"];
-            }
+
             return Object.entries(it.content).map(([k, v]) => {
                 return `${(v as SafeString).content} AS ${wrapAlias(k)}`;
             });
