@@ -1,4 +1,11 @@
-import { fromNothing, fromTable, SafeString, sql, union } from "../src";
+import {
+    fromNothing,
+    fromTable,
+    SafeString,
+    sql,
+    union,
+    unionAll,
+} from "../src";
 import { configureSqlite } from "./utils";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
@@ -44,6 +51,57 @@ describe("sqlite select1", () => {
             Array [
               Object {
                 "f1": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-1.4 -- append", async () => {
+        const q = test1
+            .select((f) => ({ f1: f.f1 }))
+            .appendSelect((f) => ({ f2: f.f2 }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS f1, f2 AS f2 FROM test1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-1.4 -- select from alias", async () => {
+        const q = test1.select((f) => ({ f1: f["test1.f1"] })).print();
+
+        expect(q).toMatchInlineSnapshot(`"SELECT test1.f1 AS f1 FROM test1;"`);
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-1.4 -- append from alias", async () => {
+        const q = test1
+            .select((f) => ({ f1: f["test1.f1"] }))
+            .appendSelect((f) => ({ f2: f["test1.f2"] }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT test1.f1 AS f1, test1.f2 AS f2 FROM test1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
               },
             ]
         `);
@@ -1389,7 +1447,7 @@ describe("sqlite select1", () => {
             .print();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1 FROM test1 UNION SELECT f2 AS f2 FROM test1 ORDER BY f2"`
+            `"SELECT f1 AS f1 FROM test1 UNION SELECT f2 AS f2 FROM test1 ORDER BY f2;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1411,7 +1469,7 @@ describe("sqlite select1", () => {
             .print();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT f1 AS f1 FROM test1 UNION SELECT f2 AS f2 FROM test1 ORDER BY f1"`
+            `"SELECT f1 AS f1 FROM test1 UNION SELECT f2 AS f2 FROM test1 ORDER BY f1;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1433,7 +1491,7 @@ describe("sqlite select1", () => {
             .print();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM test1 UNION SELECT 4 AS \`4\`, 3 AS a ORDER BY a"`
+            `"SELECT * FROM test1 UNION SELECT 4 AS \`4\`, 3 AS a ORDER BY a;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1455,7 +1513,7 @@ describe("sqlite select1", () => {
         const q = union([q2, q1]).print();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT 4 AS \`4\`, 3 AS a UNION SELECT * FROM test1"`
+            `"SELECT 4 AS \`4\`, 3 AS a UNION SELECT * FROM test1;"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1498,10 +1556,195 @@ describe("sqlite select1", () => {
         `);
     });
 
-    // sub query as table && union
-    // select1-17.3
+    it("select1-17.3", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
 
-    // compound && subquery && union
-    // select1-12.9
-    // select1-12.10
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const u = unionAll([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .limit(1);
+
+        const q = test1.crossJoinCompound("u", u).selectStar().print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1, (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) AS u;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-12.9", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const u = unionAll([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .limit(1);
+
+        const q = u
+            .select((f) => ({ it: f.f1 }))
+            .orderBy((f) => f.f2)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS it FROM (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) ORDER BY f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "it": 11,
+              },
+            ]
+        `);
+    });
+    it("select1-12.9 -- correct types", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const u = unionAll([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .limit(1);
+
+        const q = u
+            .select((f) => ({ it: f.f1 }))
+            // @ts-expect-error
+            .orderBy((f) => f["test1.f2"])
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT f1 AS it FROM (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) ORDER BY test1.f2;"`
+        );
+        expect(await fail(q)).toMatchInlineSnapshot(
+            `"Error: SQLITE_ERROR: no such column: test1.f2"`
+        );
+    });
+
+    it("select1-12.10", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const u = unionAll([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .limit(1);
+
+        const q = u
+            .select((f) => ({ it: f["main_alias.f1"] }))
+            .orderBy((f) => f.f2)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT main_alias.f1 AS it FROM (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) AS main_alias ORDER BY f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "it": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-12.10 -- append select", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const u = unionAll([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .limit(1);
+
+        const q = u
+            .select((f) => ({ f1: f["main_alias.f1"] }))
+            .appendSelect((f) => ({ f2: f["main_alias.f2"] }))
+            .orderBy((f) => f.f2)
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT main_alias.f1 AS f1, main_alias.f2 AS f2 FROM (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) AS main_alias ORDER BY f2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-12.10 -- main alias 1 query", async () => {
+        const q = test1
+            .selectStar()
+            .where((f) => sql`${f.f1} < ${f.f2}`)
+            .select((f) => ({ f1: f["main_alias.f1"] }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT main_alias.f1 AS f1 FROM (SELECT * FROM test1 WHERE f1 < f2) AS main_alias;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-12.10 -- main alias append", async () => {
+        const q = test1
+            .selectStar()
+            .appendSelect((f) => ({ f1: f["main_alias.f1"] }))
+            .where((f) => sql`${f.f1} < ${f.f2}`)
+            .select((f) => ({ f1: f["main_alias.f1"] }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT main_alias.f1 AS f1 FROM (SELECT *, main_alias.f1 AS f1 FROM test1 AS main_alias WHERE f1 < f2) AS main_alias;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+              },
+            ]
+        `);
+    });
+
+    it("select1-12.10 -- main alias append 2", async () => {
+        const q = test1
+            .selectStar()
+            .appendSelect((f) => ({ f1: f["main_alias.f1"] }))
+            .where((f) => sql`${f.f1} < ${f.f2}`)
+            .select((f) => ({ f1: f["main_alias.f1"] }))
+            .appendSelect((f) => ({ f2: f["main_alias.f2"] }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT main_alias.f1 AS f1, main_alias.f2 AS f2 FROM (SELECT *, main_alias.f1 AS f1 FROM test1 AS main_alias WHERE f1 < f2) AS main_alias;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
 });

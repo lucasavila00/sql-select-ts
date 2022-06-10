@@ -71,6 +71,11 @@ export class Compound<Selection extends string> {
     ): Compound<SelectionOf<CS[number]>> =>
         new Compound(content, "UNION", [], null);
 
+    public static unionAll = <CS extends TableOrSubquery<any, any, any, any>[]>(
+        content: CS
+    ): Compound<SelectionOf<CS[number]>> =>
+        new Compound(content, "UNION ALL", [], null);
+
     private copy = (): Compound<Selection> =>
         new Compound(
             this.__content,
@@ -92,6 +97,19 @@ export class Compound<Selection extends string> {
         t.__limit = limit;
         return t;
     };
+
+    public select = <NewSelection extends string>(
+        f: (
+            f: Record<Selection | `main_alias.${Selection}`, SafeString>
+        ) => Record<NewSelection, SafeString>
+    ): SelectStatement<
+        never,
+        Selection | `main_alias.${Selection}`,
+        NewSelection
+    > =>
+        SelectStatement.__fromTableOrSubquery(this, [
+            { _tag: AliasedRowsURI, content: f(proxy as any) },
+        ]);
 
     public __printProtected = (parenthesis: boolean): string => {
         const sel = this.__content
@@ -118,7 +136,7 @@ export class Compound<Selection extends string> {
         }
         return q;
     };
-    public print = (): string => this.__printProtected(false);
+    public print = (): string => `${this.__printProtected(false)};`;
 }
 
 class Joined<Selection extends string, Aliases extends string> {
@@ -211,27 +229,36 @@ class Table<Selection extends string, Alias extends string> {
         _columns: Selection[],
         alias: Alias,
         name: string = alias
-    ): Table<Selection | `${Alias}.${Selection}`, Alias> =>
-        new Table(alias, name);
+    ): Table<Selection, Alias> => new Table(alias, name);
 
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection, SafeString>
+            f: Record<Selection | `${Alias}.${Selection}`, SafeString>
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<never, Selection, NewSelection> =>
+    ): SelectStatement<
+        never,
+        Selection | `${Alias}.${Selection}`,
+        NewSelection
+    > =>
         SelectStatement.__fromTableOrSubquery(this, [
             { _tag: AliasedRowsURI, content: f(proxy as any) },
         ]);
 
     public selectStar = (
         args?: SelectStarArgs
-    ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
+    ): SelectStatement<
+        never,
+        Selection | `main_alias.${Selection}`,
+        Selection
+    > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
 
     public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
         t2: Table<Selection2, Alias2>
     ): Joined<
-        Exclude<Selection, Selection2> | Exclude<Selection2, Selection>,
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias}.${Selection}`
+        | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
         Joined.__fromCrossJoinHead([
@@ -256,6 +283,7 @@ class Table<Selection extends string, Alias extends string> {
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
+        | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
@@ -267,6 +295,29 @@ class Table<Selection extends string, Alias extends string> {
             {
                 code: t2.__printProtected(true),
                 alias: aliasOfQuery,
+            },
+        ]);
+
+    public crossJoinCompound = <
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        aliasOfCompound: Alias2,
+        t2: Compound<Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`,
+        Alias | Alias2
+    > =>
+        Joined.__fromCrossJoinHead([
+            {
+                code: this.__name,
+                alias: this.__alias,
+            },
+            {
+                code: t2.__printProtected(true),
+                alias: aliasOfCompound,
             },
         ]);
 
@@ -373,9 +424,13 @@ export class SelectStatement<
 
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection, SafeString>
+            f: Record<Selection | `main_alias.${Selection}`, SafeString>
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<never, Selection, NewSelection> =>
+    ): SelectStatement<
+        never,
+        Selection | `main_alias.${Selection}`,
+        NewSelection
+    > =>
         SelectStatement.__fromTableOrSubquery(this, [
             { _tag: AliasedRowsURI, content: f(proxy as any) },
         ]);
@@ -395,7 +450,7 @@ export class SelectStatement<
 
     public appendSelect = <NewSelection extends string>(
         f: (
-            f: Record<Selection, SafeString>
+            f: Record<Selection | Scope, SafeString>
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<With, Scope, Selection | NewSelection> => {
         const t = this.copy();
@@ -540,7 +595,11 @@ export class SelectStatement<
                 ? `FROM ${this.__from.__printProtected(true)}`
                 : "";
 
-        return [`SELECT ${sel}`, from, where, orderBy, limit]
+        const doesSelectMainAlias = sel.includes("main_alias");
+
+        const main_alias = doesSelectMainAlias ? "AS main_alias" : "";
+
+        return [`SELECT ${sel}`, from, main_alias, where, orderBy, limit]
             .filter((it) => it.length > 0)
             .join(" ");
     };
@@ -556,3 +615,4 @@ export class SelectStatement<
 export const fromNothing = SelectStatement.fromNothing;
 export const fromTable = Table.define;
 export const union = Compound.union;
+export const unionAll = Compound.unionAll;
