@@ -1,5 +1,6 @@
 import * as Eq from "fp-ts/lib/Eq";
-import { Compound, SelectStatement } from "./cla";
+import { Compound } from "./classes/compound";
+import { SelectStatement } from "./classes/select-statement";
 // moment.tz.setDefault("UTC");
 
 export const SafeStringURI = "SafeString" as const;
