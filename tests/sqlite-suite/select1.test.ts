@@ -1,5 +1,12 @@
-import { fromNothing, table, SafeString, sql, union, unionAll } from "../src";
-import { configureSqlite } from "./utils";
+import {
+    fromNothing,
+    table,
+    SafeString,
+    sql,
+    union,
+    unionAll,
+} from "../../src";
+import { configureSqlite } from "../utils";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
 
