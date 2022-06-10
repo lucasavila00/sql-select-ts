@@ -56,25 +56,28 @@ export class Compound<Scope extends string, Selection extends string> {
             this.__limit
         );
 
+    private setOrderBy = (orderBy: SafeString[]): this => {
+        this.__orderBy = orderBy;
+        return this;
+    };
+    private setLimit = (limit: SafeString | number | null): this => {
+        this.__limit = limit;
+        return this;
+    };
+
     public orderBy = (
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
-    ): Compound<Scope, Selection> => {
-        const t = this.copy();
-        t.__orderBy = [...t.__orderBy, ...makeArray(f(proxy))];
-        return t;
-    };
+    ): Compound<Scope, Selection> =>
+        this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
 
-    public limit = (limit: SafeString | number): Compound<Scope, Selection> => {
-        const t = this.copy();
-        t.__limit = limit;
-        return t;
-    };
+    public limit = (limit: SafeString | number): Compound<Scope, Selection> =>
+        this.copy().setLimit(limit);
 
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection | `main_alias.${Selection}`, SafeString>
+            fields: Record<Selection | `main_alias.${Selection}`, SafeString>
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<
         never,

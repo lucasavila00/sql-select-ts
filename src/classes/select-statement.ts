@@ -64,6 +64,27 @@ export class SelectStatement<
             this.__where
         );
 
+    private setSelection = (
+        selection: SelectionWrapperTypes<Selection>
+    ): this => {
+        this.__selection = selection;
+        return this;
+    };
+
+    private setWhere = (where: SafeString[]): this => {
+        this.__where = where;
+        return this;
+    };
+
+    private setOrderBy = (orderBy: SafeString[]): this => {
+        this.__orderBy = orderBy;
+        return this;
+    };
+    private setLimit = (limit: SafeString | number | null): this => {
+        this.__limit = limit;
+        return this;
+    };
+
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection | `main_alias.${Selection}`, SafeString>
@@ -81,49 +102,36 @@ export class SelectStatement<
 
     public appendSelectStar = (
         args?: SelectStarArgs
-    ): SelectStatement<never, Selection, Selection> => {
-        const t = this.copy();
-        t.__selection = [...t.__selection, StarSymbol(args)];
-        return t;
-    };
+    ): SelectStatement<never, Selection, Selection> =>
+        this.copy().setSelection([...this.__selection, StarSymbol(args)]);
 
     public appendSelect = <NewSelection extends string>(
         f: (
             f: Record<Selection | Scope, SafeString>
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<With, Scope, Selection | NewSelection> => {
-        const t = this.copy();
-        t.__selection = [...(t.__selection as any), AliasedRows(f(proxy))];
-        return t as any;
-    };
+    ): SelectStatement<With, Scope, Selection | NewSelection> =>
+        this.copy().setSelection([
+            ...(this.__selection as any),
+            AliasedRows(f(proxy)),
+        ]) as any;
 
     public where = (
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
-    ): SelectStatement<With, Scope, Selection> => {
-        const t = this.copy();
-        t.__where = [...t.__where, ...makeArray(f(proxy))];
-        return t;
-    };
+    ): SelectStatement<With, Scope, Selection> =>
+        this.copy().setWhere([...this.__where, ...makeArray(f(proxy))]);
 
     public orderBy = (
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
-    ): SelectStatement<With, Scope, Selection> => {
-        const t = this.copy();
-        t.__orderBy = [...t.__orderBy, ...makeArray(f(proxy))];
-        return t;
-    };
+    ): SelectStatement<With, Scope, Selection> =>
+        this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
 
     public limit = (
         limit: SafeString | number
-    ): SelectStatement<With, Scope, Selection> => {
-        const t = this.copy();
-        t.__limit = limit;
-        return t;
-    };
+    ): SelectStatement<With, Scope, Selection> => this.copy().setLimit(limit);
 
     public commaJoinTable = <
         Alias1 extends string,
