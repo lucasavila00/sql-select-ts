@@ -1,13 +1,14 @@
+import * as A from "fp-ts/lib/Array";
 import { pipe } from "fp-ts/lib/function";
 import { isNumber } from "fp-ts/lib/number";
 import {
     AliasedRows,
-    StarSymbol,
-    StarOfAliasSymbol,
     AliasedRowsURI,
-    SelectStarArgs,
-    isStarSymbol,
     isStarOfAliasSymbol,
+    isStarSymbol,
+    SelectStarArgs,
+    StarOfAliasSymbol,
+    StarSymbol,
 } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
@@ -15,7 +16,6 @@ import { TableOrSubquery } from "../types";
 import { makeArray, wrapAlias } from "../utils";
 import { Joined } from "./joined";
 import { Table } from "./table";
-import * as A from "fp-ts/lib/Array";
 
 type SelectionWrapperTypes<Selection extends string> = (
     | AliasedRows<Selection>
@@ -201,7 +201,7 @@ export class SelectStatement<
             ],
             [
                 {
-                    code: table.__name,
+                    code: table,
                     alias: table.__alias,
                     operator,
                     constraint: on != null ? makeArray(on(proxy)) : [],

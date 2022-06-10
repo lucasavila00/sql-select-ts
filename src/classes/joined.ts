@@ -6,6 +6,7 @@ import {
 } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
+import { TableOrSubquery } from "../types";
 import { makeArray, wrapAlias } from "../utils";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
@@ -16,7 +17,7 @@ type CommaJoin = {
 }[];
 
 type ProperJoin = {
-    code: string;
+    code: TableOrSubquery<any, any, any, any>;
     alias: string;
     operator: string;
     constraint: SafeString[];
@@ -102,7 +103,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         Joined.__fromProperJoin(this.__commaJoins, [
             ...this.__properJoins,
             {
-                code: table.__name,
+                code: table,
                 alias: table.__alias,
                 operator,
                 constraint: on != null ? makeArray(on(proxy)) : [],
@@ -149,9 +150,12 @@ export class Joined<Selection extends string, Aliases extends string> {
 
                 const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
 
-                const alias =
-                    it.code === it.alias ? "" : `AS ${wrapAlias(it.alias)}`;
-                return [it.operator, "JOIN", it.code, alias, on]
+                return [
+                    it.operator,
+                    "JOIN",
+                    it.code.__printProtected(false),
+                    on,
+                ]
                     .filter((it) => it.length > 0)
                     .join(" ");
             })

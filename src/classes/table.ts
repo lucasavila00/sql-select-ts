@@ -87,7 +87,7 @@ export class Table<Selection extends string, Alias extends string> {
             ],
             [
                 {
-                    code: table.__name,
+                    code: table,
                     alias: table.__alias,
                     operator,
                     constraint: on != null ? makeArray(on(proxy)) : [],

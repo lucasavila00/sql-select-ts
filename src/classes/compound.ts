@@ -114,7 +114,7 @@ export class Compound<Scope extends string, Selection extends string> {
             ],
             [
                 {
-                    code: table.__name,
+                    code: table,
                     alias: table.__alias,
                     operator,
                     constraint: on != null ? makeArray(on(proxy)) : [],
