@@ -1,11 +1,12 @@
-import { fromTable } from "../src";
+import { SafeString, sql, table } from "../src";
 import { configureSqlite } from "./utils";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/join.test
+const equals = (a: SafeString, b: SafeString) => sql`${a} = ${b}`;
 
 describe("sqlite join", () => {
-    const t1 = fromTable(["a", "b", "c"], "t1");
-    const t2 = fromTable(["b", "c", "d"], "t2");
+    const t1 = table(["a", "b", "c"], "t1");
+    const t2 = table(["b", "c", "d"], "t2");
 
     const { run, fail } = configureSqlite();
 
@@ -22,14 +23,269 @@ describe("sqlite join", () => {
     });
 
     it("join-1.3", async () => {
-        // const q = t1.joinTable("NATURAL", t2).selectStar().print();
-        // expect(q).toMatchInlineSnapshot(`"SELECT f1 AS f1 FROM test1;"`);
-        // expect(await run(q)).toMatchInlineSnapshot(`
-        //     Array [
-        //       Object {
-        //         "f1": 11,
-        //       },
-        //     ]
-        // `);
+        const q = t1.joinTable("NATURAL", t2).selectStar().print();
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM t1 NATURAL JOIN t2;"`);
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+
+    it("join-1.3.2", async () => {
+        const q = table(["a", "b", "c"], "x", "t1")
+            .joinTable("NATURAL", t2)
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 AS x NATURAL JOIN t2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+
+    it("join-1.3.3", async () => {
+        const q = t1
+            .joinTable("NATURAL", table(["b", "c", "d"], "y", "t2"))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 NATURAL JOIN t2 AS y;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+
+    it("join-1.3.4", async () => {
+        const q = t1
+            .joinTable("NATURAL", t2)
+            .select((f) => ({ b: f.b }))
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT b AS b FROM t1 NATURAL JOIN t2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "b": 2,
+              },
+              Object {
+                "b": 3,
+              },
+            ]
+        `);
+    });
+    it("join-1.3.5", async () => {
+        const q = t2
+            .joinTable("NATURAL", t1)
+            .selectStarOfAliases(["t2"])
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT t2.* FROM t2 NATURAL JOIN t1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+    it("join-1.3.6", async () => {
+        const q = table(["b", "c", "d"], "xyzzy", "t2")
+            .joinTable("NATURAL", t1)
+            .selectStarOfAliases(["xyzzy"])
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT xyzzy.* FROM t2 AS xyzzy NATURAL JOIN t1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+
+    it("join-1.3.7", async () => {
+        const q = t2
+            .joinTable("NATURAL", t1)
+            .selectStarOfAliases(["t1"])
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT t1.* FROM t2 NATURAL JOIN t1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+              },
+            ]
+        `);
+    });
+
+    it("join-1.3.8", async () => {
+        const q = t2
+            .joinTable("NATURAL", table(["a", "b", "c"], "xyzzy", "t1"))
+            .selectStarOfAliases(["xyzzy"])
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT xyzzy.* FROM t2 NATURAL JOIN t1 AS xyzzy;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+              },
+            ]
+        `);
+    });
+
+    it("join-1.3.9", async () => {
+        const q = table(["b", "c", "d"], "aaa", "t2")
+            .joinTable("NATURAL", table(["a", "b", "c"], "bbb", "t1"))
+            .selectStarOfAliases(["aaa", "bbb"])
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT aaa.*, bbb.* FROM t2 AS aaa NATURAL JOIN t1 AS bbb;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+
+    it("join-1.3.10", async () => {
+        const q = t2
+            .joinTable("NATURAL", t1)
+            .selectStarOfAliases(["t1", "t2"])
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT t1.*, t2.* FROM t2 NATURAL JOIN t1;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+    it("join-1.4.1", async () => {
+        const q = t2
+            .joinTable("INNER", t1, (f) => [
+                equals(f["t1.b"], f["t2.b"]),
+                equals(f["t1.c"], f["t2.c"]),
+            ])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t2 INNER JOIN t1 ON t1.b = t2.b AND t1.c = t2.c;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
     });
 });

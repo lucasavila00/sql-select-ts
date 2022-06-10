@@ -1,11 +1,4 @@
-import {
-    fromNothing,
-    fromTable,
-    SafeString,
-    sql,
-    union,
-    unionAll,
-} from "../src";
+import { fromNothing, table, SafeString, sql, union, unionAll } from "../src";
 import { configureSqlite } from "./utils";
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
@@ -13,11 +6,11 @@ import { configureSqlite } from "./utils";
 const max = (...it: SafeString[]) => sql`max(${it})`;
 const min = (...it: SafeString[]) => sql`min(${it})`;
 describe("sqlite select1", () => {
-    const test1 = fromTable(["f1", "f2"], "test1");
+    const test1 = table(["f1", "f2"], "test1");
 
-    const test1_dup = fromTable(["f1", "f2"], "test1_dup");
-    const test2 = fromTable(["r1", "r2"], "test2");
-    const t6 = fromTable(["a", "b"], "t6");
+    const test1_dup = table(["f1", "f2"], "test1_dup");
+    const test2 = table(["r1", "r2"], "test2");
+    const t6 = table(["a", "b"], "t6");
 
     const fromTest1And2 = test1.crossJoinTable(test2);
     const { run, fail } = configureSqlite();
@@ -453,8 +446,8 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-1.11.2", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
-            .crossJoinTable(fromTable(["f1", "f2"], "b", "test1"))
+        const q = table(["f1", "f2"], "a", "test1")
+            .crossJoinTable(table(["f1", "f2"], "b", "test1"))
             .selectStar()
             .print();
 
@@ -471,8 +464,8 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-1.11.2 -- select alias", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
-            .crossJoinTable(fromTable(["f1", "f2"], "b", "test1"))
+        const q = table(["f1", "f2"], "a", "test1")
+            .crossJoinTable(table(["f1", "f2"], "b", "test1"))
             .select((f) => ({
                 f1: f["a.f1"],
                 f2: f["b.f2"],
@@ -777,8 +770,8 @@ describe("sqlite select1", () => {
     });
 
     it("select1-6.7", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
-            .crossJoinTable(fromTable(["r1", "r2"], "test2"))
+        const q = table(["f1", "f2"], "a", "test1")
+            .crossJoinTable(table(["r1", "r2"], "test2"))
             .select((f) => ({ it: f["a.f1"], r2: f.r2 }))
             .orderBy((f) => f.f2)
             .print();
@@ -797,8 +790,8 @@ describe("sqlite select1", () => {
     });
 
     it("select1-6.9.1", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
-            .crossJoinTable(fromTable(["r1", "r2"], "b", "test2"))
+        const q = table(["f1", "f2"], "a", "test1")
+            .crossJoinTable(table(["r1", "r2"], "b", "test2"))
             .select((f) => ({ it: f["a.f1"], r2: f["b.r2"] }))
             .orderBy((f) => f["a.f1"])
             .orderBy((f) => f["b.r2"])
@@ -818,8 +811,8 @@ describe("sqlite select1", () => {
     });
 
     it("select1-6.9.6", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
-            .crossJoinTable(fromTable(["r1", "r2"], "b", "test3"))
+        const q = table(["f1", "f2"], "a", "test1")
+            .crossJoinTable(table(["r1", "r2"], "b", "test3"))
             .selectStar()
             .limit(1)
             .print();
@@ -839,7 +832,7 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-6.9.7", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
+        const q = table(["f1", "f2"], "a", "test1")
             .crossJoinQuery(
                 "it",
                 fromNothing({
@@ -870,7 +863,7 @@ describe("sqlite select1", () => {
             "5": sql(5),
             "6": sql(6),
         })
-            .crossJoinTable("it", fromTable(["f1", "f2"], "a", "test1"))
+            .crossJoinTable("it", table(["f1", "f2"], "a", "test1"))
             .selectStar()
             .limit(1)
             .print();
@@ -918,7 +911,7 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-6.9.8", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
+        const q = table(["f1", "f2"], "a", "test1")
             .crossJoinQuery(
                 "b",
                 fromNothing({
@@ -945,7 +938,7 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-6.9.8 -- use alias", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
+        const q = table(["f1", "f2"], "a", "test1")
             .crossJoinQuery(
                 "b",
                 fromNothing({
@@ -975,8 +968,8 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-6.9.9", async () => {
-        const q = fromTable(["f1", "f2"], "a", "test1")
-            .crossJoinTable(fromTable(["f1", "f2"], "b", "test1"))
+        const q = table(["f1", "f2"], "a", "test1")
+            .crossJoinTable(table(["f1", "f2"], "b", "test1"))
             .select((f) => ({
                 f1: f["a.f1"],
                 f2: f["b.f2"],

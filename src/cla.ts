@@ -53,6 +53,13 @@ type CrossJoinHead = {
     alias: string;
 }[];
 
+type ProperJoinTail = {
+    code: string;
+    alias: string;
+    mode: string;
+    on: SafeString[];
+}[];
+
 type FilterFromAlias<
     Alias extends string,
     Selection extends string
@@ -140,11 +147,19 @@ export class Compound<Selection extends string> {
 }
 
 class Joined<Selection extends string, Aliases extends string> {
-    private constructor(private __crossJoins: CrossJoinHead) {}
+    private constructor(
+        public __crossJoins: CrossJoinHead,
+        public __properJoins: ProperJoinTail
+    ) {}
 
     public static __fromCrossJoinHead = (
         crossJoins: CrossJoinHead
-    ): Joined<any, any> => new Joined(crossJoins);
+    ): Joined<any, any> => new Joined(crossJoins, []);
+
+    public static __fromProperJoin = (
+        crossJoins: CrossJoinHead,
+        properJoins: ProperJoinTail
+    ): Joined<any, any> => new Joined(crossJoins, properJoins);
 
     public select = <NewSelection extends string>(
         f: (
@@ -208,8 +223,8 @@ class Joined<Selection extends string, Aliases extends string> {
             },
         ]);
 
-    public __printProtected = (): string =>
-        this.__crossJoins
+    public __printProtected = (): string => {
+        const head = this.__crossJoins
             .map((it) => {
                 if (it.code === it.alias) {
                     return it.code;
@@ -217,6 +232,23 @@ class Joined<Selection extends string, Aliases extends string> {
                 return `${it.code} AS ${wrapAlias(it.alias)}`;
             })
             .join(", ");
+
+        const tail = this.__properJoins
+            .map((it) => {
+                const onJoined = it.on.map((it) => it.content).join(" AND ");
+
+                const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
+
+                const alias =
+                    it.code === it.alias ? "" : `AS ${wrapAlias(it.alias)}`;
+                return [it.mode, "JOIN", it.code, alias, on]
+                    .filter((it) => it.length > 0)
+                    .join(" ");
+            })
+            .join(" ");
+
+        return [head, tail].filter((it) => it.length > 0).join(" ");
+    };
 }
 
 class Table<Selection extends string, Alias extends string> {
@@ -271,6 +303,42 @@ class Table<Selection extends string, Alias extends string> {
                 alias: t2.__alias,
             },
         ]);
+
+    public joinTable = <Selection2 extends string, Alias2 extends string>(
+        mode: string,
+        t2: Table<Selection2, Alias2>,
+        on?: (
+            f: Record<
+                | Exclude<Selection, Selection2>
+                | Exclude<Selection2, Selection>
+                | `${Alias}.${Selection}`
+                | `${Alias2}.${Selection2}`,
+                SafeString
+            >
+        ) => SafeString | SafeString[]
+    ): Joined<
+        | Selection
+        | Selection2
+        | `${Alias}.${Selection}`
+        | `${Alias2}.${Selection2}`,
+        Alias | Alias2
+    > =>
+        Joined.__fromProperJoin(
+            [
+                {
+                    code: this.__name,
+                    alias: this.__alias,
+                },
+            ],
+            [
+                {
+                    code: t2.__name,
+                    alias: t2.__alias,
+                    mode,
+                    on: on != null ? makeArray(on(proxy as any)) : [],
+                },
+            ]
+        );
 
     public crossJoinQuery = <
         With2 extends string,
@@ -613,6 +681,6 @@ export class SelectStatement<
 }
 
 export const fromNothing = SelectStatement.fromNothing;
-export const fromTable = Table.define;
+export const table = Table.define;
 export const union = Compound.union;
 export const unionAll = Compound.unionAll;
