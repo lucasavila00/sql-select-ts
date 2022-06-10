@@ -1,5 +1,5 @@
-import { isNumber } from "fp-ts/lib/number";
 import { AliasedRowsURI } from "../data-wrappers";
+import { printCompound } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery } from "../types";
@@ -122,32 +122,7 @@ export class Compound<Scope extends string, Selection extends string> {
             ]
         );
 
-    public __printProtected = (parenthesis: boolean): string => {
-        const sel = this.__content
-            .map((it) => it.__printProtected(false))
-            .join(` ${this.__qualifier} `);
-
-        const orderBy =
-            this.__orderBy.length > 0
-                ? `ORDER BY ${this.__orderBy
-                      .map((it) => it.content)
-                      .join(", ")}`
-                : "";
-
-        const limit = this.__limit
-            ? isNumber(this.__limit)
-                ? `LIMIT ${this.__limit}`
-                : `LIMIT ${this.__limit.content}`
-            : "";
-
-        const q = [sel, orderBy, limit].filter((it) => it.length > 0).join(" ");
-
-        if (parenthesis) {
-            return `(${q})`;
-        }
-        return q;
-    };
-    public print = (): string => `${this.__printProtected(false)};`;
+    public print = (): string => printCompound(this);
 }
 
 export const union = Compound.union;

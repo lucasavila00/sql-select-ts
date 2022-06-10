@@ -1,6 +1,7 @@
 import * as Eq from "fp-ts/lib/Eq";
 import { Compound } from "./classes/compound";
 import { SelectStatement } from "./classes/select-statement";
+import { printCompoundInternal, printSelectStatementInternal } from "./print";
 // moment.tz.setDefault("UTC");
 
 export const SafeStringURI = "SafeString" as const;
@@ -112,9 +113,9 @@ export const escapeForSql = function (val: any, stringifyObjects = false) {
             if (isSafeString(val)) {
                 return val.content;
             } else if (val instanceof SelectStatement) {
-                return val.__printProtected(true);
+                return printSelectStatementInternal(val, true);
             } else if (val instanceof Compound) {
-                return val.__printProtected(true);
+                return printCompoundInternal(val, true);
             }
             //  else if (moment.isMoment(val)) {
             //     return dateToString(val);

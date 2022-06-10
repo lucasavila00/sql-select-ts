@@ -1,7 +1,7 @@
 import { AliasedRowsURI, SelectStarArgs, StarSymbol } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { makeArray, wrapAlias } from "../utils";
+import { makeArray } from "../utils";
 import { Compound } from "./compound";
 import { Joined } from "./joined";
 import { SelectStatement } from "./select-statement";
@@ -143,13 +143,6 @@ export class Table<Selection extends string, Alias extends string> {
                 alias: aliasOfCompound,
             },
         ]);
-
-    public __printProtected = (): string => {
-        if (this.__name === this.__alias) {
-            return this.__name;
-        }
-        return `${this.__name} AS ${wrapAlias(this.__alias)}`;
-    };
 }
 
 export const table = Table.define;

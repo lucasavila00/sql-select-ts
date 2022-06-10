@@ -1,19 +1,15 @@
-import * as A from "fp-ts/lib/Array";
-import { pipe } from "fp-ts/lib/function";
-import { isNumber } from "fp-ts/lib/number";
 import {
     AliasedRows,
     AliasedRowsURI,
-    isStarOfAliasSymbol,
-    isStarSymbol,
     SelectStarArgs,
     StarOfAliasSymbol,
     StarSymbol,
 } from "../data-wrappers";
+import { printSelectStatement } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery } from "../types";
-import { makeArray, wrapAlias } from "../utils";
+import { makeArray } from "../utils";
 import { Joined } from "./joined";
 import { Table } from "./table";
 
@@ -237,71 +233,6 @@ export class SelectStatement<
             },
         ]);
 
-    private printSelectStatement = (): string => {
-        const sel = pipe(
-            this.__selection,
-            A.chain((it) => {
-                if (isStarSymbol(it)) {
-                    if (it.distinct) {
-                        return ["DISTINCT *"];
-                    }
-                    return ["*"];
-                }
-                if (isStarOfAliasSymbol(it)) {
-                    const content = it.aliases.map((alias) => `${alias}.*`);
-                    if (it.distinct) {
-                        return [`DISTINCT ${content.join(", ")}`];
-                    }
-                    return content;
-                }
-                // check if the proxy was returned in an identity function
-                if ((it.content as any)?.SQL_PROXY_TARGET != null) {
-                    return ["*"];
-                }
-                return Object.entries(it.content).map(([k, v]) => {
-                    return `${(v as SafeString).content} AS ${wrapAlias(k)}`;
-                });
-            }),
-            (it) => it.join(", ")
-        );
-
-        const where =
-            this.__where.length > 0
-                ? `WHERE ${this.__where.map((it) => it.content).join(" AND ")}`
-                : "";
-
-        const orderBy =
-            this.__orderBy.length > 0
-                ? `ORDER BY ${this.__orderBy
-                      .map((it) => it.content)
-                      .join(", ")}`
-                : "";
-
-        const limit = this.__limit
-            ? isNumber(this.__limit)
-                ? `LIMIT ${this.__limit}`
-                : `LIMIT ${this.__limit.content}`
-            : "";
-
-        const from =
-            this.__from != null
-                ? `FROM ${this.__from.__printProtected(true)}`
-                : "";
-
-        const doesSelectMainAlias = sel.includes("main_alias");
-
-        const main_alias = doesSelectMainAlias ? "AS main_alias" : "";
-
-        return [`SELECT ${sel}`, from, main_alias, where, orderBy, limit]
-            .filter((it) => it.length > 0)
-            .join(" ");
-    };
-
-    public __printProtected = (parenthesis: boolean): string =>
-        parenthesis
-            ? `(${this.printSelectStatement()})`
-            : this.printSelectStatement();
-
-    public print = (): string => `${this.__printProtected(false)};`;
+    public print = (): string => printSelectStatement(this);
 }
 export const fromNothing = SelectStatement.fromNothing;

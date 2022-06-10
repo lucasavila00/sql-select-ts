@@ -1,13 +1,13 @@
 import {
     AliasedRowsURI,
     SelectStarArgs,
-    StarSymbol,
     StarOfAliasesSymbol,
+    StarSymbol,
 } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery } from "../types";
-import { makeArray, wrapAlias } from "../utils";
+import { makeArray } from "../utils";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
@@ -131,37 +131,4 @@ export class Joined<Selection extends string, Aliases extends string> {
                 alias: alias,
             },
         ]);
-
-    public __printProtected = (): string => {
-        const head = this.__commaJoins
-            .map((it) => {
-                const code = it.code.__printProtected(true);
-                if (it.code instanceof Table) {
-                    return code;
-                }
-                return `${code} AS ${wrapAlias(it.alias)}`;
-            })
-            .join(", ");
-
-        const tail = this.__properJoins
-            .map((it) => {
-                const onJoined = it.constraint
-                    .map((it) => it.content)
-                    .join(" AND ");
-
-                const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
-
-                return [
-                    it.operator,
-                    "JOIN",
-                    it.code.__printProtected(false),
-                    on,
-                ]
-                    .filter((it) => it.length > 0)
-                    .join(" ");
-            })
-            .join(" ");
-
-        return [head, tail].filter((it) => it.length > 0).join(" ");
-    };
 }

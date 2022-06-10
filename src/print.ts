@@ -1,13 +1,95 @@
 import * as A from "fp-ts/lib/Array";
-import { pipe } from "fp-ts/lib/function";
+import { absurd, pipe } from "fp-ts/lib/function";
 import { isNumber } from "fp-ts/lib/number";
+import { Compound } from "./classes/compound";
+import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
+import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import { SafeString } from "./safe-string";
 import { TableOrSubquery } from "./types";
-import { wrapAlias } from "./utils";
 
-const printSelectStatementInternal = <
+const wrapAlias = (alias: string) => {
+    if (alias[0].charCodeAt(0) >= 48 && alias[0].charCodeAt(0) <= 57) {
+        return `\`${alias}\``;
+    }
+    if (alias.includes(" ")) {
+        return `\`${alias}\``;
+    }
+    return alias;
+};
+
+export const printCompoundInternal = <
+    Scope extends string,
+    Selection extends string
+>(
+    compound: Compound<Scope, Selection>,
+    parenthesis: boolean
+): string => {
+    const sel = compound.__content
+        .map((it) => printInternal(it, false))
+        .join(` ${compound.__qualifier} `);
+
+    const orderBy =
+        compound.__orderBy.length > 0
+            ? `ORDER BY ${compound.__orderBy
+                  .map((it) => it.content)
+                  .join(", ")}`
+            : "";
+
+    const limit = compound.__limit
+        ? isNumber(compound.__limit)
+            ? `LIMIT ${compound.__limit}`
+            : `LIMIT ${compound.__limit.content}`
+        : "";
+
+    const q = [sel, orderBy, limit].filter((it) => it.length > 0).join(" ");
+
+    if (parenthesis) {
+        return `(${q})`;
+    }
+    return q;
+};
+const printTableInternal = <Selection extends string, Alias extends string>(
+    table: Table<Selection, Alias>
+): string => {
+    if (table.__name === table.__alias) {
+        return table.__name;
+    }
+    return `${table.__name} AS ${wrapAlias(table.__alias)}`;
+};
+
+const printJoinedInternal = <Selection extends string, Aliases extends string>(
+    joined: Joined<Selection, Aliases>
+): string => {
+    const head = joined.__commaJoins
+        .map((it) => {
+            const code = printInternal(it.code, true);
+            if (it.code instanceof Table) {
+                return code;
+            }
+            return `${code} AS ${wrapAlias(it.alias)}`;
+        })
+        .join(", ");
+
+    const tail = joined.__properJoins
+        .map((it) => {
+            const onJoined = it.constraint
+                .map((it) => it.content)
+                .join(" AND ");
+
+            const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
+
+            return [it.operator, "JOIN", printInternal(it.code, false), on]
+                .filter((it) => it.length > 0)
+                .join(" ");
+        })
+        .join(" ");
+
+    return [head, tail].filter((it) => it.length > 0).join(" ");
+};
+
+export const printSelectStatementInternal = <
     With extends string,
     Scope extends string,
     Selection extends string
@@ -79,7 +161,16 @@ const printInternal = (
     if (it instanceof SelectStatement) {
         return printSelectStatementInternal(it, parenthesis);
     }
-    throw new Error("not implemented");
+    if (it instanceof Joined) {
+        return printJoinedInternal(it);
+    }
+    if (it instanceof Table) {
+        return printTableInternal(it);
+    }
+    if (it instanceof Compound) {
+        return printCompoundInternal(it, parenthesis);
+    }
+    return absurd(it);
 };
 
 export const printSelectStatement = <
@@ -89,3 +180,7 @@ export const printSelectStatement = <
 >(
     it: SelectStatement<With, Scope, Selection>
 ): string => printSelectStatementInternal(it, false) + ";";
+
+export const printCompound = <Scope extends string, Selection extends string>(
+    it: Compound<Scope, Selection>
+): string => printCompoundInternal(it, false) + ";";
