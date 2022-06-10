@@ -10,6 +10,7 @@ import { SafeString } from "./safe-string";
 import { TableOrSubquery } from "./types";
 
 const wrapAlias = (alias: string) => {
+    // FIXME should escape - / etc
     if (alias[0].charCodeAt(0) >= 48 && alias[0].charCodeAt(0) <= 57) {
         return `\`${alias}\``;
     }
@@ -18,6 +19,18 @@ const wrapAlias = (alias: string) => {
     }
     return alias;
 };
+
+const printOrderBy = (orderBy: SafeString[]): string =>
+    orderBy.length > 0
+        ? `ORDER BY ${orderBy.map((it) => it.content).join(", ")}`
+        : "";
+
+const printLimit = (limit: number | SafeString | null): string =>
+    limit == null
+        ? ""
+        : isNumber(limit)
+        ? `LIMIT ${limit}`
+        : `LIMIT ${limit.content}`;
 
 export const printCompoundInternal = <
     Scope extends string,
@@ -30,20 +43,13 @@ export const printCompoundInternal = <
         .map((it) => printInternal(it, false))
         .join(` ${compound.__qualifier} `);
 
-    const orderBy =
-        compound.__orderBy.length > 0
-            ? `ORDER BY ${compound.__orderBy
-                  .map((it) => it.content)
-                  .join(", ")}`
-            : "";
-
-    const limit = compound.__limit
-        ? isNumber(compound.__limit)
-            ? `LIMIT ${compound.__limit}`
-            : `LIMIT ${compound.__limit.content}`
-        : "";
-
-    const q = [sel, orderBy, limit].filter((it) => it.length > 0).join(" ");
+    const q = [
+        sel,
+        printOrderBy(compound.__orderBy),
+        printLimit(compound.__limit),
+    ]
+        .filter((it) => it.length > 0)
+        .join(" ");
 
     if (parenthesis) {
         return `(${q})`;
@@ -94,11 +100,11 @@ export const printSelectStatementInternal = <
     Scope extends string,
     Selection extends string
 >(
-    it: SelectStatement<With, Scope, Selection>,
+    selectStatement: SelectStatement<With, Scope, Selection>,
     parenthesis: boolean
 ): string => {
     const sel = pipe(
-        it.__selection,
+        selectStatement.__selection,
         A.chain((it) => {
             if (isStarSymbol(it)) {
                 if (it.distinct) {
@@ -125,29 +131,29 @@ export const printSelectStatementInternal = <
     );
 
     const where =
-        it.__where.length > 0
-            ? `WHERE ${it.__where.map((it) => it.content).join(" AND ")}`
+        selectStatement.__where.length > 0
+            ? `WHERE ${selectStatement.__where
+                  .map((it) => it.content)
+                  .join(" AND ")}`
             : "";
-
-    const orderBy =
-        it.__orderBy.length > 0
-            ? `ORDER BY ${it.__orderBy.map((it) => it.content).join(", ")}`
-            : "";
-
-    const limit = it.__limit
-        ? isNumber(it.__limit)
-            ? `LIMIT ${it.__limit}`
-            : `LIMIT ${it.__limit.content}`
-        : "";
 
     const from =
-        it.__from != null ? `FROM ${printInternal(it.__from, true)}` : "";
+        selectStatement.__from != null
+            ? `FROM ${printInternal(selectStatement.__from, true)}`
+            : "";
 
     const doesSelectMainAlias = sel.includes("main_alias");
 
     const main_alias = doesSelectMainAlias ? "AS main_alias" : "";
 
-    const content = [`SELECT ${sel}`, from, main_alias, where, orderBy, limit]
+    const content = [
+        `SELECT ${sel}`,
+        from,
+        main_alias,
+        where,
+        printOrderBy(selectStatement.__orderBy),
+        printLimit(selectStatement.__limit),
+    ]
         .filter((it) => it.length > 0)
         .join(" ");
 
