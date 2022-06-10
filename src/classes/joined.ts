@@ -1,8 +1,8 @@
 import {
-    AliasedRowsURI,
     SelectStarArgs,
     StarOfAliasesSymbol,
     StarSymbol,
+    AliasedRows,
 } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
@@ -30,15 +30,18 @@ type RemoveAliasFromSelection<
 
 export class Joined<Selection extends string, Aliases extends string> {
     private constructor(
+        /* @internal */
         public __commaJoins: CommaJoin,
+        /* @internal */
         public __properJoins: ProperJoin
     ) {}
 
-    public static __fromCommaJoinHead = (
-        commaJoins: CommaJoin
-    ): Joined<any, any> => new Joined(commaJoins, []);
+    /* @internal */
+    public static __fromCommaJoin = (commaJoins: CommaJoin): Joined<any, any> =>
+        new Joined(commaJoins, []);
 
-    public static __fromProperJoin = (
+    /* @internal */
+    public static __fromAll = (
         commaJoins: CommaJoin,
         properJoins: ProperJoin
     ): Joined<any, any> => new Joined(commaJoins, properJoins);
@@ -48,9 +51,7 @@ export class Joined<Selection extends string, Aliases extends string> {
             f: Record<Selection, SafeString>
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [
-            { _tag: AliasedRowsURI, content: f(proxy) },
-        ]);
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     public selectStar = (
         args?: SelectStarArgs
@@ -77,7 +78,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2
     > =>
-        Joined.__fromCommaJoinHead([
+        Joined.__fromCommaJoin([
             ...this.__commaJoins,
             {
                 code: table,
@@ -100,7 +101,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2
     > =>
-        Joined.__fromProperJoin(this.__commaJoins, [
+        Joined.__fromAll(this.__commaJoins, [
             ...this.__properJoins,
             {
                 code: table,
@@ -124,7 +125,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2
     > =>
-        Joined.__fromCommaJoinHead([
+        Joined.__fromCommaJoin([
             ...this.__commaJoins,
             {
                 code: table,

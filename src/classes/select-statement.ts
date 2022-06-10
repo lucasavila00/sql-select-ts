@@ -1,6 +1,5 @@
 import {
     AliasedRows,
-    AliasedRowsURI,
     SelectStarArgs,
     StarOfAliasSymbol,
     StarSymbol,
@@ -25,13 +24,19 @@ export class SelectStatement<
     Selection extends string
 > {
     private constructor(
+        /* @internal */
         public __from: TableOrSubquery<any, any, any, any> | null,
+        /* @internal */
         public __selection: SelectionWrapperTypes<Selection>,
+        /* @internal */
         public __orderBy: SafeString[],
+        /* @internal */
         public __limit: SafeString | number | null,
+        /* @internal */
         public __where: SafeString[]
     ) {}
 
+    /* @internal */
     public static __fromTableOrSubquery = (
         it: TableOrSubquery<any, any, any, any>,
         selection: SelectionWrapperTypes<any>
@@ -48,18 +53,7 @@ export class SelectStatement<
     public static fromNothing = <NewSelection extends string>(
         it: Record<NewSelection, SafeString>
     ): SelectStatement<never, never, NewSelection> =>
-        new SelectStatement(
-            null,
-            [
-                {
-                    _tag: AliasedRowsURI,
-                    content: it,
-                },
-            ],
-            [],
-            null,
-            []
-        );
+        new SelectStatement(null, [AliasedRows(it)], [], null, []);
 
     private copy = (): SelectStatement<With, Scope, Selection> =>
         new SelectStatement(
@@ -78,10 +72,7 @@ export class SelectStatement<
         never,
         Selection | `main_alias.${Selection}`,
         NewSelection
-    > =>
-        SelectStatement.__fromTableOrSubquery(this, [
-            { _tag: AliasedRowsURI, content: f(proxy) },
-        ]);
+    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     public selectStar = (
         args?: SelectStarArgs
@@ -102,13 +93,7 @@ export class SelectStatement<
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<With, Scope, Selection | NewSelection> => {
         const t = this.copy();
-        t.__selection = [
-            ...(t.__selection as any),
-            {
-                _tag: AliasedRowsURI,
-                content: f(proxy),
-            },
-        ];
+        t.__selection = [...(t.__selection as any), AliasedRows(f(proxy))];
         return t as any;
     };
 
@@ -153,7 +138,7 @@ export class SelectStatement<
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2
     > =>
-        Joined.__fromCommaJoinHead([
+        Joined.__fromCommaJoin([
             {
                 code: this,
                 alias: thisQueryAlias,
@@ -188,7 +173,7 @@ export class SelectStatement<
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2
     > =>
-        Joined.__fromProperJoin(
+        Joined.__fromAll(
             [
                 {
                     code: this,
@@ -222,7 +207,7 @@ export class SelectStatement<
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2
     > =>
-        Joined.__fromCommaJoinHead([
+        Joined.__fromCommaJoin([
             {
                 code: this,
                 alias: thisQueryAlias,

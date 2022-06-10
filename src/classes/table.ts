@@ -1,4 +1,4 @@
-import { AliasedRowsURI, SelectStarArgs, StarSymbol } from "../data-wrappers";
+import { AliasedRows, SelectStarArgs, StarSymbol } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { makeArray } from "../utils";
@@ -7,16 +7,23 @@ import { Joined } from "./joined";
 import { SelectStatement } from "./select-statement";
 
 export class Table<Selection extends string, Alias extends string> {
-    private constructor(public __alias: string, public __name: string) {}
+    private constructor(
+        /* @internal */
+        public __columns: string[],
+        /* @internal */
+        public __alias: string,
+        /* @internal */
+        public __name: string
+    ) {}
 
     public static define = <
         Selection extends string,
         Alias extends string = never
     >(
-        _columns: Selection[],
+        columns: Selection[],
         alias: Alias,
         name: string = alias
-    ): Table<Selection, Alias> => new Table(alias, name);
+    ): Table<Selection, Alias> => new Table(columns, alias, name);
 
     public select = <NewSelection extends string>(
         f: (
@@ -26,10 +33,7 @@ export class Table<Selection extends string, Alias extends string> {
         never,
         Selection | `${Alias}.${Selection}`,
         NewSelection
-    > =>
-        SelectStatement.__fromTableOrSubquery(this, [
-            { _tag: AliasedRowsURI, content: f(proxy) },
-        ]);
+    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     public selectStar = (
         args?: SelectStarArgs
@@ -48,7 +52,7 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        Joined.__fromCommaJoinHead([
+        Joined.__fromCommaJoin([
             {
                 code: this,
                 alias: this.__alias,
@@ -78,7 +82,7 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        Joined.__fromProperJoin(
+        Joined.__fromAll(
             [
                 {
                     code: this,
@@ -110,7 +114,7 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        Joined.__fromCommaJoinHead([
+        Joined.__fromCommaJoin([
             {
                 code: this,
                 alias: this.__alias,
@@ -133,7 +137,7 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        Joined.__fromCommaJoinHead([
+        Joined.__fromCommaJoin([
             {
                 code: this,
                 alias: this.__alias,

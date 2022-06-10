@@ -1,4 +1,4 @@
-import { AliasedRowsURI } from "../data-wrappers";
+import { AliasedRows } from "../data-wrappers";
 import { printCompound } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
@@ -18,9 +18,13 @@ type SelectionOfSelectStatement<T> = T extends SelectStatement<
 
 export class Compound<Scope extends string, Selection extends string> {
     private constructor(
+        /* @internal */
         public __content: TableOrSubquery<any, any, any, any>[],
+        /* @internal */
         public __qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT",
+        /* @internal */
         public __orderBy: SafeString[],
+        /* @internal */
         public __limit: SafeString | number | null
     ) {}
 
@@ -76,10 +80,7 @@ export class Compound<Scope extends string, Selection extends string> {
         never,
         Selection | `main_alias.${Selection}`,
         NewSelection
-    > =>
-        SelectStatement.__fromTableOrSubquery(this, [
-            { _tag: AliasedRowsURI, content: f(proxy) },
-        ]);
+    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     public joinTable = <
         Alias1 extends string,
@@ -105,7 +106,7 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2
     > =>
-        Joined.__fromProperJoin(
+        Joined.__fromAll(
             [
                 {
                     code: this,
