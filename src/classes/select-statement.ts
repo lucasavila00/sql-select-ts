@@ -159,11 +159,11 @@ export class SelectStatement<
     > =>
         Joined.__fromCommaJoinHead([
             {
-                code: this.__printProtected(true),
+                code: this,
                 alias: thisQueryAlias,
             },
             {
-                code: table.__name,
+                code: table,
                 alias: table.__alias,
             },
         ]);
@@ -195,7 +195,7 @@ export class SelectStatement<
         Joined.__fromProperJoin(
             [
                 {
-                    code: this.__printProtected(true),
+                    code: this,
                     alias: thisQueryAlias,
                 },
             ],
@@ -228,11 +228,11 @@ export class SelectStatement<
     > =>
         Joined.__fromCommaJoinHead([
             {
-                code: this.__printProtected(true),
+                code: this,
                 alias: thisQueryAlias,
             },
             {
-                code: table.__printProtected(true),
+                code: table,
                 alias: tableAlias,
             },
         ]);

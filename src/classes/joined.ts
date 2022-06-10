@@ -12,7 +12,7 @@ import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
 type CommaJoin = {
-    code: string;
+    code: TableOrSubquery<any, any, any, any>;
     alias: string;
 }[];
 
@@ -80,7 +80,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         Joined.__fromCommaJoinHead([
             ...this.__commaJoins,
             {
-                code: table.__name,
+                code: table,
                 alias: table.__alias,
             },
         ]);
@@ -127,7 +127,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         Joined.__fromCommaJoinHead([
             ...this.__commaJoins,
             {
-                code: table.__printProtected(true),
+                code: table,
                 alias: alias,
             },
         ]);
@@ -135,10 +135,11 @@ export class Joined<Selection extends string, Aliases extends string> {
     public __printProtected = (): string => {
         const head = this.__commaJoins
             .map((it) => {
-                if (it.code === it.alias) {
-                    return it.code;
+                const code = it.code.__printProtected(true);
+                if (it.code instanceof Table) {
+                    return code;
                 }
-                return `${it.code} AS ${wrapAlias(it.alias)}`;
+                return `${code} AS ${wrapAlias(it.alias)}`;
             })
             .join(", ");
 

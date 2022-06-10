@@ -108,7 +108,7 @@ export class Compound<Scope extends string, Selection extends string> {
         Joined.__fromProperJoin(
             [
                 {
-                    code: this.__printProtected(true),
+                    code: this,
                     alias: thisQueryAlias,
                 },
             ],

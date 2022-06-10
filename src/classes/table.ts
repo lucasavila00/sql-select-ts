@@ -50,11 +50,11 @@ export class Table<Selection extends string, Alias extends string> {
     > =>
         Joined.__fromCommaJoinHead([
             {
-                code: this.__name,
+                code: this,
                 alias: this.__alias,
             },
             {
-                code: table.__name,
+                code: table,
                 alias: table.__alias,
             },
         ]);
@@ -81,7 +81,7 @@ export class Table<Selection extends string, Alias extends string> {
         Joined.__fromProperJoin(
             [
                 {
-                    code: this.__name,
+                    code: this,
                     alias: this.__alias,
                 },
             ],
@@ -112,11 +112,11 @@ export class Table<Selection extends string, Alias extends string> {
     > =>
         Joined.__fromCommaJoinHead([
             {
-                code: this.__name,
+                code: this,
                 alias: this.__alias,
             },
             {
-                code: table.__printProtected(true),
+                code: table,
                 alias: aliasOfQuery,
             },
         ]);
@@ -135,11 +135,11 @@ export class Table<Selection extends string, Alias extends string> {
     > =>
         Joined.__fromCommaJoinHead([
             {
-                code: this.__name,
+                code: this,
                 alias: this.__alias,
             },
             {
-                code: table.__printProtected(true),
+                code: table,
                 alias: aliasOfCompound,
             },
         ]);
