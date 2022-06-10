@@ -30,7 +30,7 @@ export type SqlSupportedTypes =
     | null
     | undefined
     | SelectStatement<any, any, any>
-    | Compound<any>;
+    | Compound<any, any>;
 
 export const escapeIdentifier = (it: string): SafeString =>
     castSafe(escapeNoQuotes(it));
