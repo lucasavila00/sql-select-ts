@@ -12,7 +12,7 @@ describe("sqlite select1", () => {
     const test2 = table(["r1", "r2"], "test2");
     const t6 = table(["a", "b"], "t6");
 
-    const fromTest1And2 = test1.crossJoinTable(test2);
+    const fromTest1And2 = test1.commaJoinTable(test2);
     const { run, fail } = configureSqlite();
 
     beforeAll(async () => {
@@ -349,7 +349,7 @@ describe("sqlite select1", () => {
 
     it("select1-1.10 -- collision", async () => {
         const q = test1
-            .crossJoinTable(test1_dup)
+            .commaJoinTable(test1_dup)
             .select((f) => ({
                 //@ts-expect-error
                 f1: f.f1,
@@ -368,7 +368,7 @@ describe("sqlite select1", () => {
 
     it("select1-1.10 -- collision fixed", async () => {
         const q = test1
-            .crossJoinTable(test1_dup)
+            .commaJoinTable(test1_dup)
             .select((f) => ({
                 f1: f["test1.f1"],
                 f2: f["test1_dup.f2"],
@@ -389,8 +389,8 @@ describe("sqlite select1", () => {
     });
     it("select1-1.10 -- collision fixed", async () => {
         const q = test1
-            .crossJoinTable(test1_dup)
-            .crossJoinTable(test2)
+            .commaJoinTable(test1_dup)
+            .commaJoinTable(test2)
             .select((f) => ({
                 f1: f["test1.f1"],
                 f2: f["test1_dup.f2"],
@@ -447,7 +447,7 @@ describe("sqlite select1", () => {
     });
     it("select1-1.11.2", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinTable(table(["f1", "f2"], "b", "test1"))
+            .commaJoinTable(table(["f1", "f2"], "b", "test1"))
             .selectStar()
             .print();
 
@@ -465,7 +465,7 @@ describe("sqlite select1", () => {
     });
     it("select1-1.11.2 -- select alias", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinTable(table(["f1", "f2"], "b", "test1"))
+            .commaJoinTable(table(["f1", "f2"], "b", "test1"))
             .select((f) => ({
                 f1: f["a.f1"],
                 f2: f["b.f2"],
@@ -771,7 +771,7 @@ describe("sqlite select1", () => {
 
     it("select1-6.7", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinTable(table(["r1", "r2"], "test2"))
+            .commaJoinTable(table(["r1", "r2"], "test2"))
             .select((f) => ({ it: f["a.f1"], r2: f.r2 }))
             .orderBy((f) => f.f2)
             .print();
@@ -791,7 +791,7 @@ describe("sqlite select1", () => {
 
     it("select1-6.9.1", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinTable(table(["r1", "r2"], "b", "test2"))
+            .commaJoinTable(table(["r1", "r2"], "b", "test2"))
             .select((f) => ({ it: f["a.f1"], r2: f["b.r2"] }))
             .orderBy((f) => f["a.f1"])
             .orderBy((f) => f["b.r2"])
@@ -812,7 +812,7 @@ describe("sqlite select1", () => {
 
     it("select1-6.9.6", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinTable(table(["r1", "r2"], "b", "test3"))
+            .commaJoinTable(table(["r1", "r2"], "b", "test3"))
             .selectStar()
             .limit(1)
             .print();
@@ -833,7 +833,7 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.7", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinQuery(
+            .commaJoinQuery(
                 "it",
                 fromNothing({
                     "5": sql(5),
@@ -863,7 +863,7 @@ describe("sqlite select1", () => {
             "5": sql(5),
             "6": sql(6),
         })
-            .crossJoinTable("it", table(["f1", "f2"], "a", "test1"))
+            .commaJoinTable("it", table(["f1", "f2"], "a", "test1"))
             .selectStar()
             .limit(1)
             .print();
@@ -887,7 +887,7 @@ describe("sqlite select1", () => {
             "5": sql(5),
             "6": sql(6),
         })
-            .crossJoinQuery(
+            .commaJoinQuery(
                 "it",
                 "it2",
                 fromNothing({
@@ -912,7 +912,7 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.8", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinQuery(
+            .commaJoinQuery(
                 "b",
                 fromNothing({
                     x: sql(5),
@@ -939,7 +939,7 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.8 -- use alias", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinQuery(
+            .commaJoinQuery(
                 "b",
                 fromNothing({
                     x: sql(5),
@@ -969,7 +969,7 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.9", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .crossJoinTable(table(["f1", "f2"], "b", "test1"))
+            .commaJoinTable(table(["f1", "f2"], "b", "test1"))
             .select((f) => ({
                 f1: f["a.f1"],
                 f2: f["b.f2"],
@@ -1178,7 +1178,7 @@ describe("sqlite select1", () => {
             .where(() => sql`${subquery}`);
 
         const q = test1
-            .crossJoinTable(test2)
+            .commaJoinTable(test2)
             .select(() => ({ "1": sql(1) }))
             .where(() => sql`${subquery2}`)
             .print();
@@ -1196,7 +1196,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .crossJoinQuery("it", subquery)
+            .commaJoinQuery("it", subquery)
             .selectStarOfAliases(["test1"])
             .print();
 
@@ -1220,7 +1220,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .crossJoinQuery("it", subquery)
+            .commaJoinQuery("it", subquery)
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1248,7 +1248,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .crossJoinQuery("it", subquery)
+            .commaJoinQuery("it", subquery)
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1275,7 +1275,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .crossJoinQuery("it", subquery)
+            .commaJoinQuery("it", subquery)
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1301,7 +1301,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .crossJoinTable("it", test1)
+            .commaJoinTable("it", test1)
             .selectStarOfAliases(["test1"])
             .print();
 
@@ -1325,7 +1325,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .crossJoinTable("it", test1)
+            .commaJoinTable("it", test1)
             .selectStarOfAliases(["it"])
             .print();
 
@@ -1349,7 +1349,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .crossJoinQuery("it", subquery)
+            .commaJoinQuery("it", subquery)
             .selectStarOfAliases(["it"])
             .print();
 
@@ -1372,7 +1372,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .crossJoinTable("it", test1)
+            .commaJoinTable("it", test1)
             .selectStarOfAliases(["it", "test1"])
             .print();
 
@@ -1398,7 +1398,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .crossJoinTable("it", test1)
+            .commaJoinTable("it", test1)
             .selectStarOfAliases(["it", "test1"], { distinct: true })
             .print();
 
@@ -1424,7 +1424,7 @@ describe("sqlite select1", () => {
             .orderBy((f) => f.r2)
             .limit(4);
 
-        const q = test1.crossJoinQuery("it", subquery).selectStar().print();
+        const q = test1.commaJoinQuery("it", subquery).selectStar().print();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM test1, (SELECT * FROM test2 WHERE r2 = 2 ORDER BY r1, r2 LIMIT 4) AS it;"`
@@ -1559,7 +1559,7 @@ describe("sqlite select1", () => {
             .orderBy((f) => f.f2)
             .limit(1);
 
-        const q = test1.crossJoinCompound("u", u).selectStar().print();
+        const q = test1.commaJoinCompound("u", u).selectStar().print();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM test1, (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) AS u;"`

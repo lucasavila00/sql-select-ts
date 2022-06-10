@@ -48,16 +48,24 @@ type AliasedRows<Selection extends string> = {
     content: Record<Selection, SafeString>;
 };
 
-type CrossJoinHead = {
+type CommaJoinHead = {
     code: string;
     alias: string;
 }[];
 
+// type JoinConstraint =
+//     | {
+//           _tag: "ON";
+//           expressions: string[];
+//       }
+//     | { _tag: "USING"; columns: string[] }
+//     | { _tag: "NO_CONSTRAINT" };
+
 type ProperJoinTail = {
     code: string;
     alias: string;
-    mode: string;
-    on: SafeString[];
+    operator: string;
+    constraint: SafeString[];
 }[];
 
 type FilterFromAlias<
@@ -148,18 +156,18 @@ export class Compound<Selection extends string> {
 
 class Joined<Selection extends string, Aliases extends string> {
     private constructor(
-        public __crossJoins: CrossJoinHead,
+        public __commaJoins: CommaJoinHead,
         public __properJoins: ProperJoinTail
     ) {}
 
-    public static __fromCrossJoinHead = (
-        crossJoins: CrossJoinHead
-    ): Joined<any, any> => new Joined(crossJoins, []);
+    public static __fromCommaJoinHead = (
+        commaJoins: CommaJoinHead
+    ): Joined<any, any> => new Joined(commaJoins, []);
 
     public static __fromProperJoin = (
-        crossJoins: CrossJoinHead,
+        commaJoins: CommaJoinHead,
         properJoins: ProperJoinTail
-    ): Joined<any, any> => new Joined(crossJoins, properJoins);
+    ): Joined<any, any> => new Joined(commaJoins, properJoins);
 
     public select = <NewSelection extends string>(
         f: (
@@ -187,21 +195,21 @@ class Joined<Selection extends string, Aliases extends string> {
             StarOfAliasesSymbol(aliases, args),
         ]);
 
-    public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
+    public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
         t2: Table<Selection2, Alias2>
     ): Joined<
         Exclude<Selection, Selection2> | Exclude<Selection2, Selection>,
         Aliases | Alias2
     > =>
-        Joined.__fromCrossJoinHead([
-            ...this.__crossJoins,
+        Joined.__fromCommaJoinHead([
+            ...this.__commaJoins,
             {
                 code: t2.__name,
                 alias: t2.__alias,
             },
         ]);
 
-    public crossJoinQuery = <
+    public commaJoinQuery = <
         With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
@@ -215,8 +223,8 @@ class Joined<Selection extends string, Aliases extends string> {
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2
     > =>
-        Joined.__fromCrossJoinHead([
-            ...this.__crossJoins,
+        Joined.__fromCommaJoinHead([
+            ...this.__commaJoins,
             {
                 code: t2.__printProtected(true),
                 alias: alias,
@@ -224,7 +232,7 @@ class Joined<Selection extends string, Aliases extends string> {
         ]);
 
     public __printProtected = (): string => {
-        const head = this.__crossJoins
+        const head = this.__commaJoins
             .map((it) => {
                 if (it.code === it.alias) {
                     return it.code;
@@ -235,13 +243,15 @@ class Joined<Selection extends string, Aliases extends string> {
 
         const tail = this.__properJoins
             .map((it) => {
-                const onJoined = it.on.map((it) => it.content).join(" AND ");
+                const onJoined = it.constraint
+                    .map((it) => it.content)
+                    .join(" AND ");
 
                 const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
 
                 const alias =
                     it.code === it.alias ? "" : `AS ${wrapAlias(it.alias)}`;
-                return [it.mode, "JOIN", it.code, alias, on]
+                return [it.operator, "JOIN", it.code, alias, on]
                     .filter((it) => it.length > 0)
                     .join(" ");
             })
@@ -284,7 +294,7 @@ class Table<Selection extends string, Alias extends string> {
         Selection
     > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
 
-    public crossJoinTable = <Selection2 extends string, Alias2 extends string>(
+    public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
         t2: Table<Selection2, Alias2>
     ): Joined<
         | Exclude<Selection, Selection2>
@@ -293,7 +303,7 @@ class Table<Selection extends string, Alias extends string> {
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        Joined.__fromCrossJoinHead([
+        Joined.__fromCommaJoinHead([
             {
                 code: this.__name,
                 alias: this.__alias,
@@ -305,7 +315,7 @@ class Table<Selection extends string, Alias extends string> {
         ]);
 
     public joinTable = <Selection2 extends string, Alias2 extends string>(
-        mode: string,
+        operator: string,
         t2: Table<Selection2, Alias2>,
         on?: (
             f: Record<
@@ -317,8 +327,8 @@ class Table<Selection extends string, Alias extends string> {
             >
         ) => SafeString | SafeString[]
     ): Joined<
-        | Selection
-        | Selection2
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
@@ -334,13 +344,13 @@ class Table<Selection extends string, Alias extends string> {
                 {
                     code: t2.__name,
                     alias: t2.__alias,
-                    mode,
-                    on: on != null ? makeArray(on(proxy as any)) : [],
+                    operator,
+                    constraint: on != null ? makeArray(on(proxy as any)) : [],
                 },
             ]
         );
 
-    public crossJoinQuery = <
+    public commaJoinQuery = <
         With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
@@ -355,7 +365,7 @@ class Table<Selection extends string, Alias extends string> {
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        Joined.__fromCrossJoinHead([
+        Joined.__fromCommaJoinHead([
             {
                 code: this.__name,
                 alias: this.__alias,
@@ -366,7 +376,7 @@ class Table<Selection extends string, Alias extends string> {
             },
         ]);
 
-    public crossJoinCompound = <
+    public commaJoinCompound = <
         Selection2 extends string,
         Alias2 extends string
     >(
@@ -378,7 +388,7 @@ class Table<Selection extends string, Alias extends string> {
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        Joined.__fromCrossJoinHead([
+        Joined.__fromCommaJoinHead([
             {
                 code: this.__name,
                 alias: this.__alias,
@@ -560,7 +570,7 @@ export class SelectStatement<
         return t;
     };
 
-    public crossJoinTable = <
+    public commaJoinTable = <
         Alias1 extends string,
         Selection2 extends string,
         Alias2 extends string
@@ -573,7 +583,7 @@ export class SelectStatement<
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2
     > =>
-        Joined.__fromCrossJoinHead([
+        Joined.__fromCommaJoinHead([
             {
                 code: this.__printProtected(true),
                 alias: thisQueryAlias,
@@ -584,7 +594,7 @@ export class SelectStatement<
             },
         ]);
 
-    public crossJoinQuery = <
+    public commaJoinQuery = <
         Alias1 extends string,
         With2 extends string,
         Scope2 extends string,
@@ -601,7 +611,7 @@ export class SelectStatement<
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2
     > =>
-        Joined.__fromCrossJoinHead([
+        Joined.__fromCommaJoinHead([
             {
                 code: this.__printProtected(true),
                 alias: thisQueryAlias,
