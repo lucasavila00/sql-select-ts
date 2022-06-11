@@ -69,6 +69,18 @@ describe("joinTable", () => {
         );
     });
 
+    it("table -> table -- USING", async () => {
+        const q = t1.joinTable("LEFT", t2).using(["b"]).selectStar().print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 LEFT JOIN t2 USING(b);"`
+        );
+    });
+
+    it("table -> table -- NO CONSTRAINT", async () => {
+        const q = t1.joinTable("LEFT", t2).noConstraint().selectStar().print();
+        expect(q).toMatchInlineSnapshot(`"SELECT * FROM t1 LEFT JOIN t2;"`);
+    });
+
     it("select -> table", async () => {
         const q = t1
             .selectStar()
@@ -119,6 +131,30 @@ describe("joinTable", () => {
             .print();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2 ON a = d;"`
+        );
+    });
+
+    it("select -> table -- USING", async () => {
+        const q = t1
+            .selectStar()
+            .joinTable("q1", "LEFT", t2)
+            .using(["b"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2 USING(b);"`
+        );
+    });
+
+    it("select -> table -- NO CONSTRAIN", async () => {
+        const q = t1
+            .selectStar()
+            .joinTable("q1", "LEFT", t2)
+            .noConstraint()
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2;"`
         );
     });
 
@@ -175,6 +211,32 @@ describe("joinTable", () => {
             `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 ON a = e;"`
         );
     });
+    it("joined -> table -- USING", async () => {
+        const q = t1
+            .joinTable("NATURAL", t2)
+            .noConstraint()
+            .joinTable("LEFT", t3)
+            .using(["d"])
+            .selectStar()
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 USING(d);"`
+        );
+    });
+    it("joined -> table -- NO CONSTRAINT", async () => {
+        const q = t1
+            .joinTable("NATURAL", t2)
+            .noConstraint()
+            .joinTable("LEFT", t3)
+            .noConstraint()
+            .selectStar()
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3;"`
+        );
+    });
 
     it("union -> table", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
@@ -226,6 +288,28 @@ describe("joinTable", () => {
             .print();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2 ON a = q1.b;"`
+        );
+    });
+
+    it("union -> table -- USING", async () => {
+        const q = unionAll([t1.selectStar(), t3.selectStar()])
+            .joinTable("q1", "LEFT", t2)
+            .using(["b"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2 USING(b);"`
+        );
+    });
+
+    it("union -> table -- NO CONSTRAINT", async () => {
+        const q = unionAll([t1.selectStar(), t3.selectStar()])
+            .joinTable("q1", "LEFT", t2)
+            .noConstraint()
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2;"`
         );
     });
 });

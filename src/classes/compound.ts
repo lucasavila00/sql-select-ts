@@ -93,16 +93,7 @@ export class Compound<Scope extends string, Selection extends string> {
     >(
         thisQueryAlias: Alias1,
         operator: string,
-        table: Table<Selection2, Alias2>,
-        on?: (
-            f: Record<
-                | Exclude<Selection, Selection2>
-                | Exclude<Selection2, Selection>
-                | `${Alias1}.${Selection}`
-                | `${Alias2}.${Selection2}`,
-                SafeString
-            >
-        ) => SafeString | SafeString[]
+        table: Table<Selection2, Alias2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>

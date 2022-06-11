@@ -105,7 +105,7 @@ const printJoinedInternal = <Selection extends string, Aliases extends string>(
             return [
                 it.operator,
                 "JOIN",
-                printInternal(it.code, false),
+                printInternal(it.code, true),
                 on,
                 using,
             ]

@@ -98,7 +98,7 @@ export class Table<Selection extends string, Alias extends string> {
         Alias2 extends string
     >(
         aliasOfQuery: Alias2,
-        table: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<With2, Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
@@ -112,10 +112,42 @@ export class Table<Selection extends string, Alias extends string> {
                 alias: this.__alias,
             },
             {
-                code: table,
+                code: select,
                 alias: aliasOfQuery,
             },
         ]);
+
+    public joinQuery = <
+        With2 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        aliasOfQuery: Alias2,
+        operator: string,
+        select: SelectStatement<With2, Scope2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias}.${Selection}`
+        | `${Alias2}.${Selection2}`,
+        Alias | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            [
+                {
+                    code: this,
+                    alias: this.__alias,
+                },
+            ],
+            [],
+            {
+                code: select,
+                alias: aliasOfQuery,
+                operator,
+            }
+        );
 
     public commaJoinCompound = <
         Selection2 extends string,
