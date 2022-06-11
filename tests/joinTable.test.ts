@@ -148,6 +148,20 @@ describe("joinTable", () => {
         );
     });
 
+    it("joined -> table -- prevents ambigous", async () => {
+        const q = t1
+            .joinTable("NATURAL", t2)
+            .noConstraint()
+            .joinTable("LEFT", t3)
+            // @ts-expect-error
+            .on((f) => equals(f.b, f.e))
+            .selectStar()
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 ON b = e;"`
+        );
+    });
     it("joined -> table -- ON", async () => {
         const q = t1
             .joinTable("NATURAL", t2)
@@ -185,6 +199,22 @@ describe("joinTable", () => {
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT a AS x, d AS e FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 NATURAL JOIN t2;"`
+        );
+    });
+
+    it("union -> table -- prevents ambigous", async () => {
+        const a = t1.selectStar();
+        const b = t3.selectStar();
+        const u = unionAll([a, b]);
+        const q = u
+            .joinTable("q1", "NATURAL", t2)
+            .noConstraint()
+            // @ts-expect-error
+            .select((f) => ({ x: f.a, e: f.b }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a AS x, b AS e FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 NATURAL JOIN t2;"`
         );
     });
 

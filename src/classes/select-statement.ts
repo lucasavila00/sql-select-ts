@@ -108,7 +108,7 @@ export class SelectStatement<
 
     public appendSelect = <NewSelection extends string>(
         f: (
-            f: Record<Selection | Scope, SafeString>
+            f: Record<Selection | Scope, SafeString> & XCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<With, Scope, Selection | NewSelection> =>
         this.copy().setSelection([
