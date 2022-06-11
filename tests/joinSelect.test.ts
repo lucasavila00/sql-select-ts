@@ -2,7 +2,7 @@ import { SafeString, sql, table, unionAll } from "../src";
 
 const equals = (a: SafeString, b: SafeString) => sql`${a} = ${b}`;
 
-describe("joinQuery", () => {
+describe("joinSelect", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
@@ -25,7 +25,7 @@ describe("joinQuery", () => {
     it("table -> query", async () => {
         const q2 = t2.selectStar();
         const q = t1
-            .joinQuery("q2", "NATURAL", q2)
+            .joinSelect("q2", "NATURAL", q2)
             .noConstraint()
             .selectStar()
             .print();
@@ -37,7 +37,7 @@ describe("joinQuery", () => {
     it("table -> query -- select", async () => {
         const q2 = t2.selectStar();
         const q = t1
-            .joinQuery("q2", "NATURAL", q2)
+            .joinSelect("q2", "NATURAL", q2)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
             .print();
@@ -49,7 +49,7 @@ describe("joinQuery", () => {
     it("table -> query -- prevents ambiguous", async () => {
         const q2 = t2.selectStar();
         const q = t1
-            .joinQuery("q2", "NATURAL", q2)
+            .joinSelect("q2", "NATURAL", q2)
             .noConstraint()
             .select((f) => ({
                 x: f.a,
@@ -66,7 +66,7 @@ describe("joinQuery", () => {
     it("table -> query -- ON", async () => {
         const q2 = t2.selectStar();
         const q = t1
-            .joinQuery("q2", "LEFT", q2)
+            .joinSelect("q2", "LEFT", q2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
             .print();
@@ -78,7 +78,7 @@ describe("joinQuery", () => {
     it("table -> query -- USING", async () => {
         const q2 = t2.selectStar();
         const q = t1
-            .joinQuery("q2", "LEFT", q2)
+            .joinSelect("q2", "LEFT", q2)
             .using(["b"])
             .selectStar()
             .print();
@@ -90,7 +90,7 @@ describe("joinQuery", () => {
     it("table -> query -- NO CONSTRAINT", async () => {
         const q2 = t2.selectStar();
         const q = t1
-            .joinQuery("q2", "LEFT", q2)
+            .joinSelect("q2", "LEFT", q2)
             .using(["b"])
             .selectStar()
             .print();

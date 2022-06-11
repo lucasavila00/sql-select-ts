@@ -189,7 +189,7 @@ export class SelectStatement<
             }
         );
 
-    public commaJoinQuery = <
+    public commaJoinSelect = <
         Alias1 extends string,
         With2 extends string,
         Scope2 extends string,

@@ -91,7 +91,7 @@ export class Table<Selection extends string, Alias extends string> {
             }
         );
 
-    public commaJoinQuery = <
+    public commaJoinSelect = <
         With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
@@ -117,7 +117,7 @@ export class Table<Selection extends string, Alias extends string> {
             },
         ]);
 
-    public joinQuery = <
+    public joinSelect = <
         With2 extends string,
         Scope2 extends string,
         Selection2 extends string,

@@ -827,7 +827,7 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.7", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinQuery(
+            .commaJoinSelect(
                 "it",
                 fromNothing({
                     "5": sql(5),
@@ -881,7 +881,7 @@ describe("sqlite select1", () => {
             "5": sql(5),
             "6": sql(6),
         })
-            .commaJoinQuery(
+            .commaJoinSelect(
                 "it",
                 "it2",
                 fromNothing({
@@ -906,7 +906,7 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.8", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinQuery(
+            .commaJoinSelect(
                 "b",
                 fromNothing({
                     x: sql(5),
@@ -933,7 +933,7 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.8 -- use alias", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinQuery(
+            .commaJoinSelect(
                 "b",
                 fromNothing({
                     x: sql(5),
@@ -1190,7 +1190,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoinQuery("it", subquery)
+            .commaJoinSelect("it", subquery)
             .selectStarOfAliases(["test1"])
             .print();
 
@@ -1214,7 +1214,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoinQuery("it", subquery)
+            .commaJoinSelect("it", subquery)
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1242,7 +1242,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoinQuery("it", subquery)
+            .commaJoinSelect("it", subquery)
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1269,7 +1269,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoinQuery("it", subquery)
+            .commaJoinSelect("it", subquery)
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1343,7 +1343,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoinQuery("it", subquery)
+            .commaJoinSelect("it", subquery)
             .selectStarOfAliases(["it"])
             .print();
 
@@ -1418,7 +1418,7 @@ describe("sqlite select1", () => {
             .orderBy((f) => f.r2)
             .limit(4);
 
-        const q = test1.commaJoinQuery("it", subquery).selectStar().print();
+        const q = test1.commaJoinSelect("it", subquery).selectStar().print();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM test1, (SELECT * FROM test2 WHERE r2 = 2 ORDER BY r1, r2 LIMIT 4) AS it;"`

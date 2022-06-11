@@ -166,7 +166,7 @@ export class Joined<Selection extends string, Aliases extends string> {
             }
         );
 
-    public commaJoinQuery = <
+    public commaJoinSelect = <
         With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
