@@ -6,7 +6,9 @@ describe("joinSelect", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
-
+    const q1 = t1.selectStar();
+    const q2 = t2.selectStar();
+    const q3 = t3.selectStar();
     /*
     CREATE TABLE t1(a,b,c);
     INSERT INTO t1 VALUES(1,2,3);
@@ -23,7 +25,6 @@ describe("joinSelect", () => {
     */
 
     it("table -> select", async () => {
-        const q2 = t2.selectStar();
         const q = t1
             .joinSelect("q2", "NATURAL", q2)
             .noConstraint()
@@ -35,7 +36,6 @@ describe("joinSelect", () => {
     });
 
     it("table -> select -- select", async () => {
-        const q2 = t2.selectStar();
         const q = t1
             .joinSelect("q2", "NATURAL", q2)
             .noConstraint()
@@ -47,7 +47,6 @@ describe("joinSelect", () => {
     });
 
     it("table -> select -- prevents ambiguous", async () => {
-        const q2 = t2.selectStar();
         const q = t1
             .joinSelect("q2", "NATURAL", q2)
             .noConstraint()
@@ -64,7 +63,6 @@ describe("joinSelect", () => {
     });
 
     it("table -> select -- ON", async () => {
-        const q2 = t2.selectStar();
         const q = t1
             .joinSelect("q2", "LEFT", q2)
             .on((f) => equals(f.a, f.d))
@@ -76,7 +74,6 @@ describe("joinSelect", () => {
     });
 
     it("table -> select -- ON QUALIFIED", async () => {
-        const q2 = t2.selectStar();
         const q = t1
             .joinSelect("q2", "LEFT", q2)
             .on((f) => equals(f["t1.a"], f["q2.d"]))
@@ -88,7 +85,6 @@ describe("joinSelect", () => {
     });
 
     it("table -> select -- USING", async () => {
-        const q2 = t2.selectStar();
         const q = t1
             .joinSelect("q2", "LEFT", q2)
             .using(["b"])
@@ -100,7 +96,6 @@ describe("joinSelect", () => {
     });
 
     it("table -> select -- NO CONSTRAINT", async () => {
-        const q2 = t2.selectStar();
         const q = t1
             .joinSelect("q2", "LEFT", q2)
             .using(["b"])
@@ -112,8 +107,6 @@ describe("joinSelect", () => {
     });
 
     it("select -> select", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -125,8 +118,6 @@ describe("joinSelect", () => {
     });
 
     it("select -> select -- select", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -138,8 +129,6 @@ describe("joinSelect", () => {
     });
 
     it("select -> select -- prevents ambiguous", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -156,8 +145,6 @@ describe("joinSelect", () => {
     });
 
     it("select -> select -- ON", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
         const q = q1
             .joinSelect("q1", "LEFT", "q2", q2)
             .on((f) => equals(f.a, f.d))
@@ -169,8 +156,6 @@ describe("joinSelect", () => {
     });
 
     it("select -> select -- ON QUALIFIED", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
         const q = q1
             .joinSelect("q1", "LEFT", "q2", q2)
             .on((f) => equals(f["q1.a"], f["q2.d"]))
@@ -181,8 +166,6 @@ describe("joinSelect", () => {
         );
     });
     it("select -> select -- USING", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
         const q = q1
             .joinSelect("q1", "LEFT", "q2", q2)
             .using(["b"])
@@ -194,8 +177,6 @@ describe("joinSelect", () => {
     });
 
     it("select -> select -- NO CONSTRAINT", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -207,9 +188,6 @@ describe("joinSelect", () => {
     });
 
     it("joined -> select", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
-        const q3 = t3.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -223,9 +201,6 @@ describe("joinSelect", () => {
     });
 
     it("joined -> select -- select", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
-        const q3 = t3.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -239,9 +214,6 @@ describe("joinSelect", () => {
     });
 
     it("joined -> select -- prevents ambiguous", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
-        const q3 = t3.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -259,9 +231,6 @@ describe("joinSelect", () => {
     });
 
     it("joined -> select -- ON", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
-        const q3 = t3.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -275,9 +244,6 @@ describe("joinSelect", () => {
     });
 
     it("joined -> select -- ON QUALIFIED", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
-        const q3 = t3.selectStar();
         const q = q1
             .joinSelect("q1", "NATURAL", "q2", q2)
             .noConstraint()
@@ -291,9 +257,6 @@ describe("joinSelect", () => {
     });
 
     it("joined -> select -- USING", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
-        const q3 = t3.selectStar();
         const q = q1
             .joinSelect("q1", "LEFT", "q2", q2)
             .noConstraint()
@@ -308,9 +271,6 @@ describe("joinSelect", () => {
     });
 
     it("joined -> select -- NO CONSTRAINT", async () => {
-        const q1 = t1.selectStar();
-        const q2 = t2.selectStar();
-        const q3 = t3.selectStar();
         const q = q1
             .joinSelect("q1", "LEFT", "q2", q2)
             .noConstraint()
@@ -322,4 +282,15 @@ describe("joinSelect", () => {
             `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3;"`
         );
     });
+
+    // it("union -> select", async () => {
+    //     const q = unionAll([q1, q2])
+    //         .joinSelect("q1", "NATURAL", "q3", q3)
+    //         .noConstraint()
+    //         .selectStar()
+    //         .print();
+    //     expect(q).toMatchInlineSnapshot(
+    //         `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
+    //     );
+    // });
 });
