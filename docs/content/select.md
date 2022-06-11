@@ -6,8 +6,8 @@ First, create the table definitions.
 
 ```ts
 const users = table(
-  ["id", "age", "name"],
-  "users"
+  /* columns: */ ["id", "age", "name"],
+  /* name: */ "users"
 );
 ```
 
