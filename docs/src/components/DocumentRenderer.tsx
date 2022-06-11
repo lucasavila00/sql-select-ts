@@ -17,16 +17,5 @@ export const DocumentRenderer: FC<{
     components: { Fence },
   });
 
-  return (
-    <div
-      className="markdown-body"
-      style={{
-        maxWidth: 600,
-        margin: "auto",
-        padding: 12,
-      }}
-    >
-      {rendered}
-    </div>
-  );
+  return <>{rendered}</>;
 };
