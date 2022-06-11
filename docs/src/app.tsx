@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import {
   table as _table,
   sql as _sql,
+  unionAll as _unionAll,
 } from "../../src";
 import Markdoc, {
   Tag,
@@ -9,16 +10,24 @@ import Markdoc, {
 import useSWR from "swr";
 import { format } from "sql-formatter";
 import "prismjs";
-import "prismjs/themes/prism-tomorrow.css";
+import "prismjs/themes/prism-okaidia.css";
 import "prismjs/components/prism-typescript";
 import "prismjs/components/prism-sql";
 import Prism from "react-prism";
+import * as Babel from "@babel/standalone";
 
 const table = _table;
 const sql = _sql;
+const unionAll = _unionAll;
 const users = table(
   ["id", "age", "name"],
   "users"
+);
+
+const admins = table(
+  ["id", "age", "name"],
+  "adm",
+  "admins"
 );
 
 const printer = {
@@ -30,13 +39,21 @@ const printer = {
     const children =
       node.transformChildren(config);
 
-    const text = children
+    const tsCode = children
       .map((it) => it.children)
       .reduce(
         (p, c) => [...p, ...c],
         []
       )
       .join("");
+
+    const jsCode = Babel.transform(
+      tsCode,
+      {
+        filename: "any.ts",
+        presets: ["typescript"],
+      }
+    ).code;
 
     return [
       children,
@@ -46,7 +63,7 @@ const printer = {
           ...attributes,
           ["language"]: "sql",
         },
-        [format(eval(text))]
+        [format(eval(jsCode))]
       ),
     ];
   },
