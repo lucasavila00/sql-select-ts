@@ -1,10 +1,11 @@
 import React, { FC } from "react";
 import { Anchor, Box, Header, Menu, Nav, ResponsiveContext } from "grommet";
+import { AnchorLink } from "./AnchorLink";
 
 export const CollapsableNav: FC = () => (
   <Header background="dark-1" pad="medium">
     <Box direction="row" align="center" gap="small">
-      Resize the page to collapse the Nav into a Menu
+      select-ts
     </Box>
     <ResponsiveContext.Consumer>
       {(responsive) =>
@@ -12,16 +13,16 @@ export const CollapsableNav: FC = () => (
           <Menu
             label="Click me"
             items={[
-              { label: "This is", onClick: () => {} },
-              { label: "The Menu", onClick: () => {} },
-              { label: "Component", onClick: () => {} },
+              { label: "Examples", onClick: () => {} },
+              { label: "API Reference", onClick: () => {} },
+              { label: "Source code", onClick: () => {} },
             ]}
           />
         ) : (
           <Nav direction="row">
-            <Anchor href="#" label="This is" />
-            <Anchor href="#" label="The Nav" />
-            <Anchor href="#" label="Component" />
+            <AnchorLink to="/examples" label="Examples" />
+            <Anchor href="#" label="API Reference" />
+            <Anchor href="#" label="Source code" />
           </Nav>
         )
       }

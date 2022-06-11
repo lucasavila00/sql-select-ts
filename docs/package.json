@@ -25,6 +25,7 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-prism": "^4.3.2",
+    "react-router-dom": "^6.3.0",
     "sql-formatter": "^6.1.5",
     "styled-components": "^5.3.5",
     "swr": "^1.3.0"

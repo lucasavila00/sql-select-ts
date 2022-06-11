@@ -1,11 +1,13 @@
-import React, { FC, Suspense } from "react";
-import "prismjs";
-import "prismjs/themes/prism.css";
-import "prismjs/components/prism-typescript";
-import "prismjs/components/prism-sql";
-import { Document } from "./Document";
-import { URLS } from "../lib/urls";
 import { Grommet } from "grommet";
+import "prismjs";
+import "prismjs/components/prism-sql";
+import "prismjs/components/prism-typescript";
+import "prismjs/themes/prism.css";
+import React, { FC, Suspense } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { examples, ExamplesKeys } from "../lib/examples";
+import { getKeys } from "../lib/std";
+import { Example } from "./Example";
 import { CollapsableNav } from "./TopNav";
 
 export const App: FC = () => (
@@ -20,9 +22,25 @@ export const App: FC = () => (
       },
     }}
   >
-    <CollapsableNav />
-    <Suspense fallback={<></>}>
-      <Document contentUrl={URLS.where} />
-    </Suspense>
+    <BrowserRouter>
+      <CollapsableNav />
+      <Suspense fallback={<></>}>
+        <Routes>
+          <Route
+            path="/"
+            element={<Example exampleKey={ExamplesKeys.select} />}
+          />
+          <Route path="/examples">
+            <Route
+              index
+              element={<Example exampleKey={ExamplesKeys.select} />}
+            />
+            {getKeys(examples).map((it) => (
+              <Route path={it} key={it} element={<Example exampleKey={it} />} />
+            ))}
+          </Route>
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   </Grommet>
 );

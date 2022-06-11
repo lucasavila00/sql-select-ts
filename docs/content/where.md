@@ -1,10 +1,10 @@
-# Where
-
-#### Tables
+We will use this table
 
 ```sql
 CREATE TABLE users(id int, age int, name string);
 ```
+
+Which is defined in typescript as
 
 ```ts
 const users = table(

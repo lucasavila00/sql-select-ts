@@ -1,10 +1,10 @@
-# Order By
-
-#### Tables
+We will use this table
 
 ```sql
 CREATE TABLE users(id int, age int, name string);
 ```
+
+Which is defined in typescript as
 
 ```ts
 const users = table(
@@ -28,7 +28,7 @@ users
 
 ## Two Clauses
 
-### One call
+## One call
 
 {% printer %}
 
@@ -44,7 +44,7 @@ users
 
 {% /printer %}
 
-### Two calls
+## Two calls
 
 {% printer %}
 
