@@ -69,6 +69,17 @@ describe("joinTable", () => {
         );
     });
 
+    it("table -> table -- ON QUALIFIED", async () => {
+        const q = t1
+            .joinTable("LEFT", t2)
+            .on((f) => equals(f["t1.a"], f["t2.d"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 LEFT JOIN t2 ON t1.a = t2.d;"`
+        );
+    });
+
     it("table -> table -- USING", async () => {
         const q = t1.joinTable("LEFT", t2).using(["b"]).selectStar().print();
         expect(q).toMatchInlineSnapshot(
@@ -131,6 +142,18 @@ describe("joinTable", () => {
             .print();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2 ON a = d;"`
+        );
+    });
+
+    it("select -> table -- ON QUALIFIED", async () => {
+        const q = t1
+            .selectStar()
+            .joinTable("q1", "LEFT", t2)
+            .on((f) => equals(f["q1.a"], f["t2.d"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2 ON q1.a = t2.d;"`
         );
     });
 
@@ -211,6 +234,19 @@ describe("joinTable", () => {
             `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 ON a = e;"`
         );
     });
+    it("joined -> table -- ON QUALIFIED", async () => {
+        const q = t1
+            .joinTable("NATURAL", t2)
+            .noConstraint()
+            .joinTable("LEFT", t3)
+            .on((f) => equals(f["t1.a"], f["t3.e"]))
+            .selectStar()
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 ON t1.a = t3.e;"`
+        );
+    });
     it("joined -> table -- USING", async () => {
         const q = t1
             .joinTable("NATURAL", t2)
@@ -288,6 +324,17 @@ describe("joinTable", () => {
             .print();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2 ON a = q1.b;"`
+        );
+    });
+
+    it("union -> table -- ON QUALIFIED", async () => {
+        const q = unionAll([t1.selectStar(), t3.selectStar()])
+            .joinTable("q1", "LEFT", t2)
+            .on((f) => equals(f["q1.a"], f["q1.b"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2 ON q1.a = q1.b;"`
         );
     });
 

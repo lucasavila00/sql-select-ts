@@ -30,7 +30,7 @@ describe("joinSelect", () => {
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 NATURAL JOIN (SELECT * FROM t2);"`
+            `"SELECT * FROM t1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
         );
     });
 
@@ -42,7 +42,7 @@ describe("joinSelect", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, t1.c AS z FROM t1 NATURAL JOIN (SELECT * FROM t2);"`
+            `"SELECT a AS x, d AS y, t1.c AS z FROM t1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
         );
     });
 
@@ -59,7 +59,7 @@ describe("joinSelect", () => {
             }))
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, c AS z FROM t1 NATURAL JOIN (SELECT * FROM t2);"`
+            `"SELECT a AS x, d AS y, c AS z FROM t1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
         );
     });
 
@@ -71,7 +71,19 @@ describe("joinSelect", () => {
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) ON a = d;"`
+            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) AS q2 ON a = d;"`
+        );
+    });
+
+    it("table -> select -- ON QUALIFIED", async () => {
+        const q2 = t2.selectStar();
+        const q = t1
+            .joinSelect("q2", "LEFT", q2)
+            .on((f) => equals(f["t1.a"], f["q2.d"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) AS q2 ON t1.a = q2.d;"`
         );
     });
 
@@ -83,7 +95,7 @@ describe("joinSelect", () => {
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) USING(b);"`
+            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) AS q2 USING(b);"`
         );
     });
 
@@ -95,7 +107,7 @@ describe("joinSelect", () => {
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) USING(b);"`
+            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) AS q2 USING(b);"`
         );
     });
 
@@ -108,7 +120,7 @@ describe("joinSelect", () => {
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2);"`
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
         );
     });
 
@@ -121,7 +133,7 @@ describe("joinSelect", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, q1.c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2);"`
+            `"SELECT a AS x, d AS y, q1.c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
         );
     });
 
@@ -139,7 +151,7 @@ describe("joinSelect", () => {
             }))
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2);"`
+            `"SELECT a AS x, d AS y, c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
         );
     });
 
@@ -152,10 +164,22 @@ describe("joinSelect", () => {
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) ON a = d;"`
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 ON a = d;"`
         );
     });
 
+    it("select -> select -- ON QUALIFIED", async () => {
+        const q1 = t1.selectStar();
+        const q2 = t2.selectStar();
+        const q = q1
+            .joinSelect("q1", "LEFT", "q2", q2)
+            .on((f) => equals(f["q1.a"], f["q2.d"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 ON q1.a = q2.d;"`
+        );
+    });
     it("select -> select -- USING", async () => {
         const q1 = t1.selectStar();
         const q2 = t2.selectStar();
@@ -165,7 +189,7 @@ describe("joinSelect", () => {
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) USING(b);"`
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 USING(b);"`
         );
     });
 
@@ -178,7 +202,7 @@ describe("joinSelect", () => {
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) USING(b);"`
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 USING(b);"`
         );
     });
 });
