@@ -167,15 +167,6 @@ describe("sqlite select1", () => {
         `);
     });
 
-    it("select1-1.7 -- identity function is invalid", async () => {
-        const q = test1
-            .select(
-                // @ts-expect-error
-                (it) => it
-            )
-            .print();
-    });
-
     it("select1-1.8", async () => {
         const q = test1.selectStar().print();
 

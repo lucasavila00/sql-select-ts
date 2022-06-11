@@ -1,3 +1,4 @@
+import { hole } from "fp-ts/lib/function";
 import {
     SelectStarArgs,
     StarOfAliasesSymbol,
@@ -16,17 +17,61 @@ type CommaJoin = {
     alias: string;
 }[];
 
-type ProperJoin = {
+export type JoinConstraint =
+    | {
+          _tag: "no_constraint";
+      }
+    | { _tag: "on"; on: SafeString[] };
+
+type ProperJoinItem = {
     code: TableOrSubquery<any, any, any, any>;
     alias: string;
     operator: string;
-    constraint: SafeString[];
-}[];
+    constraint: JoinConstraint;
+};
+
+type ProperJoin = ProperJoinItem[];
 
 type RemoveAliasFromSelection<
     Alias extends string,
     Selection extends string
 > = Selection extends `${Alias}.${infer R}` ? R : never;
+
+export class JoinedFactory<Selection extends string, Aliases extends string> {
+    private constructor(
+        /* @internal */
+        public __commaJoins: CommaJoin,
+        /* @internal */
+        public __properJoins: ProperJoin,
+        /* @internal */
+        public __newProperJoin: Omit<ProperJoinItem, "constraint">
+    ) {}
+
+    /* @internal */
+    public static __fromAll = (
+        commaJoins: CommaJoin,
+        properJoins: ProperJoin,
+        newProperJoin: Omit<ProperJoinItem, "constraint">
+    ): JoinedFactory<any, any> =>
+        new JoinedFactory(commaJoins, properJoins, newProperJoin);
+
+    public noConstraint = (): Joined<Selection, Aliases> =>
+        Joined.__fromAll(this.__commaJoins, [
+            ...this.__properJoins,
+            { ...this.__newProperJoin, constraint: { _tag: "no_constraint" } },
+        ]);
+
+    public on = (
+        on: (fields: Record<Selection, SafeString>) => SafeString | SafeString[]
+    ): Joined<Selection, Aliases> =>
+        Joined.__fromAll(this.__commaJoins, [
+            ...this.__properJoins,
+            {
+                ...this.__newProperJoin,
+                constraint: { _tag: "on", on: makeArray(on(proxy)) },
+            },
+        ]);
+}
 
 export class Joined<Selection extends string, Aliases extends string> {
     private constructor(
@@ -88,28 +133,23 @@ export class Joined<Selection extends string, Aliases extends string> {
 
     public joinTable = <Selection2 extends string, Alias2 extends string>(
         operator: string,
-        table: Table<Selection2, Alias2>,
-        on?: (
-            f: Record<
-                Exclude<Selection, Selection2> | Exclude<Selection2, Selection>,
-                SafeString
-            >
-        ) => SafeString | SafeString[]
-    ): Joined<
+        table: Table<Selection2, Alias2>
+    ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2
     > =>
-        Joined.__fromAll(this.__commaJoins, [
-            ...this.__properJoins,
+        JoinedFactory.__fromAll(
+            //
+            this.__commaJoins,
+            this.__properJoins,
             {
                 code: table,
                 alias: table.__alias,
                 operator,
-                constraint: on != null ? makeArray(on(proxy)) : [],
-            },
-        ]);
+            }
+        );
 
     public commaJoinQuery = <
         With2 extends string,

@@ -2,7 +2,7 @@ import * as A from "fp-ts/lib/Array";
 import { absurd, pipe } from "fp-ts/lib/function";
 import { isNumber } from "fp-ts/lib/number";
 import { Compound } from "./classes/compound";
-import { Joined } from "./classes/joined";
+import { JoinConstraint, Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
@@ -65,6 +65,21 @@ const printTableInternal = <Selection extends string, Alias extends string>(
     return `${table.__name} AS ${wrapAlias(table.__alias)}`;
 };
 
+const printConstraint = (c: JoinConstraint): { on: string } => {
+    switch (c._tag) {
+        case "no_constraint": {
+            return {
+                on: "",
+            };
+        }
+        case "on": {
+            const onJoined = c.on.map((it) => it.content).join(" AND ");
+
+            const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
+            return { on };
+        }
+    }
+};
 const printJoinedInternal = <Selection extends string, Aliases extends string>(
     joined: Joined<Selection, Aliases>
 ): string => {
@@ -79,13 +94,8 @@ const printJoinedInternal = <Selection extends string, Aliases extends string>(
         .join(", ");
 
     const tail = joined.__properJoins
-        .map((it) => {
-            const onJoined = it.constraint
-                .map((it) => it.content)
-                .join(" AND ");
-
-            const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
-
+        .map((it): string => {
+            const { on } = printConstraint(it.constraint);
             return [it.operator, "JOIN", printInternal(it.code, false), on]
                 .filter((it) => it.length > 0)
                 .join(" ");
@@ -118,6 +128,10 @@ export const printSelectStatementInternal = <
                     return [`DISTINCT ${content.join(", ")}`];
                 }
                 return content;
+            }
+            // check if the proxy was returned in an identity function
+            if ((it.content as any)?.SQL_PROXY_TARGET != null) {
+                throw new Error("not supported");
             }
 
             return Object.entries(it.content).map(([k, v]) => {

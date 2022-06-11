@@ -9,7 +9,7 @@ import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery } from "../types";
 import { makeArray } from "../utils";
-import { Joined } from "./joined";
+import { Joined, JoinedFactory } from "./joined";
 import { Table } from "./table";
 
 type SelectionWrapperTypes<Selection extends string> = (
@@ -164,38 +164,27 @@ export class SelectStatement<
     >(
         thisQueryAlias: Alias1,
         operator: string,
-        table: Table<Selection2, Alias2>,
-        on?: (
-            f: Record<
-                | Exclude<Selection, Selection2>
-                | Exclude<Selection2, Selection>
-                | `${Alias1}.${Selection}`
-                | `${Alias2}.${Selection2}`,
-                SafeString
-            >
-        ) => SafeString | SafeString[]
-    ): Joined<
+        table: Table<Selection2, Alias2>
+    ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2
     > =>
-        Joined.__fromAll(
+        JoinedFactory.__fromAll(
             [
                 {
                     code: this,
                     alias: thisQueryAlias,
                 },
             ],
-            [
-                {
-                    code: table,
-                    alias: table.__alias,
-                    operator,
-                    constraint: on != null ? makeArray(on(proxy)) : [],
-                },
-            ]
+            [],
+            {
+                code: table,
+                alias: table.__alias,
+                operator,
+            }
         );
 
     public commaJoinQuery = <

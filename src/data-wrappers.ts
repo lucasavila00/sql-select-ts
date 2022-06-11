@@ -39,6 +39,7 @@ export type AliasedRows<Selection extends string> = {
     _tag: typeof AliasedRowsURI;
     content: Record<Selection, SafeString>;
 };
+
 export const AliasedRows = <Selection extends string>(
     content: Record<Selection, SafeString>
 ): AliasedRows<Selection> => ({

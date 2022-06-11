@@ -4,7 +4,7 @@ import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery } from "../types";
 import { makeArray } from "../utils";
-import { Joined } from "./joined";
+import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
@@ -102,28 +102,26 @@ export class Compound<Scope extends string, Selection extends string> {
                 SafeString
             >
         ) => SafeString | SafeString[]
-    ): Joined<
+    ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2
     > =>
-        Joined.__fromAll(
+        JoinedFactory.__fromAll(
             [
                 {
                     code: this,
                     alias: thisQueryAlias,
                 },
             ],
-            [
-                {
-                    code: table,
-                    alias: table.__alias,
-                    operator,
-                    constraint: on != null ? makeArray(on(proxy)) : [],
-                },
-            ]
+            [],
+            {
+                code: table,
+                alias: table.__alias,
+                operator,
+            }
         );
 
     public print = (): string => printCompound(this);

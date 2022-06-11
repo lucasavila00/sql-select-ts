@@ -20,10 +20,15 @@ describe("select", () => {
     INSERT INTO t2 VALUES(3,4,5);
     */
 
-    it("no identity function", async () => {
-        t1.select(
-            // @ts-expect-error
-            (f) => f
-        );
+    it("table - no identity function", async () => {
+        expect(() => t1.select((f) => f).print()).toThrow();
+        expect(() => t1.select((f) => ({ a: f.a })).print()).toThrow();
     });
+
+    // it("select - no identity function", async () => {
+    //     t1.selectStar().select(
+    //         // @ts-expect-error
+    //         (f) => f
+    //     );
+    // });
 });

@@ -3,7 +3,7 @@ import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { makeArray } from "../utils";
 import { Compound } from "./compound";
-import { Joined } from "./joined";
+import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 
 export class Table<Selection extends string, Alias extends string> {
@@ -28,7 +28,7 @@ export class Table<Selection extends string, Alias extends string> {
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection | `${Alias}.${Selection}`, SafeString> & {
-                _tag: "CompileError";
+                _tag: "compile_error";
             }
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<
@@ -67,38 +67,27 @@ export class Table<Selection extends string, Alias extends string> {
 
     public joinTable = <Selection2 extends string, Alias2 extends string>(
         operator: string,
-        table: Table<Selection2, Alias2>,
-        on?: (
-            f: Record<
-                | Exclude<Selection, Selection2>
-                | Exclude<Selection2, Selection>
-                | `${Alias}.${Selection}`
-                | `${Alias2}.${Selection2}`,
-                SafeString
-            >
-        ) => SafeString | SafeString[]
-    ): Joined<
+        table: Table<Selection2, Alias2>
+    ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
-        Joined.__fromAll(
+        JoinedFactory.__fromAll(
             [
                 {
                     code: this,
                     alias: this.__alias,
                 },
             ],
-            [
-                {
-                    code: table,
-                    alias: table.__alias,
-                    operator,
-                    constraint: on != null ? makeArray(on(proxy)) : [],
-                },
-            ]
+            [],
+            {
+                code: table,
+                alias: table.__alias,
+                operator,
+            }
         );
 
     public commaJoinQuery = <
