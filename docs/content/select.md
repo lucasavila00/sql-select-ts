@@ -5,7 +5,10 @@
 First, create the table definitions.
 
 ```ts
-const users = table(["id", "age", "name"], "users");
+const users = table(
+  ["id", "age", "name"],
+  "users"
+);
 ```
 
 ## Select
@@ -25,7 +28,9 @@ users.selectStar().print();
 {% printer %}
 
 ```ts
-users.select((f) => ({ name: f.name })).print();
+users
+  .select((f) => ({ name: f.name }))
+  .print();
 ```
 
 {% /printer %}
@@ -36,9 +41,11 @@ users.select((f) => ({ name: f.name })).print();
 
 ```ts
 users
-    .selectStar()
-    .appendSelect((f) => ({ otherAlias: f.name }))
-    .print();
+  .selectStar()
+  .appendSelect((f) => ({
+    otherAlias: f.name,
+  }))
+  .print();
 ```
 
 {% /printer %}
@@ -49,9 +56,11 @@ users
 
 ```ts
 users
-    .select((f) => ({ otherAlias: f.name }))
-    .appendSelectStar()
-    .print();
+  .select((f) => ({
+    otherAlias: f.name,
+  }))
+  .appendSelectStar()
+  .print();
 ```
 
 {% /printer %}
@@ -62,9 +71,9 @@ users
 
 ```ts
 users
-    .selectStar()
-    .select((f) => ({ age: f.age }))
-    .print();
+  .selectStar()
+  .select((f) => ({ age: f.age }))
+  .print();
 ```
 
 {% /printer %}
@@ -74,13 +83,16 @@ users
 {% printer %}
 
 ```ts
-const plus50Users = users.selectStar().where((f) => sql`${f.age} > 50`);
+const plus50Users = users
+  .selectStar()
+  .where((f) => sql`${f.age} > 50`);
 
 plus50Users
-    .select((f) => ({ name: f.name }))
-    .distinct()
-    .limit(2)
-    .print();
+  .select((f) => ({ name: f.name }))
+  .distinct()
+  .orderBy((f) => f.age)
+  .limit(2)
+  .print();
 ```
 
 {% /printer %}

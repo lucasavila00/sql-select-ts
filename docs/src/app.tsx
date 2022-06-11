@@ -2,6 +2,7 @@ import React from "react";
 import { table as _table, sql as _sql } from "../../src";
 import Markdoc, { Tag } from "@markdoc/markdoc";
 import useSWR from "swr";
+import { format } from "sql-formatter";
 
 const table = _table;
 const sql = _sql;
@@ -23,7 +24,9 @@ const printer = {
         return [
             //
             children,
-            new Tag(`pre`, { ...attributes }, [eval(text)]),
+            new Tag(`pre`, { ...attributes, ["data-language"]: "sql" }, [
+                format(eval(text)),
+            ]),
         ];
     },
 };
