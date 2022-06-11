@@ -283,14 +283,83 @@ describe("joinSelect", () => {
         );
     });
 
-    // it("union -> select", async () => {
-    //     const q = unionAll([q1, q2])
-    //         .joinSelect("q1", "NATURAL", "q3", q3)
-    //         .noConstraint()
-    //         .selectStar()
-    //         .print();
-    //     expect(q).toMatchInlineSnapshot(
-    //         `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
-    //     );
-    // });
+    it("union -> select", async () => {
+        const q = unionAll([q1, q2])
+            .joinSelect("u", "NATURAL", "q3", q3)
+            .noConstraint()
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u NATURAL JOIN (SELECT * FROM t3) AS q3;"`
+        );
+    });
+
+    it("union -> select -- select", async () => {
+        const q = unionAll([q1, q2])
+            .joinSelect("u", "NATURAL", "q3", q3)
+            .noConstraint()
+            .select((f) => ({ x: f.a, y: f.d, z: f["u.c"] }))
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a AS x, d AS y, u.c AS z FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u NATURAL JOIN (SELECT * FROM t3) AS q3;"`
+        );
+    });
+
+    it("union -> select -- prevents ambiguous", async () => {
+        const q = unionAll([q1, q2])
+            .joinSelect("u", "NATURAL", "q3", q3)
+            .noConstraint()
+            .select((f) => ({
+                x: f.a,
+                y: f.d,
+                // @ts-expect-error
+                z: f.c,
+            }))
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a AS x, d AS y, c AS z FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u NATURAL JOIN (SELECT * FROM t3) AS q3;"`
+        );
+    });
+    it("union -> select -- ON", async () => {
+        const q = unionAll([q1, q2])
+            .joinSelect("u", "LEFT", "q3", q3)
+            .on((f) => equals(f.a, f.d))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3 ON a = d;"`
+        );
+    });
+
+    it("union -> select -- ON QUALIFIED", async () => {
+        const q = unionAll([q1, q2])
+            .joinSelect("u", "LEFT", "q3", q3)
+            .on((f) => equals(f["u.a"], f["q3.d"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3 ON u.a = q3.d;"`
+        );
+    });
+    it("union -> select -- USING", async () => {
+        const q = unionAll([q1, q2])
+            .joinSelect("u", "LEFT", "q3", q3)
+            .using(["c"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3 USING(c);"`
+        );
+    });
+
+    it("select -> select -- NO CONSTRAINT", async () => {
+        const q = unionAll([q1, q2])
+            .joinSelect("u", "LEFT", "q3", q3)
+            .noConstraint()
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3;"`
+        );
+    });
 });

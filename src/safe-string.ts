@@ -1,7 +1,6 @@
 import { Compound } from "./classes/compound";
 import { SelectStatement } from "./classes/select-statement";
 import { printCompoundInternal, printSelectStatementInternal } from "./print";
-// moment.tz.setDefault("UTC");
 
 export const SafeStringURI = "SafeString" as const;
 export type SafeString = {
@@ -112,11 +111,7 @@ export const escapeForSql = function (val: any, stringifyObjects = false) {
                 return printSelectStatementInternal(val, true);
             } else if (val instanceof Compound) {
                 return printCompoundInternal(val, true);
-            }
-            //  else if (moment.isMoment(val)) {
-            //     return dateToString(val);
-            // }
-            else if (Array.isArray(val)) {
+            } else if (Array.isArray(val)) {
                 return arrayToList(val);
             } else if (Buffer.isBuffer(val)) {
                 return bufferToString(val);
@@ -147,12 +142,6 @@ const arrayToList = function arrayToList<T>(array: T[]) {
 
     return sql;
 };
-
-// const dateToString = function dateToString(m: moment.Moment) {
-//     const str = m.format("YYYY-MM-DD HH:mm:ss");
-//     const tz = m.tz() ?? "UTC";
-//     return `toDateTime('${str}', '${tz}')`;
-// };
 
 const bufferToString = function bufferToString(buffer: Buffer) {
     return "X" + escapeString(buffer.toString("hex"));
