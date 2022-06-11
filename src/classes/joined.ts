@@ -1,10 +1,4 @@
-import { hole } from "fp-ts/lib/function";
-import {
-    SelectStarArgs,
-    StarOfAliasesSymbol,
-    StarSymbol,
-    AliasedRows,
-} from "../data-wrappers";
+import { StarOfAliasesSymbol, StarSymbol, AliasedRows } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
@@ -112,21 +106,18 @@ export class Joined<Selection extends string, Aliases extends string> {
     ): SelectStatement<never, Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
-    public selectStar = (
-        args?: SelectStarArgs
-    ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
+    public selectStar = (): SelectStatement<never, Selection, Selection> =>
+        SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     public selectStarOfAliases = <TheAliases extends Aliases>(
-        aliases: TheAliases[],
-        args?: SelectStarArgs
+        aliases: TheAliases[]
     ): SelectStatement<
         never,
         RemoveAliasFromSelection<TheAliases, Selection>,
         RemoveAliasFromSelection<TheAliases, Selection>
     > =>
         SelectStatement.__fromTableOrSubquery(this, [
-            StarOfAliasesSymbol(aliases, args),
+            StarOfAliasesSymbol(aliases),
         ]);
 
     public commaJoinTable = <Selection2 extends string, Alias2 extends string>(

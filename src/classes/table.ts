@@ -1,8 +1,7 @@
-import { AliasedRows, SelectStarArgs, StarSymbol } from "../data-wrappers";
+import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { NoSelectFieldsCompileError } from "../types";
-import { makeArray } from "../utils";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
@@ -37,13 +36,11 @@ export class Table<Selection extends string, Alias extends string> {
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
-    public selectStar = (
-        args?: SelectStarArgs
-    ): SelectStatement<
+    public selectStar = (): SelectStatement<
         never,
         Selection | `main_alias.${Selection}`,
         Selection
-    > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
+    > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
         table: Table<Selection2, Alias2>

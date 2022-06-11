@@ -689,9 +689,8 @@ describe("sqlite select1", () => {
 
     it("select1-6.1.4", async () => {
         const q = test1
-            .selectStar({
-                distinct: true,
-            })
+            .selectStar()
+            .distinct()
             .where((f) => sql`${f.f1} == 11`)
             .print();
 
@@ -1393,7 +1392,8 @@ describe("sqlite select1", () => {
 
         const q = subquery
             .commaJoinTable("it", test1)
-            .selectStarOfAliases(["it", "test1"], { distinct: true })
+            .selectStarOfAliases(["it", "test1"])
+            .distinct()
             .print();
 
         expect(q).toMatchInlineSnapshot(

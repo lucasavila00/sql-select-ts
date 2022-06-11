@@ -1,3 +1,3 @@
 tests that are snapshot but in markdown
 
--   [ ] regular join distinct
+-   [ ] select(f=>({a:f.1})).distinct()

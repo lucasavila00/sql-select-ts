@@ -134,17 +134,10 @@ export const printSelectStatementInternal = <
         selectStatement.__selection,
         A.chain((it) => {
             if (isStarSymbol(it)) {
-                if (it.distinct) {
-                    return ["DISTINCT *"];
-                }
                 return ["*"];
             }
             if (isStarOfAliasSymbol(it)) {
-                const content = it.aliases.map((alias) => `${alias}.*`);
-                if (it.distinct) {
-                    return [`DISTINCT ${content.join(", ")}`];
-                }
-                return content;
+                return it.aliases.map((alias) => `${alias}.*`);
             }
             // check if the proxy was returned in an identity function
             if ((it.content as any)?.SQL_PROXY_TARGET != null) {
@@ -174,8 +167,12 @@ export const printSelectStatementInternal = <
 
     const main_alias = doesSelectMainAlias ? "AS main_alias" : "";
 
+    const distinct = selectStatement.__distinct ? "DISTINCT" : "";
+
     const content = [
-        `SELECT ${sel}`,
+        "SELECT",
+        distinct,
+        sel,
         from,
         main_alias,
         where,

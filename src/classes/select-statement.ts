@@ -1,9 +1,4 @@
-import {
-    AliasedRows,
-    SelectStarArgs,
-    StarOfAliasSymbol,
-    StarSymbol,
-} from "../data-wrappers";
+import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
 import { printSelectStatement } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
@@ -33,7 +28,9 @@ export class SelectStatement<
         /* @internal */
         public __limit: SafeString | number | null,
         /* @internal */
-        public __where: SafeString[]
+        public __where: SafeString[],
+        /* @internal */
+        public __distinct: boolean
     ) {}
 
     /* @internal */
@@ -47,7 +44,8 @@ export class SelectStatement<
             selection,
             [],
             null,
-            []
+            [],
+            false
         );
 
     public static fromNothing = <NewSelection extends string>(
@@ -59,7 +57,8 @@ export class SelectStatement<
             [AliasedRows(it)],
             [],
             null,
-            []
+            [],
+            false
         );
 
     private copy = (): SelectStatement<With, Scope, Selection> =>
@@ -68,7 +67,8 @@ export class SelectStatement<
             this.__selection,
             this.__orderBy,
             this.__limit,
-            this.__where
+            this.__where,
+            this.__distinct
         );
 
     private setSelection = (
@@ -91,6 +91,10 @@ export class SelectStatement<
         this.__limit = limit;
         return this;
     };
+    private setDistinct = (distinct: boolean): this => {
+        this.__distinct = distinct;
+        return this;
+    };
 
     public select = <NewSelection extends string>(
         f: (
@@ -103,15 +107,14 @@ export class SelectStatement<
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
-    public selectStar = (
-        args?: SelectStarArgs
-    ): SelectStatement<never, Selection, Selection> =>
-        SelectStatement.__fromTableOrSubquery(this, [StarSymbol(args)]);
+    public selectStar = (): SelectStatement<never, Selection, Selection> =>
+        SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
-    public appendSelectStar = (
-        args?: SelectStarArgs
-    ): SelectStatement<never, Selection, Selection> =>
-        this.copy().setSelection([...this.__selection, StarSymbol(args)]);
+    public appendSelectStar = (): SelectStatement<
+        never,
+        Selection,
+        Selection
+    > => this.copy().setSelection([...this.__selection, StarSymbol()]);
 
     public appendSelect = <NewSelection extends string>(
         f: (
@@ -130,6 +133,9 @@ export class SelectStatement<
         ) => SafeString[] | SafeString
     ): SelectStatement<With, Scope, Selection> =>
         this.copy().setWhere([...this.__where, ...makeArray(f(proxy))]);
+
+    public distinct = (): SelectStatement<With, Scope, Selection> =>
+        this.copy().setDistinct(true);
 
     public orderBy = (
         f: (
