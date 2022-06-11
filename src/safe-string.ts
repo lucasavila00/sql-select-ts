@@ -94,6 +94,8 @@ const escapeId = function (val: string | number, forbidQualified = false) {
     }
 };
 
+const runsInNode = () => typeof process === 'object' && process + '' === '[object process]'
+
 export const escapeForSql = function (val: any, stringifyObjects = false) {
     if (val === undefined || val === null) {
         return "NULL";
@@ -113,7 +115,7 @@ export const escapeForSql = function (val: any, stringifyObjects = false) {
                 return printCompoundInternal(val, true);
             } else if (Array.isArray(val)) {
                 return arrayToList(val);
-            } else if (Buffer.isBuffer(val)) {
+            } else if (runsInNode() && Buffer.isBuffer(val)) {
                 return bufferToString(val);
             } else if (typeof val.toSqlString === "function") {
                 return String(val.toSqlString());
