@@ -28,7 +28,7 @@ users
 
 ## Two Clauses
 
-## One call
+### One call
 
 {% printer %}
 
@@ -44,7 +44,7 @@ users
 
 {% /printer %}
 
-## Two calls
+### Two calls
 
 {% printer %}
 

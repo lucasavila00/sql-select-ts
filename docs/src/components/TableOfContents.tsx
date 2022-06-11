@@ -7,6 +7,21 @@ const ClosedLink: FC<{ to: string; label: String }> = ({ to, label }) => (
   <AnchorLink to={to} label={label} color="text" />
 );
 
+const marginLeftOfNode = (nodeName: string): number => {
+  switch (nodeName) {
+    case "h3": {
+      return 12;
+    }
+    case "h4": {
+      return 24;
+    }
+
+    default: {
+      return 0;
+    }
+  }
+};
+
 const OpenLink: FC<{ to: string; label: String; headings: Section[] }> = ({
   to,
   label,
@@ -22,6 +37,9 @@ const OpenLink: FC<{ to: string; label: String; headings: Section[] }> = ({
           key={it.title}
           size="small"
           href={`#${it.id}`}
+          style={{
+            marginLeft: marginLeftOfNode(it.nodeName),
+          }}
         />
       ))}
     </Nav>

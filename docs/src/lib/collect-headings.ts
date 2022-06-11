@@ -2,7 +2,7 @@ import { RenderableTreeNode } from "@markdoc/markdoc";
 
 export type Section = {
   title: string;
-  tagName: string;
+  nodeName: string;
   id: string;
 };
 const collectHeadingsRecursing = (
@@ -11,14 +11,14 @@ const collectHeadingsRecursing = (
 ) => {
   if (node != null && typeof node != "string") {
     // Match all h1, h2, h3… tags
-    if (node.name?.match(/h\d/)) {
+    if (node.name === "HeadingGrommet") {
       const title = node.children[0];
 
       if (typeof title === "string") {
         sections.push({
           ...node.attributes,
           title,
-          tagName: node.name,
+          nodeName: node.attributes.originalNodeName,
           id: String(node.attributes.id),
         });
       }

@@ -1,4 +1,4 @@
-import { nodes, RenderableTreeNode, Tag } from "@markdoc/markdoc";
+import { nodes, RenderableTreeNode, Schema, Tag } from "@markdoc/markdoc";
 
 const generateID = (
   children: RenderableTreeNode[],
@@ -15,12 +15,14 @@ const generateID = (
     .toLowerCase();
 };
 
-export const heading = {
+export const heading: Schema = {
   ...nodes.heading,
   transform(node, config) {
     const base = nodes.heading.transform(node, config);
     if (base instanceof Tag) {
       base.attributes.id = generateID(base.children, base.attributes);
+      base.attributes.originalNodeName = base.name;
+      base.name = "HeadingGrommet";
     }
     return base;
   },
