@@ -1,3 +1,11 @@
-tests that are snapshot but in markdown
+# DOCS
 
--   [ ] select(f=>({a:f.1})).distinct()
+-   [ ] NAV
+
+-   [ ] table of contents
+
+# LIB
+
+-   [ ] remove deps(fp-ts)
+
+-   [ ] compound select star
