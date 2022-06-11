@@ -187,4 +187,26 @@ export class Joined<Selection extends string, Aliases extends string> {
                 alias: alias,
             },
         ]);
+
+    public joinSelect = <
+        With2 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        operator: string,
+        alias: Alias2,
+        table: SelectStatement<With2, Scope2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`,
+        Aliases | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(this.__commaJoins, this.__properJoins, {
+            code: table,
+            alias: alias,
+            operator,
+        });
 }

@@ -197,12 +197,129 @@ describe("joinSelect", () => {
         const q1 = t1.selectStar();
         const q2 = t2.selectStar();
         const q = q1
-            .joinSelect("q1", "LEFT", "q2", q2)
-            .using(["b"])
+            .joinSelect("q1", "NATURAL", "q2", q2)
+            .noConstraint()
             .selectStar()
             .print();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 USING(b);"`
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2;"`
+        );
+    });
+
+    it("joined -> select", async () => {
+        const q1 = t1.selectStar();
+        const q2 = t2.selectStar();
+        const q3 = t3.selectStar();
+        const q = q1
+            .joinSelect("q1", "NATURAL", "q2", q2)
+            .noConstraint()
+            .joinSelect("NATURAL", "q3", q3)
+            .noConstraint()
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3;"`
+        );
+    });
+
+    it("joined -> select -- select", async () => {
+        const q1 = t1.selectStar();
+        const q2 = t2.selectStar();
+        const q3 = t3.selectStar();
+        const q = q1
+            .joinSelect("q1", "NATURAL", "q2", q2)
+            .noConstraint()
+            .joinSelect("NATURAL", "q3", q3)
+            .noConstraint()
+            .select((f) => ({ x: f.a, y: f["q2.d"], z: f["q1.c"] }))
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a AS x, q2.d AS y, q1.c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3;"`
+        );
+    });
+
+    it("joined -> select -- prevents ambiguous", async () => {
+        const q1 = t1.selectStar();
+        const q2 = t2.selectStar();
+        const q3 = t3.selectStar();
+        const q = q1
+            .joinSelect("q1", "NATURAL", "q2", q2)
+            .noConstraint()
+            .joinSelect("NATURAL", "q3", q3)
+            .noConstraint()
+            .select((f) => ({
+                x: f.a,
+                // @ts-expect-error
+                y: f.d,
+            }))
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a AS x, d AS y FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3;"`
+        );
+    });
+
+    it("joined -> select -- ON", async () => {
+        const q1 = t1.selectStar();
+        const q2 = t2.selectStar();
+        const q3 = t3.selectStar();
+        const q = q1
+            .joinSelect("q1", "NATURAL", "q2", q2)
+            .noConstraint()
+            .joinSelect("LEFT", "q3", q3)
+            .on((f) => equals(f.a, f["q2.d"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 LEFT JOIN (SELECT * FROM t3) AS q3 ON a = q2.d;"`
+        );
+    });
+
+    it("joined -> select -- ON QUALIFIED", async () => {
+        const q1 = t1.selectStar();
+        const q2 = t2.selectStar();
+        const q3 = t3.selectStar();
+        const q = q1
+            .joinSelect("q1", "NATURAL", "q2", q2)
+            .noConstraint()
+            .joinSelect("LEFT", "q3", q3)
+            .on((f) => equals(f["q1.a"], f["q2.d"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 LEFT JOIN (SELECT * FROM t3) AS q3 ON q1.a = q2.d;"`
+        );
+    });
+
+    it("joined -> select -- USING", async () => {
+        const q1 = t1.selectStar();
+        const q2 = t2.selectStar();
+        const q3 = t3.selectStar();
+        const q = q1
+            .joinSelect("q1", "LEFT", "q2", q2)
+            .noConstraint()
+            .joinSelect("LEFT", "q3", q3)
+            .using(["d"])
+            .selectStar()
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 LEFT JOIN (SELECT * FROM t3) AS q3 USING(d);"`
+        );
+    });
+
+    it("joined -> select -- NO CONSTRAINT", async () => {
+        const q1 = t1.selectStar();
+        const q2 = t2.selectStar();
+        const q3 = t3.selectStar();
+        const q = q1
+            .joinSelect("q1", "LEFT", "q2", q2)
+            .noConstraint()
+            .joinSelect("NATURAL", "q3", q3)
+            .noConstraint()
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3;"`
         );
     });
 });
