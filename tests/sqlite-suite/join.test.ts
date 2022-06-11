@@ -303,6 +303,46 @@ describe("sqlite join", () => {
             ]
         `);
     });
+    it("join-1.4.1 -- using", async () => {
+        const q = t2
+            .joinTable("INNER", t1)
+            .using(["b", "c"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t2 INNER JOIN t1 USING(b, c);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+    it("join-1.4.1 -- using knows types", async () => {
+        const q = t2
+            .joinTable("INNER", t1)
+            // @ts-expect-error
+            .using(["b", "c", "d"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t2 INNER JOIN t1 USING(b, c, d);"`
+        );
+        expect(await fail(q)).toMatchInlineSnapshot(
+            `"Error: SQLITE_ERROR: cannot join using column d - column not present in both tables"`
+        );
+    });
     it("join-1.4.1 -- prevents ambiguous", async () => {
         const q = t2
             .joinTable("INNER", t1)
@@ -367,6 +407,33 @@ describe("sqlite join", () => {
             ]
         `);
     });
+
+    it("join-1.4.2 -- using", async () => {
+        const q = t2
+            .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
+            .using(["b", "c"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t2 INNER JOIN t1 AS x USING(b, c);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
     it("join-1.4.3", async () => {
         const q = table(["b", "c", "d"], "y", "t2")
             .joinTable("INNER", t1)
@@ -378,6 +445,32 @@ describe("sqlite join", () => {
             .print();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 AS y INNER JOIN t1 ON t1.b = y.b AND t1.c = y.c;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+    it("join-1.4.3 -- using", async () => {
+        const q = table(["b", "c", "d"], "y", "t2")
+            .joinTable("INNER", t1)
+            .using(["b", "c"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t2 AS y INNER JOIN t1 USING(b, c);"`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -422,6 +515,32 @@ describe("sqlite join", () => {
             ]
         `);
     });
+    it("join-1.4.4 -- using", async () => {
+        const q = table(["b", "c", "d"], "y", "t2")
+            .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
+            .using(["b", "c"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t2 AS y INNER JOIN t1 AS x USING(b, c);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
     it("join-1.4.5", async () => {
         const q = t2
             .joinTable("INNER", t1)
@@ -439,6 +558,26 @@ describe("sqlite join", () => {
             `"Error: SQLITE_ERROR: ambiguous column name: b"`
         );
     });
+
+    // Valid but we can't type it.
+    // it("join-1.4.5 -- using", async () => {
+    //     const q = t2
+    //         .joinTable("INNER", t1)
+    //         .using(["b"])
+    //         .select((f) => ({
+    //             b:
+    //                 // @ts-expect-error
+    //                 f.b,
+    //         }))
+    //         .print();
+    //     expect(q).toMatchInlineSnapshot(
+    //         `"SELECT b AS b FROM t2 INNER JOIN t1 USING(b);"`
+    //     );
+    //     expect(await fail(q)).toMatchInlineSnapshot(
+    //         `"Error: SQLITE_ERROR: ambiguous column name: b"`
+    //     );
+    // });
+
     it("join-2.4", async () => {
         const q = t2
             .joinTable("LEFT", t1)

@@ -1,6 +1,7 @@
 import { AliasedRows, SelectStarArgs, StarSymbol } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
+import { XCompileError } from "../types";
 import { makeArray } from "../utils";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
@@ -27,9 +28,8 @@ export class Table<Selection extends string, Alias extends string> {
 
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection | `${Alias}.${Selection}`, SafeString> & {
-                _tag: "compile_error";
-            }
+            f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
+                XCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<
         never,
@@ -73,7 +73,8 @@ export class Table<Selection extends string, Alias extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2
+        Alias | Alias2,
+        Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
             [

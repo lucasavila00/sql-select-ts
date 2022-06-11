@@ -7,7 +7,7 @@ import {
 import { printSelectStatement } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery } from "../types";
+import { TableOrSubquery, XCompileError } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
 import { Table } from "./table";
@@ -87,7 +87,8 @@ export class SelectStatement<
 
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection | `main_alias.${Selection}`, SafeString>
+            f: Record<Selection | `main_alias.${Selection}`, SafeString> &
+                XCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<
         never,
@@ -170,7 +171,8 @@ export class SelectStatement<
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias1 | Alias2
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
             [

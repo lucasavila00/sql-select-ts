@@ -1,4 +1,4 @@
-import { SafeString, sql, table, unionAll } from "../src";
+import { table, unionAll } from "../src";
 
 describe("select", () => {
     const t1 = table(["a", "b", "c"], "t1");
@@ -21,14 +21,38 @@ describe("select", () => {
     */
 
     it("table - no identity function", async () => {
-        expect(() => t1.select((f) => f).print()).toThrow();
-        expect(() => t1.select((f) => ({ a: f.a })).print()).toThrow();
+        t1.select(
+            // @ts-expect-error
+            (f) => f
+        );
+        t1.select((f) => ({ a: f.a }));
     });
 
-    // it("select - no identity function", async () => {
-    //     t1.selectStar().select(
-    //         // @ts-expect-error
-    //         (f) => f
-    //     );
-    // });
+    it("select - no identity function", async () => {
+        t1.selectStar().select(
+            // @ts-expect-error
+            (f) => f
+        );
+        t1.selectStar().select((f) => ({ a: f.a }));
+    });
+    it("join - no identity function", async () => {
+        t1.joinTable("NATURAL", t2)
+            .noConstraint()
+            .select(
+                // @ts-expect-error
+                (f) => f
+            );
+
+        t1.joinTable("NATURAL", t2)
+            .noConstraint()
+            .select((f) => ({ a: f.a }));
+    });
+    it("compound - no identity function", async () => {
+        const u = unionAll([t1.selectStar(), t2.selectStar()]);
+        u.select(
+            // @ts-expect-error
+            (f) => f
+        );
+        u.select((f) => ({ a: f.a }));
+    });
 });

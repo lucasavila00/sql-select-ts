@@ -65,18 +65,24 @@ const printTableInternal = <Selection extends string, Alias extends string>(
     return `${table.__name} AS ${wrapAlias(table.__alias)}`;
 };
 
-const printConstraint = (c: JoinConstraint): { on: string } => {
+const printConstraint = (c: JoinConstraint): { on: string; using: string } => {
     switch (c._tag) {
         case "no_constraint": {
             return {
                 on: "",
+                using: "",
             };
         }
         case "on": {
             const onJoined = c.on.map((it) => it.content).join(" AND ");
-
             const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
-            return { on };
+            return { on, using: "" };
+        }
+        case "using": {
+            return {
+                on: "",
+                using: `USING(${c.keys.map(wrapAlias).join(", ")})`,
+            };
         }
     }
 };
@@ -95,8 +101,14 @@ const printJoinedInternal = <Selection extends string, Aliases extends string>(
 
     const tail = joined.__properJoins
         .map((it): string => {
-            const { on } = printConstraint(it.constraint);
-            return [it.operator, "JOIN", printInternal(it.code, false), on]
+            const { on, using } = printConstraint(it.constraint);
+            return [
+                it.operator,
+                "JOIN",
+                printInternal(it.code, false),
+                on,
+                using,
+            ]
                 .filter((it) => it.length > 0)
                 .join(" ");
         })

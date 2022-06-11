@@ -7,7 +7,7 @@ import {
 } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery } from "../types";
+import { TableOrSubquery, XCompileError } from "../types";
 import { makeArray } from "../utils";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
@@ -21,7 +21,8 @@ export type JoinConstraint =
     | {
           _tag: "no_constraint";
       }
-    | { _tag: "on"; on: SafeString[] };
+    | { _tag: "on"; on: SafeString[] }
+    | { _tag: "using"; keys: string[] };
 
 type ProperJoinItem = {
     code: TableOrSubquery<any, any, any, any>;
@@ -37,7 +38,11 @@ type RemoveAliasFromSelection<
     Selection extends string
 > = Selection extends `${Alias}.${infer R}` ? R : never;
 
-export class JoinedFactory<Selection extends string, Aliases extends string> {
+export class JoinedFactory<
+    Selection extends string,
+    Aliases extends string,
+    UsingPossibleKeys extends string
+> {
     private constructor(
         /* @internal */
         public __commaJoins: CommaJoin,
@@ -52,7 +57,7 @@ export class JoinedFactory<Selection extends string, Aliases extends string> {
         commaJoins: CommaJoin,
         properJoins: ProperJoin,
         newProperJoin: Omit<ProperJoinItem, "constraint">
-    ): JoinedFactory<any, any> =>
+    ): JoinedFactory<any, any, any> =>
         new JoinedFactory(commaJoins, properJoins, newProperJoin);
 
     public noConstraint = (): Joined<Selection, Aliases> =>
@@ -69,6 +74,15 @@ export class JoinedFactory<Selection extends string, Aliases extends string> {
             {
                 ...this.__newProperJoin,
                 constraint: { _tag: "on", on: makeArray(on(proxy)) },
+            },
+        ]);
+
+    public using = (keys: UsingPossibleKeys[]): Joined<Selection, Aliases> =>
+        Joined.__fromAll(this.__commaJoins, [
+            ...this.__properJoins,
+            {
+                ...this.__newProperJoin,
+                constraint: { _tag: "using", keys },
             },
         ]);
 }
@@ -93,7 +107,7 @@ export class Joined<Selection extends string, Aliases extends string> {
 
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection, SafeString>
+            f: Record<Selection, SafeString> & XCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
@@ -138,7 +152,8 @@ export class Joined<Selection extends string, Aliases extends string> {
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
-        Aliases | Alias2
+        Aliases | Alias2,
+        Extract<Selection, Selection2>
     > =>
         JoinedFactory.__fromAll(
             //

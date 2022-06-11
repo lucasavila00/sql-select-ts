@@ -13,3 +13,7 @@ export type TableOrSubquery<
     | Table<Alias, Selection>
     | Joined<Alias, Selection>
     | Compound<Scope, Selection>;
+
+export type XCompileError = {
+    ["✕"]: "compile_error";
+};
