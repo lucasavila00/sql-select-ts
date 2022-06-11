@@ -1,4 +1,3 @@
-import * as Eq from "fp-ts/lib/Eq";
 import { Compound } from "./classes/compound";
 import { SelectStatement } from "./classes/select-statement";
 import { printCompoundInternal, printSelectStatementInternal } from "./print";
@@ -15,9 +14,6 @@ export const castSafe = (content: string): SafeString => ({
     content,
 });
 
-export const SafeStringEq: Eq.Eq<SafeString> = {
-    equals: (a, b) => a.content === b.content,
-};
 export const safeStringKeys = (it: Record<string, unknown>): SafeString[] =>
     Object.keys(it).map(escapeIdentifier);
 

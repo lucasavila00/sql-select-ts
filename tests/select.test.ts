@@ -21,18 +21,14 @@ describe("select", () => {
     */
 
     it("table - no identity function", async () => {
-        t1.select(
-            // @ts-expect-error
-            (f) => f
-        );
+        // @ts-expect-error
+        t1.select((f) => f);
         t1.select((f) => ({ a: f.a }));
     });
 
     it("select - no identity function", async () => {
-        t1.selectStar().select(
-            // @ts-expect-error
-            (f) => f
-        );
+        // @ts-expect-error
+        t1.selectStar().select((f) => f);
         t1.selectStar().select((f) => ({ a: f.a }));
     });
     it("join - no identity function", async () => {
@@ -50,7 +46,7 @@ describe("select", () => {
     it("compound - no identity function", async () => {
         const u = unionAll([t1.selectStar(), t2.selectStar()]);
         u.select(
-            // @ts-expect-error
+            //@ts-expect-error
             (f) => f
         );
         u.select((f) => ({ a: f.a }));

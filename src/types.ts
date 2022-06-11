@@ -14,6 +14,12 @@ export type TableOrSubquery<
     | Joined<Alias, Selection>
     | Compound<Scope, Selection>;
 
-export type XCompileError = {
-    ["✕"]: "compile_error";
+export type NoSelectFieldsCompileError = {
+    ["✕"]: CompileError<["'.select(f => f)' is invalid"]>;
 };
+export interface CompileError<ErrorMessageT extends any[]> {
+    /**
+     * There should never be a value of this type
+     */
+    readonly __compileError: never;
+}

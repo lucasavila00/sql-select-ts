@@ -2,7 +2,7 @@ import { AliasedRows } from "../data-wrappers";
 import { printCompound } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery, XCompileError } from "../types";
+import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
@@ -78,7 +78,7 @@ export class Compound<Scope extends string, Selection extends string> {
     public select = <NewSelection extends string>(
         f: (
             fields: Record<Selection | `main_alias.${Selection}`, SafeString> &
-                XCompileError
+                NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<
         never,

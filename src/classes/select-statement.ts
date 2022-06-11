@@ -7,7 +7,7 @@ import {
 import { printSelectStatement } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery, XCompileError } from "../types";
+import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
 import { Table } from "./table";
@@ -53,7 +53,14 @@ export class SelectStatement<
     public static fromNothing = <NewSelection extends string>(
         it: Record<NewSelection, SafeString>
     ): SelectStatement<never, never, NewSelection> =>
-        new SelectStatement(null, [AliasedRows(it)], [], null, []);
+        new SelectStatement(
+            //
+            null,
+            [AliasedRows(it)],
+            [],
+            null,
+            []
+        );
 
     private copy = (): SelectStatement<With, Scope, Selection> =>
         new SelectStatement(
@@ -88,7 +95,7 @@ export class SelectStatement<
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection | `main_alias.${Selection}`, SafeString> &
-                XCompileError
+                NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<
         never,
@@ -108,7 +115,8 @@ export class SelectStatement<
 
     public appendSelect = <NewSelection extends string>(
         f: (
-            f: Record<Selection | Scope, SafeString> & XCompileError
+            f: Record<Selection | Scope, SafeString> &
+                NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<With, Scope, Selection | NewSelection> =>
         this.copy().setSelection([
@@ -216,6 +224,40 @@ export class SelectStatement<
                 alias: tableAlias,
             },
         ]);
+
+    public joinSelect = <
+        Alias1 extends string,
+        With2 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisSelectAlias: Alias1,
+        operator: string,
+        selectAlias: Alias2,
+        select: SelectStatement<With2, Scope2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            [
+                {
+                    code: this,
+                    alias: thisSelectAlias,
+                },
+            ],
+            [],
+            {
+                code: select,
+                alias: selectAlias,
+                operator,
+            }
+        );
 
     public print = (): string => printSelectStatement(this);
 }

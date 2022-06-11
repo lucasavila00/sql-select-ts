@@ -1,7 +1,7 @@
 import { AliasedRows, SelectStarArgs, StarSymbol } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { XCompileError } from "../types";
+import { NoSelectFieldsCompileError } from "../types";
 import { makeArray } from "../utils";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
@@ -29,7 +29,7 @@ export class Table<Selection extends string, Alias extends string> {
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
-                XCompileError
+                NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<
         never,
@@ -97,7 +97,7 @@ export class Table<Selection extends string, Alias extends string> {
         Selection2 extends string,
         Alias2 extends string
     >(
-        aliasOfQuery: Alias2,
+        selectAlias: Alias2,
         select: SelectStatement<With2, Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
@@ -113,7 +113,7 @@ export class Table<Selection extends string, Alias extends string> {
             },
             {
                 code: select,
-                alias: aliasOfQuery,
+                alias: selectAlias,
             },
         ]);
 
@@ -123,7 +123,7 @@ export class Table<Selection extends string, Alias extends string> {
         Selection2 extends string,
         Alias2 extends string
     >(
-        aliasOfQuery: Alias2,
+        selectAlias: Alias2,
         operator: string,
         select: SelectStatement<With2, Scope2, Selection2>
     ): JoinedFactory<
@@ -144,7 +144,7 @@ export class Table<Selection extends string, Alias extends string> {
             [],
             {
                 code: select,
-                alias: aliasOfQuery,
+                alias: selectAlias,
                 operator,
             }
         );
@@ -153,8 +153,8 @@ export class Table<Selection extends string, Alias extends string> {
         Selection2 extends string,
         Alias2 extends string
     >(
-        aliasOfCompound: Alias2,
-        table: Compound<Selection2, Selection2>
+        compoundAlias: Alias2,
+        compound: Compound<Selection2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
@@ -167,8 +167,8 @@ export class Table<Selection extends string, Alias extends string> {
                 alias: this.__alias,
             },
             {
-                code: table,
-                alias: aliasOfCompound,
+                code: compound,
+                alias: compoundAlias,
             },
         ]);
 }

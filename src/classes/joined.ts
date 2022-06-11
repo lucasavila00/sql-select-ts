@@ -7,7 +7,7 @@ import {
 } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery, XCompileError } from "../types";
+import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
 import { makeArray } from "../utils";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
@@ -107,7 +107,7 @@ export class Joined<Selection extends string, Aliases extends string> {
 
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection, SafeString> & XCompileError
+            f: Record<Selection, SafeString> & NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
