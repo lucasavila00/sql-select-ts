@@ -43,7 +43,7 @@ export const App: FC = () => {
         },
       }}
     >
-      <BrowserRouter>
+      <BrowserRouter basename="/sql-select-ts">
         <CollapsableNav />
         <div style={{ height: 72 }} />
         <Suspense fallback={<></>}>
