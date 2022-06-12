@@ -4,6 +4,7 @@
  * @since 0.0.0
  */
 
+import { Compound } from "./classes/compound";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 // import renaming, then re-export to make sure docs-ts can run the inline tests
@@ -42,22 +43,44 @@ export const table = Table.define;
  */
 export const fromNothing = SelectStatement.fromNothing;
 
-export {
-    /**
-     * @category compound
-     * @since 0.0.0
-     */
-    union,
-    /**
-     * @category compound
-     * @since 0.0.0
-     */
-    unionAll,
-} from "./classes/compound";
+/**
+ * Creates a compound query using 'UNION'
+ *
+ * @example
+ * import { fromNothing, sql, union } from "sql-select-ts";
+ * const q1 = fromNothing({ a: sql(123) });
+ * const q2 = fromNothing({ a: sql(456) });
+ *
+ * const u = union([q1, q2]);
+ * assert.strictEqual(u.print(), "SELECT 123 AS a UNION SELECT 456 AS a;");
+ *
+ * @category compound
+ * @since 0.0.0
+ */
+export const union = Compound.union;
+
+/**
+ * Creates a compound query using 'UNION ALL'
+ *
+ * Check in depth docs in the safe-string.ts module.
+ *
+ * @example
+ * import { fromNothing, sql, unionAll } from "sql-select-ts";
+ * const q1 = fromNothing({ a: sql(123) });
+ * const q2 = fromNothing({ a: sql(456) });
+ *
+ * const u = unionAll([q1, q2]);
+ * assert.strictEqual(u.print(), "SELECT 123 AS a UNION ALL SELECT 456 AS a;");
+ *
+ * @category compound
+ * @since 0.0.0
+ */
+export const unionAll = Compound.unionAll;
 
 /**
  *
  * Creates a SafeString from a string.
+ *
  * Useful for embedding other SQL statements in your SQL query, or building helper functions.
  *
  * @example

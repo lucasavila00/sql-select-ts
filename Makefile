@@ -1,21 +1,24 @@
-all: static test
+all: static test build-ts-docs
 
 
 static: ts prettier
 
-ts: ts-docs ts-lib
+ts: ts-check-docs ts-check-lib
 
 prettier: prettier-docs prettier-lib
 
 test: test-lib
 
+build-ts-docs:
+	cd lib && npm run docs
+
 test-lib:
 	cd lib && npm run test
 
-ts-docs:
+ts-check-docs:
 	cd docs && npm run ts
 
-ts-lib:
+ts-check-lib:
 	cd lib && npm run ts
 
 prettier-docs:

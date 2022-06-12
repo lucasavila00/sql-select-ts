@@ -9,6 +9,9 @@ import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 
 /**
+ *
+ * Represents a possible source for a select.
+ *
  * @since 0.0.0
  */
 export type TableOrSubquery<
@@ -23,6 +26,7 @@ export type TableOrSubquery<
     | Compound<Scope, Selection>;
 
 /**
+ * Internal error type used to prevent selecting the entire fields object, as in `q.select(f=>f)`.
  * @since 0.0.0
  */
 export type NoSelectFieldsCompileError = {
@@ -30,6 +34,9 @@ export type NoSelectFieldsCompileError = {
 };
 
 /**
+ *
+ * Internal error type used to provide custom compile error messages.
+ *
  * @since 0.0.0
  */
 export interface CompileError<ErrorMessageT extends any[]> {

@@ -39,9 +39,7 @@ export class Compound<Scope extends string, Selection extends string> {
     ) {}
 
     /**
-     * Creates a compound query using 'UNION'
-     *
-     * @since 0.0.0
+     * @internal
      */
     public static union = <
         C extends SelectStatement<any, any, any>,
@@ -54,9 +52,7 @@ export class Compound<Scope extends string, Selection extends string> {
     > => new Compound(content, "UNION", [], null);
 
     /**
-     * Creates a compound query using 'UNION ALL'
-     *
-     * @since 0.0.0
+     * @internal
      */
     public static unionAll = <
         C extends SelectStatement<any, any, any>,
@@ -186,17 +182,3 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public print = (): string => printCompound(this);
 }
-
-/**
- * Creates a compound query using 'UNION'
- *
- * @since 0.0.0
- */
-export const union = Compound.union;
-
-/**
- * Creates a compound query using 'UNION ALL'
- *
- * @since 0.0.0
- */
-export const unionAll = Compound.unionAll;
