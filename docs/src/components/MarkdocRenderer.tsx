@@ -33,11 +33,11 @@ export const MarkdocRenderer: FC<{
     if (elementId == null) {
       return;
     }
-    const e = document.getElementById(elementId);
-    if (e == null) {
+    const element = document.getElementById(elementId);
+    if (element == null) {
       return;
     }
-    e.scrollIntoView();
+    element.scrollIntoView();
   }, []);
 
   const rendered = Markdoc.renderers.react(content, React, {

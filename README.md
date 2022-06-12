@@ -1,18 +1,10 @@
 # DOCS
 
--   [ ] run tests in CI
+-   [ ] examples lacks import
+
+-   [ ] home lacks import
 
 -   [ ] UI
-
-    -   [ ] render docs-ts
-
-        -   [ ] delete unwanted metadata
-
-        -   [ ] copy to docs folder
-
-        -   [ ] create definition file
-
-        -   [ ] fix headers
 
     -   [ ] catch errors
 

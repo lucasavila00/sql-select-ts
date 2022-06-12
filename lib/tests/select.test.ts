@@ -1,4 +1,4 @@
-import { table, unionAll } from "../src";
+import { sql, table, unionAll } from "../src";
 
 describe("select", () => {
     const t1 = table(["a", "b", "c"], "t1");

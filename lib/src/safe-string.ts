@@ -1,5 +1,5 @@
 /**
- * WIP
+ * Safe String and it's building mechanisms allows us to have painless, injection safe SQL string building.
  *
  * @since 0.0.0
  */

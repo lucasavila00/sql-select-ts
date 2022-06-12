@@ -1,6 +1,4 @@
-# sql
-
-## As Function
+# sql - As Function
 
 {% printer %}
 
@@ -14,7 +12,7 @@ fromNothing({
 
 {% /printer %}
 
-## As String Template Literal
+# sql - As String Template Literal
 
 ## String Literal
 

@@ -26,10 +26,7 @@ export class Table<Selection extends string, Alias extends string> {
     ) {}
 
     /*  @internal */
-    public static define = <
-        Selection extends string,
-        Alias extends string = never
-    >(
+    public static define = <Selection extends string, Alias extends string>(
         columns: Selection[],
         alias: Alias,
         name: string = alias
