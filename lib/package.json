@@ -9,7 +9,8 @@
         "clear_jest": "jest --clearCache",
         "ts": "tsc --noEmit",
         "prettier-check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
-        "docs": "docs-ts"
+        "docs": "docs-ts",
+        "build": "tsc"
     },
     "keywords": [],
     "author": "",

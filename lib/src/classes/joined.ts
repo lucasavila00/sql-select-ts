@@ -13,6 +13,7 @@ type CommaJoin = {
     code: TableOrSubquery<any, any, any, any>;
     alias: string;
 }[];
+
 /**
  * @since 0.0.0
  */
@@ -36,6 +37,7 @@ type RemoveAliasFromSelection<
     Alias extends string,
     Selection extends string
 > = Selection extends `${Alias}.${infer R}` ? R : never;
+
 /**
  * @since 0.0.0
  */
@@ -44,6 +46,7 @@ export class JoinedFactory<
     Aliases extends string,
     UsingPossibleKeys extends string
 > {
+    /* @internal */
     private constructor(
         /* @internal */
         public __commaJoins: CommaJoin,
@@ -60,6 +63,7 @@ export class JoinedFactory<
         newProperJoin: Omit<ProperJoinItem, "constraint">
     ): JoinedFactory<any, any, any> =>
         new JoinedFactory(commaJoins, properJoins, newProperJoin);
+
     /**
      * @since 0.0.0
      */
@@ -68,6 +72,7 @@ export class JoinedFactory<
             ...this.__properJoins,
             { ...this.__newProperJoin, constraint: { _tag: "no_constraint" } },
         ]);
+
     /**
      * @since 0.0.0
      */
@@ -81,6 +86,7 @@ export class JoinedFactory<
                 constraint: { _tag: "on", on: makeArray(on(proxy)) },
             },
         ]);
+
     /**
      * @since 0.0.0
      */
@@ -93,6 +99,7 @@ export class JoinedFactory<
             },
         ]);
 }
+
 /**
  * @since 0.0.0
  */
@@ -113,6 +120,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         commaJoins: CommaJoin,
         properJoins: ProperJoin
     ): Joined<any, any> => new Joined(commaJoins, properJoins);
+
     /**
      * @since 0.0.0
      */
@@ -122,11 +130,13 @@ export class Joined<Selection extends string, Aliases extends string> {
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+
     /**
      * @since 0.0.0
      */
     public selectStar = (): SelectStatement<never, Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
+
     /**
      * @since 0.0.0
      */
@@ -140,6 +150,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         SelectStatement.__fromTableOrSubquery(this, [
             StarOfAliasesSymbol(aliases),
         ]);
+
     /**
      * @since 0.0.0
      */
@@ -158,6 +169,7 @@ export class Joined<Selection extends string, Aliases extends string> {
                 alias: table.__alias,
             },
         ]);
+
     /**
      * @since 0.0.0
      */
@@ -181,6 +193,7 @@ export class Joined<Selection extends string, Aliases extends string> {
                 operator,
             }
         );
+
     /**
      * @since 0.0.0
      */
@@ -205,6 +218,7 @@ export class Joined<Selection extends string, Aliases extends string> {
                 alias: alias,
             },
         ]);
+
     /**
      * @since 0.0.0
      */

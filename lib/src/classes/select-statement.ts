@@ -17,15 +17,16 @@ type SelectionWrapperTypes<Selection extends string> = (
     | StarSymbol
     | StarOfAliasSymbol
 )[];
+
 /**
  * @since 0.0.0
  */
-
 export class SelectStatement<
     With extends string,
     Scope extends string,
     Selection extends string
 > {
+    /* @internal */
     private constructor(
         /* @internal */
         public __from: TableOrSubquery<any, any, any, any> | null,
@@ -105,6 +106,7 @@ export class SelectStatement<
         this.__distinct = distinct;
         return this;
     };
+
     /**
      * @since 0.0.0
      */
@@ -118,11 +120,13 @@ export class SelectStatement<
         Selection | `main_alias.${Selection}`,
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+
     /**
      * @since 0.0.0
      */
     public selectStar = (): SelectStatement<never, Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
+
     /**
      * @since 0.0.0
      */
@@ -131,6 +135,7 @@ export class SelectStatement<
         Selection,
         Selection
     > => this.copy().setSelection([...this.__selection, StarSymbol()]);
+
     /**
      * @since 0.0.0
      */
@@ -144,6 +149,7 @@ export class SelectStatement<
             ...(this.__selection as any),
             AliasedRows(f(proxy)),
         ]) as any;
+
     /**
      * @since 0.0.0
      */
@@ -153,11 +159,13 @@ export class SelectStatement<
         ) => SafeString[] | SafeString
     ): SelectStatement<With, Scope, Selection> =>
         this.copy().setWhere([...this.__where, ...makeArray(f(proxy))]);
+
     /**
      * @since 0.0.0
      */
     public distinct = (): SelectStatement<With, Scope, Selection> =>
         this.copy().setDistinct(true);
+
     /**
      * @since 0.0.0
      */
@@ -167,12 +175,14 @@ export class SelectStatement<
         ) => SafeString[] | SafeString
     ): SelectStatement<With, Scope, Selection> =>
         this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
+
     /**
      * @since 0.0.0
      */
     public limit = (
         limit: SafeString | number
     ): SelectStatement<With, Scope, Selection> => this.copy().setLimit(limit);
+
     /**
      * @since 0.0.0
      */
@@ -199,6 +209,7 @@ export class SelectStatement<
                 alias: table.__alias,
             },
         ]);
+
     /**
      * @since 0.0.0
      */
@@ -232,6 +243,7 @@ export class SelectStatement<
                 operator,
             }
         );
+
     /**
      * @since 0.0.0
      */
@@ -262,6 +274,7 @@ export class SelectStatement<
                 alias: tableAlias,
             },
         ]);
+
     /**
      * @since 0.0.0
      */
@@ -298,6 +311,7 @@ export class SelectStatement<
                 operator,
             }
         );
+
     /**
      * @since 0.0.0
      */

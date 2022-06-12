@@ -27,6 +27,7 @@ type SelectionOfSelectStatement<T> = T extends SelectStatement<
  * @since 0.0.0
  */
 export class Compound<Scope extends string, Selection extends string> {
+    /* @internal */
     private constructor(
         /* @internal */
         public __content: TableOrSubquery<any, any, any, any>[],
@@ -90,11 +91,13 @@ export class Compound<Scope extends string, Selection extends string> {
         ) => SafeString[] | SafeString
     ): Compound<Scope, Selection> =>
         this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
+
     /**
      * @since 0.0.0
      */
     public limit = (limit: SafeString | number): Compound<Scope, Selection> =>
         this.copy().setLimit(limit);
+
     /**
      * @since 0.0.0
      */
@@ -108,6 +111,7 @@ export class Compound<Scope extends string, Selection extends string> {
         Selection | `main_alias.${Selection}`,
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+
     /**
      * @since 0.0.0
      */
@@ -141,6 +145,7 @@ export class Compound<Scope extends string, Selection extends string> {
                 operator,
             }
         );
+
     /**
      * @since 0.0.0
      */
@@ -177,6 +182,7 @@ export class Compound<Scope extends string, Selection extends string> {
                 operator,
             }
         );
+
     /**
      * @since 0.0.0
      */

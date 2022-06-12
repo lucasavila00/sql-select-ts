@@ -10,10 +10,12 @@ import { NoSelectFieldsCompileError } from "../types";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
+
 /**
  * @since 0.0.0
  */
 export class Table<Selection extends string, Alias extends string> {
+    /* @internal */
     private constructor(
         /* @internal */
         public __columns: string[],
@@ -22,6 +24,7 @@ export class Table<Selection extends string, Alias extends string> {
         /* @internal */
         public __name: string
     ) {}
+
     /*  @internal */
     public static define = <
         Selection extends string,
@@ -31,6 +34,7 @@ export class Table<Selection extends string, Alias extends string> {
         alias: Alias,
         name: string = alias
     ): Table<Selection, Alias> => new Table(columns, alias, name);
+
     /**
      * @since 0.0.0
      */
@@ -44,6 +48,7 @@ export class Table<Selection extends string, Alias extends string> {
         Selection | `${Alias}.${Selection}`,
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+
     /**
      * @since 0.0.0
      */
@@ -52,6 +57,7 @@ export class Table<Selection extends string, Alias extends string> {
         Selection | `main_alias.${Selection}`,
         Selection
     > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
+
     /**
      * @since 0.0.0
      */
@@ -74,6 +80,7 @@ export class Table<Selection extends string, Alias extends string> {
                 alias: table.__alias,
             },
         ]);
+
     /**
      * @since 0.0.0
      */
@@ -102,6 +109,7 @@ export class Table<Selection extends string, Alias extends string> {
                 operator,
             }
         );
+
     /**
      * @since 0.0.0
      */
@@ -130,6 +138,7 @@ export class Table<Selection extends string, Alias extends string> {
                 alias: selectAlias,
             },
         ]);
+
     /**
      * @since 0.0.0
      */
@@ -164,6 +173,7 @@ export class Table<Selection extends string, Alias extends string> {
                 operator,
             }
         );
+
     /**
      * @since 0.0.0
      */
