@@ -20,8 +20,14 @@ export const CollapsableNav: FC = () => {
       {responsive === "small" ? (
         <Menu
           items={[
-            { label: "Examples", onClick: () => navigate("/examples") },
-            { label: "API Reference", onClick: () => navigate("/api") },
+            {
+              label: "Examples",
+              onClick: () => navigate("examples"),
+            },
+            {
+              label: "API Reference",
+              onClick: () => navigate("api"),
+            },
             {
               label: "Source code",
               onClick: () => {
@@ -34,8 +40,8 @@ export const CollapsableNav: FC = () => {
         />
       ) : (
         <Nav direction="row">
-          <AnchorLink to="/examples" label="Examples" />
-          <AnchorLink to="/api" label="API Reference" />
+          <AnchorLink to="examples" label="Examples" />
+          <AnchorLink to="api" label="API Reference" />
           <Anchor
             href="https://github.com/lucasavila00/sql-select-ts"
             label="Source code"
