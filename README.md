@@ -6,11 +6,11 @@
 
     -   [ ] add commit to footer
 
-    -   [ ] remove node polyfills when safe string is cleaned up
-
 -   [ ] test that queries won't crash the docs app
 
 # LIB
+
+-   [ ] easy extension, example boolean in CH
 
 -   [ ] 100% test coverage
 

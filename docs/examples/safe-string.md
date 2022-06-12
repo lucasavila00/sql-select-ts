@@ -6,7 +6,7 @@
 
 ```ts
 fromNothing({
-  bool: sql(true),
+  string: sql("abc"),
   number: sql(123),
   null: sql(null),
 }).print();
@@ -49,19 +49,6 @@ fromNothing({
 const n = 456;
 fromNothing({
   it: sql`123 = ${n}`,
-}).print();
-```
-
-{% /printer %}
-
-#### Boolean Interpolation
-
-{% printer %}
-
-```ts
-const b = true;
-fromNothing({
-  it: sql`123 = ${b}`,
 }).print();
 ```
 
