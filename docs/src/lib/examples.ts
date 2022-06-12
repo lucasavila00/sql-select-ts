@@ -22,13 +22,6 @@ export const examples = createExamples({
     ).toString(),
     title: "Safe String",
   },
-  [ExamplesKeys.typedResponse]: {
-    contentUrl: new URL(
-      `../../content/typed-response.md`,
-      import.meta.url
-    ).toString(),
-    title: "Typed Query Results",
-  },
   [ExamplesKeys.select]: {
     contentUrl: new URL(`../../content/select.md`, import.meta.url).toString(),
     title: "Select",
@@ -48,5 +41,12 @@ export const examples = createExamples({
   [ExamplesKeys.limit]: {
     contentUrl: new URL(`../../content/limit.md`, import.meta.url).toString(),
     title: "Limit",
+  },
+  [ExamplesKeys.typedResponse]: {
+    contentUrl: new URL(
+      `../../content/typed-response.md`,
+      import.meta.url
+    ).toString(),
+    title: "Typed Query Results",
   },
 });

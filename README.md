@@ -2,15 +2,7 @@
 
 -   [ ] UI
 
-    -   [ ] remove node polyfills
-
-    -   [ ] NAV
-
-    -   [ ] make it clear it's being formatted by other lib
-
--   [ ] content
-
-    -   [ ] select from nothing
+    -   [ ] remove node polyfills when safe string is cleaned up
 
 # LIB
 

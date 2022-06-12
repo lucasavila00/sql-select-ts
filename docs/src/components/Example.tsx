@@ -1,5 +1,5 @@
-import { Box, Heading, Nav, Page } from "grommet";
-import React, { FC } from "react";
+import { Box, Heading, Nav, Page, ResponsiveContext } from "grommet";
+import React, { FC, useContext } from "react";
 import { collectHeadings } from "../lib/collect-headings";
 import { examples, ExamplesKeys } from "../lib/examples";
 import { getEntries } from "../lib/std";
@@ -21,20 +21,25 @@ export const Example: FC<{
     isOpen: k === exampleKey,
     appUrl: toExampleUrl(k),
   }));
+
+  const responsive = useContext(ResponsiveContext);
+
   return (
-    <Page background="light-3">
-      <Box direction="row" margin="auto" justify="center">
-        <Box width="large" pad={{ top: "large" }}>
-          <Heading margin="none">{config.title}</Heading>
-          <MarkdocRenderer content={content} />
-        </Box>
+    <Box direction="row" margin="auto" justify="center" pad="small">
+      <Box width="large" pad={{ top: "large" }}>
+        <Heading margin="none">{config.title}</Heading>
+        <MarkdocRenderer content={content} />
+      </Box>
+      {responsive === "small" ? (
+        <></>
+      ) : (
         <Box width="medium">
           <TableOfContents
             entries={tableOfContentEntries}
             headings={headings}
           />
         </Box>
-      </Box>
-    </Page>
+      )}
+    </Box>
   );
 };

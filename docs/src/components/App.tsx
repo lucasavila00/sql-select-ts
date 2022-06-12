@@ -7,7 +7,9 @@ import React, { FC, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { examples, ExamplesKeys } from "../lib/examples";
 import { getKeys } from "../lib/std";
+import { Api } from "./Api";
 import { Example } from "./Example";
+import { Home } from "./Home";
 import { CollapsableNav } from "./TopNav";
 
 export const App: FC = () => (
@@ -26,19 +28,18 @@ export const App: FC = () => (
       <CollapsableNav />
       <Suspense fallback={<></>}>
         <Routes>
-          <Route
-            path="/"
-            element={<Example exampleKey={ExamplesKeys.select} />}
-          />
-          <Route path="/examples">
+          <Route path="/" element={<Home />} />
+          <Route path="api" element={<Api />} />
+          <Route path="examples">
             <Route
               index
-              element={<Example exampleKey={ExamplesKeys.select} />}
+              element={<Example exampleKey={ExamplesKeys.safeString} />}
             />
             {getKeys(examples).map((it) => (
               <Route path={it} key={it} element={<Example exampleKey={it} />} />
             ))}
           </Route>
+          <Route path="*" element={<Home />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
