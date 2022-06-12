@@ -1,10 +1,10 @@
 import { Compound } from "./classes/compound";
-import { JoinConstraint, Joined } from "./classes/joined";
+import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import { SafeString } from "./safe-string";
-import { TableOrSubquery } from "./types";
+import { JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
 
 const wrapAlias = (alias: string) => {

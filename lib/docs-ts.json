@@ -3,6 +3,7 @@
         "src/utils.ts",
         "src/print.ts",
         "src/proxy.ts",
+        "src/types.ts",
         "src/data-wrappers.ts"
     ]
 }

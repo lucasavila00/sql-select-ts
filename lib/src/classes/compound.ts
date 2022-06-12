@@ -9,7 +9,7 @@ import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
 import { makeArray } from "../utils";
-import { Joined, JoinedFactory } from "./joined";
+import { JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 

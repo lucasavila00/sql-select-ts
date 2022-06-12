@@ -4,7 +4,11 @@
 import { StarOfAliasesSymbol, StarSymbol, AliasedRows } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
+import {
+    TableOrSubquery,
+    NoSelectFieldsCompileError,
+    JoinConstraint,
+} from "../types";
 import { makeArray } from "../utils";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
@@ -17,12 +21,6 @@ type CommaJoin = {
 /**
  * @since 0.0.0
  */
-export type JoinConstraint =
-    | {
-          _tag: "no_constraint";
-      }
-    | { _tag: "on"; on: SafeString[] }
-    | { _tag: "using"; keys: string[] };
 
 type ProperJoinItem = {
     code: TableOrSubquery<any, any, any, any>;

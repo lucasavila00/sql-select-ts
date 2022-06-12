@@ -29,7 +29,7 @@ export const CollapsableNav: FC = () => {
               onClick: () => navigate("/api"),
             },
             {
-              label: "Source code",
+              label: "Source Code",
               onClick: () => {
                 // @ts-ignore
                 window.location =
@@ -44,7 +44,7 @@ export const CollapsableNav: FC = () => {
           <AnchorLink to="/api" label="API Reference" />
           <Anchor
             href="https://github.com/lucasavila00/sql-select-ts"
-            label="Source code"
+            label="Source Code"
           />
         </Nav>
       )}

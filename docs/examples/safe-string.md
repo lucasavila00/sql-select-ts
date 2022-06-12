@@ -54,6 +54,20 @@ fromNothing({
 
 {% /printer %}
 
+#### Array Interpolation
+
+{% printer %}
+
+```ts
+const nums = [1, 2, 3];
+
+fromNothing({
+  it: sql`1 IN (${nums})`,
+}).print();
+```
+
+{% /printer %}
+
 #### Select Interpolation
 
 {% printer %}
@@ -83,20 +97,6 @@ const q2 = fromNothing({
 const u = unionAll([q1, q2]);
 fromNothing({
   isIn: sql`something IN ${u}`,
-}).print();
-```
-
-{% /printer %}
-
-#### Array Interpolation
-
-{% printer %}
-
-```ts
-const nums = [1, 2, 3];
-
-fromNothing({
-  it: sql`1 IN (${nums})`,
 }).print();
 ```
 

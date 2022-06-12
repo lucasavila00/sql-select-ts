@@ -2,6 +2,16 @@
 
 -   [ ] UI
 
+    -   [ ] render docs-ts
+
+        -   [ ] delete unwanted metadata
+
+        -   [ ] copy to docs folder
+
+        -   [ ] create definition file
+
+        -   [ ] fix headers
+
     -   [ ] catch errors
 
     -   [ ] add commit to footer
@@ -10,10 +20,14 @@
 
 # LIB
 
--   [ ] easy extension, example boolean in CH
+-   [ ] easy extension sql safe string, example boolean in CH
 
 -   [ ] 100% test coverage
 
 -   [ ] compound select star
 
 -   [ ] join compound
+
+# Global
+
+-   [ ] check TODO and FIXME
