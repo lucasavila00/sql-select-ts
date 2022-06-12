@@ -1,10 +1,18 @@
 # LIB
 
--   [ ] select . join compound
-
 -   [ ] join compound
 
+    -   [ ] compound . join compound
+
 -   [ ] same tests for comma join as for join
+
+-   [ ] select tests (type focus)
+
+-   [ ] where tests (type focus)
+
+-   [ ] order by tests (type focus)
+
+-   [ ] limit tests (type focus)
 
 # DOCS
 
