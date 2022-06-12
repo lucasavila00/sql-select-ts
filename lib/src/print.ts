@@ -8,7 +8,7 @@ import { JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
 
 const wrapAlias = (alias: string) => {
-    // FIXME should escape - / etc
+    // TODO should escape - / etc
     if (alias[0].charCodeAt(0) >= 48 && alias[0].charCodeAt(0) <= 57) {
         return `\`${alias}\``;
     }

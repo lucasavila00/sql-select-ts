@@ -12,7 +12,9 @@ npm i sql-select-ts
 
 ## Modern
 
-Built with modern typescript and javascript features, it delivers a clean, easy-to-use and powerful API that couldn't exist before, such as:
+Built with modern typescript and javascript features, it delivers a clean, easy-to-use and powerful API that couldn't exist before.
+
+Such features include:
 
 #### Safe string interpolation with template literals
 
@@ -75,6 +77,10 @@ TODO
 TODO
 
 ## Typescript support
+
+TODO
+
+## Well tested
 
 TODO
 

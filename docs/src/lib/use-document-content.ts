@@ -6,7 +6,7 @@ import { clearTocAndFrontmatter } from "./clear-toc-frontmatter";
 const fetchText = (str: string): Promise<string> =>
   fetch(str).then((it) => it.text());
 
-export const prefetch = (contentUrl: string) => {
+export const prefetchMutate = (contentUrl: string) => {
   mutate(contentUrl, fetchText(contentUrl));
 };
 

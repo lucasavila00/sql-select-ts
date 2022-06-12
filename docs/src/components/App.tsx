@@ -7,8 +7,8 @@ import React, { FC, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { apiReferenceItems, ApiReferenceKeys } from "../lib/api-references";
 import { examples, ExamplesKeys } from "../lib/examples";
+import { usePrefetchAll } from "../lib/prefetch";
 import { getKeys } from "../lib/std";
-import { prefetch } from "../lib/use-document-content";
 import { Api } from "./Api";
 import { Example } from "./Example";
 import { Home } from "./Home";
@@ -24,14 +24,8 @@ const ScrollToTop = () => {
   return <></>;
 };
 
-const prefetchExamples = () => {
-  Object.values(examples).forEach((it) => {
-    prefetch(it.contentUrl);
-  });
-};
-
 export const App: FC = () => {
-  prefetchExamples();
+  usePrefetchAll();
   return (
     <Grommet
       theme={{

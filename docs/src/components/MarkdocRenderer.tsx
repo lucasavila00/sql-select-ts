@@ -17,29 +17,9 @@ const HeadingGrommet: FC<{
   </Heading>
 );
 
-const elementIdFromHash = (): string | null => {
-  const hash = window.location.hash;
-  if (hash == null) {
-    return null;
-  }
-  return hash.replace("#", "");
-};
-
 export const MarkdocRenderer: FC<{
   content: RenderableTreeNode;
 }> = ({ content }) => {
-  useEffect(() => {
-    const elementId = elementIdFromHash();
-    if (elementId == null) {
-      return;
-    }
-    const element = document.getElementById(elementId);
-    if (element == null) {
-      return;
-    }
-    element.scrollIntoView();
-  }, []);
-
   const rendered = Markdoc.renderers.react(content, React, {
     components: { Fence, HeadingGrommet },
   });

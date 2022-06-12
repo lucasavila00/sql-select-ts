@@ -1,6 +1,4 @@
 /**
- * WIP
- *
  * @since 0.0.0
  */
 import { AliasedRows, StarSymbol } from "../data-wrappers";

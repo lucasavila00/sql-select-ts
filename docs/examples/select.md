@@ -165,6 +165,10 @@ users
 
 {% /printer %}
 
+# Don't select the fields object directly
+
+TODO
+
 # Control order of selection
 
 Although it works on most cases, order of selection is not guaranteed.
