@@ -2,6 +2,10 @@
 
 -   [ ] UI
 
+    -   [ ] react transition
+
+    -   [ ] pre-cache all docs
+
     -   [ ] remove node polyfills when safe string is cleaned up
 
 # LIB
@@ -15,8 +19,6 @@
     -   [ ] encode date?
 
     -   [ ] encode boolean?
-
--   [ ] remove deps(fp-ts)
 
 -   [ ] compound select star
 

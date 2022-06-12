@@ -1,6 +1,3 @@
-import * as A from "fp-ts/lib/Array";
-import { absurd, pipe } from "fp-ts/lib/function";
-import { isNumber } from "fp-ts/lib/number";
 import { Compound } from "./classes/compound";
 import { JoinConstraint, Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
@@ -8,6 +5,7 @@ import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import { SafeString } from "./safe-string";
 import { TableOrSubquery } from "./types";
+import { absurd } from "./utils";
 
 const wrapAlias = (alias: string) => {
     // FIXME should escape - / etc
@@ -28,7 +26,7 @@ const printOrderBy = (orderBy: SafeString[]): string =>
 const printLimit = (limit: number | SafeString | null): string =>
     limit == null
         ? ""
-        : isNumber(limit)
+        : typeof limit == "number"
         ? `LIMIT ${limit}`
         : `LIMIT ${limit.content}`;
 
@@ -130,9 +128,8 @@ export const printSelectStatementInternal = <
     selectStatement: SelectStatement<With, Scope, Selection>,
     parenthesis: boolean
 ): string => {
-    const sel = pipe(
-        selectStatement.__selection,
-        A.chain((it) => {
+    const sel = selectStatement.__selection
+        .map((it) => {
             if (isStarSymbol(it)) {
                 return ["*"];
             }
@@ -147,9 +144,10 @@ export const printSelectStatementInternal = <
             return Object.entries(it.content).map(([k, v]) => {
                 return `${(v as SafeString).content} AS ${wrapAlias(k)}`;
             });
-        }),
-        (it) => it.join(", ")
-    );
+        })
+        // flatten
+        .reduce((p, c) => [...p, ...c], [])
+        .join(", ");
 
     const where =
         selectStatement.__where.length > 0

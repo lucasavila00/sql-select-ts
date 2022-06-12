@@ -11,9 +11,7 @@
     "keywords": [],
     "author": "",
     "license": "ISC",
-    "dependencies": {
-        "fp-ts": "^2.12.1"
-    },
+    "dependencies": {},
     "devDependencies": {
         "@types/jest": "^28.1.1",
         "@types/sqlite3": "^3.1.8",
