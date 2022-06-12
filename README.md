@@ -1,12 +1,12 @@
 # DOCS
 
+-   [ ] add commit to footer
+
 -   [ ] UI
 
-    -   [ ] react transition
-
-    -   [ ] pre-cache all docs
-
     -   [ ] remove node polyfills when safe string is cleaned up
+
+-   [ ] test that queries won't crash the docs app
 
 # LIB
 
