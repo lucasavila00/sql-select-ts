@@ -1,7 +1,5 @@
 name: Test lib
 on: [push]
-permissions:
-    contents: write
 jobs:
     test-lib:
         runs-on: ubuntu-20.04
@@ -9,8 +7,7 @@ jobs:
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v3
-            - name: Test it
+            - name: Tests
               run: |
-                  cd lib
-                  npm ci
-                  npm run test
+                  make install
+                  make test

@@ -1,7 +1,5 @@
 name: Static analysis
 on: [push]
-permissions:
-    contents: write
 jobs:
     test-lib:
         runs-on: ubuntu-20.04
@@ -9,7 +7,7 @@ jobs:
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v3
-            - name: Typescript check
+            - name: Static checks
               run: |
                   make install
                   make static
