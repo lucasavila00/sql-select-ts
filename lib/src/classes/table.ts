@@ -1,4 +1,9 @@
 /**
+ *
+ * Represents a table in the database.
+ * It stores type information of the table Alias and Selection.
+ * It also stores the table name and the alias.
+ *
  * @since 0.0.0
  */
 import { AliasedRows, StarSymbol } from "../data-wrappers";
@@ -10,6 +15,13 @@ import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 
 /**
+ *
+ * Represents a table in the database.
+ * It stores type information of the table Alias and Selection.
+ * It also stores the table name and the alias.
+ *
+ * This class is not meant to be used directly, but rather through the `table` function.
+ *
  * @since 0.0.0
  */
 export class Table<Selection extends string, Alias extends string> {

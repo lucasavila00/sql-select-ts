@@ -1,4 +1,7 @@
 /**
+ *
+ * Represents https://www.sqlite.org/syntax/simple-select-stmt.html
+ *
  * @since 0.0.0
  */
 import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
@@ -18,6 +21,11 @@ type SelectionWrapperTypes<Selection extends string> = (
 )[];
 
 /**
+ *
+ * Represents https://www.sqlite.org/syntax/simple-select-stmt.html
+ *
+ * This class is not meant to be used directly, but rather through the `fromNothing` function or from a table.
+ *
  * @since 0.0.0
  */
 export class SelectStatement<

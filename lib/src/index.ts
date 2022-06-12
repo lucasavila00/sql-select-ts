@@ -66,8 +66,6 @@ export const union = Compound.union;
 /**
  * Creates a compound query using 'UNION ALL'
  *
- * Check in depth docs in the safe-string.ts module.
- *
  * @example
  * import { fromNothing, sql, unionAll } from "sql-select-ts";
  * const q1 = fromNothing({ a: sql(123) });

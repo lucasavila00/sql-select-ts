@@ -1,4 +1,7 @@
 /**
+ *
+ * Represents a source of data composed of JOINed tables or sub-selects.
+ *
  * @since 0.0.0
  */
 import { StarOfAliasesSymbol, StarSymbol, AliasedRows } from "../data-wrappers";
@@ -18,10 +21,6 @@ type CommaJoin = {
     alias: string;
 }[];
 
-/**
- * @since 0.0.0
- */
-
 type ProperJoinItem = {
     code: TableOrSubquery<any, any, any, any>;
     alias: string;
@@ -37,6 +36,10 @@ type RemoveAliasFromSelection<
 > = Selection extends `${Alias}.${infer R}` ? R : never;
 
 /**
+ *
+ * Constructor for join queries.
+ * Allows the selection of the constraint to be done in another method call.
+ *
  * @since 0.0.0
  */
 export class JoinedFactory<
@@ -99,6 +102,10 @@ export class JoinedFactory<
 }
 
 /**
+ *
+ * Represents a source of data composed of JOINed tables or sub-selects.
+ * This class is not meant to be used directly, but rather through methods in tables, or sub-selects.
+ *
  * @since 0.0.0
  */
 export class Joined<Selection extends string, Aliases extends string> {

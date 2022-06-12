@@ -1,5 +1,6 @@
 /**
- * Represents https://www.sqlite.org/syntax/compound-operator.html
+ * Represents https://www.sqlite.org/syntax/compound-select-stmt.html
+ *
  *
  * @since 0.0.0
  */
@@ -22,7 +23,9 @@ type SelectionOfSelectStatement<T> = T extends SelectStatement<
     : never;
 
 /**
- * Represents https://www.sqlite.org/syntax/compound-operator.html
+ * Represents https://www.sqlite.org/syntax/compound-select-stmt.html
+ *
+ * This class is not meant to be used directly, but rather through the `union`, `union`, `insersect`, `except` functions.
  *
  * @since 0.0.0
  */
