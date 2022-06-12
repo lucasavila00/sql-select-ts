@@ -13,31 +13,38 @@ import * as Babel from "@babel/standalone";
 
 const table = _table;
 const sql = _sql;
+//@ts-expect-error
 const unionAll = _unionAll;
 const castSafe = _castSafe;
+//@ts-expect-error
 const fromNothing = _fromNothing;
 
+//@ts-expect-error
 const users = table(
   /* columns: */ ["id", "age", "name"],
   /* db-name & alias: */ "users"
 );
 
+//@ts-expect-error
 const admins = table(
   /* columns: */ ["id", "age", "name"],
   /* alias: */ "adm",
   /* db-name: */ "admins"
 );
 
+//@ts-expect-error
 const analytics = table(
   /* columns: */ ["id", "clicks"],
   /* db-name & alias: */ "analytics"
 );
 
+//@ts-expect-error
 const equals = (
   a: SafeString | number | string,
   b: SafeString | number | string
 ): SafeString => sql`${a} = ${b}`;
 
+//@ts-expect-error
 const OR = (cases: SafeString[]): SafeString => {
   const j = cases.map((it) => it.content).join(" OR ");
   return castSafe(`(${j})`);

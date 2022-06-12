@@ -1,9 +1,7 @@
-import { table, unionAll } from "../src";
+import { table } from "../src";
 
 describe("appendSelect", () => {
     const t1 = table(["a", "b", "c"], "t1");
-    const t2 = table(["b", "c", "d"], "t2");
-    const t3 = table(["c", "d", "e"], "t3");
 
     /*
     CREATE TABLE t1(a,b,c);

@@ -14,8 +14,8 @@ import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
 type SelectionOfSelectStatement<T> = T extends SelectStatement<
-    infer With,
-    infer Scope,
+    infer _With,
+    infer _Scope,
     infer Selection
 >
     ? Selection

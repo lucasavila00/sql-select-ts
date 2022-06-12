@@ -24,7 +24,7 @@ export type NoSelectFieldsCompileError = {
     ["✕"]: CompileError<["'.select(f => f)' is invalid"]>;
 };
 
-export interface CompileError<ErrorMessageT extends any[]> {
+export interface CompileError<_ErrorMessageT extends any[]> {
     /**
      * There should never be a value of this type
      */

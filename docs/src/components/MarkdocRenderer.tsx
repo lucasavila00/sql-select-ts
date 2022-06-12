@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC } from "react";
 import Markdoc, { RenderableTreeNode } from "@markdoc/markdoc";
 import { Fence } from "./Fence";
 import { Heading } from "grommet";

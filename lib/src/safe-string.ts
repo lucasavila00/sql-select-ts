@@ -149,7 +149,7 @@ const escapeId = function (val: string | number, forbidQualified = false) {
     }
 };
 
-const escapeForSql = function (val: any, stringifyObjects = false) {
+const escapeForSql = function (val: any) {
     if (val === undefined || val === null) {
         return "NULL";
     }
@@ -183,7 +183,7 @@ const arrayToList = function arrayToList<T>(array: T[]) {
         if (Array.isArray(val)) {
             sql += (i === 0 ? "" : ", ") + "(" + arrayToList(val) + ")";
         } else {
-            sql += (i === 0 ? "" : ", ") + escapeForSql(val, true);
+            sql += (i === 0 ? "" : ", ") + escapeForSql(val);
         }
     }
 
@@ -199,7 +199,7 @@ function escapeString(val: string) {
         //@ts-ignore
         escapedVal +=
             val.slice(chunkIndex, match.index) +
-            (CHARS_ESCAPE_MAP as any)[match[0]];
+            (CHARS_ESCAPE_MAP as any)[(match as any)[0]];
         chunkIndex = CHARS_GLOBAL_REGEXP.lastIndex;
     }
 

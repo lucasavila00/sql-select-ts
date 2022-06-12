@@ -18,8 +18,8 @@ const collectHeadingsRecursing = (
         sections.push({
           ...node.attributes,
           title,
-          nodeName: node.attributes.originalNodeName,
-          id: String(node.attributes.id),
+          nodeName: node.attributes["originalNodeName"],
+          id: String(node.attributes["id"]),
         });
       }
     }

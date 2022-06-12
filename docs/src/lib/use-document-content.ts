@@ -10,18 +10,20 @@ export const prefetchMutate = (contentUrl: string) => {
   mutate(contentUrl, fetchText(contentUrl));
 };
 
-export const useDocumentContent = (contentUrl: string): RenderableTreeNode => {
-  const { data } = useSWR(contentUrl, fetchText, { suspense: true });
-  const ast = Markdoc.parse(data!);
+export const parseAndTransform = (it: string): RenderableTreeNode => {
+  const ast = Markdoc.parse(it);
   const content = Markdoc.transform(ast, config);
   return content;
+};
+
+export const useDocumentContent = (contentUrl: string): RenderableTreeNode => {
+  const { data } = useSWR(contentUrl, fetchText, { suspense: true });
+  return parseAndTransform(data!);
 };
 
 export const useApiDocumentContent = (
   contentUrl: string
 ): RenderableTreeNode => {
   const { data } = useSWR(contentUrl, fetchText, { suspense: true });
-  const ast = Markdoc.parse(clearTocAndFrontmatter(data!));
-  const content = Markdoc.transform(ast, config);
-  return content;
+  return parseAndTransform(clearTocAndFrontmatter(data!));
 };
