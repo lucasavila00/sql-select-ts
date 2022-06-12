@@ -181,6 +181,7 @@ export class Table<Selection extends string, Alias extends string> {
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
+        | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2
     > =>
@@ -194,4 +195,34 @@ export class Table<Selection extends string, Alias extends string> {
                 alias: compoundAlias,
             },
         ]);
+
+    /**
+     * @since 0.0.0
+     */
+    public joinCompound = <Selection2 extends string, Alias2 extends string>(
+        compoundAlias: Alias2,
+        operator: string,
+        compound: Compound<Selection2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias}.${Selection}`
+        | `${Alias2}.${Selection2}`,
+        Alias | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            [
+                {
+                    code: this,
+                    alias: this.__alias,
+                },
+            ],
+            [],
+            {
+                code: compound,
+                alias: compoundAlias,
+                operator,
+            }
+        );
 }

@@ -3,7 +3,7 @@
  *
  * @since 0.0.0
  */
-import { AliasedRows } from "../data-wrappers";
+import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { printCompound } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
@@ -111,6 +111,12 @@ export class Compound<Scope extends string, Selection extends string> {
         Selection | `main_alias.${Selection}`,
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+
+    /**
+     * @since 0.0.0
+     */
+    public selectStar = (): SelectStatement<never, Selection, Selection> =>
+        SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     /**
      * @since 0.0.0

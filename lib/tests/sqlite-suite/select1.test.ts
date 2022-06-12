@@ -1585,6 +1585,30 @@ describe("sqlite select1", () => {
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
+    it("select1-17.3 -- compound select star", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const q = unionAll([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .selectStar()
+            .select((f) => ({ f1: f["main_alias.f1"], f2: f.f2 }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT main_alias.f1 AS f1, f2 AS f2 FROM (SELECT * FROM (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2)) AS main_alias;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "f1": 11,
+                "f2": 22,
+              },
+            ]
+        `);
+    });
 
     it("select1-12.9", async () => {
         const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
