@@ -1,7 +1,7 @@
-name: Static analysis
+name: Static Analysis
 on: [push]
 jobs:
-    test-lib:
+    static_analysis:
         runs-on: ubuntu-20.04
         steps:
             - name: Checkout 🛎️

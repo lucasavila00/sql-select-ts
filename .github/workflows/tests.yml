@@ -1,7 +1,7 @@
-name: Test lib
+name: Tests
 on: [push]
 jobs:
-    test-lib:
+    tests:
         runs-on: ubuntu-20.04
         steps:
             - name: Checkout 🛎️
