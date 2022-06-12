@@ -1,3 +1,8 @@
+/**
+ * WIP
+ *
+ * @since 0.0.0
+ */
 import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
 import { printSelectStatement } from "../print";
 import { proxy } from "../proxy";
@@ -12,6 +17,9 @@ type SelectionWrapperTypes<Selection extends string> = (
     | StarSymbol
     | StarOfAliasSymbol
 )[];
+/**
+ * @since 0.0.0
+ */
 
 export class SelectStatement<
     With extends string,
@@ -47,7 +55,9 @@ export class SelectStatement<
             [],
             false
         );
-
+    /**
+     * @internal
+     */
     public static fromNothing = <NewSelection extends string>(
         it: Record<NewSelection, SafeString>
     ): SelectStatement<never, never, NewSelection> =>
@@ -95,7 +105,9 @@ export class SelectStatement<
         this.__distinct = distinct;
         return this;
     };
-
+    /**
+     * @since 0.0.0
+     */
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection | `main_alias.${Selection}`, SafeString> &
@@ -106,16 +118,22 @@ export class SelectStatement<
         Selection | `main_alias.${Selection}`,
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
-
+    /**
+     * @since 0.0.0
+     */
     public selectStar = (): SelectStatement<never, Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
-
+    /**
+     * @since 0.0.0
+     */
     public appendSelectStar = (): SelectStatement<
         never,
         Selection,
         Selection
     > => this.copy().setSelection([...this.__selection, StarSymbol()]);
-
+    /**
+     * @since 0.0.0
+     */
     public appendSelect = <NewSelection extends string>(
         f: (
             f: Record<Selection | Scope, SafeString> &
@@ -126,28 +144,38 @@ export class SelectStatement<
             ...(this.__selection as any),
             AliasedRows(f(proxy)),
         ]) as any;
-
+    /**
+     * @since 0.0.0
+     */
     public where = (
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
     ): SelectStatement<With, Scope, Selection> =>
         this.copy().setWhere([...this.__where, ...makeArray(f(proxy))]);
-
+    /**
+     * @since 0.0.0
+     */
     public distinct = (): SelectStatement<With, Scope, Selection> =>
         this.copy().setDistinct(true);
-
+    /**
+     * @since 0.0.0
+     */
     public orderBy = (
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
     ): SelectStatement<With, Scope, Selection> =>
         this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
-
+    /**
+     * @since 0.0.0
+     */
     public limit = (
         limit: SafeString | number
     ): SelectStatement<With, Scope, Selection> => this.copy().setLimit(limit);
-
+    /**
+     * @since 0.0.0
+     */
     public commaJoinTable = <
         Alias1 extends string,
         Selection2 extends string,
@@ -171,7 +199,9 @@ export class SelectStatement<
                 alias: table.__alias,
             },
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public joinTable = <
         Alias1 extends string,
         Selection2 extends string,
@@ -202,7 +232,9 @@ export class SelectStatement<
                 operator,
             }
         );
-
+    /**
+     * @since 0.0.0
+     */
     public commaJoinSelect = <
         Alias1 extends string,
         With2 extends string,
@@ -230,7 +262,9 @@ export class SelectStatement<
                 alias: tableAlias,
             },
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public joinSelect = <
         Alias1 extends string,
         With2 extends string,
@@ -264,7 +298,8 @@ export class SelectStatement<
                 operator,
             }
         );
-
+    /**
+     * @since 0.0.0
+     */
     public print = (): string => printSelectStatement(this);
 }
-export const fromNothing = SelectStatement.fromNothing;

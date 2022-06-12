@@ -1,3 +1,8 @@
+/**
+ * Represents https://www.sqlite.org/syntax/compound-operator.html
+ *
+ * @since 0.0.0
+ */
 import { AliasedRows } from "../data-wrappers";
 import { printCompound } from "../print";
 import { proxy } from "../proxy";
@@ -16,6 +21,11 @@ type SelectionOfSelectStatement<T> = T extends SelectStatement<
     ? Selection
     : never;
 
+/**
+ * Represents https://www.sqlite.org/syntax/compound-operator.html
+ *
+ * @since 0.0.0
+ */
 export class Compound<Scope extends string, Selection extends string> {
     private constructor(
         /* @internal */
@@ -28,6 +38,11 @@ export class Compound<Scope extends string, Selection extends string> {
         public __limit: SafeString | number | null
     ) {}
 
+    /**
+     * Creates a compound query using 'UNION'
+     *
+     * @since 0.0.0
+     */
     public static union = <
         C extends SelectStatement<any, any, any>,
         CS extends SelectStatement<any, any, any>[]
@@ -38,6 +53,11 @@ export class Compound<Scope extends string, Selection extends string> {
         SelectionOfSelectStatement<C>
     > => new Compound(content, "UNION", [], null);
 
+    /**
+     * Creates a compound query using 'UNION ALL'
+     *
+     * @since 0.0.0
+     */
     public static unionAll = <
         C extends SelectStatement<any, any, any>,
         CS extends SelectStatement<any, any, any>[]
@@ -65,16 +85,23 @@ export class Compound<Scope extends string, Selection extends string> {
         return this;
     };
 
+    /**
+     * @since 0.0.0
+     */
     public orderBy = (
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
     ): Compound<Scope, Selection> =>
         this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
-
+    /**
+     * @since 0.0.0
+     */
     public limit = (limit: SafeString | number): Compound<Scope, Selection> =>
         this.copy().setLimit(limit);
-
+    /**
+     * @since 0.0.0
+     */
     public select = <NewSelection extends string>(
         f: (
             fields: Record<Selection | `main_alias.${Selection}`, SafeString> &
@@ -85,7 +112,9 @@ export class Compound<Scope extends string, Selection extends string> {
         Selection | `main_alias.${Selection}`,
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
-
+    /**
+     * @since 0.0.0
+     */
     public joinTable = <
         Alias1 extends string,
         Selection2 extends string,
@@ -116,7 +145,9 @@ export class Compound<Scope extends string, Selection extends string> {
                 operator,
             }
         );
-
+    /**
+     * @since 0.0.0
+     */
     public joinSelect = <
         Alias1 extends string,
         With2 extends string,
@@ -150,10 +181,22 @@ export class Compound<Scope extends string, Selection extends string> {
                 operator,
             }
         );
-
+    /**
+     * @since 0.0.0
+     */
     public print = (): string => printCompound(this);
 }
 
+/**
+ * Creates a compound query using 'UNION'
+ *
+ * @since 0.0.0
+ */
 export const union = Compound.union;
 
+/**
+ * Creates a compound query using 'UNION ALL'
+ *
+ * @since 0.0.0
+ */
 export const unionAll = Compound.unionAll;

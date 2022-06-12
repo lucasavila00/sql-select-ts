@@ -1,35 +1,34 @@
+/**
+ * WIP
+ *
+ * @since 0.0.0
+ */
 import { Compound } from "./classes/compound";
 import { SelectStatement } from "./classes/select-statement";
 import { printCompoundInternal, printSelectStatementInternal } from "./print";
-
+/**
+ * @since 0.0.0
+ */
 export const SafeStringURI = "SafeString" as const;
+/**
+ * @since 0.0.0
+ */
 export type SafeString = {
     _tag: typeof SafeStringURI;
     content: string;
 };
-
+/**
+ * @since 0.0.0
+ */
 export const castSafe = (content: string): SafeString => ({
     _tag: SafeStringURI,
     content,
 });
-
-export const safeStringKeys = (it: Record<string, unknown>): SafeString[] =>
-    Object.keys(it).map(escapeIdentifier);
-
+/**
+ * @since 0.0.0
+ */
 export const isSafeString = (it: any): it is SafeString =>
     it?._tag === SafeStringURI;
-
-export type SqlSupportedTypes =
-    | SafeString
-    | string
-    | number
-    | null
-    | undefined
-    | SelectStatement<any, any, any>
-    | Compound<any, any>;
-
-export const escapeIdentifier = (it: string): SafeString =>
-    castSafe(escapeNoQuotes(it));
 
 // adapted from https://github.com/mysqljs/sqlstring/blob/master/lib/SqlString.js
 var ID_GLOBAL_REGEXP = /`/g;
@@ -93,7 +92,7 @@ const escapeId = function (val: string | number, forbidQualified = false) {
     }
 };
 
-export const escapeForSql = function (val: any, stringifyObjects = false) {
+const escapeForSql = function (val: any, stringifyObjects = false) {
     if (val === undefined || val === null) {
         return "NULL";
     }
@@ -159,11 +158,22 @@ function escapeString(val: string) {
     return "'" + escapedVal + "'";
 }
 
+type SqlSupportedTypes =
+    | SafeString
+    | string
+    | number
+    | null
+    | undefined
+    | SelectStatement<any, any, any>
+    | Compound<any, any>;
+
 type TemplateLiteralSql = [
     ReadonlyArray<string>,
     ...(SqlSupportedTypes | readonly SqlSupportedTypes[])[]
 ];
-
+/**
+ * @since 0.0.0
+ */
 export function sql(it: string | number | null): SafeString;
 export function sql(
     template: ReadonlyArray<string>,
@@ -173,6 +183,8 @@ export function sql(
     ...argsRaw: [string | number | null] | TemplateLiteralSql
 ): SafeString {
     const firstArg = argsRaw[0];
+
+    // called as template literal
     if (Array.isArray(firstArg)) {
         const [template, ...args] = argsRaw as TemplateLiteralSql;
         let str = "";

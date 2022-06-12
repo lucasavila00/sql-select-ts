@@ -1,3 +1,6 @@
+/**
+ * @since 0.0.0
+ */
 import { StarOfAliasesSymbol, StarSymbol, AliasedRows } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
@@ -10,7 +13,9 @@ type CommaJoin = {
     code: TableOrSubquery<any, any, any, any>;
     alias: string;
 }[];
-
+/**
+ * @since 0.0.0
+ */
 export type JoinConstraint =
     | {
           _tag: "no_constraint";
@@ -31,7 +36,9 @@ type RemoveAliasFromSelection<
     Alias extends string,
     Selection extends string
 > = Selection extends `${Alias}.${infer R}` ? R : never;
-
+/**
+ * @since 0.0.0
+ */
 export class JoinedFactory<
     Selection extends string,
     Aliases extends string,
@@ -53,13 +60,17 @@ export class JoinedFactory<
         newProperJoin: Omit<ProperJoinItem, "constraint">
     ): JoinedFactory<any, any, any> =>
         new JoinedFactory(commaJoins, properJoins, newProperJoin);
-
+    /**
+     * @since 0.0.0
+     */
     public noConstraint = (): Joined<Selection, Aliases> =>
         Joined.__fromAll(this.__commaJoins, [
             ...this.__properJoins,
             { ...this.__newProperJoin, constraint: { _tag: "no_constraint" } },
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public on = (
         on: (fields: Record<Selection, SafeString>) => SafeString | SafeString[]
     ): Joined<Selection, Aliases> =>
@@ -70,7 +81,9 @@ export class JoinedFactory<
                 constraint: { _tag: "on", on: makeArray(on(proxy)) },
             },
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public using = (keys: UsingPossibleKeys[]): Joined<Selection, Aliases> =>
         Joined.__fromAll(this.__commaJoins, [
             ...this.__properJoins,
@@ -80,7 +93,9 @@ export class JoinedFactory<
             },
         ]);
 }
-
+/**
+ * @since 0.0.0
+ */
 export class Joined<Selection extends string, Aliases extends string> {
     private constructor(
         /* @internal */
@@ -98,17 +113,23 @@ export class Joined<Selection extends string, Aliases extends string> {
         commaJoins: CommaJoin,
         properJoins: ProperJoin
     ): Joined<any, any> => new Joined(commaJoins, properJoins);
-
+    /**
+     * @since 0.0.0
+     */
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection, SafeString> & NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<never, Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
-
+    /**
+     * @since 0.0.0
+     */
     public selectStar = (): SelectStatement<never, Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
-
+    /**
+     * @since 0.0.0
+     */
     public selectStarOfAliases = <TheAliases extends Aliases>(
         aliases: TheAliases[]
     ): SelectStatement<
@@ -119,7 +140,9 @@ export class Joined<Selection extends string, Aliases extends string> {
         SelectStatement.__fromTableOrSubquery(this, [
             StarOfAliasesSymbol(aliases),
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
         table: Table<Selection2, Alias2>
     ): Joined<
@@ -135,7 +158,9 @@ export class Joined<Selection extends string, Aliases extends string> {
                 alias: table.__alias,
             },
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public joinTable = <Selection2 extends string, Alias2 extends string>(
         operator: string,
         table: Table<Selection2, Alias2>
@@ -156,7 +181,9 @@ export class Joined<Selection extends string, Aliases extends string> {
                 operator,
             }
         );
-
+    /**
+     * @since 0.0.0
+     */
     public commaJoinSelect = <
         With2 extends string,
         Scope2 extends string,
@@ -178,7 +205,9 @@ export class Joined<Selection extends string, Aliases extends string> {
                 alias: alias,
             },
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public joinSelect = <
         With2 extends string,
         Scope2 extends string,

@@ -1,3 +1,8 @@
+/**
+ * WIP
+ *
+ * @since 0.0.0
+ */
 import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
@@ -5,7 +10,9 @@ import { NoSelectFieldsCompileError } from "../types";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
-
+/**
+ * @since 0.0.0
+ */
 export class Table<Selection extends string, Alias extends string> {
     private constructor(
         /* @internal */
@@ -15,7 +22,7 @@ export class Table<Selection extends string, Alias extends string> {
         /* @internal */
         public __name: string
     ) {}
-
+    /*  @internal */
     public static define = <
         Selection extends string,
         Alias extends string = never
@@ -24,7 +31,9 @@ export class Table<Selection extends string, Alias extends string> {
         alias: Alias,
         name: string = alias
     ): Table<Selection, Alias> => new Table(columns, alias, name);
-
+    /**
+     * @since 0.0.0
+     */
     public select = <NewSelection extends string>(
         f: (
             f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
@@ -35,13 +44,17 @@ export class Table<Selection extends string, Alias extends string> {
         Selection | `${Alias}.${Selection}`,
         NewSelection
     > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
-
+    /**
+     * @since 0.0.0
+     */
     public selectStar = (): SelectStatement<
         never,
         Selection | `main_alias.${Selection}`,
         Selection
     > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
-
+    /**
+     * @since 0.0.0
+     */
     public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
         table: Table<Selection2, Alias2>
     ): Joined<
@@ -61,7 +74,9 @@ export class Table<Selection extends string, Alias extends string> {
                 alias: table.__alias,
             },
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public joinTable = <Selection2 extends string, Alias2 extends string>(
         operator: string,
         table: Table<Selection2, Alias2>
@@ -87,7 +102,9 @@ export class Table<Selection extends string, Alias extends string> {
                 operator,
             }
         );
-
+    /**
+     * @since 0.0.0
+     */
     public commaJoinSelect = <
         With2 extends string,
         Scope2 extends string,
@@ -113,7 +130,9 @@ export class Table<Selection extends string, Alias extends string> {
                 alias: selectAlias,
             },
         ]);
-
+    /**
+     * @since 0.0.0
+     */
     public joinSelect = <
         With2 extends string,
         Scope2 extends string,
@@ -145,7 +164,9 @@ export class Table<Selection extends string, Alias extends string> {
                 operator,
             }
         );
-
+    /**
+     * @since 0.0.0
+     */
     public commaJoinCompound = <
         Selection2 extends string,
         Alias2 extends string
@@ -169,5 +190,3 @@ export class Table<Selection extends string, Alias extends string> {
             },
         ]);
 }
-
-export const table = Table.define;
