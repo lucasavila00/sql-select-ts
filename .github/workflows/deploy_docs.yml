@@ -15,11 +15,9 @@ jobs:
 
             - name: Install and Build 🔧
               run: |
-                  cd docs
-                  npm ci
-                  npm run build
-                  touch dist/.nojekyll
-                  cp src/404.html dist/404.html
+                  make install
+                  make build-ts-docs
+                  make build-docs-app
 
             - name: Deploy 🚀
               uses: JamesIves/github-pages-deploy-action@v4.3.3

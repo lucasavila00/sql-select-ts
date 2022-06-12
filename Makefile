@@ -7,13 +7,16 @@ ts: ts-check-docs ts-check-lib
 
 prettier: prettier-docs prettier-lib
 
-test: test-lib
+test: test-lib test-docs-app
 
 build-ts-docs:
 	cd lib && npm run docs
 
 test-lib:
 	cd lib && npm run test
+
+test-docs-app:
+	cd docs && npm run test
 
 ts-check-docs:
 	cd docs && npm run ts
@@ -35,3 +38,6 @@ docs-install:
 
 lib-install:
 	cd lib && npm ci
+
+build-docs-app:
+	cd docs && npm run build && touch dist/.nojekyll && cp src/404.html dist/404.html

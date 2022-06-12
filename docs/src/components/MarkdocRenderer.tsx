@@ -9,7 +9,7 @@ const HeadingGrommet: FC<{
   children: JSX.Element;
 }> = ({ children, originalNodeName, id }) => (
   <Heading
-    level={(parseInt(originalNodeName.replace("h", "")) + 1) as any}
+    level={parseInt(originalNodeName.replace("h", "")) as any}
     id={id}
     style={{ scrollMargin: 100 }}
   >
