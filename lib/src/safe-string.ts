@@ -23,7 +23,6 @@ export type SqlSupportedTypes =
     | SafeString
     | string
     | number
-    | boolean
     | null
     | undefined
     | SelectStatement<any, any, any>
@@ -94,16 +93,12 @@ const escapeId = function (val: string | number, forbidQualified = false) {
     }
 };
 
-const runsInNode = () => typeof process === 'object' && process + '' === '[object process]'
-
 export const escapeForSql = function (val: any, stringifyObjects = false) {
     if (val === undefined || val === null) {
         return "NULL";
     }
 
     switch (typeof val) {
-        case "boolean":
-            return val ? "1" : "0";
         case "number":
             return val + "";
         case "object":
@@ -115,14 +110,8 @@ export const escapeForSql = function (val: any, stringifyObjects = false) {
                 return printCompoundInternal(val, true);
             } else if (Array.isArray(val)) {
                 return arrayToList(val);
-            } else if (runsInNode() && Buffer.isBuffer(val)) {
-                return bufferToString(val);
-            } else if (typeof val.toSqlString === "function") {
-                return String(val.toSqlString());
-            } else if (stringifyObjects) {
-                return escapeString(val.toString());
             } else {
-                return objectToValues(val);
+                return escapeString(String(val));
             }
         default:
             return escapeString(val);
@@ -145,31 +134,6 @@ const arrayToList = function arrayToList<T>(array: T[]) {
     return sql;
 };
 
-const bufferToString = function bufferToString(buffer: Buffer) {
-    return "X" + escapeString(buffer.toString("hex"));
-};
-
-const objectToValues = function objectToValues(
-    object: Record<string | number, any>
-) {
-    var sql = "";
-
-    for (var key in object) {
-        var val = object[key];
-
-        if (typeof val === "function") {
-            continue;
-        }
-
-        sql +=
-            (sql.length === 0 ? "" : ", ") +
-            escapeId(key) +
-            " = " +
-            escapeForSql(val, true);
-    }
-
-    return sql;
-};
 function escapeString(val: string) {
     var chunkIndex = (CHARS_GLOBAL_REGEXP.lastIndex = 0);
     var escapedVal = "";

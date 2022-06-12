@@ -18,12 +18,12 @@ const generateID = (
 export const heading: Schema = {
   ...nodes.heading,
   transform(node, config) {
-    const base = nodes.heading.transform(node, config);
+    const base = nodes.heading.transform?.(node, config);
     if (base instanceof Tag) {
       base.attributes.id = generateID(base.children, base.attributes);
       base.attributes.originalNodeName = base.name;
       base.name = "HeadingGrommet";
     }
-    return base;
+    return base ?? [];
   },
 };

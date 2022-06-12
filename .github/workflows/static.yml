@@ -1,4 +1,4 @@
-name: Test lib
+name: Static analysis
 on: [push]
 permissions:
     contents: write
@@ -9,8 +9,6 @@ jobs:
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v3
-            - name: Test it
+            - name: Typescript check
               run: |
-                  cd lib
-                  npm ci
-                  npm run test
+                  make static

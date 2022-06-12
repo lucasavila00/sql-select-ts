@@ -1,4 +1,4 @@
-import { Tag } from "@markdoc/markdoc";
+import { Schema, Tag } from "@markdoc/markdoc";
 import { format } from "sql-formatter";
 import {
   SafeString,
@@ -7,7 +7,7 @@ import {
   unionAll as _unionAll,
   castSafe as _castSafe,
   fromNothing as _fromNothing,
-} from "../../../../src";
+} from "../../../../lib/src";
 
 import * as Babel from "@babel/standalone";
 
@@ -43,7 +43,7 @@ const OR = (cases: SafeString[]): SafeString => {
   return castSafe(`(${j})`);
 };
 
-export const printer = {
+export const printer: Schema = {
   render: "pre",
   attributes: {},
   transform(node, config) {
@@ -51,7 +51,12 @@ export const printer = {
     const children = node.transformChildren(config);
 
     const tsCode = children
-      .map((it) => it.children)
+      .map((it) => {
+        if (typeof it === "string") {
+          return [];
+        }
+        return it?.children ?? [];
+      })
       .reduce((p, c) => [...p, ...c], [])
       .join("");
 
@@ -61,14 +66,14 @@ export const printer = {
     }).code;
 
     return [
-      children,
+      ...children,
       new Tag(
         `Fence`,
         {
           ...attributes,
           ["language"]: "sql",
         },
-        ["# formatted by sql-formatter\n" + format(eval(jsCode))]
+        ["# formatted by sql-formatter\n" + format(eval(jsCode!))]
       ),
     ];
   },

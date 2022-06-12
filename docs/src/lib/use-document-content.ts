@@ -12,7 +12,7 @@ export const prefetch = (contentUrl: string) => {
 export const useDocumentContent = (contentUrl: string): RenderableTreeNode => {
   const { data } = useSWR(contentUrl, fetchText, { suspense: true });
 
-  const ast = Markdoc.parse(data);
+  const ast = Markdoc.parse(data!);
   const content = Markdoc.transform(ast, config);
 
   return content;

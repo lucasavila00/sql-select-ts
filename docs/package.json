@@ -4,14 +4,18 @@
   "description": "",
   "scripts": {
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html --public-url /sql-select-ts"
+    "build": "parcel build src/index.html --public-url /sql-select-ts",
+    "ts": "tsc --noEmit",
+    "prettier-check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css}\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/babel__standalone": "^7.1.4",
-    "parcel": "^2.6.0"
+    "parcel": "^2.6.0",
+    "prettier": "^2.6.2",
+    "typescript": "^4.6.4"
   },
   "dependencies": {
     "@babel/standalone": "^7.18.4",
