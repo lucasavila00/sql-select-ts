@@ -10,3 +10,7 @@ export const proxy = new Proxy(
         },
     }
 ) as any;
+
+export const isTheProxyObject = (it: any): boolean => {
+    return it?.SQL_PROXY_TARGET != null;
+};

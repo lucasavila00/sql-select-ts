@@ -47,6 +47,34 @@ describe("sqlite join", () => {
         `);
     });
 
+    it("join-1.3 -- with comma join select", async () => {
+        const q = t1
+            .joinTable("NATURAL", t2)
+            .noConstraint()
+            .commaJoinSelect("t3", t2.selectStar())
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM t1, (SELECT * FROM t2) AS t3 NATURAL JOIN t2;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "a": 1,
+                "b": 2,
+                "c": 3,
+                "d": 4,
+              },
+              Object {
+                "a": 2,
+                "b": 3,
+                "c": 4,
+                "d": 5,
+              },
+            ]
+        `);
+    });
+
     it("join-1.3.2", async () => {
         const q = table(["a", "b", "c"], "x", "t1")
             .joinTable("NATURAL", t2)

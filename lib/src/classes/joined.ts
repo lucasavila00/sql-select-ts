@@ -9,7 +9,7 @@ import {
     NoSelectFieldsCompileError,
     JoinConstraint,
 } from "../types";
-import { makeArray } from "../utils";
+import { makeNonEmptyArray } from "../utils";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
@@ -81,7 +81,7 @@ export class JoinedFactory<
             ...this.__properJoins,
             {
                 ...this.__newProperJoin,
-                constraint: { _tag: "on", on: makeArray(on(proxy)) },
+                constraint: { _tag: "on", on: makeNonEmptyArray(on(proxy)) },
             },
         ]);
 
@@ -209,13 +209,16 @@ export class Joined<Selection extends string, Aliases extends string> {
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2
     > =>
-        Joined.__fromCommaJoin([
-            ...this.__commaJoins,
-            {
-                code: table,
-                alias: alias,
-            },
-        ]);
+        Joined.__fromAll(
+            [
+                ...this.__commaJoins,
+                {
+                    code: table,
+                    alias: alias,
+                },
+            ],
+            this.__properJoins
+        );
 
     /**
      * @since 0.0.0

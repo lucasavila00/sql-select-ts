@@ -1568,6 +1568,24 @@ describe("sqlite select1", () => {
         `);
     });
 
+    it("select1-17.3 -- limit safe string", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const u = unionAll([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .limit(sql`1 OFFSET 10`);
+
+        const q = test1.commaJoinCompound("u", u).selectStar().print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM test1, (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1 OFFSET 10) AS u;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
     it("select1-12.9", async () => {
         const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
 

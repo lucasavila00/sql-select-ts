@@ -30,9 +30,14 @@ export interface CompileError<_ErrorMessageT extends any[]> {
      */
     readonly __compileError: never;
 }
+
+export interface NonEmptyArray<A> extends Array<A> {
+    0: A;
+}
+
 export type JoinConstraint =
     | {
           _tag: "no_constraint";
       }
-    | { _tag: "on"; on: SafeString[] }
+    | { _tag: "on"; on: NonEmptyArray<SafeString> }
     | { _tag: "using"; keys: string[] };

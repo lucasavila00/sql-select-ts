@@ -3,16 +3,19 @@ import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
+import { isTheProxyObject } from "./proxy";
 import { SafeString } from "./safe-string";
 import { JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
 
+// TODO move wrap alias to other file, test it
+/* istanbul ignore next */
+const firstCharCode = (it: string) => it[0]?.charCodeAt(0) ?? 0;
+
 const wrapAlias = (alias: string) => {
     // TODO should escape - / etc
-    if (
-        (alias[0]?.charCodeAt(0) ?? 0) >= 48 &&
-        (alias[0]?.charCodeAt(0) ?? 0) <= 57
-    ) {
+    // TODO use escape identifier etc
+    if (firstCharCode(alias) >= 48 && firstCharCode(alias) <= 57) {
         return `\`${alias}\``;
     }
     if (alias.includes(" ")) {
@@ -76,7 +79,7 @@ const printConstraint = (c: JoinConstraint): { on: string; using: string } => {
         }
         case "on": {
             const onJoined = c.on.map((it) => it.content).join(" AND ");
-            const on = onJoined.length > 0 ? `ON ${onJoined}` : "";
+            const on = `ON ${onJoined}`;
             return { on, using: "" };
         }
         case "using": {
@@ -140,7 +143,7 @@ export const printSelectStatementInternal = <
                 return it.aliases.map((alias) => `${alias}.*`);
             }
             // check if the proxy was returned in an identity function
-            if ((it.content as any)?.SQL_PROXY_TARGET != null) {
+            if (isTheProxyObject(it.content)) {
                 throw new Error("not supported");
             }
 
@@ -202,6 +205,7 @@ const printInternal = (
     if (it instanceof Compound) {
         return printCompoundInternal(it, parenthesis);
     }
+    /* istanbul ignore next */
     return absurd(it);
 };
 

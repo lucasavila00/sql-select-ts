@@ -24,6 +24,10 @@ describe("select", () => {
         // @ts-expect-error
         t1.select((f) => f);
         t1.select((f) => ({ a: f.a }));
+        expect(() =>
+            // @ts-expect-error
+            t1.select((f) => f).print()
+        ).toThrow();
     });
 
     it("select - no identity function", async () => {
