@@ -42,6 +42,19 @@ admins
 
 {% /printer %}
 
+## Select distinct
+
+{% printer %}
+
+```ts
+admins
+  .select((f) => ({ name: f.name }))
+  .distinct()
+  .print();
+```
+
+{% /printer %}
+
 ## Select star and a field
 
 {% printer %}

@@ -1,9 +1,12 @@
 import { Tag } from "@markdoc/markdoc";
 import { format } from "sql-formatter";
 import {
+  SafeString,
   sql as _sql,
   table as _table,
   unionAll as _unionAll,
+  castSafe as _castSafe,
+  fromNothing as _fromNothing,
 } from "../../../../src";
 
 import * as Babel from "@babel/standalone";
@@ -11,8 +14,34 @@ import * as Babel from "@babel/standalone";
 const table = _table;
 const sql = _sql;
 const unionAll = _unionAll;
-const users = table(["id", "age", "name"], "users");
-const admins = table(["id", "age", "name"], "adm", "admins");
+const castSafe = _castSafe;
+const fromNothing = _fromNothing;
+
+const users = table(
+  /* columns: */ ["id", "age", "name"],
+  /* db-name & alias: */ "users"
+);
+
+const admins = table(
+  /* columns: */ ["id", "age", "name"],
+  /* alias: */ "adm",
+  /* db-name: */ "admins"
+);
+
+const analytics = table(
+  /* columns: */ ["id", "clicks"],
+  /* db-name & alias: */ "analytics"
+);
+
+const equals = (
+  a: SafeString | number | string,
+  b: SafeString | number | string
+): SafeString => sql`${a} = ${b}`;
+
+const OR = (cases: SafeString[]): SafeString => {
+  const j = cases.map((it) => it.content).join(" OR ");
+  return castSafe(`(${j})`);
+};
 
 export const printer = {
   render: "pre",
@@ -39,7 +68,7 @@ export const printer = {
           ...attributes,
           ["language"]: "sql",
         },
-        [format(eval(jsCode))]
+        ["# formatted by sql-formatter\n" + format(eval(jsCode))]
       ),
     ];
   },
