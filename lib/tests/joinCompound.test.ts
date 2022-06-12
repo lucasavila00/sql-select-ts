@@ -108,4 +108,83 @@ describe("joinCompound", () => {
             `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u USING(b);"`
         );
     });
+
+    it("select -> compound", async () => {
+        const q = q1
+            .joinCompound("q1", "LEFT", "u", u)
+            .noConstraint()
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u;"`
+        );
+    });
+
+    it("select -> compound -- select", async () => {
+        const q = q1
+            .joinCompound("t1", "LEFT", "u", u)
+            .noConstraint()
+            .select((f) => ({ x: f["u.a"], y: f["u.b"], z: f["t1.c"] }))
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT u.a AS x, u.b AS y, t1.c AS z FROM (SELECT * FROM t1) AS t1 LEFT JOIN (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u;"`
+        );
+    });
+
+    it("select-> compound -- prevents ambiguous", async () => {
+        const q = q1
+            .joinCompound("t1", "LEFT", "u", u)
+            .noConstraint()
+            .select((f) => ({
+                x: f["t1.a"],
+                y: f["u.b"],
+                // @ts-expect-error
+                z: f.c,
+            }))
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT t1.a AS x, u.b AS y, c AS z FROM (SELECT * FROM t1) AS t1 LEFT JOIN (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u;"`
+        );
+    });
+    it("select -> compound -- ON", async () => {
+        const q = q1
+            .joinCompound("t1", "LEFT", "u", u)
+            .on((f) => equals(f["t1.a"], f["u.a"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS t1 LEFT JOIN (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u ON t1.a = u.a;"`
+        );
+    });
+    it("select -> compound -- ON QUALIFIED", async () => {
+        const q = q1
+            .joinCompound("t1", "LEFT", "u", u)
+            .on((f) => equals(f["t1.a"], f["u.b"]))
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS t1 LEFT JOIN (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u ON t1.a = u.b;"`
+        );
+    });
+
+    it("select -> compound -- USING", async () => {
+        const q = q1
+            .joinCompound("t1", "LEFT", "u", u)
+            .using(["b"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS t1 LEFT JOIN (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u USING(b);"`
+        );
+    });
+    it("select -> compound -- NO CONSTRAINT", async () => {
+        const q = q1
+            .joinCompound("t1", "LEFT", "u", u)
+            .using(["b"])
+            .selectStar()
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (SELECT * FROM t1) AS t1 LEFT JOIN (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u USING(b);"`
+        );
+    });
 });

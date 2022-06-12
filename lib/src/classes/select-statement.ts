@@ -7,6 +7,7 @@ import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
 import { makeArray } from "../utils";
+import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
 import { Table } from "./table";
 
@@ -306,6 +307,70 @@ export class SelectStatement<
             {
                 code: select,
                 alias: selectAlias,
+                operator,
+            }
+        );
+
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinCompound = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisSelectAlias: Alias1,
+        compoundAlias: Alias2,
+        compound: Compound<Selection2, Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias1}.${Selection}`
+        | `${Alias2}.${Selection2}`,
+        Alias1 | Alias2
+    > =>
+        Joined.__fromCommaJoin([
+            {
+                code: this,
+                alias: thisSelectAlias,
+            },
+            {
+                code: compound,
+                alias: compoundAlias,
+            },
+        ]);
+
+    /**
+     * @since 0.0.0
+     */
+    public joinCompound = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisSelectAlias: Alias1,
+        operator: string,
+        compoundAlias: Alias2,
+        compound: Compound<Selection2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias1}.${Selection}`
+        | `${Alias2}.${Selection2}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            [
+                {
+                    code: this,
+                    alias: thisSelectAlias,
+                },
+            ],
+            [],
+            {
+                code: compound,
+                alias: compoundAlias,
                 operator,
             }
         );
