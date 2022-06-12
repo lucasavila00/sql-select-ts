@@ -1,5 +1,5 @@
 import { Anchor, AnchorExtendedProps } from "grommet";
-import React, { FC } from "react";
+import React, { FC, startTransition } from "react";
 import { useNavigate } from "react-router-dom";
 
 type AnchorLinkType = FC<
@@ -13,7 +13,9 @@ export const AnchorLink: AnchorLinkType = ({ to, ...rest }) => {
     <Anchor
       href={to}
       onClick={(ev) => {
-        navigate(to);
+        startTransition(() => {
+          navigate(to);
+        });
         ev.preventDefault();
       }}
       {...rest}

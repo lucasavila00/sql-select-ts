@@ -7,7 +7,11 @@ export const CollapsableNav: FC = () => {
   const navigate = useNavigate();
   const responsive = useContext(ResponsiveContext);
   return (
-    <Header background="dark-1" pad="medium">
+    <Header
+      background="dark-1"
+      pad="medium"
+      style={{ position: "fixed", width: "100%" }}
+    >
       <Box direction="row" align="center" gap="small">
         <AnchorLink weight="normal" color="light-1" to="/">
           sql-select-ts

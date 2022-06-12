@@ -25,7 +25,12 @@ export const Example: FC<{
   const responsive = useContext(ResponsiveContext);
 
   return (
-    <Box direction="row" margin="auto" justify="center" pad="small">
+    <Box
+      direction="row"
+      margin="auto"
+      justify="center"
+      pad={{ left: "medium" }}
+    >
       <Box width="large" pad={{ top: "large" }}>
         <Heading margin="none">{config.title}</Heading>
         <MarkdocRenderer content={content} />

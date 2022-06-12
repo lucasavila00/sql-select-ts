@@ -20,6 +20,8 @@
 
     -   [ ] encode boolean?
 
+-   [ ] 100% test coverage
+
 -   [ ] compound select star
 
 -   [ ] join compound
