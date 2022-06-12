@@ -1,0 +1,15 @@
+name: Test lib
+on: [push]
+permissions:
+    contents: write
+jobs:
+    test-lib:
+        runs-on: ubuntu-20.04
+        concurrency: ci-${{ github.ref }}
+        steps:
+            - name: Checkout 🛎️
+              uses: actions/checkout@v3
+            - name: Test it
+              run: |
+                  npm ci
+                  npm run test

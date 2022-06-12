@@ -7,8 +7,8 @@ permissions:
     contents: write
 jobs:
     build-and-deploy:
+        runs-on: ubuntu-20.04
         concurrency: ci-${{ github.ref }}
-        runs-on: ubuntu-latest
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v3
