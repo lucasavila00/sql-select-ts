@@ -35,9 +35,9 @@ const equals = (
 ): SafeString => sql`${a} = ${b}`;
 ```
 
-## ON
+# ON
 
-### Join Table
+## Join Table
 
 {% printer %}
 
@@ -53,7 +53,7 @@ users
 
 {% /printer %}
 
-### Join Select
+## Join Select
 
 {% printer %}
 
@@ -73,11 +73,11 @@ admins
 
 {% /printer %}
 
-### Join Compound
+## Join Compound
 
 TODO
 
-### Join 3 Tables
+## Join 3 Tables
 
 {% printer %}
 
@@ -100,7 +100,7 @@ users
 
 {% /printer %}
 
-### Join 3 Selects
+## Join 3 Selects
 
 {% printer %}
 
@@ -138,14 +138,14 @@ userAdminAnalytics.selectStar().print();
 
 {% /printer %}
 
-## USING
+# USING
 
 TODO
 
-## No Constraint
+# No Constraint
 
 TODO
 
-## Comma Join
+# Comma Join
 
 TODO

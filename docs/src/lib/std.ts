@@ -3,3 +3,4 @@ export const getEntries = <K extends string | number | symbol, V>(
 ) => Object.entries(obj) as Array<[K, V]>;
 
 export const getKeys = <T>(obj: T) => Object.keys(obj) as Array<keyof T>;
+export const identity = <T>(it: T): typeof it => it;

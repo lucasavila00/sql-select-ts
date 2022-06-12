@@ -1,5 +1,7 @@
 # DOCS
 
+-   [ ] run tests in CI
+
 -   [ ] UI
 
     -   [ ] render docs-ts

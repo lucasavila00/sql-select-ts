@@ -5,6 +5,7 @@ import "prismjs/components/prism-typescript";
 import "prismjs/themes/prism.css";
 import React, { FC, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { apiReferenceItems, ApiReferenceKeys } from "../lib/api-references";
 import { examples, ExamplesKeys } from "../lib/examples";
 import { getKeys } from "../lib/std";
 import { prefetch } from "../lib/use-document-content";
@@ -50,7 +51,12 @@ export const App: FC = () => {
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="api" element={<Api />} />
+            <Route path="api">
+              <Route index element={<Api itemKey={ApiReferenceKeys.index} />} />
+              {getKeys(apiReferenceItems).map((it) => (
+                <Route path={it} key={it} element={<Api itemKey={it} />} />
+              ))}
+            </Route>
             <Route path="examples">
               <Route
                 index

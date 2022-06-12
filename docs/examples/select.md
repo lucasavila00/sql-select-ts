@@ -1,6 +1,6 @@
-## From Nothing
+# From Nothing
 
-### Select
+## Select
 
 {% printer %}
 
@@ -13,7 +13,7 @@ fromNothing({
 
 {% /printer %}
 
-### Append Select
+## Append Select
 
 {% printer %}
 
@@ -30,7 +30,7 @@ fromNothing({
 
 {% /printer %}
 
-## From Tables
+# From Tables
 
 We will use these tables
 
@@ -54,7 +54,7 @@ const admins = table(
 );
 ```
 
-### Select star
+## Select star
 
 {% printer %}
 
@@ -64,7 +64,7 @@ users.selectStar().print();
 
 {% /printer %}
 
-### Select a field
+## Select a field
 
 {% printer %}
 
@@ -76,7 +76,7 @@ admins
 
 {% /printer %}
 
-### Select distinct
+## Select distinct
 
 {% printer %}
 
@@ -89,7 +89,7 @@ admins
 
 {% /printer %}
 
-### Select star and a field
+## Select star and a field
 
 {% printer %}
 
@@ -104,7 +104,7 @@ users
 
 {% /printer %}
 
-### Select a field and star
+## Select a field and star
 
 {% printer %}
 
@@ -119,7 +119,7 @@ admins
 
 {% /printer %}
 
-### Select from sub-select
+## Select from sub-select
 
 {% printer %}
 
@@ -133,7 +133,7 @@ users
 
 {% /printer %}
 
-### Select from union
+## Select from union
 
 {% printer %}
 
@@ -148,7 +148,7 @@ unionAll([
 
 {% /printer %}
 
-### Select from join
+## Select from join
 
 {% printer %}
 
@@ -165,7 +165,7 @@ users
 
 {% /printer %}
 
-## Control order of selection
+# Control order of selection
 
 Although it works on most cases, order of selection is not guaranteed.
 

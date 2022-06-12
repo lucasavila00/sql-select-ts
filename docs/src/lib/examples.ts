@@ -1,3 +1,5 @@
+import { MarkdownDocConfig } from "./types";
+
 export enum ExamplesKeys {
   select = "select",
   where = "where",
@@ -8,9 +10,7 @@ export enum ExamplesKeys {
   limit = "limit",
 }
 
-export type ExamplesConfig = { contentUrl: string; title: string };
-
-const createExamples = <T extends { [key in ExamplesKeys]: ExamplesConfig }>(
+const createExamples = <T extends { [key in ExamplesKeys]: MarkdownDocConfig }>(
   it: T
 ): typeof it => it;
 

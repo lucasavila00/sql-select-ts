@@ -1,6 +1,6 @@
-## sql
+# sql
 
-### As Function
+## As Function
 
 {% printer %}
 
@@ -14,9 +14,9 @@ fromNothing({
 
 {% /printer %}
 
-### As String Template Literal
+## As String Template Literal
 
-#### String Literal
+## String Literal
 
 {% printer %}
 
@@ -28,7 +28,7 @@ fromNothing({
 
 {% /printer %}
 
-#### String Interpolation
+## String Interpolation
 
 {% printer %}
 
@@ -41,7 +41,7 @@ fromNothing({
 
 {% /printer %}
 
-#### Number Interpolation
+## Number Interpolation
 
 {% printer %}
 
@@ -54,7 +54,7 @@ fromNothing({
 
 {% /printer %}
 
-#### Array Interpolation
+## Array Interpolation
 
 {% printer %}
 
@@ -68,7 +68,7 @@ fromNothing({
 
 {% /printer %}
 
-#### Select Interpolation
+## Select Interpolation
 
 {% printer %}
 
@@ -83,7 +83,7 @@ fromNothing({
 
 {% /printer %}
 
-#### Compound Interpolation
+## Compound Interpolation
 
 {% printer %}
 
@@ -102,7 +102,7 @@ fromNothing({
 
 {% /printer %}
 
-#### Composition
+## Composition
 
 {% printer %}
 
@@ -128,7 +128,7 @@ fromNothing({
 
 {% /printer %}
 
-## Convert Raw String to Safe String
+# Convert Raw String to Safe String
 
 {% printer %}
 
@@ -150,7 +150,7 @@ fromNothing({ it: filter }).print();
 
 {% /printer %}
 
-## Accessing string content
+# Accessing string content
 
 {% printer %}
 
@@ -162,9 +162,9 @@ it.content;
 
 {% /printer %}
 
-## Common used helpers
+# Common used helpers
 
-### Equals
+## Equals
 
 ```ts
 const equals = (
@@ -179,7 +179,7 @@ equals(1, 2).content;
 1 = 2
 ```
 
-### OR
+## OR
 
 {% printer %}
 
@@ -201,6 +201,6 @@ OR(
 
 {% /printer %}
 
-## Extending
+# Extending
 
 TODO

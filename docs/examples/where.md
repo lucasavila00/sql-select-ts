@@ -13,7 +13,7 @@ const users = table(
 );
 ```
 
-## One Clause
+# One Clause
 
 {% printer %}
 
@@ -29,9 +29,9 @@ users
 
 {% /printer %}
 
-## Two Clauses
+# Two Clauses
 
-### One call
+## One call
 
 {% printer %}
 
@@ -48,7 +48,7 @@ users
 
 {% /printer %}
 
-### Two calls
+## Two calls
 
 {% printer %}
 

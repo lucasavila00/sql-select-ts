@@ -9,11 +9,14 @@ const ClosedLink: FC<{ to: string; label: String }> = ({ to, label }) => (
 
 const marginLeftOfNode = (nodeName: string): number => {
   switch (nodeName) {
-    case "h3": {
+    case "h2": {
       return 12;
     }
-    case "h4": {
+    case "h3": {
       return 24;
+    }
+    case "h4": {
+      return 36;
     }
 
     default: {
@@ -46,7 +49,7 @@ const OpenLink: FC<{ to: string; label: String; headings: Section[] }> = ({
   </>
 );
 
-type TOCEntry = {
+export type TOCEntry = {
   contentUrl: string;
   title: string;
   appUrl: string;
