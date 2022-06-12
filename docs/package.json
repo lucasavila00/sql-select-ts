@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html"
+    "build": "parcel build src/index.html --public-url https://lucasavila00.github.io/sql-select-ts/"
   },
   "keywords": [],
   "author": "",
