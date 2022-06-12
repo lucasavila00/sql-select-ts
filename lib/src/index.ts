@@ -8,7 +8,11 @@ import { Compound } from "./classes/compound";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 // import renaming, then re-export to make sure docs-ts can run the inline tests
-import { castSafe as _castSafe, sql as _sql } from "./safe-string";
+import {
+    castSafe as _castSafe,
+    sql as _sql,
+    isSafeString as _isSafeString,
+} from "./safe-string";
 
 /**
  *
@@ -117,6 +121,20 @@ export const castSafe = _castSafe;
  * @since 0.0.0
  */
 export const sql = _sql;
+
+/**
+ * Type guard to check if the value is a SafeString.
+ *
+ * @example
+ *
+ * import { isSafeString, sql } from "sql-select-ts";
+ *
+ * assert.strictEqual(isSafeString(sql(123)), true);
+ *
+ * @category string-builder
+ * @since 0.0.0
+ */
+export const isSafeString = _isSafeString;
 
 export type {
     /**

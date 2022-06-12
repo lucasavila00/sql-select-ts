@@ -46,6 +46,21 @@ export const castSafe = (content: string): SafeString => ({
     content,
 });
 
+/**
+ * Type guard to check if the value is a SafeString.
+ *
+ * @example
+ *
+ * import { isSafeString, sql } from "sql-select-ts";
+ *
+ * assert.strictEqual(isSafeString(sql(123)), true);
+ *
+ * @category string-builder
+ * @since 0.0.0
+ */
+export const isSafeString = (it: any): it is SafeString =>
+    it?._tag === SafeStringURI;
+
 type SqlSupportedTypes =
     | SafeString
     | string
@@ -109,11 +124,7 @@ export function sql(
     return castSafe(escapeForSql(firstArg));
 }
 
-const isSafeString = (it: any): it is SafeString => it?._tag === SafeStringURI;
-
 // adapted from https://github.com/mysqljs/sqlstring/blob/master/lib/SqlString.js
-var ID_GLOBAL_REGEXP = /`/g;
-var QUAL_GLOBAL_REGEXP = /\./g;
 var CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a\"\'\\]/g; // eslint-disable-line no-control-regex
 var CHARS_ESCAPE_MAP = {
     "\0": "\\0",
@@ -125,28 +136,6 @@ var CHARS_ESCAPE_MAP = {
     '"': '\\"',
     "'": "\\'",
     "\\": "\\\\",
-};
-
-const escapeId = function (val: string | number, forbidQualified = false) {
-    if (Array.isArray(val)) {
-        var sql = "";
-
-        for (var i = 0; i < val.length; i++) {
-            sql += (i === 0 ? "" : ", ") + escapeId(val[i], forbidQualified);
-        }
-
-        return sql;
-    } else if (forbidQualified) {
-        return "`" + String(val).replace(ID_GLOBAL_REGEXP, "``") + "`";
-    } else {
-        return (
-            "`" +
-            String(val)
-                .replace(ID_GLOBAL_REGEXP, "``")
-                .replace(QUAL_GLOBAL_REGEXP, "`.`") +
-            "`"
-        );
-    }
 };
 
 const escapeForSql = function (val: any) {
@@ -167,7 +156,9 @@ const escapeForSql = function (val: any) {
             } else if (Array.isArray(val)) {
                 return arrayToList(val);
             } else {
-                return escapeString(String(val));
+                throw new Error(
+                    `unsupported value ${val} of type ${typeof val} `
+                );
             }
         default:
             return escapeString(val);
@@ -178,13 +169,7 @@ const arrayToList = function arrayToList<T>(array: T[]) {
     var sql = "";
 
     for (var i = 0; i < array.length; i++) {
-        var val = array[i];
-
-        if (Array.isArray(val)) {
-            sql += (i === 0 ? "" : ", ") + "(" + arrayToList(val) + ")";
-        } else {
-            sql += (i === 0 ? "" : ", ") + escapeForSql(val);
-        }
+        sql += (i === 0 ? "" : ", ") + escapeForSql(array[i]);
     }
 
     return sql;

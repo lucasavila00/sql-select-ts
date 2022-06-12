@@ -1,7 +1,5 @@
 # LIB
 
--   [ ] 100% test coverage
-
 -   [ ] compound select star
 
 -   [ ] join compound
@@ -21,6 +19,8 @@
 # LIB & DOCS
 
 -   [ ] easy extension sql safe string, example boolean in CH
+
+-   [ ] escape identifier
 
 # Global
 
