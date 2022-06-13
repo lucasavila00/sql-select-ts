@@ -1,8 +1,10 @@
 # LIB
 
+-   [ ] compound . comma joins
+
 -   [ ] join compound
 
-    -   [ ] compound . join compound
+    -   [ ] joined . join compound
 
 -   [ ] same tests for comma join as for join
 

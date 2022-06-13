@@ -274,7 +274,7 @@ describe("joinTable", () => {
         );
     });
 
-    it("union -> table", async () => {
+    it("compound -> table", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
             .joinTable("q1", "NATURAL", t2)
             .noConstraint()
@@ -285,7 +285,7 @@ describe("joinTable", () => {
         );
     });
 
-    it("union -> table -- select", async () => {
+    it("compound -> table -- select", async () => {
         const a = t1.selectStar();
         const b = t3.selectStar();
         const u = unionAll([a, b]);
@@ -300,7 +300,7 @@ describe("joinTable", () => {
         );
     });
 
-    it("union -> table -- prevents ambigous", async () => {
+    it("compound -> table -- prevents ambigous", async () => {
         const a = t1.selectStar();
         const b = t3.selectStar();
         const u = unionAll([a, b]);
@@ -316,7 +316,7 @@ describe("joinTable", () => {
         );
     });
 
-    it("union -> table -- ON", async () => {
+    it("compound -> table -- ON", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
             .joinTable("q1", "LEFT", t2)
             .on((f) => equals(f.a, f["q1.b"]))
@@ -327,7 +327,7 @@ describe("joinTable", () => {
         );
     });
 
-    it("union -> table -- ON QUALIFIED", async () => {
+    it("compound -> table -- ON QUALIFIED", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
             .joinTable("q1", "LEFT", t2)
             .on((f) => equals(f["q1.a"], f["q1.b"]))
@@ -338,7 +338,7 @@ describe("joinTable", () => {
         );
     });
 
-    it("union -> table -- USING", async () => {
+    it("compound -> table -- USING", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
             .joinTable("q1", "LEFT", t2)
             .using(["b"])
@@ -349,7 +349,7 @@ describe("joinTable", () => {
         );
     });
 
-    it("union -> table -- NO CONSTRAINT", async () => {
+    it("compound -> table -- NO CONSTRAINT", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
             .joinTable("q1", "LEFT", t2)
             .noConstraint()

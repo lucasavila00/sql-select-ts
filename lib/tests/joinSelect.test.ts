@@ -283,7 +283,7 @@ describe("joinSelect", () => {
         );
     });
 
-    it("union -> select", async () => {
+    it("compound -> select", async () => {
         const q = unionAll([q1, q2])
             .joinSelect("u", "NATURAL", "q3", q3)
             .noConstraint()
@@ -294,7 +294,7 @@ describe("joinSelect", () => {
         );
     });
 
-    it("union -> select -- select", async () => {
+    it("compound -> select -- select", async () => {
         const q = unionAll([q1, q2])
             .joinSelect("u", "NATURAL", "q3", q3)
             .noConstraint()
@@ -305,7 +305,7 @@ describe("joinSelect", () => {
         );
     });
 
-    it("union -> select -- prevents ambiguous", async () => {
+    it("compound -> select -- prevents ambiguous", async () => {
         const q = unionAll([q1, q2])
             .joinSelect("u", "NATURAL", "q3", q3)
             .noConstraint()
@@ -320,7 +320,7 @@ describe("joinSelect", () => {
             `"SELECT a AS x, d AS y, c AS z FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u NATURAL JOIN (SELECT * FROM t3) AS q3;"`
         );
     });
-    it("union -> select -- ON", async () => {
+    it("compound -> select -- ON", async () => {
         const q = unionAll([q1, q2])
             .joinSelect("u", "LEFT", "q3", q3)
             .on((f) => equals(f.a, f.d))
@@ -331,7 +331,7 @@ describe("joinSelect", () => {
         );
     });
 
-    it("union -> select -- ON QUALIFIED", async () => {
+    it("compound -> select -- ON QUALIFIED", async () => {
         const q = unionAll([q1, q2])
             .joinSelect("u", "LEFT", "q3", q3)
             .on((f) => equals(f["u.a"], f["q3.d"]))
@@ -341,7 +341,7 @@ describe("joinSelect", () => {
             `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3 ON u.a = q3.d;"`
         );
     });
-    it("union -> select -- USING", async () => {
+    it("compound -> select -- USING", async () => {
         const q = unionAll([q1, q2])
             .joinSelect("u", "LEFT", "q3", q3)
             .using(["c"])
@@ -352,7 +352,7 @@ describe("joinSelect", () => {
         );
     });
 
-    it("select -> select -- NO CONSTRAINT", async () => {
+    it("compound -> select -- NO CONSTRAINT", async () => {
         const q = unionAll([q1, q2])
             .joinSelect("u", "LEFT", "q3", q3)
             .noConstraint()

@@ -195,5 +195,41 @@ export class Compound<Scope extends string, Selection extends string> {
     /**
      * @since 0.0.0
      */
+    public joinCompound = <
+        Alias1 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisCompoundAlias: Alias1,
+        operator: string,
+        compoundAlias: Alias2,
+        compound: Compound<Scope2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            [
+                {
+                    code: this,
+                    alias: thisCompoundAlias,
+                },
+            ],
+            [],
+            {
+                code: compound,
+                alias: compoundAlias,
+                operator,
+            }
+        );
+
+    /**
+     * @since 0.0.0
+     */
     public print = (): string => printCompound(this);
 }
