@@ -75,7 +75,8 @@ export class Table<Selection extends string, Alias extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2
+        Alias | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
@@ -100,6 +101,7 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -133,7 +135,8 @@ export class Table<Selection extends string, Alias extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2
+        Alias | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
@@ -164,6 +167,7 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -195,7 +199,8 @@ export class Table<Selection extends string, Alias extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2
+        Alias | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
@@ -221,6 +226,7 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(

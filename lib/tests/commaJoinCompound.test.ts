@@ -22,7 +22,7 @@ describe("commaJoinCompound", () => {
     INSERT INTO t2 VALUES(3,4,5);
     */
 
-    it("table -> select", async () => {
+    it("table -> compound", async () => {
         const q = t1
             .commaJoinCompound("t2", u1)
 
@@ -33,7 +33,7 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("table -> select -- select", async () => {
+    it("table -> compound -- select", async () => {
         const q = t1
             .commaJoinCompound("t2", u1)
             .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
@@ -43,7 +43,7 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("table -> select -- prevents ambiguous", async () => {
+    it("table -> compound -- prevents ambiguous", async () => {
         const q = t1
             .commaJoinCompound("t2", u1)
             .select((f) => ({
@@ -58,7 +58,7 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("select -> select", async () => {
+    it("select -> compound", async () => {
         const q = t1
             .selectStar()
             .commaJoinCompound("t1", "t2", u1)
@@ -69,7 +69,7 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("select -> select -- select", async () => {
+    it("select -> compound -- select", async () => {
         const q = t1
             .selectStar()
             .commaJoinCompound("q1", "t2", u1)
@@ -81,7 +81,7 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("select -> select -- prevents ambigous", async () => {
+    it("select -> compound -- prevents ambigous", async () => {
         const q = t1
             .selectStar()
             .commaJoinCompound("q1", "t2", u1)
@@ -98,7 +98,7 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("joined -> select", async () => {
+    it("joined -> compound", async () => {
         const q = t1
             .joinTable("NATURAL", t2)
             .noConstraint()
@@ -110,27 +110,37 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    // TODO fix
-    // TODO fix
-    // TODO fix
-    // TODO fix
-    // TODO fix
-    // TODO fix
-    // TODO fix
-    // TODO fix
-    // TODO fix
-    it("joined -> select -- select", async () => {
+    it("joined -> compound -- select", async () => {
         const q = t1
             .joinTable("NATURAL", t2)
             .noConstraint()
-            .selectStar()
-            // .commaJoinCompound("t3", u1)
-            // .select((f) => ({ x: f.a, y: f.b, d: f["t2.d"], d2: f["t3.d"] }))
+            .commaJoinCompound("t3", u1)
+            .select((f) => ({ x: f.a, d: f["t2.d"], d2: f["t3.d"] }))
             .print();
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM t1 NATURAL JOIN t2;"`);
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a AS x, t2.d AS d, t3.d AS d2 FROM t1, (SELECT * FROM t2 UNION ALL SELECT * FROM t3) AS t3 NATURAL JOIN t2;"`
+        );
     });
 
-    it("compound -> select", async () => {
+    it("joined -> compound -- prevents ambiguous", async () => {
+        const q = t1
+            .joinTable("NATURAL", t2)
+            .noConstraint()
+            .commaJoinCompound("t3", u1)
+            .select((f) => ({
+                x: f.a,
+                // @ts-expect-error
+                y: f.b,
+                d: f["t2.d"],
+                d2: f["t3.d"],
+            }))
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT a AS x, b AS y, t2.d AS d, t3.d AS d2 FROM t1, (SELECT * FROM t2 UNION ALL SELECT * FROM t3) AS t3 NATURAL JOIN t2;"`
+        );
+    });
+
+    it("compound -> compound", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
             .commaJoinCompound("q1", "t3", u1)
             .selectStar()
@@ -140,7 +150,7 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("compound -> select -- select", async () => {
+    it("compound -> compound -- select", async () => {
         const a = t1.selectStar();
         const b = t3.selectStar();
         const u = unionAll([a, b]);
@@ -154,7 +164,7 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("compound -> select -- prevents ambigous", async () => {
+    it("compound -> compound -- prevents ambigous", async () => {
         const a = t1.selectStar();
         const b = t3.selectStar();
         const u = unionAll([a, b]);

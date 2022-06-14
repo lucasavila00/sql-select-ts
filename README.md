@@ -1,13 +1,5 @@
 # LIB
 
--   [ ] compound . comma joins
-
--   [ ] join compound
-
-    -   [ ] joined . join compound
-
--   [ ] same tests for comma join as for join
-
 -   [ ] select tests (type focus)
 
 -   [ ] where tests (type focus)
@@ -16,9 +8,11 @@
 
 -   [ ] limit tests (type focus)
 
-# DOCS
+-   [ ] prewhere
 
--   [ ] change TOC anchor link to colored?
+-   [ ] replace
+
+# DOCS
 
 -   [ ] examples lacks import
 

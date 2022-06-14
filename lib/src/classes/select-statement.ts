@@ -36,7 +36,7 @@ export class SelectStatement<
     /* @internal */
     private constructor(
         /* @internal */
-        public __from: TableOrSubquery<any, any, any, any> | null,
+        public __from: TableOrSubquery<any, any, any, any, any> | null,
         /* @internal */
         public __selection: SelectionWrapperTypes<Selection>,
         /* @internal */
@@ -51,7 +51,7 @@ export class SelectStatement<
 
     /* @internal */
     public static __fromTableOrSubquery = (
-        it: TableOrSubquery<any, any, any, any>,
+        it: TableOrSubquery<any, any, any, any, any>,
         selection: SelectionWrapperTypes<any>
     ): SelectStatement<any, any, any> =>
         new SelectStatement(
@@ -204,7 +204,8 @@ export class SelectStatement<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
@@ -234,6 +235,7 @@ export class SelectStatement<
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -269,7 +271,8 @@ export class SelectStatement<
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
@@ -302,6 +305,7 @@ export class SelectStatement<
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -335,7 +339,8 @@ export class SelectStatement<
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias1 | Alias2
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
@@ -366,6 +371,7 @@ export class SelectStatement<
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(

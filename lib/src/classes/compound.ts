@@ -33,7 +33,7 @@ export class Compound<Scope extends string, Selection extends string> {
     /* @internal */
     private constructor(
         /* @internal */
-        public __content: TableOrSubquery<any, any, any, any>[],
+        public __content: TableOrSubquery<any, any, any, any, any>[],
         /* @internal */
         public __qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT",
         /* @internal */
@@ -138,6 +138,7 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -169,7 +170,8 @@ export class Compound<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias1 | Alias2
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
@@ -202,6 +204,7 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -237,7 +240,8 @@ export class Compound<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
@@ -266,6 +270,7 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -300,7 +305,8 @@ export class Compound<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {

@@ -13,11 +13,12 @@ export type TableOrSubquery<
     Alias extends string,
     With extends string,
     Scope extends string,
-    Selection extends string
+    Selection extends string,
+    Ambiguous extends string
 > =
     | SelectStatement<With, Scope, Selection>
     | Table<Alias, Selection>
-    | Joined<Alias, Selection>
+    | Joined<Ambiguous, Alias, Selection>
     | Compound<Scope, Selection>;
 
 export type NoSelectFieldsCompileError = {
