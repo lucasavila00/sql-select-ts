@@ -261,9 +261,9 @@ export class SelectStatement<
         Selection2 extends string,
         Alias2 extends string
     >(
-        thisQueryAlias: Alias1,
-        tableAlias: Alias2,
-        table: SelectStatement<With2, Scope2, Selection2>
+        thisSelectAlias: Alias1,
+        selectAlias: Alias2,
+        select: SelectStatement<With2, Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
@@ -274,11 +274,11 @@ export class SelectStatement<
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: thisQueryAlias,
+                alias: thisSelectAlias,
             },
             {
-                code: table,
-                alias: tableAlias,
+                code: select,
+                alias: selectAlias,
             },
         ]);
 

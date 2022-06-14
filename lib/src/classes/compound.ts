@@ -10,7 +10,7 @@ import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
 import { makeArray } from "../utils";
-import { JoinedFactory } from "./joined";
+import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
@@ -129,7 +129,7 @@ export class Compound<Scope extends string, Selection extends string> {
         Selection2 extends string,
         Alias2 extends string
     >(
-        thisSelectAlias: Alias1,
+        thisCompoundAlias: Alias1,
         operator: string,
         table: Table<Selection2, Alias2>
     ): JoinedFactory<
@@ -144,7 +144,7 @@ export class Compound<Scope extends string, Selection extends string> {
             [
                 {
                     code: this,
-                    alias: thisSelectAlias,
+                    alias: thisCompoundAlias,
                 },
             ],
             [],
@@ -154,6 +154,33 @@ export class Compound<Scope extends string, Selection extends string> {
                 operator,
             }
         );
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinTable = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisSelectAlias: Alias1,
+        table: Table<Selection2, Alias2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias1}.${Selection}`
+        | `${Alias2}.${Selection2}`,
+        Alias1 | Alias2
+    > =>
+        Joined.__fromCommaJoin([
+            {
+                code: this,
+                alias: thisSelectAlias,
+            },
+            {
+                code: table,
+                alias: table.__alias,
+            },
+        ]);
 
     /**
      * @since 0.0.0
@@ -165,7 +192,7 @@ export class Compound<Scope extends string, Selection extends string> {
         Selection2 extends string,
         Alias2 extends string
     >(
-        thisSelectAlias: Alias1,
+        thisCompoundAlias: Alias1,
         operator: string,
         selectAlias: Alias2,
         select: SelectStatement<With2, Scope2, Selection2>
@@ -181,7 +208,7 @@ export class Compound<Scope extends string, Selection extends string> {
             [
                 {
                     code: this,
-                    alias: thisSelectAlias,
+                    alias: thisCompoundAlias,
                 },
             ],
             [],
@@ -191,6 +218,34 @@ export class Compound<Scope extends string, Selection extends string> {
                 operator,
             }
         );
+
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinSelect = <
+        Alias1 extends string,
+        With2 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisCompoundAlias: Alias1,
+        selectAlias: Alias2,
+        select: SelectStatement<With2, Scope2, Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2
+    > =>
+        Joined.__fromCommaJoin([
+            {
+                code: this,
+                alias: thisCompoundAlias,
+            },
+            { code: select, alias: selectAlias },
+        ]);
 
     /**
      * @since 0.0.0
@@ -227,6 +282,36 @@ export class Compound<Scope extends string, Selection extends string> {
                 operator,
             }
         );
+
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinCompound = <
+        Alias1 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisCompoundAlias: Alias1,
+        compoundAlias: Alias2,
+        compound: Compound<Scope2, Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2
+    > =>
+        Joined.__fromCommaJoin([
+            {
+                code: this,
+                alias: thisCompoundAlias,
+            },
+            {
+                code: compound,
+                alias: compoundAlias,
+            },
+        ]);
 
     /**
      * @since 0.0.0

@@ -13,6 +13,7 @@ import {
     JoinConstraint,
 } from "../types";
 import { makeNonEmptyArray } from "../utils";
+import { Compound } from "./compound";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
@@ -167,13 +168,16 @@ export class Joined<Selection extends string, Aliases extends string> {
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2
     > =>
-        Joined.__fromCommaJoin([
-            ...this.__commaJoins,
-            {
-                code: table,
-                alias: table.__alias,
-            },
-        ]);
+        Joined.__fromAll(
+            [
+                ...this.__commaJoins,
+                {
+                    code: table,
+                    alias: table.__alias,
+                },
+            ],
+            this.__properJoins
+        );
 
     /**
      * @since 0.0.0
@@ -209,7 +213,7 @@ export class Joined<Selection extends string, Aliases extends string> {
         Alias2 extends string
     >(
         alias: Alias2,
-        table: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<With2, Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
@@ -220,7 +224,7 @@ export class Joined<Selection extends string, Aliases extends string> {
             [
                 ...this.__commaJoins,
                 {
-                    code: table,
+                    code: select,
                     alias: alias,
                 },
             ],
@@ -248,6 +252,57 @@ export class Joined<Selection extends string, Aliases extends string> {
     > =>
         JoinedFactory.__fromAll(this.__commaJoins, this.__properJoins, {
             code: table,
+            alias: alias,
+            operator,
+        });
+
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinCompound = <
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        alias: Alias2,
+        compound: Compound<Scope2, Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`,
+        Aliases | Alias2
+    > =>
+        Joined.__fromAll(
+            [
+                ...this.__commaJoins,
+                {
+                    code: compound,
+                    alias: alias,
+                },
+            ],
+            this.__properJoins
+        );
+
+    /**
+     * @since 0.0.0
+     */
+    public joinCompound = <
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        operator: string,
+        alias: Alias2,
+        compound: Compound<Scope2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`,
+        Aliases | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(this.__commaJoins, this.__properJoins, {
+            code: compound,
             alias: alias,
             operator,
         });
