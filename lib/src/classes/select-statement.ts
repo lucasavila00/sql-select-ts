@@ -28,15 +28,11 @@ type SelectionWrapperTypes<Selection extends string> = (
  *
  * @since 0.0.0
  */
-export class SelectStatement<
-    With extends string,
-    Scope extends string,
-    Selection extends string
-> {
+export class SelectStatement<Scope extends string, Selection extends string> {
     /* @internal */
     private constructor(
         /* @internal */
-        public __from: TableOrSubquery<any, any, any, any, any> | null,
+        public __from: TableOrSubquery<any, any, any, any> | null,
         /* @internal */
         public __selection: SelectionWrapperTypes<Selection>,
         /* @internal */
@@ -51,9 +47,9 @@ export class SelectStatement<
 
     /* @internal */
     public static __fromTableOrSubquery = (
-        it: TableOrSubquery<any, any, any, any, any>,
+        it: TableOrSubquery<any, any, any, any>,
         selection: SelectionWrapperTypes<any>
-    ): SelectStatement<any, any, any> =>
+    ): SelectStatement<any, any> =>
         new SelectStatement(
             //
             it,
@@ -68,7 +64,7 @@ export class SelectStatement<
      */
     public static fromNothing = <NewSelection extends string>(
         it: Record<NewSelection, SafeString>
-    ): SelectStatement<never, never, NewSelection> =>
+    ): SelectStatement<never, NewSelection> =>
         new SelectStatement(
             //
             null,
@@ -79,7 +75,7 @@ export class SelectStatement<
             false
         );
 
-    private copy = (): SelectStatement<With, Scope, Selection> =>
+    private copy = (): SelectStatement<Scope, Selection> =>
         new SelectStatement(
             this.__from,
             this.__selection,
@@ -122,26 +118,20 @@ export class SelectStatement<
             f: Record<Selection | `main_alias.${Selection}`, SafeString> &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<
-        never,
-        Selection | `main_alias.${Selection}`,
-        NewSelection
-    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    ): SelectStatement<Selection | `main_alias.${Selection}`, NewSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**
      * @since 0.0.0
      */
-    public selectStar = (): SelectStatement<never, Selection, Selection> =>
+    public selectStar = (): SelectStatement<Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     /**
      * @since 0.0.0
      */
-    public appendSelectStar = (): SelectStatement<
-        never,
-        Selection,
-        Selection
-    > => this.copy().setSelection([...this.__selection, StarSymbol()]);
+    public appendSelectStar = (): SelectStatement<Selection, Selection> =>
+        this.copy().setSelection([...this.__selection, StarSymbol()]);
 
     /**
      * @since 0.0.0
@@ -151,7 +141,7 @@ export class SelectStatement<
             f: Record<Selection | Scope, SafeString> &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<With, Scope, Selection | NewSelection> =>
+    ): SelectStatement<Scope, Selection | NewSelection> =>
         this.copy().setSelection([
             ...(this.__selection as any),
             AliasedRows(f(proxy)),
@@ -164,13 +154,13 @@ export class SelectStatement<
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
-    ): SelectStatement<With, Scope, Selection> =>
+    ): SelectStatement<Scope, Selection> =>
         this.copy().setWhere([...this.__where, ...makeArray(f(proxy))]);
 
     /**
      * @since 0.0.0
      */
-    public distinct = (): SelectStatement<With, Scope, Selection> =>
+    public distinct = (): SelectStatement<Scope, Selection> =>
         this.copy().setDistinct(true);
 
     /**
@@ -180,7 +170,7 @@ export class SelectStatement<
         f: (
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
-    ): SelectStatement<With, Scope, Selection> =>
+    ): SelectStatement<Scope, Selection> =>
         this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
 
     /**
@@ -188,7 +178,7 @@ export class SelectStatement<
      */
     public limit = (
         limit: SafeString | number
-    ): SelectStatement<With, Scope, Selection> => this.copy().setLimit(limit);
+    ): SelectStatement<Scope, Selection> => this.copy().setLimit(limit);
 
     /**
      * @since 0.0.0
@@ -258,14 +248,13 @@ export class SelectStatement<
      */
     public commaJoinSelect = <
         Alias1 extends string,
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         thisSelectAlias: Alias1,
         selectAlias: Alias2,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
@@ -290,7 +279,6 @@ export class SelectStatement<
      */
     public joinSelect = <
         Alias1 extends string,
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
@@ -298,7 +286,7 @@ export class SelectStatement<
         thisSelectAlias: Alias1,
         operator: string,
         selectAlias: Alias2,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>

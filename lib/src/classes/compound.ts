@@ -15,7 +15,6 @@ import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
 type SelectionOfSelectStatement<T> = T extends SelectStatement<
-    infer _With,
     infer _Scope,
     infer Selection
 >
@@ -33,7 +32,7 @@ export class Compound<Scope extends string, Selection extends string> {
     /* @internal */
     private constructor(
         /* @internal */
-        public __content: TableOrSubquery<any, any, any, any, any>[],
+        public __content: TableOrSubquery<any, any, any, any>[],
         /* @internal */
         public __qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT",
         /* @internal */
@@ -46,8 +45,8 @@ export class Compound<Scope extends string, Selection extends string> {
      * @internal
      */
     public static union = <
-        C extends SelectStatement<any, any, any>,
-        CS extends SelectStatement<any, any, any>[]
+        C extends SelectStatement<any, any>,
+        CS extends SelectStatement<any, any>[]
     >(
         content: [C, ...CS]
     ): Compound<
@@ -59,8 +58,8 @@ export class Compound<Scope extends string, Selection extends string> {
      * @internal
      */
     public static unionAll = <
-        C extends SelectStatement<any, any, any>,
-        CS extends SelectStatement<any, any, any>[]
+        C extends SelectStatement<any, any>,
+        CS extends SelectStatement<any, any>[]
     >(
         content: [C, ...CS]
     ): Compound<
@@ -109,16 +108,13 @@ export class Compound<Scope extends string, Selection extends string> {
             fields: Record<Selection | `main_alias.${Selection}`, SafeString> &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<
-        never,
-        Selection | `main_alias.${Selection}`,
-        NewSelection
-    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    ): SelectStatement<Selection | `main_alias.${Selection}`, NewSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**
      * @since 0.0.0
      */
-    public selectStar = (): SelectStatement<never, Selection, Selection> =>
+    public selectStar = (): SelectStatement<Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     /**
@@ -189,7 +185,6 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public joinSelect = <
         Alias1 extends string,
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
@@ -197,7 +192,7 @@ export class Compound<Scope extends string, Selection extends string> {
         thisCompoundAlias: Alias1,
         operator: string,
         selectAlias: Alias2,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
@@ -227,14 +222,13 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public commaJoinSelect = <
         Alias1 extends string,
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         thisCompoundAlias: Alias1,
         selectAlias: Alias2,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>

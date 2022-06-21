@@ -92,7 +92,7 @@ const printConstraint = (c: JoinConstraint): { on: string; using: string } => {
 };
 
 const printAliasedCode = (
-    code: TableOrSubquery<any, any, any, any, any>,
+    code: TableOrSubquery<any, any, any, any>,
     alias: string
 ): string => {
     const str = printInternal(code, true);
@@ -131,11 +131,10 @@ const printJoinedInternal = <
 };
 
 export const printSelectStatementInternal = <
-    With extends string,
     Scope extends string,
     Selection extends string
 >(
-    selectStatement: SelectStatement<With, Scope, Selection>,
+    selectStatement: SelectStatement<Scope, Selection>,
     parenthesis: boolean
 ): string => {
     const sel = selectStatement.__selection
@@ -194,7 +193,7 @@ export const printSelectStatementInternal = <
 };
 
 const printInternal = (
-    it: TableOrSubquery<any, any, any, any, any>,
+    it: TableOrSubquery<any, any, any, any>,
     parenthesis: boolean
 ): string => {
     if (it instanceof SelectStatement) {
@@ -214,11 +213,10 @@ const printInternal = (
 };
 
 export const printSelectStatement = <
-    With extends string,
     Scope extends string,
     Selection extends string
 >(
-    it: SelectStatement<With, Scope, Selection>
+    it: SelectStatement<Scope, Selection>
 ): string => printSelectStatementInternal(it, false) + ";";
 
 export const printCompound = <Scope extends string, Selection extends string>(

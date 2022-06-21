@@ -50,17 +50,13 @@ export class Table<Selection extends string, Alias extends string> {
             f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<
-        never,
-        Selection | `${Alias}.${Selection}`,
-        NewSelection
-    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    ): SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**
      * @since 0.0.0
      */
     public selectStar = (): SelectStatement<
-        never,
         Selection | `main_alias.${Selection}`,
         Selection
     > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
@@ -123,13 +119,12 @@ export class Table<Selection extends string, Alias extends string> {
      * @since 0.0.0
      */
     public commaJoinSelect = <
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         selectAlias: Alias2,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
@@ -153,14 +148,13 @@ export class Table<Selection extends string, Alias extends string> {
      * @since 0.0.0
      */
     public joinSelect = <
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         selectAlias: Alias2,
         operator: string,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>

@@ -11,12 +11,11 @@ import { SafeString } from "./safe-string";
 
 export type TableOrSubquery<
     Alias extends string,
-    With extends string,
     Scope extends string,
     Selection extends string,
     Ambiguous extends string
 > =
-    | SelectStatement<With, Scope, Selection>
+    | SelectStatement<Scope, Selection>
     | Table<Alias, Selection>
     | Joined<Ambiguous, Alias, Selection>
     | Compound<Scope, Selection>;

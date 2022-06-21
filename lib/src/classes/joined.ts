@@ -18,12 +18,12 @@ import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
 type CommaJoin = {
-    code: TableOrSubquery<any, any, any, any, any>;
+    code: TableOrSubquery<any, any, any, any>;
     alias: string;
 }[];
 
 type ProperJoinItem = {
-    code: TableOrSubquery<any, any, any, any, any>;
+    code: TableOrSubquery<any, any, any, any>;
     alias: string;
     operator: string;
     constraint: JoinConstraint;
@@ -142,13 +142,13 @@ export class Joined<
         f: (
             f: Record<Selection, SafeString> & NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<never, Selection, NewSelection> =>
+    ): SelectStatement<Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**
      * @since 0.0.0
      */
-    public selectStar = (): SelectStatement<never, Selection, Selection> =>
+    public selectStar = (): SelectStatement<Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     /**
@@ -157,7 +157,6 @@ export class Joined<
     public selectStarOfAliases = <TheAliases extends Aliases>(
         aliases: TheAliases[]
     ): SelectStatement<
-        never,
         RemoveAliasFromSelection<TheAliases, Selection>,
         RemoveAliasFromSelection<TheAliases, Selection>
     > =>
@@ -218,13 +217,12 @@ export class Joined<
      * @since 0.0.0
      */
     public commaJoinSelect = <
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         alias: Alias2,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Exclude<Selection2, Selection>, Ambiguous>
@@ -247,14 +245,13 @@ export class Joined<
      * @since 0.0.0
      */
     public joinSelect = <
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         operator: string,
         alias: Alias2,
-        table: SelectStatement<With2, Scope2, Selection2>
+        table: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Exclude<Selection2, Selection>, Ambiguous>

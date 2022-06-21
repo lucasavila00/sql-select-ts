@@ -67,7 +67,7 @@ type SqlSupportedTypes =
     | number
     | null
     | undefined
-    | SelectStatement<any, any, any>
+    | SelectStatement<any, any>
     | Compound<any, any>;
 
 type TemplateLiteralSql = [
