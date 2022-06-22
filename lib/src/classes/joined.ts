@@ -1,4 +1,7 @@
 /**
+ *
+ * Represents a source of data composed of JOINed tables or sub-selects.
+ *
  * @since 0.0.0
  */
 import { StarOfAliasesSymbol, StarSymbol, AliasedRows } from "../data-wrappers";
@@ -10,6 +13,7 @@ import {
     JoinConstraint,
 } from "../types";
 import { makeNonEmptyArray } from "../utils";
+import { Compound } from "./compound";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
@@ -17,10 +21,6 @@ type CommaJoin = {
     code: TableOrSubquery<any, any, any, any>;
     alias: string;
 }[];
-
-/**
- * @since 0.0.0
- */
 
 type ProperJoinItem = {
     code: TableOrSubquery<any, any, any, any>;
@@ -37,21 +37,26 @@ type RemoveAliasFromSelection<
 > = Selection extends `${Alias}.${infer R}` ? R : never;
 
 /**
+ *
+ * Constructor for join queries.
+ * Allows the selection of the constraint to be done in another method call.
+ *
  * @since 0.0.0
  */
 export class JoinedFactory<
     Selection extends string,
     Aliases extends string,
+    Ambiguous extends string,
     UsingPossibleKeys extends string
 > {
     /* @internal */
     private constructor(
         /* @internal */
-        public __commaJoins: CommaJoin,
-        /* @internal */
-        public __properJoins: ProperJoin,
-        /* @internal */
-        public __newProperJoin: Omit<ProperJoinItem, "constraint">
+        public __props: {
+            commaJoins: CommaJoin;
+            properJoins: ProperJoin;
+            newProperJoin: Omit<ProperJoinItem, "constraint">;
+        }
     ) {}
 
     /* @internal */
@@ -59,16 +64,19 @@ export class JoinedFactory<
         commaJoins: CommaJoin,
         properJoins: ProperJoin,
         newProperJoin: Omit<ProperJoinItem, "constraint">
-    ): JoinedFactory<any, any, any> =>
-        new JoinedFactory(commaJoins, properJoins, newProperJoin);
+    ): JoinedFactory<any, any, any, any> =>
+        new JoinedFactory({ commaJoins, properJoins, newProperJoin });
 
     /**
      * @since 0.0.0
      */
-    public noConstraint = (): Joined<Selection, Aliases> =>
-        Joined.__fromAll(this.__commaJoins, [
-            ...this.__properJoins,
-            { ...this.__newProperJoin, constraint: { _tag: "no_constraint" } },
+    public noConstraint = (): Joined<Selection, Aliases, Ambiguous> =>
+        Joined.__fromAll(this.__props.commaJoins, [
+            ...this.__props.properJoins,
+            {
+                ...this.__props.newProperJoin,
+                constraint: { _tag: "no_constraint" },
+            },
         ]);
 
     /**
@@ -76,11 +84,11 @@ export class JoinedFactory<
      */
     public on = (
         on: (fields: Record<Selection, SafeString>) => SafeString | SafeString[]
-    ): Joined<Selection, Aliases> =>
-        Joined.__fromAll(this.__commaJoins, [
-            ...this.__properJoins,
+    ): Joined<Selection, Aliases, Ambiguous> =>
+        Joined.__fromAll(this.__props.commaJoins, [
+            ...this.__props.properJoins,
             {
-                ...this.__newProperJoin,
+                ...this.__props.newProperJoin,
                 constraint: { _tag: "on", on: makeNonEmptyArray(on(proxy)) },
             },
         ]);
@@ -88,36 +96,48 @@ export class JoinedFactory<
     /**
      * @since 0.0.0
      */
-    public using = (keys: UsingPossibleKeys[]): Joined<Selection, Aliases> =>
-        Joined.__fromAll(this.__commaJoins, [
-            ...this.__properJoins,
+    public using = (
+        keys: UsingPossibleKeys[]
+    ): Joined<Selection, Aliases, Ambiguous> =>
+        Joined.__fromAll(this.__props.commaJoins, [
+            ...this.__props.properJoins,
             {
-                ...this.__newProperJoin,
+                ...this.__props.newProperJoin,
                 constraint: { _tag: "using", keys },
             },
         ]);
 }
 
 /**
+ *
+ * Represents a source of data composed of JOINed tables or sub-selects.
+ * This class is not meant to be used directly, but rather through methods in tables, or sub-selects.
+ *
  * @since 0.0.0
  */
-export class Joined<Selection extends string, Aliases extends string> {
+export class Joined<
+    Selection extends string,
+    Aliases extends string,
+    Ambiguous extends string
+> {
     private constructor(
         /* @internal */
-        public __commaJoins: CommaJoin,
-        /* @internal */
-        public __properJoins: ProperJoin
+        public __props: {
+            commaJoins: CommaJoin;
+            properJoins: ProperJoin;
+        }
     ) {}
 
     /* @internal */
-    public static __fromCommaJoin = (commaJoins: CommaJoin): Joined<any, any> =>
-        new Joined(commaJoins, []);
+    public static __fromCommaJoin = (
+        commaJoins: CommaJoin
+    ): Joined<any, any, any> => new Joined({ commaJoins, properJoins: [] });
 
     /* @internal */
     public static __fromAll = (
         commaJoins: CommaJoin,
         properJoins: ProperJoin
-    ): Joined<any, any> => new Joined(commaJoins, properJoins);
+    ): Joined<any, any, any> => new Joined({ commaJoins, properJoins });
 
     /**
      * @since 0.0.0
@@ -126,13 +146,13 @@ export class Joined<Selection extends string, Aliases extends string> {
         f: (
             f: Record<Selection, SafeString> & NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<never, Selection, NewSelection> =>
+    ): SelectStatement<Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**
      * @since 0.0.0
      */
-    public selectStar = (): SelectStatement<never, Selection, Selection> =>
+    public selectStar = (): SelectStatement<Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     /**
@@ -141,7 +161,6 @@ export class Joined<Selection extends string, Aliases extends string> {
     public selectStarOfAliases = <TheAliases extends Aliases>(
         aliases: TheAliases[]
     ): SelectStatement<
-        never,
         RemoveAliasFromSelection<TheAliases, Selection>,
         RemoveAliasFromSelection<TheAliases, Selection>
     > =>
@@ -156,17 +175,22 @@ export class Joined<Selection extends string, Aliases extends string> {
         table: Table<Selection2, Alias2>
     ): Joined<
         | Exclude<Selection, Selection2>
-        | Exclude<Selection2, Selection>
+        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | Exclude<Selection2, Ambiguous>
         | `${Alias2}.${Selection2}`,
-        Aliases | Alias2
+        Aliases | Alias2,
+        Ambiguous | Extract<Selection2, Selection>
     > =>
-        Joined.__fromCommaJoin([
-            ...this.__commaJoins,
-            {
-                code: table,
-                alias: table.__alias,
-            },
-        ]);
+        Joined.__fromAll(
+            [
+                ...this.__props.commaJoins,
+                {
+                    code: table,
+                    alias: table.__props.alias,
+                },
+            ],
+            this.__props.properJoins
+        );
 
     /**
      * @since 0.0.0
@@ -176,18 +200,19 @@ export class Joined<Selection extends string, Aliases extends string> {
         table: Table<Selection2, Alias2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
-        | Exclude<Selection2, Selection>
+        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2,
-        Extract<Selection, Selection2>
+        Extract<Selection, Selection2>,
+        Ambiguous | Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
             //
-            this.__commaJoins,
-            this.__properJoins,
+            this.__props.commaJoins,
+            this.__props.properJoins,
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
                 operator,
             }
         );
@@ -196,52 +221,113 @@ export class Joined<Selection extends string, Aliases extends string> {
      * @since 0.0.0
      */
     public commaJoinSelect = <
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         alias: Alias2,
-        table: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
-        | Exclude<Selection2, Selection>
+        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
         | `${Alias2}.${Selection2}`,
-        Aliases | Alias2
+        Aliases | Alias2,
+        Ambiguous | Extract<Selection2, Selection>
     > =>
         Joined.__fromAll(
             [
-                ...this.__commaJoins,
+                ...this.__props.commaJoins,
                 {
-                    code: table,
+                    code: select,
                     alias: alias,
                 },
             ],
-            this.__properJoins
+            this.__props.properJoins
         );
 
     /**
      * @since 0.0.0
      */
     public joinSelect = <
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         operator: string,
         alias: Alias2,
-        table: SelectStatement<With2, Scope2, Selection2>
+        table: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
-        | Exclude<Selection2, Selection>
+        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2,
+        Ambiguous | Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
-        JoinedFactory.__fromAll(this.__commaJoins, this.__properJoins, {
-            code: table,
-            alias: alias,
-            operator,
-        });
+        JoinedFactory.__fromAll(
+            this.__props.commaJoins,
+            this.__props.properJoins,
+            {
+                code: table,
+                alias: alias,
+                operator,
+            }
+        );
+
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinCompound = <
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        alias: Alias2,
+        compound: Compound<Scope2, Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | `${Alias2}.${Selection2}`,
+        Aliases | Alias2,
+        Ambiguous | Extract<Selection2, Selection>
+    > =>
+        Joined.__fromAll(
+            [
+                ...this.__props.commaJoins,
+                {
+                    code: compound,
+                    alias: alias,
+                },
+            ],
+            this.__props.properJoins
+        );
+
+    /**
+     * @since 0.0.0
+     */
+    public joinCompound = <
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        operator: string,
+        alias: Alias2,
+        compound: Compound<Scope2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | `${Alias2}.${Selection2}`,
+        Aliases | Alias2,
+        Ambiguous | Extract<Selection2, Selection>,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            this.__props.commaJoins,
+            this.__props.properJoins,
+            {
+                code: compound,
+                alias: alias,
+                operator,
+            }
+        );
 }

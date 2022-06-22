@@ -67,7 +67,7 @@ type SqlSupportedTypes =
     | number
     | null
     | undefined
-    | SelectStatement<any, any, any>
+    | SelectStatement<any, any>
     | Compound<any, any>;
 
 type TemplateLiteralSql = [
@@ -150,9 +150,9 @@ const escapeForSql = function (val: any) {
             if (isSafeString(val)) {
                 return val.content;
             } else if (val instanceof SelectStatement) {
-                return printSelectStatementInternal(val, true);
+                return printSelectStatementInternal(val, true).content;
             } else if (val instanceof Compound) {
-                return printCompoundInternal(val, true);
+                return printCompoundInternal(val, true).content;
             } else if (Array.isArray(val)) {
                 return arrayToList(val);
             } else {

@@ -18,7 +18,7 @@ describe("appendSelect", () => {
     INSERT INTO t2 VALUES(3,4,5);
     */
 
-    it("select - no identity function", async () => {
+    it("no identity function", async () => {
         t1.selectStar().appendSelect(
             // @ts-expect-error
             (f) => f

@@ -4,7 +4,7 @@ import { Section } from "../lib/collect-headings";
 import { AnchorLink } from "./AnchorLink";
 
 const ClosedLink: FC<{ to: string; label: String }> = ({ to, label }) => (
-  <AnchorLink to={to} label={label} color="text" />
+  <AnchorLink to={to} label={label} />
 );
 
 const marginLeftOfNode = (nodeName: string): number => {
@@ -31,7 +31,7 @@ const OpenLink: FC<{ to: string; label: String; headings: Section[] }> = ({
   headings,
 }) => (
   <>
-    <AnchorLink to={to} label={label} color="text" />
+    <AnchorLink to={to} label={label} />
     <Nav pad="small">
       {headings.map((it) => (
         <Anchor
@@ -39,6 +39,7 @@ const OpenLink: FC<{ to: string; label: String; headings: Section[] }> = ({
           label={it.title}
           key={it.title}
           size="small"
+          weight="normal"
           href={`#${it.id}`}
           style={{
             marginLeft: marginLeftOfNode(it.nodeName),

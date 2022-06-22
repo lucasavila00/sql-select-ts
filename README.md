@@ -1,14 +1,22 @@
 # LIB
 
--   [ ] select . join compound
+-   [ ] having
 
--   [ ] join compound
+-   [ ] replace
 
--   [ ] same tests for comma join as for join
+-   [ ] select starting from all
+
+-   [ ] select tests (type focus)
+
+-   [ ] where tests (type focus)
+
+-   [ ] order by tests (type focus)
+
+-   [ ] limit tests (type focus)
+
+-   [ ] test for 'main_alias', docs on usability
 
 # DOCS
-
--   [ ] change TOC anchor link to colored?
 
 -   [ ] examples lacks import
 
@@ -22,11 +30,13 @@
 
 # LIB & DOCS
 
--   [ ] escape identifier
+-   [ ] escape identifier/alias
 
 -   [ ] easy extension sql safe string, example boolean in CH
 
 # Global
+
+-   [ ] CI clickhouse
 
 -   [ ] CI specify node version
 

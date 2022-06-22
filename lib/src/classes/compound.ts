@@ -1,5 +1,6 @@
 /**
- * Represents https://www.sqlite.org/syntax/compound-operator.html
+ * Represents https://www.sqlite.org/syntax/compound-select-stmt.html
+ *
  *
  * @since 0.0.0
  */
@@ -9,12 +10,11 @@ import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
 import { makeArray } from "../utils";
-import { JoinedFactory } from "./joined";
+import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
 type SelectionOfSelectStatement<T> = T extends SelectStatement<
-    infer _With,
     infer _Scope,
     infer Selection
 >
@@ -22,7 +22,9 @@ type SelectionOfSelectStatement<T> = T extends SelectStatement<
     : never;
 
 /**
- * Represents https://www.sqlite.org/syntax/compound-operator.html
+ * Represents https://www.sqlite.org/syntax/compound-select-stmt.html
+ *
+ * This class is not meant to be used directly, but rather through the `union`, `union`, `insersect`, `except` functions.
  *
  * @since 0.0.0
  */
@@ -30,55 +32,63 @@ export class Compound<Scope extends string, Selection extends string> {
     /* @internal */
     private constructor(
         /* @internal */
-        public __content: TableOrSubquery<any, any, any, any>[],
-        /* @internal */
-        public __qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT",
-        /* @internal */
-        public __orderBy: SafeString[],
-        /* @internal */
-        public __limit: SafeString | number | null
+        public __props: {
+            content: TableOrSubquery<any, any, any, any>[];
+            qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
+            orderBy: SafeString[];
+            limit: SafeString | number | null;
+        }
     ) {}
 
     /**
      * @internal
      */
     public static union = <
-        C extends SelectStatement<any, any, any>,
-        CS extends SelectStatement<any, any, any>[]
+        C extends SelectStatement<any, any>,
+        CS extends SelectStatement<any, any>[]
     >(
         content: [C, ...CS]
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
-    > => new Compound(content, "UNION", [], null);
+    > =>
+        new Compound({ content, qualifier: "UNION", orderBy: [], limit: null });
 
     /**
      * @internal
      */
     public static unionAll = <
-        C extends SelectStatement<any, any, any>,
-        CS extends SelectStatement<any, any, any>[]
+        C extends SelectStatement<any, any>,
+        CS extends SelectStatement<any, any>[]
     >(
         content: [C, ...CS]
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
-    > => new Compound(content, "UNION ALL", [], null);
+    > =>
+        new Compound({
+            content,
+            qualifier: "UNION ALL",
+            orderBy: [],
+            limit: null,
+        });
 
     private copy = (): Compound<Scope, Selection> =>
-        new Compound(
-            this.__content,
-            this.__qualifier,
-            this.__orderBy,
-            this.__limit
-        );
+        new Compound({ ...this.__props });
 
     private setOrderBy = (orderBy: SafeString[]): this => {
-        this.__orderBy = orderBy;
+        this.__props = {
+            ...this.__props,
+            orderBy,
+        };
         return this;
     };
+
     private setLimit = (limit: SafeString | number | null): this => {
-        this.__limit = limit;
+        this.__props = {
+            ...this.__props,
+            limit,
+        };
         return this;
     };
 
@@ -90,7 +100,10 @@ export class Compound<Scope extends string, Selection extends string> {
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
     ): Compound<Scope, Selection> =>
-        this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
+        this.copy().setOrderBy([
+            ...this.__props.orderBy,
+            ...makeArray(f(proxy)),
+        ]);
 
     /**
      * @since 0.0.0
@@ -106,16 +119,13 @@ export class Compound<Scope extends string, Selection extends string> {
             fields: Record<Selection | `main_alias.${Selection}`, SafeString> &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<
-        never,
-        Selection | `main_alias.${Selection}`,
-        NewSelection
-    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    ): SelectStatement<Selection | `main_alias.${Selection}`, NewSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**
      * @since 0.0.0
      */
-    public selectStar = (): SelectStatement<never, Selection, Selection> =>
+    public selectStar = (): SelectStatement<Selection, Selection> =>
         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     /**
@@ -126,7 +136,7 @@ export class Compound<Scope extends string, Selection extends string> {
         Selection2 extends string,
         Alias2 extends string
     >(
-        thisSelectAlias: Alias1,
+        thisCompoundAlias: Alias1,
         operator: string,
         table: Table<Selection2, Alias2>
     ): JoinedFactory<
@@ -135,50 +145,79 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
             [
                 {
                     code: this,
-                    alias: thisSelectAlias,
+                    alias: thisCompoundAlias,
                 },
             ],
             [],
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
                 operator,
             }
         );
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinTable = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisSelectAlias: Alias1,
+        table: Table<Selection2, Alias2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias1}.${Selection}`
+        | `${Alias2}.${Selection2}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        Joined.__fromCommaJoin([
+            {
+                code: this,
+                alias: thisSelectAlias,
+            },
+            {
+                code: table,
+                alias: table.__props.alias,
+            },
+        ]);
 
     /**
      * @since 0.0.0
      */
     public joinSelect = <
         Alias1 extends string,
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
-        thisSelectAlias: Alias1,
+        thisCompoundAlias: Alias1,
         operator: string,
         selectAlias: Alias2,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
             [
                 {
                     code: this,
-                    alias: thisSelectAlias,
+                    alias: thisCompoundAlias,
                 },
             ],
             [],
@@ -188,6 +227,102 @@ export class Compound<Scope extends string, Selection extends string> {
                 operator,
             }
         );
+
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinSelect = <
+        Alias1 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisCompoundAlias: Alias1,
+        selectAlias: Alias2,
+        select: SelectStatement<Scope2, Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        Joined.__fromCommaJoin([
+            {
+                code: this,
+                alias: thisCompoundAlias,
+            },
+            { code: select, alias: selectAlias },
+        ]);
+
+    /**
+     * @since 0.0.0
+     */
+    public joinCompound = <
+        Alias1 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisCompoundAlias: Alias1,
+        operator: string,
+        compoundAlias: Alias2,
+        compound: Compound<Scope2, Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            [
+                {
+                    code: this,
+                    alias: thisCompoundAlias,
+                },
+            ],
+            [],
+            {
+                code: compound,
+                alias: compoundAlias,
+                operator,
+            }
+        );
+
+    /**
+     * @since 0.0.0
+     */
+    public commaJoinCompound = <
+        Alias1 extends string,
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisCompoundAlias: Alias1,
+        compoundAlias: Alias2,
+        compound: Compound<Scope2, Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        Joined.__fromCommaJoin([
+            {
+                code: this,
+                alias: thisCompoundAlias,
+            },
+            {
+                code: compound,
+                alias: compoundAlias,
+            },
+        ]);
 
     /**
      * @since 0.0.0

@@ -1,4 +1,9 @@
 /**
+ *
+ * Represents a table in the database.
+ * It stores type information of the table Alias and Selection.
+ * It also stores the table name and the alias.
+ *
  * @since 0.0.0
  */
 import { AliasedRows, StarSymbol } from "../data-wrappers";
@@ -10,17 +15,25 @@ import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 
 /**
+ *
+ * Represents a table in the database.
+ * It stores type information of the table Alias and Selection.
+ * It also stores the table name and the alias.
+ *
+ * This class is not meant to be used directly, but rather through the `table` function.
+ *
  * @since 0.0.0
  */
 export class Table<Selection extends string, Alias extends string> {
     /* @internal */
     private constructor(
         /* @internal */
-        public __columns: string[],
-        /* @internal */
-        public __alias: string,
-        /* @internal */
-        public __name: string
+        public __props: {
+            columns: string[];
+            alias: string;
+            name: string;
+            final: boolean;
+        }
     ) {}
 
     /*  @internal */
@@ -28,7 +41,26 @@ export class Table<Selection extends string, Alias extends string> {
         columns: Selection[],
         alias: Alias,
         name: string = alias
-    ): Table<Selection, Alias> => new Table(columns, alias, name);
+    ): Table<Selection, Alias> =>
+        new Table({ columns, alias, name, final: false });
+
+    private copy = (): Table<Selection, Alias> =>
+        new Table({ ...this.__props });
+
+    private setFinal = (final: boolean): this => {
+        this.__props = { ...this.__props, final };
+        return this;
+    };
+
+    /**
+     * @since 0.0.0
+     */
+    public clickhouse = {
+        /**
+         * @since 0.0.0
+         */
+        final: (): Table<Selection, Alias> => this.copy().setFinal(true),
+    };
 
     /**
      * @since 0.0.0
@@ -38,17 +70,13 @@ export class Table<Selection extends string, Alias extends string> {
             f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<
-        never,
-        Selection | `${Alias}.${Selection}`,
-        NewSelection
-    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    ): SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**
      * @since 0.0.0
      */
     public selectStar = (): SelectStatement<
-        never,
         Selection | `main_alias.${Selection}`,
         Selection
     > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
@@ -63,16 +91,17 @@ export class Table<Selection extends string, Alias extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2
+        Alias | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__alias,
+                alias: this.__props.alias,
             },
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
             },
         ]);
 
@@ -88,19 +117,20 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
             [
                 {
                     code: this,
-                    alias: this.__alias,
+                    alias: this.__props.alias,
                 },
             ],
             [],
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
                 operator,
             }
         );
@@ -109,24 +139,24 @@ export class Table<Selection extends string, Alias extends string> {
      * @since 0.0.0
      */
     public commaJoinSelect = <
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         selectAlias: Alias2,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2
+        Alias | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__alias,
+                alias: this.__props.alias,
             },
             {
                 code: select,
@@ -138,27 +168,27 @@ export class Table<Selection extends string, Alias extends string> {
      * @since 0.0.0
      */
     public joinSelect = <
-        With2 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         selectAlias: Alias2,
         operator: string,
-        select: SelectStatement<With2, Scope2, Selection2>
+        select: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
             [
                 {
                     code: this,
-                    alias: this.__alias,
+                    alias: this.__props.alias,
                 },
             ],
             [],
@@ -183,12 +213,13 @@ export class Table<Selection extends string, Alias extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2
+        Alias | Alias2,
+        Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__alias,
+                alias: this.__props.alias,
             },
             {
                 code: compound,
@@ -209,13 +240,14 @@ export class Table<Selection extends string, Alias extends string> {
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
+        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
             [
                 {
                     code: this,
-                    alias: this.__alias,
+                    alias: this.__props.alias,
                 },
             ],
             [],

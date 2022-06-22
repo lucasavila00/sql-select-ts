@@ -5,6 +5,7 @@
  */
 
 import { Compound } from "./classes/compound";
+import { CommonTableExpression } from "./classes/cte";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 // import renaming, then re-export to make sure docs-ts can run the inline tests
@@ -22,15 +23,22 @@ import {
  *
  * import { table } from "sql-select-ts";
  * const t1 = table(["id", "name"], "users");
- * assert.strictEqual(t1.selectStar().print(), "SELECT * FROM users;");
+ * assert.strictEqual(t1.selectStar().print(), "SELECT * FROM users");
  *
  * const t2 = table(["id", "name"], "alias", "users");
- * assert.strictEqual(t2.selectStar().print(), "SELECT * FROM users AS alias;");
+ * assert.strictEqual(t2.selectStar().print(), "SELECT * FROM users AS alias");
  *
  * @category starter
  * @since 0.0.0
  */
 export const table = Table.define;
+
+/**
+ *
+ * @category starter
+ * @since 0.0.0
+ */
+export const with_ = CommonTableExpression.define;
 
 /**
  *
@@ -40,7 +48,7 @@ export const table = Table.define;
  *
  * import { fromNothing, sql } from "sql-select-ts";
  * const q1 = fromNothing({ a: sql(123) });
- * assert.strictEqual(q1.print(), "SELECT 123 AS a;");
+ * assert.strictEqual(q1.print(), "SELECT 123 AS a");
  *
  * @category starter
  * @since 0.0.0
@@ -56,7 +64,7 @@ export const fromNothing = SelectStatement.fromNothing;
  * const q2 = fromNothing({ a: sql(456) });
  *
  * const u = union([q1, q2]);
- * assert.strictEqual(u.print(), "SELECT 123 AS a UNION SELECT 456 AS a;");
+ * assert.strictEqual(u.print(), "SELECT 123 AS a UNION SELECT 456 AS a");
  *
  * @category compound
  * @since 0.0.0
@@ -66,15 +74,13 @@ export const union = Compound.union;
 /**
  * Creates a compound query using 'UNION ALL'
  *
- * Check in depth docs in the safe-string.ts module.
- *
  * @example
  * import { fromNothing, sql, unionAll } from "sql-select-ts";
  * const q1 = fromNothing({ a: sql(123) });
  * const q2 = fromNothing({ a: sql(456) });
  *
  * const u = unionAll([q1, q2]);
- * assert.strictEqual(u.print(), "SELECT 123 AS a UNION ALL SELECT 456 AS a;");
+ * assert.strictEqual(u.print(), "SELECT 123 AS a UNION ALL SELECT 456 AS a");
  *
  * @category compound
  * @since 0.0.0

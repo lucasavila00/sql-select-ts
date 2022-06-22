@@ -7,6 +7,7 @@ export enum ApiReferenceKeys {
   joined = "joined",
   selectStatement = "selectStatement",
   table = "table",
+  commonTableExpression = "commonTableExpression",
 }
 
 const createExamples = <
@@ -57,5 +58,12 @@ export const apiReferenceItems = createExamples({
       import.meta.url
     ).toString(),
     title: "Table",
+  },
+  [ApiReferenceKeys.commonTableExpression]: {
+    contentUrl: new URL(
+      `../../../lib/docs/modules/classes/cte.ts.md`,
+      import.meta.url
+    ).toString(),
+    title: "CommonTableExpression",
   },
 });

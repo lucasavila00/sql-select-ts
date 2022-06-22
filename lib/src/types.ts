@@ -4,6 +4,7 @@
  * @since 0.0.0
  */
 import { Compound } from "./classes/compound";
+import { CommonTableExpression } from "./classes/cte";
 import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
@@ -11,13 +12,14 @@ import { SafeString } from "./safe-string";
 
 export type TableOrSubquery<
     Alias extends string,
-    With extends string,
     Scope extends string,
-    Selection extends string
+    Selection extends string,
+    Ambiguous extends string
 > =
-    | SelectStatement<With, Scope, Selection>
+    | SelectStatement<Scope, Selection>
     | Table<Alias, Selection>
-    | Joined<Alias, Selection>
+    | CommonTableExpression<Alias, Selection>
+    | Joined<Ambiguous, Alias, Selection>
     | Compound<Scope, Selection>;
 
 export type NoSelectFieldsCompileError = {
@@ -34,7 +36,7 @@ export interface CompileError<_ErrorMessageT extends any[]> {
 export interface NonEmptyArray<A> extends Array<A> {
     0: A;
 }
-
+export type ClickhouseWith = Record<string, SelectStatement<any, any>>;
 export type JoinConstraint =
     | {
           _tag: "no_constraint";

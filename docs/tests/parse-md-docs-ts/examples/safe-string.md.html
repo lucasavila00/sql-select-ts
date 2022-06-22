@@ -16,7 +16,7 @@ exports[`examples inline code works 1`] = `
     sql(null), }).print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT 'abc' AS string, 123 AS number, NULL AS
-    null;</Fence
+    null</Fence
   ><HeadingGrommet id="sql---as-string-template-literal" originalNodeName="h1"
     >sql - As String Template Literal</HeadingGrommet
   ><HeadingGrommet id="string-literal" originalNodeName="h2"
@@ -29,7 +29,7 @@ exports[`examples inline code works 1`] = `
     language="ts"
     >fromNothing({ it: sql\`system.tables\`, }).print(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT system.tables AS it;</Fence
+    ># formatted by sql-formatter SELECT system.tables AS it</Fence
   ><HeadingGrommet id="string-interpolation" originalNodeName="h2"
     >String Interpolation</HeadingGrommet
   ><Fence
@@ -42,7 +42,7 @@ fromNothing({
     >const name = &quot;Lucas&quot;; fromNothing({ it: sql\`'a' = \${name}\`,
     }).print(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT 'a' = 'Lucas' AS it;</Fence
+    ># formatted by sql-formatter SELECT 'a' = 'Lucas' AS it</Fence
   ><HeadingGrommet id="number-interpolation" originalNodeName="h2"
     >Number Interpolation</HeadingGrommet
   ><Fence
@@ -54,7 +54,7 @@ fromNothing({
     language="ts"
     >const n = 456; fromNothing({ it: sql\`123 = \${n}\`, }).print(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT 123 = 456 AS it;</Fence
+    ># formatted by sql-formatter SELECT 123 = 456 AS it</Fence
   ><HeadingGrommet id="array-interpolation" originalNodeName="h2"
     >Array Interpolation</HeadingGrommet
   ><Fence
@@ -67,7 +67,7 @@ fromNothing({
     language="ts"
     >const nums = [1, 2, 3]; fromNothing({ it: sql\`1 IN (\${nums})\`, }).print(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT 1 IN (1, 2, 3) AS it;</Fence
+    ># formatted by sql-formatter SELECT 1 IN (1, 2, 3) AS it</Fence
   ><HeadingGrommet id="select-interpolation" originalNodeName="h2"
     >Select Interpolation</HeadingGrommet
   ><Fence
@@ -83,7 +83,7 @@ fromNothing({
     sql\`something IN \${q1}\`, }).print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT something IN ( SELECT 123 = 456 AS it )
-    AS isIn;</Fence
+    AS isIn</Fence
   ><HeadingGrommet id="compound-interpolation" originalNodeName="h2"
     >Compound Interpolation</HeadingGrommet
   ><Fence
@@ -104,7 +104,7 @@ fromNothing({
     sql\`something IN \${u}\`, }).print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT something IN ( SELECT 123 = 456 AS it
-    UNION ALL SELECT 1 &gt; 0 AS it ) AS isIn;</Fence
+    UNION ALL SELECT 1 &gt; 0 AS it ) AS isIn</Fence
   ><HeadingGrommet id="composition" originalNodeName="h2"
     >Composition</HeadingGrommet
   ><Fence
@@ -136,7 +136,7 @@ fromNothing({
     (system.tables + ((2) * (2))) * (system.tables + ((2) * (2))) ) ) ) ) * ( (
     ( ( (system.tables + ((2) * (2))) * (system.tables + ((2) * (2))) ) ) * ( (
     (system.tables + ((2) * (2))) * (system.tables + ((2) * (2))) ) ) ) ) ) AS
-    it;</Fence
+    it</Fence
   ><HeadingGrommet id="convert-raw-string-to-safe-string" originalNodeName="h1"
     >Convert Raw String to Safe String</HeadingGrommet
   ><Fence
@@ -148,7 +148,7 @@ fromNothing({ it: filter }).print();
     >const str = \`aFunction(123)\`; const filter = castSafe(str); fromNothing({
     it: filter }).print(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT aFunction(123) AS it;</Fence
+    ># formatted by sql-formatter SELECT aFunction(123) AS it</Fence
   ><Fence
     content="const str = \`aFunction(123)\`;
 const filter = sql\`\${str}\`;
@@ -158,7 +158,7 @@ fromNothing({ it: filter }).print();
     >const str = \`aFunction(123)\`; const filter = sql\`\${str}\`; fromNothing({ it:
     filter }).print(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT 'aFunction(123)' AS it;</Fence
+    ># formatted by sql-formatter SELECT 'aFunction(123)' AS it</Fence
   ><HeadingGrommet id="accessing-string-content" originalNodeName="h1"
     >Accessing string content</HeadingGrommet
   ><Fence
