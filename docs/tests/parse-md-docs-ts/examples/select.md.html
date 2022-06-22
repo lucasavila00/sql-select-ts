@@ -15,7 +15,7 @@ exports[`examples inline code works 1`] = `
     >fromNothing({ it: sql\`system.tables\`, abc: sql\`123 + 456\`, }).print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT system.tables AS it, 123 + 456 AS
-    abc;</Fence
+    abc</Fence
   ><HeadingGrommet id="append-select" originalNodeName="h2"
     >Append Select</HeadingGrommet
   ><Fence
@@ -33,7 +33,7 @@ exports[`examples inline code works 1`] = `
     =&gt; ({ def: sql\`\${f.abc} + 456\`, })) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT system.tables AS it, 123 AS abc, abc +
-    456 AS def;</Fence
+    456 AS def</Fence
   ><HeadingGrommet id="from-tables" originalNodeName="h1"
     >From Tables</HeadingGrommet
   >
@@ -72,8 +72,7 @@ const admins = table(
 "
     language="ts"
     >users.selectStar().print(); </Fence
-  ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users;</Fence
+  ><Fence language="sql"># formatted by sql-formatter SELECT * FROM users</Fence
   ><HeadingGrommet id="select-a-field" originalNodeName="h2"
     >Select a field</HeadingGrommet
   ><Fence
@@ -84,7 +83,7 @@ const admins = table(
     language="ts"
     >admins .select((f) =&gt; ({ name: f.name })) .print(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT name AS name FROM admins AS adm;</Fence
+    ># formatted by sql-formatter SELECT name AS name FROM admins AS adm</Fence
   ><HeadingGrommet id="select-distinct" originalNodeName="h2"
     >Select distinct</HeadingGrommet
   ><Fence
@@ -97,7 +96,7 @@ const admins = table(
     >admins .select((f) =&gt; ({ name: f.name })) .distinct() .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT DISTINCT name AS name FROM admins AS
-    adm;</Fence
+    adm</Fence
   ><HeadingGrommet id="select-star-and-a-field" originalNodeName="h2"
     >Select star and a field</HeadingGrommet
   ><Fence
@@ -112,8 +111,7 @@ const admins = table(
     >users .selectStar() .appendSelect((f) =&gt; ({ otherAlias: f.name, }))
     .print(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT *, name AS otherAlias FROM
-    users;</Fence
+    ># formatted by sql-formatter SELECT *, name AS otherAlias FROM users</Fence
   ><HeadingGrommet id="select-a-field-and-star" originalNodeName="h2"
     >Select a field and star</HeadingGrommet
   ><Fence
@@ -129,7 +127,7 @@ const admins = table(
     .appendSelectStar() .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT adm.name AS otherAlias, * FROM admins
-    AS adm;</Fence
+    AS adm</Fence
   ><HeadingGrommet id="select-from-sub-select" originalNodeName="h2"
     >Select from sub-select</HeadingGrommet
   ><Fence
@@ -144,7 +142,7 @@ const admins = table(
     .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM ( SELECT age AS age FROM (
-    SELECT * FROM users ) );</Fence
+    SELECT * FROM users ) )</Fence
   ><HeadingGrommet id="select-from-union" originalNodeName="h2"
     >Select from union</HeadingGrommet
   ><Fence
@@ -160,7 +158,7 @@ const admins = table(
     age: f.age })) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT age AS age FROM ( SELECT * FROM users
-    UNION ALL SELECT * FROM admins AS adm );</Fence
+    UNION ALL SELECT * FROM admins AS adm )</Fence
   ><HeadingGrommet id="select-from-join" originalNodeName="h2"
     >Select from join</HeadingGrommet
   ><Fence
@@ -179,7 +177,7 @@ const admins = table(
     f[&quot;adm.name&quot;], })) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT users.name AS userName, adm.name AS
-    admName FROM users LEFT JOIN admins AS adm USING(id);</Fence
+    admName FROM users LEFT JOIN admins AS adm USING(id)</Fence
   ><HeadingGrommet
     id="don't-select-the-fields-object-directly"
     originalNodeName="h1"
@@ -202,7 +200,7 @@ const admins = table(
     >users .select((f) =&gt; ({ abc: f.name, def: f.id, })) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT name AS abc, id AS def FROM
-    users;</Fence
+    users</Fence
   ><Fence
     content='users
   .select((f) =&gt; ({
@@ -217,7 +215,7 @@ const admins = table(
     [&quot;456&quot;]: f.id, })) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT age AS \`123\`, id AS \`456\`, name AS name
-    FROM users;</Fence
+    FROM users</Fence
   >
   <p>
     To achieve control of the selection order, append each item individually.
@@ -241,7 +239,7 @@ const admins = table(
     f.id, })) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT age AS \`123\`, name AS name, id AS \`456\`
-    FROM users;</Fence
+    FROM users</Fence
   >
 </article>
 

@@ -35,7 +35,7 @@ users
     sql\`\${f.name} = \${name}\` ) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM users WHERE name =
-    'Lucas';</Fence
+    'Lucas'</Fence
   ><HeadingGrommet id="two-clauses" originalNodeName="h1"
     >Two Clauses</HeadingGrommet
   ><HeadingGrommet id="one-call" originalNodeName="h2">One call</HeadingGrommet
@@ -54,7 +54,7 @@ users
     sql\`\${f.name} = \${name}\`, sql\`\${f.id} = 5\`, ]) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM users WHERE name = 'Lucas' AND
-    id = 5;</Fence
+    id = 5</Fence
   ><HeadingGrommet id="two-calls" originalNodeName="h2"
     >Two calls</HeadingGrommet
   ><Fence
@@ -72,7 +72,7 @@ users
     'Lucas'\` ) .where((f) =&gt; sql\`\${f.id} = \${id}\`) .print(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM users WHERE name = 'Lucas' AND
-    id = 5;</Fence
+    id = 5</Fence
   >
 </article>
 

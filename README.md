@@ -1,5 +1,11 @@
 # LIB
 
+-   [ ] having
+
+-   [ ] replace
+
+-   [ ] select starting from all
+
 -   [ ] select tests (type focus)
 
 -   [ ] where tests (type focus)
@@ -8,9 +14,7 @@
 
 -   [ ] limit tests (type focus)
 
--   [ ] prewhere
-
--   [ ] replace
+-   [ ] test for 'main_alias', docs on usability
 
 # DOCS
 
@@ -26,11 +30,13 @@
 
 # LIB & DOCS
 
--   [ ] escape identifier
+-   [ ] escape identifier/alias
 
 -   [ ] easy extension sql safe string, example boolean in CH
 
 # Global
+
+-   [ ] CI clickhouse
 
 -   [ ] CI specify node version
 
