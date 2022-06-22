@@ -29,7 +29,10 @@ const printOrderBy = (orderBy: SafeString[]): string =>
     orderBy.length > 0
         ? `ORDER BY ${orderBy.map((it) => it.content).join(", ")}`
         : "";
-
+const printGroupBy = (orderBy: SafeString[]): string =>
+    orderBy.length > 0
+        ? `GROUP BY ${orderBy.map((it) => it.content).join(", ")}`
+        : "";
 const printLimit = (limit: number | SafeString | null): string =>
     limit == null
         ? ""
@@ -210,7 +213,12 @@ export const printSelectStatementInternal = <
                   .map((it) => it.content)
                   .join(" AND ")}`
             : "";
-
+    const having =
+        selectStatement.__props.having.length > 0
+            ? `HAVING ${selectStatement.__props.having
+                  .map((it) => it.content)
+                  .join(" AND ")}`
+            : "";
     const from =
         selectStatement.__props.from != null
             ? `FROM ${
@@ -247,6 +255,8 @@ export const printSelectStatementInternal = <
         main_alias,
         prewhere,
         where,
+        printGroupBy(selectStatement.__props.groupBy),
+        having,
         printOrderBy(selectStatement.__props.orderBy),
         printLimit(selectStatement.__props.limit),
     ]

@@ -33,6 +33,16 @@ describe("clickhouse prewhere", () => {
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
+    it("1 call -- from selection", async () => {
+        const q = t1
+            .select((f) => ({ cond: f.y }))
+            .clickhouse.prewhere((f) => f.cond)
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT y AS cond FROM t2_clickhouse PREWHERE cond"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
 
     it("2 calls", async () => {
         const q = t1

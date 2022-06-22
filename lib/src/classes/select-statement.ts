@@ -40,9 +40,11 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             from: TableOrSubquery<any, any, any, any> | null;
             selection: SelectionWrapperTypes<Selection>;
             orderBy: SafeString[];
+            groupBy: SafeString[];
             limit: SafeString | number | null;
             where: SafeString[];
             prewhere: SafeString[];
+            having: SafeString[];
             distinct: boolean;
             clickhouseWith: ClickhouseWith[];
         }
@@ -59,9 +61,11 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 from: it,
                 selection,
                 orderBy: [],
+                groupBy: [],
                 limit: null,
                 where: [],
                 prewhere: [],
+                having: [],
                 distinct: false,
                 clickhouseWith: [],
             }
@@ -78,9 +82,11 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 from: null,
                 selection: [AliasedRows(it)],
                 orderBy: [],
+                groupBy: [],
                 limit: null,
                 where: [],
                 prewhere: [],
+                having: [],
                 distinct: false,
                 clickhouseWith: [],
             }
@@ -114,6 +120,13 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         };
         return this;
     };
+    private setGroupBy = (groupBy: SafeString[]): this => {
+        this.__props = {
+            ...this.__props,
+            groupBy,
+        };
+        return this;
+    };
     private setLimit = (limit: SafeString | number | null): this => {
         this.__props = {
             ...this.__props,
@@ -139,6 +152,13 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         this.__props = {
             ...this.__props,
             prewhere,
+        };
+        return this;
+    };
+    private setHaving = (having: SafeString[]): this => {
+        this.__props = {
+            ...this.__props,
+            having,
         };
         return this;
     };
@@ -221,6 +241,16 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     /**
      * @since 0.0.0
      */
+    public having = (
+        f: (
+            fields: Record<Scope | Selection, SafeString>
+        ) => SafeString[] | SafeString
+    ): SelectStatement<Scope, Selection> =>
+        this.copy().setHaving([...this.__props.having, ...makeArray(f(proxy))]);
+
+    /**
+     * @since 0.0.0
+     */
     public distinct = (): SelectStatement<Scope, Selection> =>
         this.copy().setDistinct(true);
 
@@ -234,6 +264,19 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     ): SelectStatement<Scope, Selection> =>
         this.copy().setOrderBy([
             ...this.__props.orderBy,
+            ...makeArray(f(proxy)),
+        ]);
+
+    /**
+     * @since 0.0.0
+     */
+    public groupBy = (
+        f: (
+            fields: Record<Scope | Selection, SafeString>
+        ) => SafeString[] | SafeString
+    ): SelectStatement<Scope, Selection> =>
+        this.copy().setGroupBy([
+            ...this.__props.groupBy,
             ...makeArray(f(proxy)),
         ]);
 
