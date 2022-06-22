@@ -6,7 +6,7 @@ import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import { isTheProxyObject } from "./proxy";
 import { SafeString } from "./safe-string";
-import { JoinConstraint, TableOrSubquery } from "./types";
+import { ClickhouseWith, JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
 
 // TODO move wrap alias to other file, test it
@@ -150,6 +150,18 @@ const printJoinedInternal = <
     };
 };
 
+const printClickhouseWith = (withes: ClickhouseWith[]): string =>
+    withes
+        .map((mapOfWith) =>
+            Object.entries(mapOfWith).map(
+                ([k, v]) =>
+                    `${printInternal(v, true).content} AS ${wrapAlias(k)}`
+            )
+        )
+        // flatten
+        .reduce((p, c) => [...p, ...c], [])
+        .join(", ");
+
 export const printSelectStatementInternal = <
     Scope extends string,
     Selection extends string
@@ -190,10 +202,9 @@ export const printSelectStatementInternal = <
             ? `FROM ${printInternal(selectStatement.__from, true).content}`
             : "";
 
-    const with_ =
-        selectStatement.__from != null &&
-        printInternal(selectStatement.__from, true).with_ != null
-            ? `WITH ${printInternal(selectStatement.__from, true).with_}`
+    const withFromCte =
+        selectStatement.__from != null
+            ? printInternal(selectStatement.__from, true).with_ ?? ""
             : "";
 
     const doesSelectMainAlias = sel.includes("main_alias");
@@ -202,8 +213,17 @@ export const printSelectStatementInternal = <
 
     const distinct = selectStatement.__distinct ? "DISTINCT" : "";
 
+    const clickhouseWith =
+        selectStatement.__clickhouseWith.length > 0
+            ? printClickhouseWith(selectStatement.__clickhouseWith)
+            : ``;
+    const withKeyword =
+        withFromCte.length > 0 || clickhouseWith.length > 0 ? "WITH" : "";
+
     const contentNoParenthesis = [
-        with_,
+        withKeyword,
+        withFromCte,
+        clickhouseWith,
         "SELECT",
         distinct,
         sel,
@@ -252,8 +272,8 @@ export const printSelectStatement = <
     Selection extends string
 >(
     it: SelectStatement<Scope, Selection>
-): string => printSelectStatementInternal(it, false).content + ";";
+): string => printSelectStatementInternal(it, false).content;
 
 export const printCompound = <Scope extends string, Selection extends string>(
     it: Compound<Scope, Selection>
-): string => printCompoundInternal(it, false).content + ";";
+): string => printCompoundInternal(it, false).content;

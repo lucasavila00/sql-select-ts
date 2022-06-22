@@ -8,7 +8,11 @@ import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
 import { printSelectStatement } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
+import {
+    TableOrSubquery,
+    NoSelectFieldsCompileError,
+    ClickhouseWith,
+} from "../types";
 import { makeArray } from "../utils";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
@@ -42,7 +46,9 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         /* @internal */
         public __where: SafeString[],
         /* @internal */
-        public __distinct: boolean
+        public __distinct: boolean,
+        /* @internal */
+        public __clickhouseWith: ClickhouseWith[]
     ) {}
 
     /* @internal */
@@ -57,7 +63,8 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             [],
             null,
             [],
-            false
+            false,
+            []
         );
     /**
      * @internal
@@ -72,7 +79,8 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             [],
             null,
             [],
-            false
+            false,
+            []
         );
 
     private copy = (): SelectStatement<Scope, Selection> =>
@@ -82,7 +90,8 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             this.__orderBy,
             this.__limit,
             this.__where,
-            this.__distinct
+            this.__distinct,
+            this.__clickhouseWith
         );
 
     private setSelection = (
@@ -108,6 +117,23 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     private setDistinct = (distinct: boolean): this => {
         this.__distinct = distinct;
         return this;
+    };
+    private setClickhouseWith = (clickhouseWith: ClickhouseWith[]): this => {
+        this.__clickhouseWith = clickhouseWith;
+        return this;
+    };
+
+    /**
+     * @since 0.0.0
+     */
+    public clickhouse = {
+        with_: <NewSelection extends string>(
+            it: Record<NewSelection, SelectStatement<any, any>>
+        ): SelectStatement<Scope | NewSelection, Selection> =>
+            this.copy().setClickhouseWith([
+                ...this.__clickhouseWith,
+                it,
+            ]) as any,
     };
 
     /**
