@@ -1,21 +1,10 @@
 import { table } from "../../src";
-import ClickHouse from "@apla/clickhouse";
-
-const ch = new ClickHouse({
-    host: "localhost",
-    port: 8124,
-    user: "default",
-    password: "",
-});
-
-export const run = async (it: string): Promise<any[]> => {
-    const result = await ch.querying(it);
-    return result.data;
-};
+import { configureClickhouse } from "../utils";
 
 describe("clickhouse final", () => {
     const t1 = table(["x", "y"], "t1_clickhouse").clickhouse.final();
     const t1c = table(["x", "y"], "t1c", "t1_clickhouse").clickhouse.final();
+    const { run } = configureClickhouse();
 
     beforeAll(async () => {
         await run(`DROP TABLE IF EXISTS t1_clickhouse`);

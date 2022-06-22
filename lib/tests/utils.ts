@@ -1,4 +1,5 @@
 import sqlite from "sqlite3";
+import ClickHouse from "@apla/clickhouse";
 
 export const configureSqlite = (): {
     db: sqlite.Database;
@@ -8,17 +9,48 @@ export const configureSqlite = (): {
     const it = sqlite.verbose();
     const db = new it.Database(":memory:");
 
-    const run = (it: string) =>
+    const run = (q: string) =>
         new Promise<any[]>((rs, rj) =>
-            db.all(it, (e, r) => (e ? rj(e) : rs(r)))
+            db.all(q, (e, r) => (e ? rj(e) : rs(r)))
         );
 
-    const fail = (it: string) =>
+    const fail = (q: string) =>
         new Promise<string>((rs, rj) =>
-            db.all(it, (e, r) =>
+            db.all(q, (e, r) =>
                 e ? rs(String(e)) : rj(`Expected error, got ${r}`)
             )
         );
+
+    return {
+        db,
+        fail,
+        run,
+    };
+};
+
+export const configureClickhouse = (): {
+    db: ClickHouse;
+    run: (query: string) => Promise<any[]>;
+    fail: (query: string) => Promise<string>;
+} => {
+    const db = new ClickHouse({
+        host: "localhost",
+        port: 8124,
+        user: "default",
+        password: "",
+    });
+    const run = async (q: string): Promise<any[]> => {
+        const result = await db.querying(q);
+        return result.data;
+    };
+
+    const fail = async (q: string): Promise<string> => {
+        return db
+            .querying(q)
+            .then((r) => r.data)
+            .then((r) => Promise.reject(`Expected error, got ${r}`))
+            .catch((e) => String(e));
+    };
 
     return {
         db,

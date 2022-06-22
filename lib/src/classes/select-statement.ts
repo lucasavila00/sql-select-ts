@@ -24,6 +24,11 @@ type SelectionWrapperTypes<Selection extends string> = (
     | StarOfAliasSymbol
 )[];
 
+type ReplaceT<Selection extends string> = readonly (readonly [
+    Selection,
+    SafeString | number
+])[];
+
 /**
  *
  * Represents https://www.sqlite.org/syntax/simple-select-stmt.html
@@ -39,6 +44,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         public __props: {
             from: TableOrSubquery<any, any, any, any> | null;
             selection: SelectionWrapperTypes<Selection>;
+            replace: ReplaceT<Selection>;
             orderBy: SafeString[];
             groupBy: SafeString[];
             limit: SafeString | number | null;
@@ -60,6 +66,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             {
                 from: it,
                 selection,
+                replace: [],
                 orderBy: [],
                 groupBy: [],
                 limit: null,
@@ -81,6 +88,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             {
                 from: null,
                 selection: [AliasedRows(it)],
+                replace: [],
                 orderBy: [],
                 groupBy: [],
                 limit: null,
@@ -101,6 +109,14 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         this.__props = {
             ...this.__props,
             selection,
+        };
+        return this;
+    };
+
+    private setReplace = (replace: ReplaceT<Selection>): this => {
+        this.__props = {
+            ...this.__props,
+            replace,
         };
         return this;
     };
@@ -163,6 +179,9 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         return this;
     };
     /**
+     *
+     * Clickhouse specific syntax extensions.
+     *
      * @since 0.0.0
      */
     public clickhouse = {
@@ -189,6 +208,20 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 ...this.__props.prewhere,
                 ...makeArray(f(proxy)),
             ]),
+
+        /**
+         * @since 0.0.0
+         */
+        replace: <NewSelection extends string>(
+            f: (
+                f: Record<Selection | Scope, SafeString> &
+                    NoSelectFieldsCompileError
+            ) => ReplaceT<Selection>
+        ): SelectStatement<Scope, Selection | NewSelection> =>
+            this.copy().setReplace([
+                ...this.__props.replace,
+                ...f(proxy),
+            ]) as any,
     };
 
     /**

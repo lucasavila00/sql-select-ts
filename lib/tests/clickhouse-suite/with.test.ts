@@ -1,21 +1,10 @@
 import { fromNothing, table } from "../../src";
 import { sql } from "../../src/safe-string";
-import ClickHouse from "@apla/clickhouse";
-
-const ch = new ClickHouse({
-    host: "localhost",
-    port: 8124,
-    user: "default",
-    password: "",
-});
-
-export const run = async (it: string): Promise<any[]> => {
-    const result = await ch.querying(it);
-    return result.data;
-};
+import { configureClickhouse } from "../utils";
 
 describe("clickhouse with", () => {
     const t0 = table(["x", "y"], "t0_clickhouse");
+    const { run } = configureClickhouse();
 
     beforeAll(async () => {
         await run(`DROP TABLE IF EXISTS t0_clickhouse`);

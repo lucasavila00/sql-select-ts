@@ -5,9 +5,13 @@ import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import { isTheProxyObject } from "./proxy";
-import { SafeString } from "./safe-string";
+import type { SafeString } from "./safe-string";
 import { ClickhouseWith, JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
+
+// re-define to avoid circular dependency
+/* istanbul ignore next */
+const isSafeString = (it: any): it is SafeString => it?._tag === "SafeString";
 
 // TODO move wrap alias to other file, test it
 /* istanbul ignore next */
@@ -179,7 +183,7 @@ export const printSelectStatementInternal = <
     selectStatement: SelectStatement<Scope, Selection>,
     parenthesis: boolean
 ): PrintInternalRet => {
-    const sel = selectStatement.__props.selection
+    const selection = selectStatement.__props.selection
         .map((it) => {
             if (isStarSymbol(it)) {
                 return ["*"];
@@ -199,6 +203,18 @@ export const printSelectStatementInternal = <
         // flatten
         .reduce((p, c) => [...p, ...c], [])
         .join(", ");
+
+    const replaceInner = selectStatement.__props.replace
+        .map(([k, v]) => {
+            const vContent = isSafeString(v) ? v.content : v;
+            return `${vContent} AS ${wrapAlias(k)}`;
+        })
+        .join(", ");
+
+    const replace =
+        selectStatement.__props.replace.length > 0
+            ? `REPLACE (${replaceInner})`
+            : "";
 
     const where =
         selectStatement.__props.where.length > 0
@@ -231,7 +247,7 @@ export const printSelectStatementInternal = <
             ? printInternal(selectStatement.__props.from, true).with_ ?? ""
             : "";
 
-    const doesSelectMainAlias = sel.includes("main_alias");
+    const doesSelectMainAlias = selection.includes("main_alias");
 
     const main_alias = doesSelectMainAlias ? "AS main_alias" : "";
 
@@ -250,7 +266,8 @@ export const printSelectStatementInternal = <
         clickhouseWith,
         "SELECT",
         distinct,
-        sel,
+        selection,
+        replace,
         from,
         main_alias,
         prewhere,
