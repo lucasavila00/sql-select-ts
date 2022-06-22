@@ -82,11 +82,14 @@ const printCteInternal = <Selection extends string, Alias extends string>(
 const printTableInternal = <Selection extends string, Alias extends string>(
     table: Table<Selection, Alias>
 ): PrintInternalRet => {
+    const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
-        return { content: table.__props.name };
+        return { content: table.__props.name + final };
     }
     return {
-        content: `${table.__props.name} AS ${wrapAlias(table.__props.alias)}`,
+        content: `${table.__props.name} AS ${wrapAlias(
+            table.__props.alias
+        )}${final}`,
     };
 };
 
@@ -201,6 +204,13 @@ export const printSelectStatementInternal = <
                   .join(" AND ")}`
             : "";
 
+    const prewhere =
+        selectStatement.__props.prewhere.length > 0
+            ? `PREWHERE ${selectStatement.__props.prewhere
+                  .map((it) => it.content)
+                  .join(" AND ")}`
+            : "";
+
     const from =
         selectStatement.__props.from != null
             ? `FROM ${
@@ -235,6 +245,7 @@ export const printSelectStatementInternal = <
         sel,
         from,
         main_alias,
+        prewhere,
         where,
         printOrderBy(selectStatement.__props.orderBy),
         printLimit(selectStatement.__props.limit),

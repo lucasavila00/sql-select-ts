@@ -42,6 +42,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             orderBy: SafeString[];
             limit: SafeString | number | null;
             where: SafeString[];
+            prewhere: SafeString[];
             distinct: boolean;
             clickhouseWith: ClickhouseWith[];
         }
@@ -60,6 +61,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 orderBy: [],
                 limit: null,
                 where: [],
+                prewhere: [],
                 distinct: false,
                 clickhouseWith: [],
             }
@@ -78,6 +80,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 orderBy: [],
                 limit: null,
                 where: [],
+                prewhere: [],
                 distinct: false,
                 clickhouseWith: [],
             }
@@ -89,36 +92,63 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     private setSelection = (
         selection: SelectionWrapperTypes<Selection>
     ): this => {
-        this.__props.selection = selection;
+        this.__props = {
+            ...this.__props,
+            selection,
+        };
         return this;
     };
 
     private setWhere = (where: SafeString[]): this => {
-        this.__props.where = where;
+        this.__props = {
+            ...this.__props,
+            where,
+        };
         return this;
     };
 
     private setOrderBy = (orderBy: SafeString[]): this => {
-        this.__props.orderBy = orderBy;
+        this.__props = {
+            ...this.__props,
+            orderBy,
+        };
         return this;
     };
     private setLimit = (limit: SafeString | number | null): this => {
-        this.__props.limit = limit;
+        this.__props = {
+            ...this.__props,
+            limit,
+        };
         return this;
     };
     private setDistinct = (distinct: boolean): this => {
-        this.__props.distinct = distinct;
+        this.__props = {
+            ...this.__props,
+            distinct,
+        };
         return this;
     };
     private setClickhouseWith = (clickhouseWith: ClickhouseWith[]): this => {
-        this.__props.clickhouseWith = clickhouseWith;
+        this.__props = {
+            ...this.__props,
+            clickhouseWith,
+        };
         return this;
     };
-
+    private setPrewhere = (prewhere: SafeString[]): this => {
+        this.__props = {
+            ...this.__props,
+            prewhere,
+        };
+        return this;
+    };
     /**
      * @since 0.0.0
      */
     public clickhouse = {
+        /**
+         * @since 0.0.0
+         */
         with_: <NewSelection extends string>(
             it: Record<NewSelection, SelectStatement<any, any>>
         ): SelectStatement<Scope | NewSelection, Selection> =>
@@ -126,6 +156,19 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 ...this.__props.clickhouseWith,
                 it,
             ]) as any,
+
+        /**
+         * @since 0.0.0
+         */
+        prewhere: (
+            f: (
+                fields: Record<Scope | Selection, SafeString>
+            ) => SafeString[] | SafeString
+        ): SelectStatement<Scope, Selection> =>
+            this.copy().setPrewhere([
+                ...this.__props.prewhere,
+                ...makeArray(f(proxy)),
+            ]),
     };
 
     /**

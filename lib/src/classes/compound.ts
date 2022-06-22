@@ -77,11 +77,18 @@ export class Compound<Scope extends string, Selection extends string> {
         new Compound({ ...this.__props });
 
     private setOrderBy = (orderBy: SafeString[]): this => {
-        this.__props.orderBy = orderBy;
+        this.__props = {
+            ...this.__props,
+            orderBy,
+        };
         return this;
     };
+
     private setLimit = (limit: SafeString | number | null): this => {
-        this.__props.limit = limit;
+        this.__props = {
+            ...this.__props,
+            limit,
+        };
         return this;
     };
 

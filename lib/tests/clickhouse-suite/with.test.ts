@@ -19,7 +19,7 @@ describe("clickhouse with", () => {
 
     beforeAll(async () => {
         await run(
-            `CREATE TABLE IF NOT EXISTS t0_clickhouse(x Int64, y Int64) ENGINE = Memory;`
+            `CREATE TABLE IF NOT EXISTS t0_clickhouse(x Int64, y Int64) ENGINE = Memory`
         );
     });
 

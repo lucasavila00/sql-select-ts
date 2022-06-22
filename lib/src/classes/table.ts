@@ -32,6 +32,7 @@ export class Table<Selection extends string, Alias extends string> {
             columns: string[];
             alias: string;
             name: string;
+            final: boolean;
         }
     ) {}
 
@@ -40,7 +41,26 @@ export class Table<Selection extends string, Alias extends string> {
         columns: Selection[],
         alias: Alias,
         name: string = alias
-    ): Table<Selection, Alias> => new Table({ columns, alias, name });
+    ): Table<Selection, Alias> =>
+        new Table({ columns, alias, name, final: false });
+
+    private copy = (): Table<Selection, Alias> =>
+        new Table({ ...this.__props });
+
+    private setFinal = (final: boolean): this => {
+        this.__props = { ...this.__props, final };
+        return this;
+    };
+
+    /**
+     * @since 0.0.0
+     */
+    public clickhouse = {
+        /**
+         * @since 0.0.0
+         */
+        final: (): Table<Selection, Alias> => this.copy().setFinal(true),
+    };
 
     /**
      * @since 0.0.0
