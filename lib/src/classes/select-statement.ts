@@ -36,19 +36,15 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     /* @internal */
     private constructor(
         /* @internal */
-        public __from: TableOrSubquery<any, any, any, any> | null,
-        /* @internal */
-        public __selection: SelectionWrapperTypes<Selection>,
-        /* @internal */
-        public __orderBy: SafeString[],
-        /* @internal */
-        public __limit: SafeString | number | null,
-        /* @internal */
-        public __where: SafeString[],
-        /* @internal */
-        public __distinct: boolean,
-        /* @internal */
-        public __clickhouseWith: ClickhouseWith[]
+        public __props: {
+            from: TableOrSubquery<any, any, any, any> | null;
+            selection: SelectionWrapperTypes<Selection>;
+            orderBy: SafeString[];
+            limit: SafeString | number | null;
+            where: SafeString[];
+            distinct: boolean;
+            clickhouseWith: ClickhouseWith[];
+        }
     ) {}
 
     /* @internal */
@@ -58,13 +54,15 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     ): SelectStatement<any, any> =>
         new SelectStatement(
             //
-            it,
-            selection,
-            [],
-            null,
-            [],
-            false,
-            []
+            {
+                from: it,
+                selection,
+                orderBy: [],
+                limit: null,
+                where: [],
+                distinct: false,
+                clickhouseWith: [],
+            }
         );
     /**
      * @internal
@@ -74,52 +72,46 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     ): SelectStatement<never, NewSelection> =>
         new SelectStatement(
             //
-            null,
-            [AliasedRows(it)],
-            [],
-            null,
-            [],
-            false,
-            []
+            {
+                from: null,
+                selection: [AliasedRows(it)],
+                orderBy: [],
+                limit: null,
+                where: [],
+                distinct: false,
+                clickhouseWith: [],
+            }
         );
 
     private copy = (): SelectStatement<Scope, Selection> =>
-        new SelectStatement(
-            this.__from,
-            this.__selection,
-            this.__orderBy,
-            this.__limit,
-            this.__where,
-            this.__distinct,
-            this.__clickhouseWith
-        );
+        new SelectStatement({ ...this.__props });
 
     private setSelection = (
         selection: SelectionWrapperTypes<Selection>
     ): this => {
-        this.__selection = selection;
+        this.__props.selection = selection;
         return this;
     };
 
     private setWhere = (where: SafeString[]): this => {
-        this.__where = where;
+        this.__props.where = where;
         return this;
     };
 
     private setOrderBy = (orderBy: SafeString[]): this => {
-        this.__orderBy = orderBy;
+        this.__props.orderBy = orderBy;
         return this;
     };
     private setLimit = (limit: SafeString | number | null): this => {
-        this.__limit = limit;
+        this.__props.limit = limit;
         return this;
     };
     private setDistinct = (distinct: boolean): this => {
-        this.__distinct = distinct;
+        this.__props.distinct = distinct;
         return this;
     };
     private setClickhouseWith = (clickhouseWith: ClickhouseWith[]): this => {
-        this.__clickhouseWith = clickhouseWith;
+        this.__props.clickhouseWith = clickhouseWith;
         return this;
     };
 
@@ -131,7 +123,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             it: Record<NewSelection, SelectStatement<any, any>>
         ): SelectStatement<Scope | NewSelection, Selection> =>
             this.copy().setClickhouseWith([
-                ...this.__clickhouseWith,
+                ...this.__props.clickhouseWith,
                 it,
             ]) as any,
     };
@@ -157,7 +149,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
      * @since 0.0.0
      */
     public appendSelectStar = (): SelectStatement<Selection, Selection> =>
-        this.copy().setSelection([...this.__selection, StarSymbol()]);
+        this.copy().setSelection([...this.__props.selection, StarSymbol()]);
 
     /**
      * @since 0.0.0
@@ -169,7 +161,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<Scope, Selection | NewSelection> =>
         this.copy().setSelection([
-            ...(this.__selection as any),
+            ...(this.__props.selection as any),
             AliasedRows(f(proxy)),
         ]) as any;
 
@@ -181,7 +173,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
     ): SelectStatement<Scope, Selection> =>
-        this.copy().setWhere([...this.__where, ...makeArray(f(proxy))]);
+        this.copy().setWhere([...this.__props.where, ...makeArray(f(proxy))]);
 
     /**
      * @since 0.0.0
@@ -197,7 +189,10 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
     ): SelectStatement<Scope, Selection> =>
-        this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
+        this.copy().setOrderBy([
+            ...this.__props.orderBy,
+            ...makeArray(f(proxy)),
+        ]);
 
     /**
      * @since 0.0.0
@@ -230,7 +225,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             },
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
             },
         ]);
 
@@ -264,7 +259,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             [],
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
                 operator,
             }
         );

@@ -44,14 +44,14 @@ export const printCompoundInternal = <
     compound: Compound<Scope, Selection>,
     parenthesis: boolean
 ): PrintInternalRet => {
-    const sel = compound.__content
+    const sel = compound.__props.content
         .map((it) => printInternal(it, false).content)
-        .join(` ${compound.__qualifier} `);
+        .join(` ${compound.__props.qualifier} `);
 
     const q = [
         sel,
-        printOrderBy(compound.__orderBy),
-        printLimit(compound.__limit),
+        printOrderBy(compound.__props.orderBy),
+        printLimit(compound.__props.limit),
     ]
         .filter((it) => it.length > 0)
         .join(" ");
@@ -71,19 +71,23 @@ const printCteInternal = <Selection extends string, Alias extends string>(
     cte: CommonTableExpression<Selection, Alias>
 ): PrintInternalRet => {
     const cols =
-        cte.__columns.length > 0 ? `(${cte.__columns.join(", ")})` : ``;
-    const content = printInternal(cte.__select, false).content;
-    const with_ = `${cte.__alias}${cols} AS (${content})`;
-    return { content: cte.__alias, with_ };
+        cte.__props.columns.length > 0
+            ? `(${cte.__props.columns.join(", ")})`
+            : ``;
+    const content = printInternal(cte.__props.select, false).content;
+    const with_ = `${cte.__props.alias}${cols} AS (${content})`;
+    return { content: cte.__props.alias, with_ };
 };
 
 const printTableInternal = <Selection extends string, Alias extends string>(
     table: Table<Selection, Alias>
 ): PrintInternalRet => {
-    if (table.__name === table.__alias) {
-        return { content: table.__name };
+    if (table.__props.name === table.__props.alias) {
+        return { content: table.__props.name };
     }
-    return { content: `${table.__name} AS ${wrapAlias(table.__alias)}` };
+    return {
+        content: `${table.__props.name} AS ${wrapAlias(table.__props.alias)}`,
+    };
 };
 
 const printConstraint = (c: JoinConstraint): { on: string; using: string } => {
@@ -125,11 +129,11 @@ const printJoinedInternal = <
 >(
     joined: Joined<Selection, Aliases, Ambiguous>
 ): PrintInternalRet => {
-    const head = joined.__commaJoins
+    const head = joined.__props.commaJoins
         .map((it) => printAliasedCode(it.code, it.alias))
         .join(", ");
 
-    const tail = joined.__properJoins
+    const tail = joined.__props.properJoins
         .map((it): string => {
             const { on, using } = printConstraint(it.constraint);
             return [
@@ -169,7 +173,7 @@ export const printSelectStatementInternal = <
     selectStatement: SelectStatement<Scope, Selection>,
     parenthesis: boolean
 ): PrintInternalRet => {
-    const sel = selectStatement.__selection
+    const sel = selectStatement.__props.selection
         .map((it) => {
             if (isStarSymbol(it)) {
                 return ["*"];
@@ -191,31 +195,33 @@ export const printSelectStatementInternal = <
         .join(", ");
 
     const where =
-        selectStatement.__where.length > 0
-            ? `WHERE ${selectStatement.__where
+        selectStatement.__props.where.length > 0
+            ? `WHERE ${selectStatement.__props.where
                   .map((it) => it.content)
                   .join(" AND ")}`
             : "";
 
     const from =
-        selectStatement.__from != null
-            ? `FROM ${printInternal(selectStatement.__from, true).content}`
+        selectStatement.__props.from != null
+            ? `FROM ${
+                  printInternal(selectStatement.__props.from, true).content
+              }`
             : "";
 
     const withFromCte =
-        selectStatement.__from != null
-            ? printInternal(selectStatement.__from, true).with_ ?? ""
+        selectStatement.__props.from != null
+            ? printInternal(selectStatement.__props.from, true).with_ ?? ""
             : "";
 
     const doesSelectMainAlias = sel.includes("main_alias");
 
     const main_alias = doesSelectMainAlias ? "AS main_alias" : "";
 
-    const distinct = selectStatement.__distinct ? "DISTINCT" : "";
+    const distinct = selectStatement.__props.distinct ? "DISTINCT" : "";
 
     const clickhouseWith =
-        selectStatement.__clickhouseWith.length > 0
-            ? printClickhouseWith(selectStatement.__clickhouseWith)
+        selectStatement.__props.clickhouseWith.length > 0
+            ? printClickhouseWith(selectStatement.__props.clickhouseWith)
             : ``;
     const withKeyword =
         withFromCte.length > 0 || clickhouseWith.length > 0 ? "WITH" : "";
@@ -230,8 +236,8 @@ export const printSelectStatementInternal = <
         from,
         main_alias,
         where,
-        printOrderBy(selectStatement.__orderBy),
-        printLimit(selectStatement.__limit),
+        printOrderBy(selectStatement.__props.orderBy),
+        printLimit(selectStatement.__props.limit),
     ]
         .filter((it) => it.length > 0)
         .join(" ");

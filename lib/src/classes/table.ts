@@ -28,11 +28,11 @@ export class Table<Selection extends string, Alias extends string> {
     /* @internal */
     private constructor(
         /* @internal */
-        public __columns: string[],
-        /* @internal */
-        public __alias: string,
-        /* @internal */
-        public __name: string
+        public __props: {
+            columns: string[];
+            alias: string;
+            name: string;
+        }
     ) {}
 
     /*  @internal */
@@ -40,7 +40,7 @@ export class Table<Selection extends string, Alias extends string> {
         columns: Selection[],
         alias: Alias,
         name: string = alias
-    ): Table<Selection, Alias> => new Table(columns, alias, name);
+    ): Table<Selection, Alias> => new Table({ columns, alias, name });
 
     /**
      * @since 0.0.0
@@ -77,11 +77,11 @@ export class Table<Selection extends string, Alias extends string> {
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__alias,
+                alias: this.__props.alias,
             },
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
             },
         ]);
 
@@ -104,13 +104,13 @@ export class Table<Selection extends string, Alias extends string> {
             [
                 {
                     code: this,
-                    alias: this.__alias,
+                    alias: this.__props.alias,
                 },
             ],
             [],
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
                 operator,
             }
         );
@@ -136,7 +136,7 @@ export class Table<Selection extends string, Alias extends string> {
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__alias,
+                alias: this.__props.alias,
             },
             {
                 code: select,
@@ -168,7 +168,7 @@ export class Table<Selection extends string, Alias extends string> {
             [
                 {
                     code: this,
-                    alias: this.__alias,
+                    alias: this.__props.alias,
                 },
             ],
             [],
@@ -199,7 +199,7 @@ export class Table<Selection extends string, Alias extends string> {
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__alias,
+                alias: this.__props.alias,
             },
             {
                 code: compound,
@@ -227,7 +227,7 @@ export class Table<Selection extends string, Alias extends string> {
             [
                 {
                     code: this,
-                    alias: this.__alias,
+                    alias: this.__props.alias,
                 },
             ],
             [],

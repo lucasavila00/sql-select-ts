@@ -52,11 +52,11 @@ export class JoinedFactory<
     /* @internal */
     private constructor(
         /* @internal */
-        public __commaJoins: CommaJoin,
-        /* @internal */
-        public __properJoins: ProperJoin,
-        /* @internal */
-        public __newProperJoin: Omit<ProperJoinItem, "constraint">
+        public __props: {
+            commaJoins: CommaJoin;
+            properJoins: ProperJoin;
+            newProperJoin: Omit<ProperJoinItem, "constraint">;
+        }
     ) {}
 
     /* @internal */
@@ -65,15 +65,18 @@ export class JoinedFactory<
         properJoins: ProperJoin,
         newProperJoin: Omit<ProperJoinItem, "constraint">
     ): JoinedFactory<any, any, any, any> =>
-        new JoinedFactory(commaJoins, properJoins, newProperJoin);
+        new JoinedFactory({ commaJoins, properJoins, newProperJoin });
 
     /**
      * @since 0.0.0
      */
     public noConstraint = (): Joined<Selection, Aliases, Ambiguous> =>
-        Joined.__fromAll(this.__commaJoins, [
-            ...this.__properJoins,
-            { ...this.__newProperJoin, constraint: { _tag: "no_constraint" } },
+        Joined.__fromAll(this.__props.commaJoins, [
+            ...this.__props.properJoins,
+            {
+                ...this.__props.newProperJoin,
+                constraint: { _tag: "no_constraint" },
+            },
         ]);
 
     /**
@@ -82,10 +85,10 @@ export class JoinedFactory<
     public on = (
         on: (fields: Record<Selection, SafeString>) => SafeString | SafeString[]
     ): Joined<Selection, Aliases, Ambiguous> =>
-        Joined.__fromAll(this.__commaJoins, [
-            ...this.__properJoins,
+        Joined.__fromAll(this.__props.commaJoins, [
+            ...this.__props.properJoins,
             {
-                ...this.__newProperJoin,
+                ...this.__props.newProperJoin,
                 constraint: { _tag: "on", on: makeNonEmptyArray(on(proxy)) },
             },
         ]);
@@ -96,10 +99,10 @@ export class JoinedFactory<
     public using = (
         keys: UsingPossibleKeys[]
     ): Joined<Selection, Aliases, Ambiguous> =>
-        Joined.__fromAll(this.__commaJoins, [
-            ...this.__properJoins,
+        Joined.__fromAll(this.__props.commaJoins, [
+            ...this.__props.properJoins,
             {
-                ...this.__newProperJoin,
+                ...this.__props.newProperJoin,
                 constraint: { _tag: "using", keys },
             },
         ]);
@@ -119,21 +122,22 @@ export class Joined<
 > {
     private constructor(
         /* @internal */
-        public __commaJoins: CommaJoin,
-        /* @internal */
-        public __properJoins: ProperJoin
+        public __props: {
+            commaJoins: CommaJoin;
+            properJoins: ProperJoin;
+        }
     ) {}
 
     /* @internal */
     public static __fromCommaJoin = (
         commaJoins: CommaJoin
-    ): Joined<any, any, any> => new Joined(commaJoins, []);
+    ): Joined<any, any, any> => new Joined({ commaJoins, properJoins: [] });
 
     /* @internal */
     public static __fromAll = (
         commaJoins: CommaJoin,
         properJoins: ProperJoin
-    ): Joined<any, any, any> => new Joined(commaJoins, properJoins);
+    ): Joined<any, any, any> => new Joined({ commaJoins, properJoins });
 
     /**
      * @since 0.0.0
@@ -179,13 +183,13 @@ export class Joined<
     > =>
         Joined.__fromAll(
             [
-                ...this.__commaJoins,
+                ...this.__props.commaJoins,
                 {
                     code: table,
-                    alias: table.__alias,
+                    alias: table.__props.alias,
                 },
             ],
-            this.__properJoins
+            this.__props.properJoins
         );
 
     /**
@@ -204,11 +208,11 @@ export class Joined<
     > =>
         JoinedFactory.__fromAll(
             //
-            this.__commaJoins,
-            this.__properJoins,
+            this.__props.commaJoins,
+            this.__props.properJoins,
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
                 operator,
             }
         );
@@ -232,13 +236,13 @@ export class Joined<
     > =>
         Joined.__fromAll(
             [
-                ...this.__commaJoins,
+                ...this.__props.commaJoins,
                 {
                     code: select,
                     alias: alias,
                 },
             ],
-            this.__properJoins
+            this.__props.properJoins
         );
 
     /**
@@ -260,11 +264,15 @@ export class Joined<
         Ambiguous | Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
-        JoinedFactory.__fromAll(this.__commaJoins, this.__properJoins, {
-            code: table,
-            alias: alias,
-            operator,
-        });
+        JoinedFactory.__fromAll(
+            this.__props.commaJoins,
+            this.__props.properJoins,
+            {
+                code: table,
+                alias: alias,
+                operator,
+            }
+        );
 
     /**
      * @since 0.0.0
@@ -285,13 +293,13 @@ export class Joined<
     > =>
         Joined.__fromAll(
             [
-                ...this.__commaJoins,
+                ...this.__props.commaJoins,
                 {
                     code: compound,
                     alias: alias,
                 },
             ],
-            this.__properJoins
+            this.__props.properJoins
         );
 
     /**
@@ -313,9 +321,13 @@ export class Joined<
         Ambiguous | Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
-        JoinedFactory.__fromAll(this.__commaJoins, this.__properJoins, {
-            code: compound,
-            alias: alias,
-            operator,
-        });
+        JoinedFactory.__fromAll(
+            this.__props.commaJoins,
+            this.__props.properJoins,
+            {
+                code: compound,
+                alias: alias,
+                operator,
+            }
+        );
 }

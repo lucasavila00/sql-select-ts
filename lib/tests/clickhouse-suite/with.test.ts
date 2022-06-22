@@ -1,4 +1,4 @@
-import { fromNothing } from "../../src";
+import { fromNothing, table } from "../../src";
 import { sql } from "../../src/safe-string";
 import ClickHouse from "@apla/clickhouse";
 
@@ -15,9 +15,11 @@ export const run = async (it: string): Promise<any[]> => {
 };
 
 describe("clickhouse with", () => {
+    const t0 = table(["x", "y"], "t0_clickhouse");
+
     beforeAll(async () => {
         await run(
-            `CREATE TABLE IF NOT EXISTS t0(x Int64, y Int64) ENGINE = Memory;`
+            `CREATE TABLE IF NOT EXISTS t0_clickhouse(x Int64, y Int64) ENGINE = Memory;`
         );
     });
 
@@ -55,5 +57,18 @@ describe("clickhouse with", () => {
               ],
             ]
         `);
+    });
+
+    it("works with table", async () => {
+        const q = t0
+            .selectStar()
+            .clickhouse.with_({
+                abc: fromNothing({ n: sql(20) }),
+            })
+            .print();
+        expect(q).toMatchInlineSnapshot(
+            `"WITH (SELECT 20 AS n) AS abc SELECT * FROM t0_clickhouse"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 });

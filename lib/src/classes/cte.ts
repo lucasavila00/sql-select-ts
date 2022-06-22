@@ -17,11 +17,11 @@ export class CommonTableExpression<
     /* @internal */
     private constructor(
         /* @internal */
-        public __columns: string[],
-        /* @internal */
-        public __alias: string,
-        /* @internal */
-        public __select: SelectStatement<any, any>
+        public __props: {
+            columns: string[];
+            alias: string;
+            select: SelectStatement<any, any>;
+        }
     ) {}
 
     /*  @internal */
@@ -30,7 +30,7 @@ export class CommonTableExpression<
         alias: Alias,
         columns: Selection[] = []
     ): CommonTableExpression<Selection, Alias> =>
-        new CommonTableExpression(columns, alias, select);
+        new CommonTableExpression({ columns, alias, select });
 
     /**
      * @since 0.0.0

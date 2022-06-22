@@ -32,13 +32,12 @@ export class Compound<Scope extends string, Selection extends string> {
     /* @internal */
     private constructor(
         /* @internal */
-        public __content: TableOrSubquery<any, any, any, any>[],
-        /* @internal */
-        public __qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT",
-        /* @internal */
-        public __orderBy: SafeString[],
-        /* @internal */
-        public __limit: SafeString | number | null
+        public __props: {
+            content: TableOrSubquery<any, any, any, any>[];
+            qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
+            orderBy: SafeString[];
+            limit: SafeString | number | null;
+        }
     ) {}
 
     /**
@@ -52,7 +51,8 @@ export class Compound<Scope extends string, Selection extends string> {
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
-    > => new Compound(content, "UNION", [], null);
+    > =>
+        new Compound({ content, qualifier: "UNION", orderBy: [], limit: null });
 
     /**
      * @internal
@@ -65,22 +65,23 @@ export class Compound<Scope extends string, Selection extends string> {
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
-    > => new Compound(content, "UNION ALL", [], null);
+    > =>
+        new Compound({
+            content,
+            qualifier: "UNION ALL",
+            orderBy: [],
+            limit: null,
+        });
 
     private copy = (): Compound<Scope, Selection> =>
-        new Compound(
-            this.__content,
-            this.__qualifier,
-            this.__orderBy,
-            this.__limit
-        );
+        new Compound({ ...this.__props });
 
     private setOrderBy = (orderBy: SafeString[]): this => {
-        this.__orderBy = orderBy;
+        this.__props.orderBy = orderBy;
         return this;
     };
     private setLimit = (limit: SafeString | number | null): this => {
-        this.__limit = limit;
+        this.__props.limit = limit;
         return this;
     };
 
@@ -92,7 +93,10 @@ export class Compound<Scope extends string, Selection extends string> {
             fields: Record<Scope | Selection, SafeString>
         ) => SafeString[] | SafeString
     ): Compound<Scope, Selection> =>
-        this.copy().setOrderBy([...this.__orderBy, ...makeArray(f(proxy))]);
+        this.copy().setOrderBy([
+            ...this.__props.orderBy,
+            ...makeArray(f(proxy)),
+        ]);
 
     /**
      * @since 0.0.0
@@ -147,7 +151,7 @@ export class Compound<Scope extends string, Selection extends string> {
             [],
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
                 operator,
             }
         );
@@ -176,7 +180,7 @@ export class Compound<Scope extends string, Selection extends string> {
             },
             {
                 code: table,
-                alias: table.__alias,
+                alias: table.__props.alias,
             },
         ]);
 
