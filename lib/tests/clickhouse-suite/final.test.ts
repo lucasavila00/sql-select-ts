@@ -18,6 +18,7 @@ describe("clickhouse final", () => {
     const t1c = table(["x", "y"], "t1c", "t1_clickhouse").clickhouse.final();
 
     beforeAll(async () => {
+        await run(`DROP TABLE IF EXISTS t1_clickhouse`);
         await run(
             `CREATE TABLE IF NOT EXISTS t1_clickhouse(x Int64, y Int64) ENGINE = AggregatingMergeTree() ORDER BY y`
         );

@@ -17,8 +17,9 @@ describe("clickhouse prewhere", () => {
     const t1 = table(["x", "y"], "t2_clickhouse");
 
     beforeAll(async () => {
+        await run(`DROP TABLE IF EXISTS t2_clickhouse`);
         await run(
-            `CREATE TABLE IF NOT EXISTS t2_clickhouse(x UInt8, y UInt8) ENGINE = Memory`
+            `CREATE TABLE IF NOT EXISTS t2_clickhouse(x UInt8, y UInt8) ENGINE = AggregatingMergeTree() ORDER BY y`
         );
     });
 

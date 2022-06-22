@@ -18,6 +18,7 @@ describe("clickhouse with", () => {
     const t0 = table(["x", "y"], "t0_clickhouse");
 
     beforeAll(async () => {
+        await run(`DROP TABLE IF EXISTS t0_clickhouse`);
         await run(
             `CREATE TABLE IF NOT EXISTS t0_clickhouse(x Int64, y Int64) ENGINE = Memory`
         );
