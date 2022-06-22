@@ -3,6 +3,11 @@ on: [push]
 jobs:
     tests:
         runs-on: ubuntu-20.04
+        services:
+            clickhouse:
+                image: clickhouse/clickhouse-server:22.3.7.28
+        ports:
+            - 8124:8123
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v3
