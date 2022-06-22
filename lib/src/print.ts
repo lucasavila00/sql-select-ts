@@ -1,4 +1,5 @@
 import { Compound } from "./classes/compound";
+import { CommonTableExpression } from "./classes/cte";
 import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
@@ -42,9 +43,9 @@ export const printCompoundInternal = <
 >(
     compound: Compound<Scope, Selection>,
     parenthesis: boolean
-): string => {
+): PrintInternalRet => {
     const sel = compound.__content
-        .map((it) => printInternal(it, false))
+        .map((it) => printInternal(it, false).content)
         .join(` ${compound.__qualifier} `);
 
     const q = [
@@ -56,17 +57,33 @@ export const printCompoundInternal = <
         .join(" ");
 
     if (parenthesis) {
-        return `(${q})`;
+        return { content: `(${q})` };
     }
-    return q;
+    return { content: q };
 };
+
+type PrintInternalRet = {
+    content: string;
+    with_?: string;
+};
+
+const printCteInternal = <Selection extends string, Alias extends string>(
+    cte: CommonTableExpression<Selection, Alias>
+): PrintInternalRet => {
+    const cols =
+        cte.__columns.length > 0 ? `(${cte.__columns.join(", ")})` : ``;
+    const content = printInternal(cte.__select, false).content;
+    const with_ = `${cte.__alias}${cols} AS (${content})`;
+    return { content: cte.__alias, with_ };
+};
+
 const printTableInternal = <Selection extends string, Alias extends string>(
     table: Table<Selection, Alias>
-): string => {
+): PrintInternalRet => {
     if (table.__name === table.__alias) {
-        return table.__name;
+        return { content: table.__name };
     }
-    return `${table.__name} AS ${wrapAlias(table.__alias)}`;
+    return { content: `${table.__name} AS ${wrapAlias(table.__alias)}` };
 };
 
 const printConstraint = (c: JoinConstraint): { on: string; using: string } => {
@@ -95,7 +112,7 @@ const printAliasedCode = (
     code: TableOrSubquery<any, any, any, any>,
     alias: string
 ): string => {
-    const str = printInternal(code, true);
+    const str = printInternal(code, true).content;
     if (code instanceof Table) {
         return str;
     }
@@ -107,7 +124,7 @@ const printJoinedInternal = <
     Ambiguous extends string
 >(
     joined: Joined<Selection, Aliases, Ambiguous>
-): string => {
+): PrintInternalRet => {
     const head = joined.__commaJoins
         .map((it) => printAliasedCode(it.code, it.alias))
         .join(", ");
@@ -127,7 +144,10 @@ const printJoinedInternal = <
         })
         .join(" ");
 
-    return [head, tail].filter((it) => it.length > 0).join(" ");
+    const content = [head, tail].filter((it) => it.length > 0).join(" ");
+    return {
+        content,
+    };
 };
 
 export const printSelectStatementInternal = <
@@ -136,7 +156,7 @@ export const printSelectStatementInternal = <
 >(
     selectStatement: SelectStatement<Scope, Selection>,
     parenthesis: boolean
-): string => {
+): PrintInternalRet => {
     const sel = selectStatement.__selection
         .map((it) => {
             if (isStarSymbol(it)) {
@@ -167,7 +187,13 @@ export const printSelectStatementInternal = <
 
     const from =
         selectStatement.__from != null
-            ? `FROM ${printInternal(selectStatement.__from, true)}`
+            ? `FROM ${printInternal(selectStatement.__from, true).content}`
+            : "";
+
+    const with_ =
+        selectStatement.__from != null &&
+        printInternal(selectStatement.__from, true).with_ != null
+            ? `WITH ${printInternal(selectStatement.__from, true).with_}`
             : "";
 
     const doesSelectMainAlias = sel.includes("main_alias");
@@ -176,7 +202,8 @@ export const printSelectStatementInternal = <
 
     const distinct = selectStatement.__distinct ? "DISTINCT" : "";
 
-    const content = [
+    const contentNoParenthesis = [
+        with_,
         "SELECT",
         distinct,
         sel,
@@ -189,13 +216,18 @@ export const printSelectStatementInternal = <
         .filter((it) => it.length > 0)
         .join(" ");
 
-    return parenthesis ? `(${content})` : content;
+    const content = parenthesis
+        ? `(${contentNoParenthesis})`
+        : contentNoParenthesis;
+    return {
+        content,
+    };
 };
 
 const printInternal = (
     it: TableOrSubquery<any, any, any, any>,
     parenthesis: boolean
-): string => {
+): PrintInternalRet => {
     if (it instanceof SelectStatement) {
         return printSelectStatementInternal(it, parenthesis);
     }
@@ -208,6 +240,9 @@ const printInternal = (
     if (it instanceof Compound) {
         return printCompoundInternal(it, parenthesis);
     }
+    if (it instanceof CommonTableExpression) {
+        return printCteInternal(it);
+    }
     /* istanbul ignore next */
     return absurd(it);
 };
@@ -217,8 +252,8 @@ export const printSelectStatement = <
     Selection extends string
 >(
     it: SelectStatement<Scope, Selection>
-): string => printSelectStatementInternal(it, false) + ";";
+): string => printSelectStatementInternal(it, false).content + ";";
 
 export const printCompound = <Scope extends string, Selection extends string>(
     it: Compound<Scope, Selection>
-): string => printCompoundInternal(it, false) + ";";
+): string => printCompoundInternal(it, false).content + ";";

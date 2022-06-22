@@ -1,4 +1,4 @@
-import { fromNothing, table } from "../../src";
+import { table, with_ } from "../../src";
 import { sql } from "../../src/safe-string";
 import { configureSqlite } from "../utils";
 
@@ -14,16 +14,95 @@ describe("sqlite with", () => {
     });
 
     it("with1-1.0", async () => {
-        t0.selectStar();
+        const q = with_(
+            //
+            t0.selectStar(),
+            "x",
+            ["a", "b"]
+        )
+            .select((_f) => ({ it: sql(10) }))
+            .print();
 
-        const q = fromNothing({ it: sql(10) }).print();
-        expect(q).toMatchInlineSnapshot(`"SELECT 10 AS it;"`);
-        expect(await run(q)).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "it": 10,
-              },
-            ]
-        `);
+        expect(q).toMatchInlineSnapshot(
+            `"WITH x(a, b) AS (SELECT * FROM t0) SELECT 10 AS it FROM x;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("with1-1.0 -- no columns", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "x",
+            []
+        )
+            .select((_f) => ({ it: sql(10) }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"WITH x AS (SELECT * FROM t0) SELECT 10 AS it FROM x;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("with1-1.0 -- no columns2", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "x"
+        )
+            .select((_f) => ({ it: sql(10) }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"WITH x AS (SELECT * FROM t0) SELECT 10 AS it FROM x;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("with1-1.0 -- use alias", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "x",
+            ["a", "b"]
+        )
+            .select((f) => ({ it: f.a }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"WITH x(a, b) AS (SELECT * FROM t0) SELECT a AS it FROM x;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("with1-1.0 -- use alias2", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "x",
+            ["a", "b"]
+        )
+            .select((f) => ({ it: f["x.a"] }))
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"WITH x(a, b) AS (SELECT * FROM t0) SELECT x.a AS it FROM x;"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("with1-1.1", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "x",
+            ["a", "b"]
+        )
+            .select((_f) => ({ it: sql(10) }))
+            .selectStar()
+            .print();
+
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT * FROM (WITH x(a, b) AS (SELECT * FROM t0) SELECT 10 AS it FROM x);"`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 });

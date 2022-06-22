@@ -4,6 +4,7 @@
  * @since 0.0.0
  */
 import { Compound } from "./classes/compound";
+import { CommonTableExpression } from "./classes/cte";
 import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
@@ -17,6 +18,7 @@ export type TableOrSubquery<
 > =
     | SelectStatement<Scope, Selection>
     | Table<Alias, Selection>
+    | CommonTableExpression<Alias, Selection>
     | Joined<Ambiguous, Alias, Selection>
     | Compound<Scope, Selection>;
 

@@ -5,6 +5,7 @@
  */
 
 import { Compound } from "./classes/compound";
+import { CommonTableExpression } from "./classes/cte";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 // import renaming, then re-export to make sure docs-ts can run the inline tests
@@ -31,6 +32,13 @@ import {
  * @since 0.0.0
  */
 export const table = Table.define;
+
+/**
+ *
+ * @category starter
+ * @since 0.0.0
+ */
+export const with_ = CommonTableExpression.define;
 
 /**
  *
