@@ -6,8 +6,8 @@ jobs:
         services:
             clickhouse:
                 image: clickhouse/clickhouse-server:22.3.7.28
-        ports:
-            - 8124:8123
+                ports:
+                    - 8124:8123
         steps:
             - name: Checkout 🛎️
               uses: actions/checkout@v3
