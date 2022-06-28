@@ -77,6 +77,7 @@ export class Table<Selection extends string, Alias extends string> {
      * @since 0.0.0
      */
     public selectStar = (): SelectStatement<
+        // TODO main_alias here?
         Selection | `main_alias.${Selection}`,
         Selection
     > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);

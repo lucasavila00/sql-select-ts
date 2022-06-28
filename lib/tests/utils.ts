@@ -39,18 +39,16 @@ export const configureClickhouse = (): {
         user: "default",
         password: "",
     });
-    const run = async (q: string): Promise<any[]> => {
-        const result = await db.querying(q);
-        return result.data;
-    };
 
-    const fail = async (q: string): Promise<string> => {
-        return db
+    const run = async (q: string): Promise<any[]> =>
+        db.querying(q).then((it) => it.data);
+
+    const fail = async (q: string): Promise<string> =>
+        db
             .querying(q)
             .then((r) => r.data)
             .then((r) => Promise.reject(`Expected error, got ${r}`))
             .catch((e) => String(e));
-    };
 
     return {
         db,
