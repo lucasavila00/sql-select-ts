@@ -34,7 +34,7 @@ users
     >const name = &quot;Lucas&quot;; users .selectStar() .where( (f) =&gt;
     sql\`\${f.name} = \${name}\` ) .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users WHERE name =
+    ># formatted by sql-formatter SELECT * FROM \`users\` WHERE name =
     'Lucas'</Fence
   ><HeadingGrommet id="two-clauses" originalNodeName="h1"
     >Two Clauses</HeadingGrommet
@@ -53,7 +53,7 @@ users
     >const name = &quot;Lucas&quot;; users .selectStar() .where((f) =&gt; [
     sql\`\${f.name} = \${name}\`, sql\`\${f.id} = 5\`, ]) .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users WHERE name = 'Lucas' AND
+    ># formatted by sql-formatter SELECT * FROM \`users\` WHERE name = 'Lucas' AND
     id = 5</Fence
   ><HeadingGrommet id="two-calls" originalNodeName="h2"
     >Two calls</HeadingGrommet
@@ -71,7 +71,7 @@ users
     >const id = 5; users .selectStar() .where( (f) =&gt; sql\`\${f.name} =
     'Lucas'\` ) .where((f) =&gt; sql\`\${f.id} = \${id}\`) .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users WHERE name = 'Lucas' AND
+    ># formatted by sql-formatter SELECT * FROM \`users\` WHERE name = 'Lucas' AND
     id = 5</Fence
   >
 </article>

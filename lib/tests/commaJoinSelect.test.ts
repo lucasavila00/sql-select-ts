@@ -1,4 +1,6 @@
 import { table, unionAll } from "../src";
+import { addSimpleStringSerializer } from "./utils";
+addSimpleStringSerializer();
 
 describe("commaJoinSelect", () => {
     const t1 = table(["a", "b", "c"], "t1");
@@ -28,7 +30,7 @@ describe("commaJoinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1, (SELECT * FROM t2) AS t2"`
+            `SELECT * FROM \`t1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
     });
 
@@ -38,7 +40,7 @@ describe("commaJoinSelect", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, t1.c AS z FROM t1, (SELECT * FROM t2) AS t2"`
+            `SELECT a AS \`x\`, d AS \`y\`, t1.c AS \`z\` FROM \`t1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
     });
 
@@ -53,7 +55,7 @@ describe("commaJoinSelect", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, c AS z FROM t1, (SELECT * FROM t2) AS t2"`
+            `SELECT a AS \`x\`, d AS \`y\`, c AS \`z\` FROM \`t1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
     });
 
@@ -64,7 +66,7 @@ describe("commaJoinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS t1, (SELECT * FROM t2) AS t2"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`t1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
     });
 
@@ -76,7 +78,7 @@ describe("commaJoinSelect", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, q1.c AS z FROM (SELECT * FROM t1) AS q1, (SELECT * FROM t2) AS t2"`
+            `SELECT a AS \`x\`, d AS \`y\`, q1.c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
     });
 
@@ -93,7 +95,7 @@ describe("commaJoinSelect", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, c AS z FROM (SELECT * FROM t1) AS q1, (SELECT * FROM t2) AS t2"`
+            `SELECT a AS \`x\`, d AS \`y\`, c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
     });
 
@@ -105,7 +107,7 @@ describe("commaJoinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1, (SELECT * FROM t3) AS q3 NATURAL JOIN t2"`
+            `SELECT * FROM \`t1\`, (SELECT * FROM \`t3\`) AS \`q3\` NATURAL JOIN \`t2\``
         );
     });
 
@@ -117,7 +119,7 @@ describe("commaJoinSelect", () => {
             .select((f) => ({ x: f.a, y: f.e, d: f["t2.d"], d2: f["t3.d"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, e AS y, t2.d AS d, t3.d AS d2 FROM t1, (SELECT * FROM t3) AS t3 NATURAL JOIN t2"`
+            `SELECT a AS \`x\`, e AS \`y\`, t2.d AS \`d\`, t3.d AS \`d2\` FROM \`t1\`, (SELECT * FROM \`t3\`) AS \`t3\` NATURAL JOIN \`t2\``
         );
     });
 
@@ -127,7 +129,7 @@ describe("commaJoinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1, (SELECT * FROM t3) AS t3"`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\`, (SELECT * FROM \`t3\`) AS \`t3\``
         );
     });
 
@@ -141,7 +143,7 @@ describe("commaJoinSelect", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS e FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1, (SELECT * FROM t3) AS t3"`
+            `SELECT a AS \`x\`, d AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\`, (SELECT * FROM \`t3\`) AS \`t3\``
         );
     });
 
@@ -156,7 +158,7 @@ describe("commaJoinSelect", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT c AS x FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1, (SELECT * FROM t3) AS t3"`
+            `SELECT c AS \`x\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\`, (SELECT * FROM \`t3\`) AS \`t3\``
         );
     });
 });

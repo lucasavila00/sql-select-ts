@@ -1,5 +1,7 @@
 import { table } from "../../src";
 import { configureClickhouse } from "../utils";
+import { addSimpleStringSerializer } from "../utils";
+addSimpleStringSerializer();
 
 describe("clickhouse prewhere", () => {
     const t1 = table(["x", "y"], "t2_clickhouse");
@@ -18,7 +20,7 @@ describe("clickhouse prewhere", () => {
             .clickhouse.prewhere((f) => f.x)
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t2_clickhouse PREWHERE x"`
+            `SELECT * FROM \`t2_clickhouse\` PREWHERE x`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -28,7 +30,7 @@ describe("clickhouse prewhere", () => {
             .clickhouse.prewhere((f) => f.cond)
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT y AS cond FROM t2_clickhouse PREWHERE cond"`
+            `SELECT y AS \`cond\` FROM \`t2_clickhouse\` PREWHERE cond`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -40,7 +42,7 @@ describe("clickhouse prewhere", () => {
             .clickhouse.prewhere((f) => f.y)
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t2_clickhouse PREWHERE x AND y"`
+            `SELECT * FROM \`t2_clickhouse\` PREWHERE x AND y`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -51,7 +53,7 @@ describe("clickhouse prewhere", () => {
             .clickhouse.prewhere((f) => [f.x, f.y])
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t2_clickhouse PREWHERE x AND y"`
+            `SELECT * FROM \`t2_clickhouse\` PREWHERE x AND y`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -63,7 +65,7 @@ describe("clickhouse prewhere", () => {
             .where((f) => f.y)
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t2_clickhouse PREWHERE x WHERE y"`
+            `SELECT * FROM \`t2_clickhouse\` PREWHERE x WHERE y`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

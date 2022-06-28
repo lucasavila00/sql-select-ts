@@ -1,5 +1,7 @@
 import { table } from "../../src";
 import { configureSqlite } from "../utils";
+import { addSimpleStringSerializer } from "../utils";
+addSimpleStringSerializer();
 
 describe("sqlite group by", () => {
     const t0 = table(["x", "y"], "t0");
@@ -16,7 +18,7 @@ describe("sqlite group by", () => {
             .groupBy((f) => f.x)
             .stringify();
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 GROUP BY x"`);
+        expect(q).toMatchInlineSnapshot(`SELECT * FROM \`t0\` GROUP BY x`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
@@ -26,7 +28,9 @@ describe("sqlite group by", () => {
             .groupBy((f) => f.x)
             .stringify();
 
-        expect(q).toMatchInlineSnapshot(`"SELECT y AS it FROM t0 GROUP BY x"`);
+        expect(q).toMatchInlineSnapshot(
+            `SELECT y AS \`it\` FROM \`t0\` GROUP BY x`
+        );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
@@ -37,7 +41,7 @@ describe("sqlite group by", () => {
             .groupBy((f) => f.y)
             .stringify();
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 GROUP BY x, y"`);
+        expect(q).toMatchInlineSnapshot(`SELECT * FROM \`t0\` GROUP BY x, y`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("2 items, one call", async () => {
@@ -46,7 +50,7 @@ describe("sqlite group by", () => {
             .groupBy((f) => [f.x, f.y])
             .stringify();
 
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 GROUP BY x, y"`);
+        expect(q).toMatchInlineSnapshot(`SELECT * FROM \`t0\` GROUP BY x, y`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 });

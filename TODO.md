@@ -1,7 +1,3 @@
-# LIB
-
--   [ ] escape identifier/alias
-
 # DOCS
 
 -   [ ] make docs-ts example a requirement

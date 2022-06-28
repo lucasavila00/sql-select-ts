@@ -1,5 +1,7 @@
 import { table } from "../../src";
 import { configureClickhouse } from "../utils";
+import { addSimpleStringSerializer } from "../utils";
+addSimpleStringSerializer();
 
 describe("clickhouse final", () => {
     const t1 = table(["x", "y"], "t1_clickhouse").clickhouse.final();
@@ -15,7 +17,9 @@ describe("clickhouse final", () => {
 
     it("no alias", async () => {
         const q = t1.selectStar().stringify();
-        expect(q).toMatchInlineSnapshot(`"SELECT * FROM t1_clickhouse FINAL"`);
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM \`t1_clickhouse\` FINAL`
+        );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("no alias -- select", async () => {
@@ -23,21 +27,21 @@ describe("clickhouse final", () => {
             .select((f) => ({ it: f.x, y: f["t1_clickhouse.y"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT x AS it, t1_clickhouse.y AS y FROM t1_clickhouse FINAL"`
+            `SELECT x AS \`it\`, t1_clickhouse.y AS \`y\` FROM \`t1_clickhouse\` FINAL`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with alias", async () => {
         const q = t1c.selectStar().stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1_clickhouse AS t1c FINAL"`
+            `SELECT * FROM \`t1_clickhouse\` AS \`t1c\` FINAL`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with alias -- select", async () => {
         const q = t1c.select((f) => ({ it: f.x, y: f["t1c.y"] })).stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT x AS it, t1c.y AS y FROM t1_clickhouse AS t1c FINAL"`
+            `SELECT x AS \`it\`, t1c.y AS \`y\` FROM \`t1_clickhouse\` AS \`t1c\` FINAL`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

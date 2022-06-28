@@ -1,6 +1,8 @@
 import { fromNothing, table } from "../../src";
 import { sql } from "../../src/safe-string";
 import { configureClickhouse } from "../utils";
+import { addSimpleStringSerializer } from "../utils";
+addSimpleStringSerializer();
 
 describe("clickhouse with", () => {
     const t0 = table(["x", "y"], "t0_clickhouse");
@@ -20,7 +22,7 @@ describe("clickhouse with", () => {
             })
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"WITH (SELECT 20 AS it) AS wont_use SELECT 10 AS it"`
+            `WITH (SELECT 20 AS \`it\`) AS \`wont_use\` SELECT 10 AS \`it\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -38,7 +40,7 @@ describe("clickhouse with", () => {
             .appendSelect((f) => ({ it: f.abc }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"WITH (SELECT 20 AS n) AS abc SELECT abc AS it"`
+            `WITH (SELECT 20 AS \`n\`) AS \`abc\` SELECT abc AS \`it\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -57,7 +59,7 @@ describe("clickhouse with", () => {
             })
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"WITH (SELECT 20 AS n) AS abc SELECT * FROM t0_clickhouse"`
+            `WITH (SELECT 20 AS \`n\`) AS \`abc\` SELECT * FROM \`t0_clickhouse\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

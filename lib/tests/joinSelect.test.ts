@@ -1,4 +1,6 @@
 import { SafeString, sql, table, unionAll } from "../src";
+import { addSimpleStringSerializer } from "./utils";
+addSimpleStringSerializer();
 
 const equals = (a: SafeString, b: SafeString) => sql`${a} = ${b}`;
 
@@ -31,7 +33,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 NATURAL JOIN (SELECT * FROM t2) AS q2"`
+            `SELECT * FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
 
@@ -42,7 +44,7 @@ describe("joinSelect", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, t1.c AS z FROM t1 NATURAL JOIN (SELECT * FROM t2) AS q2"`
+            `SELECT a AS \`x\`, d AS \`y\`, t1.c AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
 
@@ -58,7 +60,7 @@ describe("joinSelect", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, c AS z FROM t1 NATURAL JOIN (SELECT * FROM t2) AS q2"`
+            `SELECT a AS \`x\`, d AS \`y\`, c AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
 
@@ -69,7 +71,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) AS q2 ON a = d"`
+            `SELECT * FROM \`t1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` ON a = d`
         );
     });
 
@@ -80,7 +82,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) AS q2 ON t1.a = q2.d"`
+            `SELECT * FROM \`t1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` ON t1.a = q2.d`
         );
     });
 
@@ -91,7 +93,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) AS q2 USING(b)"`
+            `SELECT * FROM \`t1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` USING(\`b\`)`
         );
     });
 
@@ -102,7 +104,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t1 LEFT JOIN (SELECT * FROM t2) AS q2 USING(b)"`
+            `SELECT * FROM \`t1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` USING(\`b\`)`
         );
     });
 
@@ -113,7 +115,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
 
@@ -124,7 +126,7 @@ describe("joinSelect", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, q1.c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2"`
+            `SELECT a AS \`x\`, d AS \`y\`, q1.c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
 
@@ -140,7 +142,7 @@ describe("joinSelect", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2"`
+            `SELECT a AS \`x\`, d AS \`y\`, c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
 
@@ -151,7 +153,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 ON a = d"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` ON a = d`
         );
     });
 
@@ -162,7 +164,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 ON q1.a = q2.d"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` ON q1.a = q2.d`
         );
     });
     it("select -> select -- USING", async () => {
@@ -172,7 +174,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 USING(b)"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` USING(\`b\`)`
         );
     });
 
@@ -183,7 +185,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
 
@@ -196,7 +198,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
 
@@ -209,7 +211,7 @@ describe("joinSelect", () => {
             .select((f) => ({ x: f.a, y: f["q2.d"], z: f["q1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, q2.d AS y, q1.c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3"`
+            `SELECT a AS \`x\`, q2.d AS \`y\`, q1.c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
 
@@ -226,7 +228,7 @@ describe("joinSelect", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3"`
+            `SELECT a AS \`x\`, d AS \`y\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
 
@@ -239,7 +241,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 LEFT JOIN (SELECT * FROM t3) AS q3 ON a = q2.d"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\` ON a = q2.d`
         );
     });
 
@@ -252,7 +254,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN (SELECT * FROM t2) AS q2 LEFT JOIN (SELECT * FROM t3) AS q3 ON q1.a = q2.d"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\` ON q1.a = q2.d`
         );
     });
 
@@ -266,7 +268,7 @@ describe("joinSelect", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 LEFT JOIN (SELECT * FROM t3) AS q3 USING(d)"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\` USING(\`d\`)`
         );
     });
 
@@ -279,7 +281,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN (SELECT * FROM t2) AS q2 NATURAL JOIN (SELECT * FROM t3) AS q3"`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
 
@@ -290,7 +292,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u NATURAL JOIN (SELECT * FROM t3) AS q3"`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
 
@@ -301,7 +303,7 @@ describe("joinSelect", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["u.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, u.c AS z FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u NATURAL JOIN (SELECT * FROM t3) AS q3"`
+            `SELECT a AS \`x\`, d AS \`y\`, u.c AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
 
@@ -317,7 +319,7 @@ describe("joinSelect", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT a AS x, d AS y, c AS z FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u NATURAL JOIN (SELECT * FROM t3) AS q3"`
+            `SELECT a AS \`x\`, d AS \`y\`, c AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
     it("compound -> select -- ON", async () => {
@@ -327,7 +329,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3 ON a = d"`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\` ON a = d`
         );
     });
 
@@ -338,7 +340,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3 ON u.a = q3.d"`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\` ON u.a = q3.d`
         );
     });
     it("compound -> select -- USING", async () => {
@@ -348,7 +350,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3 USING(c)"`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\` USING(\`c\`)`
         );
     });
 
@@ -359,7 +361,7 @@ describe("joinSelect", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t2) AS u LEFT JOIN (SELECT * FROM t3) AS q3"`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
 });

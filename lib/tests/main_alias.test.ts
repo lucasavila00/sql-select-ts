@@ -1,5 +1,6 @@
 import { sql, table, unionAll } from "../src";
-import { configureSqlite } from "./utils";
+import { addSimpleStringSerializer, configureSqlite } from "./utils";
+addSimpleStringSerializer();
 
 describe("sqlite select1", () => {
     const test1 = table(["f1", "f2"], "test1");
@@ -17,7 +18,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT main_alias.f1 AS a FROM (SELECT * FROM test1 WHERE f1 < f2) AS main_alias"`
+            `SELECT main_alias.f1 AS \`a\` FROM (SELECT * FROM \`test1\` WHERE f1 < f2) AS main_alias`
         );
         await run(q);
     });
@@ -29,14 +30,16 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT *, main_alias.f1 AS a FROM test1 AS main_alias WHERE f1 < f2"`
+            `SELECT *, main_alias.f1 AS \`a\` FROM \`test1\` AS main_alias WHERE f1 < f2`
         );
         await run(q);
     });
     it("table", async () => {
         const q = test1.select((f) => ({ a: f["test1.f1"] })).stringify();
 
-        expect(q).toMatchInlineSnapshot(`"SELECT test1.f1 AS a FROM test1"`);
+        expect(q).toMatchInlineSnapshot(
+            `SELECT test1.f1 AS \`a\` FROM \`test1\``
+        );
         await run(q);
     });
     it("union", async () => {
@@ -50,7 +53,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT main_alias.f1 AS f1, f2 AS f2 FROM (SELECT * FROM (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2)) AS main_alias"`
+            `SELECT main_alias.f1 AS \`f1\`, f2 AS \`f2\` FROM (SELECT * FROM (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2)) AS main_alias`
         );
         await run(q);
     });
@@ -66,7 +69,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT main_alias.f1 AS f1, main_alias.f2 AS f2 FROM (SELECT * FROM (SELECT * FROM test1 WHERE f1 < f2 UNION ALL SELECT * FROM test1 WHERE f1 > f2 ORDER BY f1, f2)) AS main_alias"`
+            `SELECT main_alias.f1 AS \`f1\`, main_alias.f2 AS \`f2\` FROM (SELECT * FROM (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2)) AS main_alias`
         );
         await run(q);
     });

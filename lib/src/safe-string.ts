@@ -89,7 +89,7 @@ type TemplateLiteralSql = [
  * const names = ["A", "B", "C"];
  * assert.strictEqual(sql`${name} IN (${names})`.content, "'A' IN ('A', 'B', 'C')");
  * const q = fromNothing({ it: sql(123) });
- * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS it)");
+ * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
  *
  * @category string-builder
  * @since 0.0.0

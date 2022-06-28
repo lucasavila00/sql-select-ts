@@ -1,5 +1,7 @@
 import { sql, table } from "../../src";
 import { configureClickhouse } from "../utils";
+import { addSimpleStringSerializer } from "../utils";
+addSimpleStringSerializer();
 
 describe("clickhouse replace", () => {
     const t3 = table(["x", "y"], "t3_clickhouse");
@@ -18,7 +20,7 @@ describe("clickhouse replace", () => {
             .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * REPLACE (y+1 AS x) FROM t3_clickhouse"`
+            `SELECT * REPLACE (y+1 AS \`x\`) FROM \`t3_clickhouse\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -29,7 +31,7 @@ describe("clickhouse replace", () => {
             .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * REPLACE (y+1 AS x) FROM t3_clickhouse"`
+            `SELECT * REPLACE (y+1 AS \`x\`) FROM \`t3_clickhouse\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -40,7 +42,7 @@ describe("clickhouse replace", () => {
             .clickhouse.replace((_f) => [["x", 1]])
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * REPLACE (1 AS x) FROM t3_clickhouse"`
+            `SELECT * REPLACE (1 AS \`x\`) FROM \`t3_clickhouse\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

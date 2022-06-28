@@ -66,8 +66,8 @@ const analytics = table(
     equals(f[&quot;adm.id&quot;], f[&quot;users.id&quot;]) ) .selectStar()
     .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users LEFT JOIN admins AS adm ON
-    adm.id = users.id</Fence
+    ># formatted by sql-formatter SELECT * FROM \`users\` LEFT JOIN \`admins\` AS
+    \`adm\` ON adm.id = users.id</Fence
   ><HeadingGrommet id="join-select" originalNodeName="h2"
     >Join Select</HeadingGrommet
   ><Fence
@@ -88,8 +88,8 @@ const analytics = table(
     .on((f) =&gt; equals(f[&quot;u.id&quot;], f[&quot;adm.id&quot;]) )
     .selectStar() .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM admins AS adm LEFT JOIN ( SELECT
-    * FROM users ) AS u ON u.id = adm.id</Fence
+    ># formatted by sql-formatter SELECT * FROM \`admins\` AS \`adm\` LEFT JOIN (
+    SELECT * FROM \`users\` ) AS \`u\` ON u.id = adm.id</Fence
   ><HeadingGrommet id="join-compound" originalNodeName="h2"
     >Join Compound</HeadingGrommet
   >
@@ -119,8 +119,9 @@ const analytics = table(
     f[&quot;analytics.id&quot;], f[&quot;users.id&quot;] ) ) .selectStar()
     .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users LEFT JOIN admins AS adm ON
-    adm.id = users.id LEFT JOIN analytics ON analytics.id = users.id</Fence
+    ># formatted by sql-formatter SELECT * FROM \`users\` LEFT JOIN \`admins\` AS
+    \`adm\` ON adm.id = users.id LEFT JOIN \`analytics\` ON analytics.id =
+    users.id</Fence
   ><HeadingGrommet id="join-3-selects" originalNodeName="h2"
     >Join 3 Selects</HeadingGrommet
   ><Fence
@@ -165,10 +166,10 @@ userAdminAnalytics
     f[&quot;analytics.id&quot;], f[&quot;users.id&quot;] ) ); userAdminAnalytics
     .selectStar() .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM ( SELECT * FROM users ) AS users
-    LEFT JOIN ( SELECT * FROM admins AS adm ) AS admins ON admins.id = users.id
-    LEFT JOIN ( SELECT * FROM analytics ) AS analyitcs ON analytics.id =
-    users.id</Fence
+    ># formatted by sql-formatter SELECT * FROM ( SELECT * FROM \`users\` ) AS
+    \`users\` LEFT JOIN ( SELECT * FROM \`admins\` AS \`adm\` ) AS \`admins\` ON
+    admins.id = users.id LEFT JOIN ( SELECT * FROM \`analytics\` ) AS \`analyitcs\`
+    ON analytics.id = users.id</Fence
   ><HeadingGrommet id="using" originalNodeName="h1">USING</HeadingGrommet>
   <p>TODO</p>
   <HeadingGrommet id="no-constraint" originalNodeName="h1"

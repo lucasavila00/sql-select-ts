@@ -56,3 +56,9 @@ export const configureClickhouse = (): {
         run,
     };
 };
+
+export const addSimpleStringSerializer = () =>
+    expect.addSnapshotSerializer({
+        test: (val) => typeof val === "string",
+        print: (val: unknown): string => String(val),
+    });

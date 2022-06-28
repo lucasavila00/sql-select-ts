@@ -13,21 +13,9 @@ import { absurd } from "./utils";
 /* istanbul ignore next */
 const isSafeString = (it: any): it is SafeString => it?._tag === "SafeString";
 
-// TODO move wrap alias to other file, test it
-/* istanbul ignore next */
-const firstCharCode = (it: string) => it[0]?.charCodeAt(0) ?? 0;
-
-const wrapAlias = (alias: string) => {
-    // TODO should escape - / etc
-    // TODO use escape identifier etc
-    if (firstCharCode(alias) >= 48 && firstCharCode(alias) <= 57) {
-        return `\`${alias}\``;
-    }
-    if (alias.includes(" ")) {
-        return `\`${alias}\``;
-    }
-    return alias;
-};
+const ID_GLOBAL_REGEXP = /`/g;
+const wrapAlias = (alias: string) =>
+    "`" + alias.replace(ID_GLOBAL_REGEXP, "``") + "`";
 
 const printOrderBy = (orderBy: SafeString[]): string =>
     orderBy.length > 0
@@ -91,10 +79,10 @@ const printTableInternal = <Selection extends string, Alias extends string>(
 ): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
-        return { content: table.__props.name + final };
+        return { content: wrapAlias(table.__props.name) + final };
     }
     return {
-        content: `${table.__props.name} AS ${wrapAlias(
+        content: `${wrapAlias(table.__props.name)} AS ${wrapAlias(
             table.__props.alias
         )}${final}`,
     };

@@ -1,5 +1,7 @@
 import { table } from "../../src";
 import { configureSqlite } from "../utils";
+import { addSimpleStringSerializer } from "../utils";
+addSimpleStringSerializer();
 
 describe("sqlite having", () => {
     const t0 = table(["x", "y"], "t0");
@@ -18,7 +20,7 @@ describe("sqlite having", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT x AS it FROM t0 GROUP BY y HAVING y"`
+            `SELECT x AS \`it\` FROM \`t0\` GROUP BY y HAVING y`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -31,7 +33,7 @@ describe("sqlite having", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t0 GROUP BY x HAVING x"`
+            `SELECT * FROM \`t0\` GROUP BY x HAVING x`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -45,7 +47,7 @@ describe("sqlite having", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t0 GROUP BY x, y HAVING x AND y"`
+            `SELECT * FROM \`t0\` GROUP BY x, y HAVING x AND y`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -57,7 +59,7 @@ describe("sqlite having", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM t0 GROUP BY x, y HAVING x AND y"`
+            `SELECT * FROM \`t0\` GROUP BY x, y HAVING x AND y`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

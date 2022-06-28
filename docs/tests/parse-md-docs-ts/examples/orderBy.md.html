@@ -30,7 +30,7 @@ exports[`examples inline code works 1`] = `
     language="ts"
     >users .selectStar() .orderBy((f) =&gt; f.age) .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users ORDER BY age</Fence
+    ># formatted by sql-formatter SELECT * FROM \`users\` ORDER BY age</Fence
   ><HeadingGrommet id="two-clauses" originalNodeName="h1"
     >Two Clauses</HeadingGrommet
   ><HeadingGrommet id="one-call" originalNodeName="h2">One call</HeadingGrommet
@@ -47,7 +47,7 @@ exports[`examples inline code works 1`] = `
     >users .selectStar() .orderBy((f) =&gt; [ sql\`\${f.age} DESC\`, f.id, ])
     .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users ORDER BY age DESC,
+    ># formatted by sql-formatter SELECT * FROM \`users\` ORDER BY age DESC,
     id</Fence
   ><HeadingGrommet id="two-calls" originalNodeName="h2"
     >Two calls</HeadingGrommet
@@ -62,7 +62,7 @@ exports[`examples inline code works 1`] = `
     >users .selectStar() .orderBy((f) =&gt; f.age) .orderBy((f) =&gt; f.id)
     .stringify(); </Fence
   ><Fence language="sql"
-    ># formatted by sql-formatter SELECT * FROM users ORDER BY age, id</Fence
+    ># formatted by sql-formatter SELECT * FROM \`users\` ORDER BY age, id</Fence
   >
 </article>
 

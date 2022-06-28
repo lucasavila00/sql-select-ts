@@ -1,6 +1,8 @@
 import { table, with_ } from "../../src";
 import { sql } from "../../src/safe-string";
 import { configureSqlite } from "../utils";
+import { addSimpleStringSerializer } from "../utils";
+addSimpleStringSerializer();
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/with1.test
 
@@ -24,7 +26,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"WITH x(a, b) AS (SELECT * FROM t0) SELECT 10 AS it FROM x"`
+            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -39,7 +41,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"WITH x AS (SELECT * FROM t0) SELECT 10 AS it FROM x"`
+            `WITH x AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -53,7 +55,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"WITH x AS (SELECT * FROM t0) SELECT 10 AS it FROM x"`
+            `WITH x AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -69,7 +71,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"WITH x(a, b) AS (SELECT * FROM t0) SELECT a AS it FROM x"`
+            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT a AS \`it\` FROM x`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -84,7 +86,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"WITH x(a, b) AS (SELECT * FROM t0) SELECT x.a AS it FROM x"`
+            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT x.a AS \`it\` FROM x`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -101,7 +103,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `"SELECT * FROM (WITH x(a, b) AS (SELECT * FROM t0) SELECT 10 AS it FROM x)"`
+            `SELECT * FROM (WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
