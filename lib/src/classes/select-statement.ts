@@ -252,7 +252,10 @@ export class SelectStatement<Scope extends string, Selection extends string> {
      */
     public appendSelect = <NewSelection extends string>(
         f: (
-            f: Record<Selection | Scope, SafeString> &
+            f: Record<
+                Selection | Scope | `main_alias.${Selection}`,
+                SafeString
+            > &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<Scope, Selection | NewSelection> =>

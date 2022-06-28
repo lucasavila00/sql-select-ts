@@ -1,6 +1,6 @@
 # LIB
 
--   [ ] test for 'main_alias', docs on usability
+-   [ ] escape identifier/alias
 
 # DOCS
 
@@ -11,8 +11,6 @@
 -   [ ] home lacks import
 
 # LIB & DOCS
-
--   [ ] escape identifier/alias
 
 -   [ ] easy extension sql safe string, example boolean in CH
 
@@ -25,7 +23,3 @@
 -   [ ] istanbul ignore, can some be removed?
 
 -   [ ] eslint (no console, no skip)
-
-# jekyll docs
-
--   [ ] https://github.com/remarkjs/remark/tree/main/packages/remark-stringify

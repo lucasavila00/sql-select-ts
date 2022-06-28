@@ -169,6 +169,12 @@ users
 
 TODO
 
+# Alias of sub-selection
+
+It shows up on the codebase as `main_alias`.
+
+TODO
+
 # Control order of selection
 
 Although it works on most cases, order of selection is not guaranteed.
