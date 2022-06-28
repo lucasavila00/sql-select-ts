@@ -27,7 +27,7 @@ describe("joinTable", () => {
             .joinTable("NATURAL", t2)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t1 NATURAL JOIN t2"`);
     });
 
@@ -36,7 +36,7 @@ describe("joinTable", () => {
             .joinTable("NATURAL", t2)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT a AS x, d AS y, t1.c AS z FROM t1 NATURAL JOIN t2"`
         );
@@ -52,7 +52,7 @@ describe("joinTable", () => {
                 // @ts-expect-error
                 z: f.c,
             }))
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT a AS x, d AS y, c AS z FROM t1 LEFT JOIN t2"`
         );
@@ -63,7 +63,7 @@ describe("joinTable", () => {
             .joinTable("LEFT", t2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 LEFT JOIN t2 ON a = d"`
         );
@@ -74,21 +74,29 @@ describe("joinTable", () => {
             .joinTable("LEFT", t2)
             .on((f) => equals(f["t1.a"], f["t2.d"]))
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 LEFT JOIN t2 ON t1.a = t2.d"`
         );
     });
 
     it("table -> table -- USING", async () => {
-        const q = t1.joinTable("LEFT", t2).using(["b"]).selectStar().print();
+        const q = t1
+            .joinTable("LEFT", t2)
+            .using(["b"])
+            .selectStar()
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 LEFT JOIN t2 USING(b)"`
         );
     });
 
     it("table -> table -- NO CONSTRAINT", async () => {
-        const q = t1.joinTable("LEFT", t2).noConstraint().selectStar().print();
+        const q = t1
+            .joinTable("LEFT", t2)
+            .noConstraint()
+            .selectStar()
+            .stringify();
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t1 LEFT JOIN t2"`);
     });
 
@@ -98,7 +106,7 @@ describe("joinTable", () => {
             .joinTable("q1", "NATURAL", t2)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1) AS q1 NATURAL JOIN t2"`
         );
@@ -110,7 +118,7 @@ describe("joinTable", () => {
             .joinTable("q1", "NATURAL", t2)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT a AS x, d AS y, q1.c AS z FROM (SELECT * FROM t1) AS q1 NATURAL JOIN t2"`
         );
@@ -127,7 +135,7 @@ describe("joinTable", () => {
                 // @ts-expect-error
                 z: f.c,
             }))
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT a AS x, d AS y, c AS z FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2"`
         );
@@ -139,7 +147,7 @@ describe("joinTable", () => {
             .joinTable("q1", "LEFT", t2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2 ON a = d"`
         );
@@ -151,7 +159,7 @@ describe("joinTable", () => {
             .joinTable("q1", "LEFT", t2)
             .on((f) => equals(f["q1.a"], f["t2.d"]))
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2 ON q1.a = t2.d"`
         );
@@ -163,7 +171,7 @@ describe("joinTable", () => {
             .joinTable("q1", "LEFT", t2)
             .using(["b"])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2 USING(b)"`
         );
@@ -175,7 +183,7 @@ describe("joinTable", () => {
             .joinTable("q1", "LEFT", t2)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1) AS q1 LEFT JOIN t2"`
         );
@@ -188,7 +196,7 @@ describe("joinTable", () => {
             .joinTable("NATURAL", t1)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 NATURAL JOIN t2 NATURAL JOIN t1"`
         );
@@ -201,7 +209,7 @@ describe("joinTable", () => {
             .joinTable("NATURAL", t3)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f.e, d: f["t2.d"], d2: f["t3.d"] }))
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT a AS x, e AS y, t2.d AS d, t3.d AS d2 FROM t1 NATURAL JOIN t2 NATURAL JOIN t3"`
         );
@@ -215,7 +223,7 @@ describe("joinTable", () => {
             // @ts-expect-error
             .on((f) => equals(f.b, f.e))
             .selectStar()
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 ON b = e"`
@@ -228,7 +236,7 @@ describe("joinTable", () => {
             .joinTable("LEFT", t3)
             .on((f) => equals(f.a, f.e))
             .selectStar()
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 ON a = e"`
@@ -241,7 +249,7 @@ describe("joinTable", () => {
             .joinTable("LEFT", t3)
             .on((f) => equals(f["t1.a"], f["t3.e"]))
             .selectStar()
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 ON t1.a = t3.e"`
@@ -254,7 +262,7 @@ describe("joinTable", () => {
             .joinTable("LEFT", t3)
             .using(["d"])
             .selectStar()
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3 USING(d)"`
@@ -267,7 +275,7 @@ describe("joinTable", () => {
             .joinTable("LEFT", t3)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 NATURAL JOIN t2 LEFT JOIN t3"`
@@ -279,7 +287,7 @@ describe("joinTable", () => {
             .joinTable("q1", "NATURAL", t2)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 NATURAL JOIN t2"`
         );
@@ -293,7 +301,7 @@ describe("joinTable", () => {
             .joinTable("q1", "NATURAL", t2)
             .noConstraint()
             .select((f) => ({ x: f.a, e: f.d }))
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT a AS x, d AS e FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 NATURAL JOIN t2"`
@@ -309,7 +317,7 @@ describe("joinTable", () => {
             .noConstraint()
             // @ts-expect-error
             .select((f) => ({ x: f.a, e: f.b }))
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT a AS x, b AS e FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 NATURAL JOIN t2"`
@@ -321,7 +329,7 @@ describe("joinTable", () => {
             .joinTable("q1", "LEFT", t2)
             .on((f) => equals(f.a, f["q1.b"]))
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2 ON a = q1.b"`
         );
@@ -332,7 +340,7 @@ describe("joinTable", () => {
             .joinTable("q1", "LEFT", t2)
             .on((f) => equals(f["q1.a"], f["q1.b"]))
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2 ON q1.a = q1.b"`
         );
@@ -343,7 +351,7 @@ describe("joinTable", () => {
             .joinTable("q1", "LEFT", t2)
             .using(["b"])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2 USING(b)"`
         );
@@ -354,7 +362,7 @@ describe("joinTable", () => {
             .joinTable("q1", "LEFT", t2)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (SELECT * FROM t1 UNION ALL SELECT * FROM t3) AS q1 LEFT JOIN t2"`
         );

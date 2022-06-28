@@ -9,10 +9,10 @@ exports[`examples inline code works 1`] = `
     content="fromNothing({
   it: sql\`system.tables\`,
   abc: sql\`123 + 456\`,
-}).print();
+}).stringify();
 "
     language="ts"
-    >fromNothing({ it: sql\`system.tables\`, abc: sql\`123 + 456\`, }).print(); </Fence
+    >fromNothing({ it: sql\`system.tables\`, abc: sql\`123 + 456\`, }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT system.tables AS it, 123 + 456 AS
     abc</Fence
@@ -26,11 +26,11 @@ exports[`examples inline code works 1`] = `
   .appendSelect((f) =&gt; ({
     def: sql\`\${f.abc} + 456\`,
   }))
-  .print();
+  .stringify();
 "
     language="ts"
     >fromNothing({ it: sql\`system.tables\`, abc: sql(123), }) .appendSelect((f)
-    =&gt; ({ def: sql\`\${f.abc} + 456\`, })) .print(); </Fence
+    =&gt; ({ def: sql\`\${f.abc} + 456\`, })) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT system.tables AS it, 123 AS abc, abc +
     456 AS def</Fence
@@ -68,20 +68,20 @@ const admins = table(
   ><HeadingGrommet id="select-star" originalNodeName="h2"
     >Select star</HeadingGrommet
   ><Fence
-    content="users.selectStar().print();
+    content="users.selectStar().stringify();
 "
     language="ts"
-    >users.selectStar().print(); </Fence
+    >users.selectStar().stringify(); </Fence
   ><Fence language="sql"># formatted by sql-formatter SELECT * FROM users</Fence
   ><HeadingGrommet id="select-a-field" originalNodeName="h2"
     >Select a field</HeadingGrommet
   ><Fence
     content="admins
   .select((f) =&gt; ({ name: f.name }))
-  .print();
+  .stringify();
 "
     language="ts"
-    >admins .select((f) =&gt; ({ name: f.name })) .print(); </Fence
+    >admins .select((f) =&gt; ({ name: f.name })) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT name AS name FROM admins AS adm</Fence
   ><HeadingGrommet id="select-distinct" originalNodeName="h2"
@@ -90,10 +90,10 @@ const admins = table(
     content="admins
   .select((f) =&gt; ({ name: f.name }))
   .distinct()
-  .print();
+  .stringify();
 "
     language="ts"
-    >admins .select((f) =&gt; ({ name: f.name })) .distinct() .print(); </Fence
+    >admins .select((f) =&gt; ({ name: f.name })) .distinct() .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT DISTINCT name AS name FROM admins AS
     adm</Fence
@@ -105,11 +105,11 @@ const admins = table(
   .appendSelect((f) =&gt; ({
     otherAlias: f.name,
   }))
-  .print();
+  .stringify();
 "
     language="ts"
     >users .selectStar() .appendSelect((f) =&gt; ({ otherAlias: f.name, }))
-    .print(); </Fence
+    .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT *, name AS otherAlias FROM users</Fence
   ><HeadingGrommet id="select-a-field-and-star" originalNodeName="h2"
@@ -120,11 +120,11 @@ const admins = table(
     otherAlias: f["adm.name"],
   }))
   .appendSelectStar()
-  .print();
+  .stringify();
 '
     language="ts"
     >admins .select((f) =&gt; ({ otherAlias: f[&quot;adm.name&quot;], }))
-    .appendSelectStar() .print(); </Fence
+    .appendSelectStar() .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT adm.name AS otherAlias, * FROM admins
     AS adm</Fence
@@ -135,11 +135,11 @@ const admins = table(
   .selectStar()
   .select((f) =&gt; ({ age: f.age }))
   .selectStar()
-  .print();
+  .stringify();
 "
     language="ts"
     >users .selectStar() .select((f) =&gt; ({ age: f.age })) .selectStar()
-    .print(); </Fence
+    .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM ( SELECT age AS age FROM (
     SELECT * FROM users ) )</Fence
@@ -151,11 +151,11 @@ const admins = table(
   admins.selectStar(),
 ])
   .select((f) =&gt; ({ age: f.age }))
-  .print();
+  .stringify();
 "
     language="ts"
     >unionAll([ users.selectStar(), admins.selectStar(), ]) .select((f) =&gt; ({
-    age: f.age })) .print(); </Fence
+    age: f.age })) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT age AS age FROM ( SELECT * FROM users
     UNION ALL SELECT * FROM admins AS adm )</Fence
@@ -169,12 +169,12 @@ const admins = table(
     userName: f["users.name"],
     admName: f["adm.name"],
   }))
-  .print();
+  .stringify();
 '
     language="ts"
     >users .joinTable(&quot;LEFT&quot;, admins) .using([&quot;id&quot;])
     .select((f) =&gt; ({ userName: f[&quot;users.name&quot;], admName:
-    f[&quot;adm.name&quot;], })) .print(); </Fence
+    f[&quot;adm.name&quot;], })) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT users.name AS userName, adm.name AS
     admName FROM users LEFT JOIN admins AS adm USING(id)</Fence
@@ -194,10 +194,10 @@ const admins = table(
     abc: f.name,
     def: f.id,
   }))
-  .print();
+  .stringify();
 "
     language="ts"
-    >users .select((f) =&gt; ({ abc: f.name, def: f.id, })) .print(); </Fence
+    >users .select((f) =&gt; ({ abc: f.name, def: f.id, })) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT name AS abc, id AS def FROM
     users</Fence
@@ -208,11 +208,11 @@ const admins = table(
     name: f.name,
     ["456"]: f.id,
   }))
-  .print();
+  .stringify();
 '
     language="ts"
     >users .select((f) =&gt; ({ [&quot;123&quot;]: f.age, name: f.name,
-    [&quot;456&quot;]: f.id, })) .print(); </Fence
+    [&quot;456&quot;]: f.id, })) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT age AS \`123\`, id AS \`456\`, name AS name
     FROM users</Fence
@@ -231,12 +231,12 @@ const admins = table(
   .appendSelect((f) =&gt; ({
     ["456"]: f.id,
   }))
-  .print();
+  .stringify();
 '
     language="ts"
     >users .select((f) =&gt; ({ [&quot;123&quot;]: f.age, })) .appendSelect((f)
     =&gt; ({ name: f.name, })) .appendSelect((f) =&gt; ({ [&quot;456&quot;]:
-    f.id, })) .print(); </Fence
+    f.id, })) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT age AS \`123\`, name AS name, id AS \`456\`
     FROM users</Fence

@@ -1,7 +1,5 @@
 # LIB
 
--   [ ] print -> stringify
-
 -   [ ] test for 'main_alias', docs on usability
 
 # DOCS

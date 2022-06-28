@@ -21,7 +21,7 @@ describe("sqlite with", () => {
             ["a", "b"]
         )
             .select((_f) => ({ it: sql(10) }))
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"WITH x(a, b) AS (SELECT * FROM t0) SELECT 10 AS it FROM x"`
@@ -36,7 +36,7 @@ describe("sqlite with", () => {
             []
         )
             .select((_f) => ({ it: sql(10) }))
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"WITH x AS (SELECT * FROM t0) SELECT 10 AS it FROM x"`
@@ -50,7 +50,7 @@ describe("sqlite with", () => {
             "x"
         )
             .select((_f) => ({ it: sql(10) }))
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"WITH x AS (SELECT * FROM t0) SELECT 10 AS it FROM x"`
@@ -66,7 +66,7 @@ describe("sqlite with", () => {
             ["a", "b"]
         )
             .select((f) => ({ it: f.a }))
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"WITH x(a, b) AS (SELECT * FROM t0) SELECT a AS it FROM x"`
@@ -81,7 +81,7 @@ describe("sqlite with", () => {
             ["a", "b"]
         )
             .select((f) => ({ it: f["x.a"] }))
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"WITH x(a, b) AS (SELECT * FROM t0) SELECT x.a AS it FROM x"`
@@ -98,7 +98,7 @@ describe("sqlite with", () => {
         )
             .select((_f) => ({ it: sql(10) }))
             .selectStar()
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM (WITH x(a, b) AS (SELECT * FROM t0) SELECT 10 AS it FROM x)"`

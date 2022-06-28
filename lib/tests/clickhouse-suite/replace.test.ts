@@ -16,7 +16,7 @@ describe("clickhouse replace", () => {
         const q = t3
             .selectStar()
             .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * REPLACE (y+1 AS x) FROM t3_clickhouse"`
         );
@@ -27,7 +27,7 @@ describe("clickhouse replace", () => {
         const q = t3
             .selectStar()
             .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * REPLACE (y+1 AS x) FROM t3_clickhouse"`
         );
@@ -38,7 +38,7 @@ describe("clickhouse replace", () => {
         const q = t3
             .selectStar()
             .clickhouse.replace((_f) => [["x", 1]])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * REPLACE (1 AS x) FROM t3_clickhouse"`
         );

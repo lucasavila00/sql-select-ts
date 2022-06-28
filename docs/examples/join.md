@@ -48,7 +48,7 @@ users
     equals(f["adm.id"], f["users.id"])
   )
   .selectStar()
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -68,7 +68,7 @@ admins
     equals(f["u.id"], f["adm.id"])
   )
   .selectStar()
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -95,7 +95,7 @@ users
     )
   )
   .selectStar()
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -133,7 +133,9 @@ const userAdminAnalytics = userAndAdmin
     )
   );
 
-userAdminAnalytics.selectStar().print();
+userAdminAnalytics
+  .selectStar()
+  .stringify();
 ```
 
 {% /printer %}

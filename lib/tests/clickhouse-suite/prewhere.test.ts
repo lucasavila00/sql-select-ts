@@ -16,7 +16,7 @@ describe("clickhouse prewhere", () => {
         const q = t1
             .selectStar()
             .clickhouse.prewhere((f) => f.x)
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2_clickhouse PREWHERE x"`
         );
@@ -26,7 +26,7 @@ describe("clickhouse prewhere", () => {
         const q = t1
             .select((f) => ({ cond: f.y }))
             .clickhouse.prewhere((f) => f.cond)
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT y AS cond FROM t2_clickhouse PREWHERE cond"`
         );
@@ -38,7 +38,7 @@ describe("clickhouse prewhere", () => {
             .selectStar()
             .clickhouse.prewhere((f) => f.x)
             .clickhouse.prewhere((f) => f.y)
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2_clickhouse PREWHERE x AND y"`
         );
@@ -49,7 +49,7 @@ describe("clickhouse prewhere", () => {
         const q = t1
             .selectStar()
             .clickhouse.prewhere((f) => [f.x, f.y])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2_clickhouse PREWHERE x AND y"`
         );
@@ -61,7 +61,7 @@ describe("clickhouse prewhere", () => {
             .selectStar()
             .clickhouse.prewhere((f) => f.x)
             .where((f) => f.y)
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2_clickhouse PREWHERE x WHERE y"`
         );

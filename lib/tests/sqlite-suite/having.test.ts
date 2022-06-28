@@ -15,7 +15,7 @@ describe("sqlite having", () => {
             .select((f) => ({ it: f.x }))
             .groupBy((f) => f.y)
             .having((f) => f.y)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT x AS it FROM t0 GROUP BY y HAVING y"`
@@ -28,7 +28,7 @@ describe("sqlite having", () => {
             .selectStar()
             .groupBy((f) => f.x)
             .having((f) => f.x)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t0 GROUP BY x HAVING x"`
@@ -42,7 +42,7 @@ describe("sqlite having", () => {
             .having((f) => f.x)
             .groupBy((f) => f.y)
             .having((f) => f.y)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t0 GROUP BY x, y HAVING x AND y"`
@@ -54,7 +54,7 @@ describe("sqlite having", () => {
             .selectStar()
             .groupBy((f) => [f.x, f.y])
             .having((f) => [f.x, f.y])
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t0 GROUP BY x, y HAVING x AND y"`

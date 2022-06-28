@@ -327,5 +327,5 @@ export class Compound<Scope extends string, Selection extends string> {
     /**
      * @since 0.0.0
      */
-    public print = (): string => printCompound(this);
+    public stringify = (): string => printCompound(this);
 }

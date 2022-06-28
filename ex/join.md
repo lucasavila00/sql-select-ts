@@ -44,7 +44,7 @@ yield users
     .joinTable("LEFT", admins)
     .on((f) => equals(f["adm.id"], f["users.id"]))
     .selectStar()
-    .print();
+    .stringify();
 ```
 
 ## Join Select
@@ -54,7 +54,7 @@ yield admins
     .joinSelect("u", "LEFT", users.selectStar())
     .on((f) => equals(f["u.id"], f["adm.id"]))
     .selectStar()
-    .print();
+    .stringify();
 ```
 
 ## Join Compound
@@ -70,7 +70,7 @@ yield users
     .joinTable("LEFT", analytics)
     .on((f) => equals(f["analytics.id"], f["users.id"]))
     .selectStar()
-    .print();
+    .stringify();
 ```
 
 ## Join 3 Selects
@@ -85,7 +85,7 @@ const userAdminAnalytics = userAndAdmin
     .joinSelect("LEFT", "analyitcs", analytics.selectStar())
     .on((f) => equals(f["analytics.id"], f["users.id"]));
 
-yield userAdminAnalytics.selectStar().print();
+yield userAdminAnalytics.selectStar().stringify();
 ```
 
 # USING

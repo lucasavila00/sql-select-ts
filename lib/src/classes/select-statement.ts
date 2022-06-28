@@ -520,5 +520,5 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     /**
      * @since 0.0.0
      */
-    public print = (): string => printSelectStatement(this);
+    public stringify = (): string => printSelectStatement(this);
 }

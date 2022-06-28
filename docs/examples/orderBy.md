@@ -21,7 +21,7 @@ const users = table(
 users
   .selectStar()
   .orderBy((f) => f.age)
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -39,7 +39,7 @@ users
     sql`${f.age} DESC`,
     f.id,
   ])
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -53,7 +53,7 @@ users
   .selectStar()
   .orderBy((f) => f.age)
   .orderBy((f) => f.id)
-  .print();
+  .stringify();
 ```
 
 {% /printer %}

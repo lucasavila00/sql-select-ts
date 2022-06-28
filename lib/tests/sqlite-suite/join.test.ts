@@ -27,7 +27,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", t2)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t1 NATURAL JOIN t2"`);
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -53,7 +53,7 @@ describe("sqlite join", () => {
             .noConstraint()
             .commaJoinSelect("t3", t2.selectStar())
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1, (SELECT * FROM t2) AS t3 NATURAL JOIN t2"`
         );
@@ -80,7 +80,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", t2)
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 AS x NATURAL JOIN t2"`
         );
@@ -107,7 +107,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", table(["b", "c", "d"], "y", "t2"))
             .noConstraint()
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 NATURAL JOIN t2 AS y"`
         );
@@ -134,7 +134,7 @@ describe("sqlite join", () => {
     //     const q = t1
     //         .joinTable("NATURAL", t2)
     //         .select((f) => ({ b: f.b }))
-    //         .print();
+    //         .stringify();
     //     expect(q).toMatchInlineSnapshot(
     //         `"SELECT b AS b FROM t1 NATURAL JOIN t2;"`
     //     );
@@ -155,7 +155,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", t1)
             .noConstraint()
             .selectStarOfAliases(["t2"])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT t2.* FROM t2 NATURAL JOIN t1"`
         );
@@ -179,7 +179,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", t1)
             .noConstraint()
             .selectStarOfAliases(["xyzzy"])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT xyzzy.* FROM t2 AS xyzzy NATURAL JOIN t1"`
         );
@@ -204,7 +204,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", t1)
             .noConstraint()
             .selectStarOfAliases(["t1"])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT t1.* FROM t2 NATURAL JOIN t1"`
         );
@@ -229,7 +229,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", table(["a", "b", "c"], "xyzzy", "t1"))
             .noConstraint()
             .selectStarOfAliases(["xyzzy"])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT xyzzy.* FROM t2 NATURAL JOIN t1 AS xyzzy"`
         );
@@ -254,7 +254,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", table(["a", "b", "c"], "bbb", "t1"))
             .noConstraint()
             .selectStarOfAliases(["aaa", "bbb"])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT aaa.*, bbb.* FROM t2 AS aaa NATURAL JOIN t1 AS bbb"`
         );
@@ -281,7 +281,7 @@ describe("sqlite join", () => {
             .joinTable("NATURAL", t1)
             .noConstraint()
             .selectStarOfAliases(["t1", "t2"])
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT t1.*, t2.* FROM t2 NATURAL JOIN t1"`
         );
@@ -310,7 +310,7 @@ describe("sqlite join", () => {
                 equals(f["t1.c"], f["t2.c"]),
             ])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 INNER JOIN t1 ON t1.b = t2.b AND t1.c = t2.c"`
         );
@@ -336,7 +336,7 @@ describe("sqlite join", () => {
             .joinTable("INNER", t1)
             .using(["b", "c"])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 INNER JOIN t1 USING(b, c)"`
         );
@@ -363,7 +363,7 @@ describe("sqlite join", () => {
             // @ts-expect-error
             .using(["b", "c", "d"])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 INNER JOIN t1 USING(b, c, d)"`
         );
@@ -380,7 +380,7 @@ describe("sqlite join", () => {
                 equals(f["t1.c"], f["t2.c"]),
             ])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 INNER JOIN t1 ON b = t2.b AND t1.c = t2.c"`
         );
@@ -397,7 +397,7 @@ describe("sqlite join", () => {
                 equals(f["t1.c"], f["t2.c"]),
             ])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 INNER JOIN t1 ON aaaaaaaaaaa = t2.b AND t1.c = t2.c"`
         );
@@ -414,7 +414,7 @@ describe("sqlite join", () => {
                 equals(f["x.c"], f["t2.c"]),
             ])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 INNER JOIN t1 AS x ON x.b = t2.b AND x.c = t2.c"`
         );
@@ -441,7 +441,7 @@ describe("sqlite join", () => {
             .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
             .using(["b", "c"])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 INNER JOIN t1 AS x USING(b, c)"`
         );
@@ -470,7 +470,7 @@ describe("sqlite join", () => {
                 equals(f["t1.c"], f["y.c"]),
             ])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 AS y INNER JOIN t1 ON t1.b = y.b AND t1.c = y.c"`
         );
@@ -496,7 +496,7 @@ describe("sqlite join", () => {
             .joinTable("INNER", t1)
             .using(["b", "c"])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 AS y INNER JOIN t1 USING(b, c)"`
         );
@@ -522,7 +522,7 @@ describe("sqlite join", () => {
             .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
             .on((f) => [equals(f["x.b"], f["y.b"]), equals(f["x.c"], f["y.c"])])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 AS y INNER JOIN t1 AS x ON x.b = y.b AND x.c = y.c"`
         );
@@ -548,7 +548,7 @@ describe("sqlite join", () => {
             .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
             .using(["b", "c"])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 AS y INNER JOIN t1 AS x USING(b, c)"`
         );
@@ -578,7 +578,7 @@ describe("sqlite join", () => {
                     // @ts-expect-error
                     f.b,
             }))
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT b AS b FROM t2 INNER JOIN t1 ON t1.b = t2.b"`
         );
@@ -597,7 +597,7 @@ describe("sqlite join", () => {
     //                 // @ts-expect-error
     //                 f.b,
     //         }))
-    //         .print();
+    //         .stringify();
     //     expect(q).toMatchInlineSnapshot(
     //         `"SELECT b AS b FROM t2 INNER JOIN t1 USING(b);"`
     //     );
@@ -611,7 +611,7 @@ describe("sqlite join", () => {
             .joinTable("LEFT", t1)
             .on((f) => [equals(f["t1.a"], f["t2.d"])])
             .selectStar()
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 LEFT JOIN t1 ON t1.a = t2.d"`
         );
@@ -644,7 +644,7 @@ describe("sqlite join", () => {
             .on((f) => [equals(f["t1.a"], f["t2.d"])])
             .selectStar()
             .where((f) => sql`${f["t1.a"]} > 1`)
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t2 LEFT JOIN t1 ON t1.a = t2.d WHERE t1.a > 1"`
         );
@@ -665,7 +665,7 @@ describe("sqlite join", () => {
             .on((f) => [equals(f["t1.a"], f["t2.d"])])
             .selectStar()
             .where((f) => sql`${f["t1.b"]} IS NULL OR ${f["t1.b"]} > 1`)
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"SELECT * FROM t1 LEFT JOIN t2 ON t1.a = t2.d WHERE t1.b IS NULL OR t1.b > 1"`
         );

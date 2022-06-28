@@ -14,7 +14,7 @@ describe("sqlite order by", () => {
         const q = t0
             .selectStar()
             .orderBy((f) => f.x)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 ORDER BY x"`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
@@ -24,7 +24,7 @@ describe("sqlite order by", () => {
         const q = t0
             .select((f) => ({ it: f.y }))
             .orderBy((f) => f.x)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(`"SELECT y AS it FROM t0 ORDER BY x"`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
@@ -35,7 +35,7 @@ describe("sqlite order by", () => {
             .selectStar()
             .orderBy((f) => f.x)
             .orderBy((f) => f.y)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 ORDER BY x, y"`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
@@ -44,7 +44,7 @@ describe("sqlite order by", () => {
         const q = t0
             .selectStar()
             .orderBy((f) => [f.x, f.y])
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 ORDER BY x, y"`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);

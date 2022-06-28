@@ -9,11 +9,11 @@ exports[`examples inline code works 1`] = `
   string: sql("abc"),
   number: sql(123),
   null: sql(null),
-}).print();
+}).stringify();
 '
     language="ts"
     >fromNothing({ string: sql(&quot;abc&quot;), number: sql(123), null:
-    sql(null), }).print(); </Fence
+    sql(null), }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT 'abc' AS string, 123 AS number, NULL AS
     null</Fence
@@ -24,10 +24,10 @@ exports[`examples inline code works 1`] = `
   ><Fence
     content="fromNothing({
   it: sql\`system.tables\`,
-}).print();
+}).stringify();
 "
     language="ts"
-    >fromNothing({ it: sql\`system.tables\`, }).print(); </Fence
+    >fromNothing({ it: sql\`system.tables\`, }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT system.tables AS it</Fence
   ><HeadingGrommet id="string-interpolation" originalNodeName="h2"
@@ -36,11 +36,11 @@ exports[`examples inline code works 1`] = `
     content="const name = &quot;Lucas&quot;;
 fromNothing({
   it: sql\`'a' = \${name}\`,
-}).print();
+}).stringify();
 "
     language="ts"
     >const name = &quot;Lucas&quot;; fromNothing({ it: sql\`'a' = \${name}\`,
-    }).print(); </Fence
+    }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT 'a' = 'Lucas' AS it</Fence
   ><HeadingGrommet id="number-interpolation" originalNodeName="h2"
@@ -49,10 +49,10 @@ fromNothing({
     content="const n = 456;
 fromNothing({
   it: sql\`123 = \${n}\`,
-}).print();
+}).stringify();
 "
     language="ts"
-    >const n = 456; fromNothing({ it: sql\`123 = \${n}\`, }).print(); </Fence
+    >const n = 456; fromNothing({ it: sql\`123 = \${n}\`, }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT 123 = 456 AS it</Fence
   ><HeadingGrommet id="array-interpolation" originalNodeName="h2"
@@ -62,10 +62,11 @@ fromNothing({
 
 fromNothing({
   it: sql\`1 IN (\${nums})\`,
-}).print();
+}).stringify();
 "
     language="ts"
-    >const nums = [1, 2, 3]; fromNothing({ it: sql\`1 IN (\${nums})\`, }).print(); </Fence
+    >const nums = [1, 2, 3]; fromNothing({ it: sql\`1 IN (\${nums})\`,
+    }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT 1 IN (1, 2, 3) AS it</Fence
   ><HeadingGrommet id="select-interpolation" originalNodeName="h2"
@@ -76,11 +77,11 @@ fromNothing({
 });
 fromNothing({
   isIn: sql\`something IN \${q1}\`,
-}).print();
+}).stringify();
 "
     language="ts"
     >const q1 = fromNothing({ it: sql\`123 = 456\`, }); fromNothing({ isIn:
-    sql\`something IN \${q1}\`, }).print(); </Fence
+    sql\`something IN \${q1}\`, }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT something IN ( SELECT 123 = 456 AS it )
     AS isIn</Fence
@@ -96,12 +97,12 @@ const q2 = fromNothing({
 const u = unionAll([q1, q2]);
 fromNothing({
   isIn: sql\`something IN \${u}\`,
-}).print();
+}).stringify();
 "
     language="ts"
     >const q1 = fromNothing({ it: sql\`123 = 456\`, }); const q2 = fromNothing({
     it: sql\`1 &gt; 0\`, }); const u = unionAll([q1, q2]); fromNothing({ isIn:
-    sql\`something IN \${u}\`, }).print(); </Fence
+    sql\`something IN \${u}\`, }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT something IN ( SELECT 123 = 456 AS it
     UNION ALL SELECT 1 &gt; 0 AS it ) AS isIn</Fence
@@ -124,12 +125,12 @@ fromNothing({
       )
     )
   ),
-}).print();
+}).stringify();
 "
     language="ts"
     >const square = ( it: SafeString ): SafeString =&gt; sql\`((\${it}) *
     (\${it}))\`; const four = square(sql(2)); fromNothing({ four, it: square(
-    square( square( sql\`system.tables + \${four}\` ) ) ), }).print(); </Fence
+    square( square( sql\`system.tables + \${four}\` ) ) ), }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT ((2) * (2)) AS four, ( ( ( ( (
     (system.tables + ((2) * (2))) * (system.tables + ((2) * (2))) ) ) * ( (
@@ -142,21 +143,21 @@ fromNothing({
   ><Fence
     content="const str = \`aFunction(123)\`;
 const filter = castSafe(str);
-fromNothing({ it: filter }).print();
+fromNothing({ it: filter }).stringify();
 "
     language="ts"
     >const str = \`aFunction(123)\`; const filter = castSafe(str); fromNothing({
-    it: filter }).print(); </Fence
+    it: filter }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT aFunction(123) AS it</Fence
   ><Fence
     content="const str = \`aFunction(123)\`;
 const filter = sql\`\${str}\`;
-fromNothing({ it: filter }).print();
+fromNothing({ it: filter }).stringify();
 "
     language="ts"
     >const str = \`aFunction(123)\`; const filter = sql\`\${str}\`; fromNothing({ it:
-    filter }).print(); </Fence
+    filter }).stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT 'aFunction(123)' AS it</Fence
   ><HeadingGrommet id="accessing-string-content" originalNodeName="h1"

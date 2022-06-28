@@ -14,7 +14,7 @@ describe("sqlite group by", () => {
         const q = t0
             .selectStar()
             .groupBy((f) => f.x)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 GROUP BY x"`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
@@ -24,7 +24,7 @@ describe("sqlite group by", () => {
         const q = t0
             .select((f) => ({ it: f.y }))
             .groupBy((f) => f.x)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(`"SELECT y AS it FROM t0 GROUP BY x"`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
@@ -35,7 +35,7 @@ describe("sqlite group by", () => {
             .selectStar()
             .groupBy((f) => f.x)
             .groupBy((f) => f.y)
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 GROUP BY x, y"`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
@@ -44,7 +44,7 @@ describe("sqlite group by", () => {
         const q = t0
             .selectStar()
             .groupBy((f) => [f.x, f.y])
-            .print();
+            .stringify();
 
         expect(q).toMatchInlineSnapshot(`"SELECT * FROM t0 GROUP BY x, y"`);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);

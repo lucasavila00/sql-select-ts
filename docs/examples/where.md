@@ -24,7 +24,7 @@ users
   .where(
     (f) => sql`${f.name} = ${name}`
   )
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -43,7 +43,7 @@ users
     sql`${f.name} = ${name}`,
     sql`${f.id} = 5`,
   ])
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -60,7 +60,7 @@ users
     (f) => sql`${f.name} = 'Lucas'`
   )
   .where((f) => sql`${f.id} = ${id}`)
-  .print();
+  .stringify();
 ```
 
 {% /printer %}

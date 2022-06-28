@@ -18,7 +18,7 @@ describe("clickhouse with", () => {
             .clickhouse.with_({
                 wont_use: fromNothing({ it: sql(20) }),
             })
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"WITH (SELECT 20 AS it) AS wont_use SELECT 10 AS it"`
         );
@@ -36,7 +36,7 @@ describe("clickhouse with", () => {
                 abc: fromNothing({ n: sql(20) }),
             })
             .appendSelect((f) => ({ it: f.abc }))
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"WITH (SELECT 20 AS n) AS abc SELECT abc AS it"`
         );
@@ -55,7 +55,7 @@ describe("clickhouse with", () => {
             .clickhouse.with_({
                 abc: fromNothing({ n: sql(20) }),
             })
-            .print();
+            .stringify();
         expect(q).toMatchInlineSnapshot(
             `"WITH (SELECT 20 AS n) AS abc SELECT * FROM t0_clickhouse"`
         );

@@ -26,7 +26,7 @@ describe("select", () => {
         t1.select((f) => ({ a: f.a }));
         expect(() =>
             // @ts-expect-error
-            t1.select((f) => f).print()
+            t1.select((f) => f).stringify()
         ).toThrow();
     });
 

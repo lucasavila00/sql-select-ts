@@ -38,19 +38,19 @@ function* generator() {
         .joinTable("LEFT", admins)
         .on((f) => equals(f["adm.id"], f["users.id"]))
         .selectStar()
-        .print();
+        .stringify();
     yield admins
         .joinSelect("u", "LEFT", users.selectStar())
         .on((f) => equals(f["u.id"], f["adm.id"]))
         .selectStar()
-        .print();
+        .stringify();
     yield users
         .joinTable("LEFT", admins)
         .on((f) => equals(f["adm.id"], f["users.id"]))
         .joinTable("LEFT", analytics)
         .on((f) => equals(f["analytics.id"], f["users.id"]))
         .selectStar()
-        .print();
+        .stringify();
     const userAndAdmin = users
         .selectStar()
         .joinSelect("users", "LEFT", "admins", admins.selectStar())
@@ -60,7 +60,7 @@ function* generator() {
         .joinSelect("LEFT", "analytics", analytics.selectStar())
         .on((f) => equals(f["analytics.id"], f["users.id"]));
 
-    yield userAdminAnalytics.selectStar().print();
+    yield userAdminAnalytics.selectStar().stringify();
 }
 const gen = generator(); // "Generator { }"
 

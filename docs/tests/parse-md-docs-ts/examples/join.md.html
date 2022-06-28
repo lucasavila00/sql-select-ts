@@ -59,12 +59,12 @@ const analytics = table(
     equals(f["adm.id"], f["users.id"])
   )
   .selectStar()
-  .print();
+  .stringify();
 '
     language="ts"
     >users .joinTable(&quot;LEFT&quot;, admins) .on((f) =&gt;
     equals(f[&quot;adm.id&quot;], f[&quot;users.id&quot;]) ) .selectStar()
-    .print(); </Fence
+    .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM users LEFT JOIN admins AS adm ON
     adm.id = users.id</Fence
@@ -81,12 +81,12 @@ const analytics = table(
     equals(f["u.id"], f["adm.id"])
   )
   .selectStar()
-  .print();
+  .stringify();
 '
     language="ts"
     >admins .joinSelect( &quot;u&quot;, &quot;LEFT&quot;, users.selectStar() )
     .on((f) =&gt; equals(f[&quot;u.id&quot;], f[&quot;adm.id&quot;]) )
-    .selectStar() .print(); </Fence
+    .selectStar() .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM admins AS adm LEFT JOIN ( SELECT
     * FROM users ) AS u ON u.id = adm.id</Fence
@@ -110,14 +110,14 @@ const analytics = table(
     )
   )
   .selectStar()
-  .print();
+  .stringify();
 '
     language="ts"
     >users .joinTable(&quot;LEFT&quot;, admins) .on((f) =&gt;
     equals(f[&quot;adm.id&quot;], f[&quot;users.id&quot;]) )
     .joinTable(&quot;LEFT&quot;, analytics) .on((f) =&gt; equals(
     f[&quot;analytics.id&quot;], f[&quot;users.id&quot;] ) ) .selectStar()
-    .print(); </Fence
+    .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM users LEFT JOIN admins AS adm ON
     adm.id = users.id LEFT JOIN analytics ON analytics.id = users.id</Fence
@@ -152,7 +152,9 @@ const userAdminAnalytics = userAndAdmin
     )
   );
 
-userAdminAnalytics.selectStar().print();
+userAdminAnalytics
+  .selectStar()
+  .stringify();
 '
     language="ts"
     >const userAndAdmin = users .selectStar() .joinSelect( &quot;users&quot;,
@@ -160,8 +162,8 @@ userAdminAnalytics.selectStar().print();
     equals( f[&quot;admins.id&quot;], f[&quot;users.id&quot;] ) ); const
     userAdminAnalytics = userAndAdmin .joinSelect( &quot;LEFT&quot;,
     &quot;analyitcs&quot;, analytics.selectStar() ) .on((f) =&gt; equals(
-    f[&quot;analytics.id&quot;], f[&quot;users.id&quot;] ) );
-    userAdminAnalytics.selectStar().print(); </Fence
+    f[&quot;analytics.id&quot;], f[&quot;users.id&quot;] ) ); userAdminAnalytics
+    .selectStar() .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM ( SELECT * FROM users ) AS users
     LEFT JOIN ( SELECT * FROM admins AS adm ) AS admins ON admins.id = users.id

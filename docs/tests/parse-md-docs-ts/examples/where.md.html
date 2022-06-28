@@ -28,11 +28,11 @@ users
   .where(
     (f) =&gt; sql\`\${f.name} = \${name}\`
   )
-  .print();
+  .stringify();
 '
     language="ts"
     >const name = &quot;Lucas&quot;; users .selectStar() .where( (f) =&gt;
-    sql\`\${f.name} = \${name}\` ) .print(); </Fence
+    sql\`\${f.name} = \${name}\` ) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM users WHERE name =
     'Lucas'</Fence
@@ -47,11 +47,11 @@ users
     sql\`\${f.name} = \${name}\`,
     sql\`\${f.id} = 5\`,
   ])
-  .print();
+  .stringify();
 '
     language="ts"
     >const name = &quot;Lucas&quot;; users .selectStar() .where((f) =&gt; [
-    sql\`\${f.name} = \${name}\`, sql\`\${f.id} = 5\`, ]) .print(); </Fence
+    sql\`\${f.name} = \${name}\`, sql\`\${f.id} = 5\`, ]) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM users WHERE name = 'Lucas' AND
     id = 5</Fence
@@ -65,11 +65,11 @@ users
     (f) =&gt; sql\`\${f.name} = 'Lucas'\`
   )
   .where((f) =&gt; sql\`\${f.id} = \${id}\`)
-  .print();
+  .stringify();
 "
     language="ts"
     >const id = 5; users .selectStar() .where( (f) =&gt; sql\`\${f.name} =
-    'Lucas'\` ) .where((f) =&gt; sql\`\${f.id} = \${id}\`) .print(); </Fence
+    'Lucas'\` ) .where((f) =&gt; sql\`\${f.id} = \${id}\`) .stringify(); </Fence
   ><Fence language="sql"
     ># formatted by sql-formatter SELECT * FROM users WHERE name = 'Lucas' AND
     id = 5</Fence

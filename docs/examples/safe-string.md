@@ -7,7 +7,7 @@ fromNothing({
   string: sql("abc"),
   number: sql(123),
   null: sql(null),
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -21,7 +21,7 @@ fromNothing({
 ```ts
 fromNothing({
   it: sql`system.tables`,
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -34,7 +34,7 @@ fromNothing({
 const name = "Lucas";
 fromNothing({
   it: sql`'a' = ${name}`,
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -47,7 +47,7 @@ fromNothing({
 const n = 456;
 fromNothing({
   it: sql`123 = ${n}`,
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -61,7 +61,7 @@ const nums = [1, 2, 3];
 
 fromNothing({
   it: sql`1 IN (${nums})`,
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -76,7 +76,7 @@ const q1 = fromNothing({
 });
 fromNothing({
   isIn: sql`something IN ${q1}`,
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -95,7 +95,7 @@ const q2 = fromNothing({
 const u = unionAll([q1, q2]);
 fromNothing({
   isIn: sql`something IN ${u}`,
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -121,7 +121,7 @@ fromNothing({
       )
     )
   ),
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -133,7 +133,7 @@ fromNothing({
 ```ts
 const str = `aFunction(123)`;
 const filter = castSafe(str);
-fromNothing({ it: filter }).print();
+fromNothing({ it: filter }).stringify();
 ```
 
 {% /printer %}
@@ -143,7 +143,7 @@ fromNothing({ it: filter }).print();
 ```ts
 const str = `aFunction(123)`;
 const filter = sql`${str}`;
-fromNothing({ it: filter }).print();
+fromNothing({ it: filter }).stringify();
 ```
 
 {% /printer %}

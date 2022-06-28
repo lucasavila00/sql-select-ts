@@ -8,7 +8,7 @@
 fromNothing({
   it: sql`system.tables`,
   abc: sql`123 + 456`,
-}).print();
+}).stringify();
 ```
 
 {% /printer %}
@@ -25,7 +25,7 @@ fromNothing({
   .appendSelect((f) => ({
     def: sql`${f.abc} + 456`,
   }))
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -59,7 +59,7 @@ const admins = table(
 {% printer %}
 
 ```ts
-users.selectStar().print();
+users.selectStar().stringify();
 ```
 
 {% /printer %}
@@ -71,7 +71,7 @@ users.selectStar().print();
 ```ts
 admins
   .select((f) => ({ name: f.name }))
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -84,7 +84,7 @@ admins
 admins
   .select((f) => ({ name: f.name }))
   .distinct()
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -99,7 +99,7 @@ users
   .appendSelect((f) => ({
     otherAlias: f.name,
   }))
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -114,7 +114,7 @@ admins
     otherAlias: f["adm.name"],
   }))
   .appendSelectStar()
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -128,7 +128,7 @@ users
   .selectStar()
   .select((f) => ({ age: f.age }))
   .selectStar()
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -143,7 +143,7 @@ unionAll([
   admins.selectStar(),
 ])
   .select((f) => ({ age: f.age }))
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -160,7 +160,7 @@ users
     userName: f["users.name"],
     admName: f["adm.name"],
   }))
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -181,7 +181,7 @@ users
     abc: f.name,
     def: f.id,
   }))
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -195,7 +195,7 @@ users
     name: f.name,
     ["456"]: f.id,
   }))
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
@@ -215,7 +215,7 @@ users
   .appendSelect((f) => ({
     ["456"]: f.id,
   }))
-  .print();
+  .stringify();
 ```
 
 {% /printer %}
