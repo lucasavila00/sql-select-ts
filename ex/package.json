@@ -15,6 +15,7 @@
         "@babel/standalone": "^7.18.5",
         "fp-ts": "^2.12.1",
         "parser-ts": "^0.6.16",
+        "prettier": "^2.7.1",
         "remark-parse": "^9.0.0",
         "remark-stringify": "^9.0.1",
         "sql-formatter": "^7.0.2",
@@ -26,6 +27,7 @@
     },
     "devDependencies": {
         "@types/babel__standalone": "^7.1.4",
-        "@types/node": "^18.0.0"
+        "@types/node": "^18.0.0",
+        "@types/prettier": "^2.6.3"
     }
 }

@@ -8,8 +8,8 @@ import { fromNothing, sql, table, unionAll } from "../../lib/src";
 
 ```ts
 fromNothing({
-    it: sql`system.tables`,
-    abc: sql`123 + 456`,
+  it: sql`system.tables`,
+  abc: sql`123 + 456`,
 }).stringify();
 ```
 
@@ -23,13 +23,13 @@ SELECT
 
 ```ts
 fromNothing({
-    it: sql`system.tables`,
-    abc: sql(123),
+  it: sql`system.tables`,
+  abc: sql(123),
 })
-    .appendSelect((f) => ({
-        def: sql`${f.abc} + 456`,
-    }))
-    .stringify();
+  .appendSelect((f) => ({
+    def: sql`${f.abc} + 456`,
+  }))
+  .stringify();
 ```
 
 ```sql
@@ -93,9 +93,9 @@ FROM
 
 ```ts
 admins
-    .select((f) => ({ name: f.name }))
-    .distinct()
-    .stringify();
+  .select((f) => ({ name: f.name }))
+  .distinct()
+  .stringify();
 ```
 
 ```sql
@@ -109,11 +109,11 @@ FROM
 
 ```ts
 users
-    .selectStar()
-    .appendSelect((f) => ({
-        otherAlias: f.name,
-    }))
-    .stringify();
+  .selectStar()
+  .appendSelect((f) => ({
+    otherAlias: f.name,
+  }))
+  .stringify();
 ```
 
 ```sql
@@ -128,11 +128,11 @@ FROM
 
 ```ts
 admins
-    .select((f) => ({
-        otherAlias: f["adm.name"],
-    }))
-    .appendSelectStar()
-    .stringify();
+  .select((f) => ({
+    otherAlias: f["adm.name"],
+  }))
+  .appendSelectStar()
+  .stringify();
 ```
 
 ```sql
@@ -147,10 +147,10 @@ FROM
 
 ```ts
 users
-    .selectStar()
-    .select((f) => ({ age: f.age }))
-    .selectStar()
-    .stringify();
+  .selectStar()
+  .select((f) => ({ age: f.age }))
+  .selectStar()
+  .stringify();
 ```
 
 ```sql
@@ -174,8 +174,8 @@ FROM
 
 ```ts
 unionAll([users.selectStar(), admins.selectStar()])
-    .select((f) => ({ age: f.age }))
-    .stringify();
+  .select((f) => ({ age: f.age }))
+  .stringify();
 ```
 
 ```sql
@@ -199,13 +199,13 @@ FROM
 
 ```ts
 users
-    .joinTable("LEFT", admins)
-    .using(["id"])
-    .select((f) => ({
-        userName: f["users.name"],
-        admName: f["adm.name"],
-    }))
-    .stringify();
+  .joinTable("LEFT", admins)
+  .using(["id"])
+  .select((f) => ({
+    userName: f["users.name"],
+    admName: f["adm.name"],
+  }))
+  .stringify();
 ```
 
 ```sql
@@ -233,10 +233,10 @@ Sub selections that are not in a join context can be refered to by using `main_a
 
 ```ts
 users
-    .selectStar()
-    .where((f) => sql`${f.id} = 5`)
-    .select((f) => ({ a: f["main_alias.id"] }))
-    .stringify();
+  .selectStar()
+  .where((f) => sql`${f.id} = 5`)
+  .select((f) => ({ a: f["main_alias.id"] }))
+  .stringify();
 ```
 
 ```sql
@@ -259,11 +259,11 @@ Although it works on most cases, order of selection is not guaranteed.
 
 ```ts
 users
-    .select((f) => ({
-        abc: f.name,
-        def: f.id,
-    }))
-    .stringify();
+  .select((f) => ({
+    abc: f.name,
+    def: f.id,
+  }))
+  .stringify();
 ```
 
 ```sql
@@ -276,12 +276,12 @@ FROM
 
 ```ts
 users
-    .select((f) => ({
-        ["123"]: f.age,
-        name: f.name,
-        ["456"]: f.id,
-    }))
-    .stringify();
+  .select((f) => ({
+    ["123"]: f.age,
+    name: f.name,
+    ["456"]: f.id,
+  }))
+  .stringify();
 ```
 
 ```sql
@@ -297,16 +297,16 @@ To achieve control of the selection order, append each item individually.
 
 ```ts
 users
-    .select((f) => ({
-        ["123"]: f.age,
-    }))
-    .appendSelect((f) => ({
-        name: f.name,
-    }))
-    .appendSelect((f) => ({
-        ["456"]: f.id,
-    }))
-    .stringify();
+  .select((f) => ({
+    ["123"]: f.age,
+  }))
+  .appendSelect((f) => ({
+    name: f.name,
+  }))
+  .appendSelect((f) => ({
+    ["456"]: f.id,
+  }))
+  .stringify();
 ```
 
 ```sql

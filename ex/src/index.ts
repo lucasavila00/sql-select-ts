@@ -11,6 +11,7 @@ import { spawnSync } from "child_process";
 import { Ast, parseCommand } from "./command";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
+import * as prettier from "prettier";
 
 const isCode = (it: Parent): it is Code & Parent => it.type === "code";
 const isTsCode = (it: Parent): it is Code & Parent =>
@@ -45,18 +46,104 @@ const flatMap = (
     return transform(ast, 0, null)[0];
 };
 
-// TODO process AST, prevent 2 yeilds
-const isYieldBlock = (code: string) => code.includes("yield");
+function visitNode(node: any, fn: any) {
+    if (Array.isArray(node)) {
+        // As of Node.js 16 using raw for loop over Array.entries provides a
+        // measurable difference in performance. Array.entries returns an iterator
+        // of arrays.
+        for (let i = 0; i < node.length; i++) {
+            node[i] = visitNode(node[i], fn);
+        }
+        return node;
+    }
+    if (node && typeof node === "object" && typeof node.type === "string") {
+        // As of Node.js 16 this is benchmarked to be faster over Object.entries.
+        // Object.entries returns an array of arrays. There are multiple ways to
+        // iterate over objects but the Object.keys combined with a for loop
+        // benchmarks well.
+        const keys = Object.keys(node);
+        for (let i = 0; i < keys.length; i++) {
+            node[keys[i]] = visitNode(node[keys[i]], fn);
+        }
+        return fn(node) || node;
+    }
+    return node;
+}
 
-const getFormattedCode = (meta: string, result: string) => {
-    if (meta.includes("--yield=sql")) {
+const removeYield = (code: string): string =>
+    prettier
+        .format(code, {
+            filepath: "it.ts",
+            parser: (text, cfg) => {
+                const ast = cfg.typescript(text);
+
+                const body = visitNode(ast.body, (node: any) => {
+                    if (node.type === "YieldExpression") {
+                        return node.argument;
+                    }
+                    return node;
+                });
+                const newAst = { ...ast, body };
+
+                return newAst;
+            },
+        })
+        .trimEnd();
+
+const isYieldBlock = (code: string, cmd: Ast) => {
+    const hasArg = cmd.args.named["yield"] != null;
+    const isByCode = isYieldBlockByCount(code);
+    if (hasArg || isByCode) {
+        if (!isByCode || !hasArg) {
+            // both should be true
+            throw new Error(
+                "eval and yield conflicting" +
+                    "\ncode:\n" +
+                    code +
+                    "\ncmd:\n" +
+                    JSON.stringify(cmd)
+            );
+        }
+        return true;
+    }
+    return false;
+};
+const isYieldBlockByCount = (code: string) => {
+    let yieldCount = 0;
+
+    prettier.format(code, {
+        filepath: "it.ts",
+        parser: (text, cfg) => {
+            const ast = cfg.typescript(text);
+
+            visitNode(ast.body, (node: any) => {
+                if (node.type === "YieldExpression") {
+                    yieldCount++;
+                }
+                return node;
+            });
+
+            return ast;
+        },
+    });
+
+    if (yieldCount === 0) {
+        return false;
+    }
+    if (yieldCount === 1) {
+        return true;
+    }
+    throw new Error("yield count is not 1 or 0: " + yieldCount);
+};
+const getFormattedCode = (cmd: Ast, result: string) => {
+    if (cmd.args.named["yield"] === "sql") {
         return {
             type: "code",
             value: format(result),
             lang: "sql",
         };
     }
-    throw new Error("not known meta: " + meta);
+    throw new Error("not known meta: " + JSON.stringify(cmd));
 };
 const cmdParser = (source: string) =>
     pipe(
@@ -79,16 +166,16 @@ const recreateMarkdown =
             if (isTsCode(node)) {
                 const cmd = cmdParser(String(node.meta));
                 if (cmd != null) {
-                    if (isYieldBlock(node.value)) {
+                    if (isYieldBlock(node.value, cmd)) {
                         const it = values[idx];
                         idx++;
                         return [
                             {
                                 ...node,
                                 meta: null,
-                                value: node.value.replace("yield ", ""),
+                                value: removeYield(node.value),
                             },
-                            getFormattedCode(String(node.meta), it),
+                            getFormattedCode(cmd, it),
                         ];
                     }
                     return [{ ...node, meta: null }];
@@ -109,7 +196,7 @@ const executeTypescript =
             if (isTsCode(node)) {
                 const cmd = cmdParser(String(node.meta));
                 if (cmd != null) {
-                    if (node.value.includes("yield")) {
+                    if (isYieldBlock(node.value, cmd)) {
                         hasYield = true;
                     }
                     if (hasYield) {
