@@ -4,7 +4,6 @@ nav_order: 4
 parent: Classes
 layout: default
 grand_parent: Api
-
 ---
 
 ## select-statement overview
@@ -28,19 +27,19 @@ export declare class SelectStatement<Scope, Selection> {
   private constructor(
     /* @internal */
     public __props: {
-      from: TableOrSubquery<any, any, any, any> | null
-      selection: SelectionWrapperTypes<Selection>
-      replace: ReplaceT<Selection>
-      orderBy: SafeString[]
-      groupBy: SafeString[]
-      limit: SafeString | number | null
-      where: SafeString[]
-      prewhere: SafeString[]
-      having: SafeString[]
-      distinct: boolean
-      clickhouseWith: ClickhouseWith[]
+      from: TableOrSubquery<any, any, any, any> | null;
+      selection: SelectionWrapperTypes<Selection>;
+      replace: ReplaceT<Selection>;
+      orderBy: SafeString[];
+      groupBy: SafeString[];
+      limit: SafeString | number | null;
+      where: SafeString[];
+      prewhere: SafeString[];
+      having: SafeString[];
+      distinct: boolean;
+      clickhouseWith: ClickhouseWith[];
     }
-  )
+  );
 }
 ```
 
@@ -53,7 +52,21 @@ Clickhouse specific syntax extensions.
 **Signature**
 
 ```ts
-clickhouse: { with_: <NewSelection extends string>(it: Record<NewSelection, SelectStatement<any, any>>) => SelectStatement<Scope | NewSelection, Selection>; prewhere: (f: (fields: Record<Scope | Selection, SafeString>) => SafeString[] | SafeString) => SelectStatement<Scope, Selection>; replace: <NewSelection extends string>(f: (f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError) => ReplaceT<Selection>) => SelectStatement<Scope, Selection | NewSelection>; }
+clickhouse: {
+  with_: <NewSelection extends string>(
+    it: Record<NewSelection, SelectStatement<any, any>>
+  ) => SelectStatement<Scope | NewSelection, Selection>;
+  prewhere: (
+    f: (
+      fields: Record<Scope | Selection, SafeString>
+    ) => SafeString[] | SafeString
+  ) => SelectStatement<Scope, Selection>;
+  replace: <NewSelection extends string>(
+    f: (
+      f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
+    ) => ReplaceT<Selection>
+  ) => SelectStatement<Scope, Selection | NewSelection>;
+}
 ```
 
 Added in v0.0.0
@@ -63,7 +76,12 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-select: <NewSelection extends string>(f: (f: Record<Selection | `main_alias.${Selection}`, SafeString> & NoSelectFieldsCompileError) => Record<NewSelection, SafeString>) => SelectStatement<Selection | `main_alias.${Selection}`, NewSelection>
+select: <NewSelection extends string>(
+  f: (
+    f: Record<Selection | `main_alias.${Selection}`, SafeString> &
+      NoSelectFieldsCompileError
+  ) => Record<NewSelection, SafeString>
+) => SelectStatement<Selection | `main_alias.${Selection}`, NewSelection>;
 ```
 
 Added in v0.0.0
@@ -73,7 +91,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-selectStar: () => SelectStatement<Selection, Selection>
+selectStar: () => SelectStatement<Selection, Selection>;
 ```
 
 Added in v0.0.0
@@ -83,7 +101,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-appendSelectStar: () => SelectStatement<Selection, Selection>
+appendSelectStar: () => SelectStatement<Selection, Selection>;
 ```
 
 Added in v0.0.0
@@ -93,7 +111,12 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-appendSelect: <NewSelection extends string>(f: (f: Record<Selection | Scope | `main_alias.${Selection}`, SafeString> & NoSelectFieldsCompileError) => Record<NewSelection, SafeString>) => SelectStatement<Scope, Selection | NewSelection>
+appendSelect: <NewSelection extends string>(
+  f: (
+    f: Record<Selection | Scope | `main_alias.${Selection}`, SafeString> &
+      NoSelectFieldsCompileError
+  ) => Record<NewSelection, SafeString>
+) => SelectStatement<Scope, Selection | NewSelection>;
 ```
 
 Added in v0.0.0
@@ -103,7 +126,11 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-where: (f: (fields: Record<Scope | Selection, SafeString>) => SafeString[] | SafeString) => SelectStatement<Scope, Selection>
+where: (
+  f: (
+    fields: Record<Scope | Selection, SafeString>
+  ) => SafeString[] | SafeString
+) => SelectStatement<Scope, Selection>;
 ```
 
 Added in v0.0.0
@@ -113,7 +140,11 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-having: (f: (fields: Record<Scope | Selection, SafeString>) => SafeString[] | SafeString) => SelectStatement<Scope, Selection>
+having: (
+  f: (
+    fields: Record<Scope | Selection, SafeString>
+  ) => SafeString[] | SafeString
+) => SelectStatement<Scope, Selection>;
 ```
 
 Added in v0.0.0
@@ -123,7 +154,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-distinct: () => SelectStatement<Scope, Selection>
+distinct: () => SelectStatement<Scope, Selection>;
 ```
 
 Added in v0.0.0
@@ -133,7 +164,11 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-orderBy: (f: (fields: Record<Scope | Selection, SafeString>) => SafeString[] | SafeString) => SelectStatement<Scope, Selection>
+orderBy: (
+  f: (
+    fields: Record<Scope | Selection, SafeString>
+  ) => SafeString[] | SafeString
+) => SelectStatement<Scope, Selection>;
 ```
 
 Added in v0.0.0
@@ -143,7 +178,11 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-groupBy: (f: (fields: Record<Scope | Selection, SafeString>) => SafeString[] | SafeString) => SelectStatement<Scope, Selection>
+groupBy: (
+  f: (
+    fields: Record<Scope | Selection, SafeString>
+  ) => SafeString[] | SafeString
+) => SelectStatement<Scope, Selection>;
 ```
 
 Added in v0.0.0
@@ -153,7 +192,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-limit: (limit: SafeString | number) => SelectStatement<Scope, Selection>
+limit: (limit: SafeString | number) => SelectStatement<Scope, Selection>;
 ```
 
 Added in v0.0.0
@@ -163,7 +202,21 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-commaJoinTable: <Alias1 extends string, Selection2 extends string, Alias2 extends string>(thisQueryAlias: Alias1, table: Table<Selection2, Alias2>) => Joined<Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias1}.${Selection}`, Alias1 | Alias2, Extract<Selection2, Selection>>
+commaJoinTable: <
+  Alias1 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  thisQueryAlias: Alias1,
+  table: Table<Selection2, Alias2>
+) =>
+  Joined<
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias1}.${Selection}`,
+    Alias1 | Alias2,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -173,7 +226,24 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-joinTable: <Alias1 extends string, Selection2 extends string, Alias2 extends string>(thisQueryAlias: Alias1, operator: string, table: Table<Selection2, Alias2>) => JoinedFactory<Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias1}.${Selection}` | `${Alias2}.${Selection2}`, Alias1 | Alias2, Extract<Selection2, Selection>, Extract<Selection2, Selection>>
+joinTable: <
+  Alias1 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  thisQueryAlias: Alias1,
+  operator: string,
+  table: Table<Selection2, Alias2>
+) =>
+  JoinedFactory<
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias1}.${Selection}`
+    | `${Alias2}.${Selection2}`,
+    Alias1 | Alias2,
+    Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -183,7 +253,24 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-commaJoinSelect: <Alias1 extends string, Scope2 extends string, Selection2 extends string, Alias2 extends string>(thisSelectAlias: Alias1, selectAlias: Alias2, select: SelectStatement<Scope2, Selection2>) => Joined<Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias2}.${Selection2}` | `${Alias1}.${Selection}`, Alias1 | Alias2, Extract<Selection2, Selection>>
+commaJoinSelect: <
+  Alias1 extends string,
+  Scope2 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  thisSelectAlias: Alias1,
+  selectAlias: Alias2,
+  select: SelectStatement<Scope2, Selection2>
+) =>
+  Joined<
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`
+    | `${Alias1}.${Selection}`,
+    Alias1 | Alias2,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -193,7 +280,26 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-joinSelect: <Alias1 extends string, Scope2 extends string, Selection2 extends string, Alias2 extends string>(thisSelectAlias: Alias1, operator: string, selectAlias: Alias2, select: SelectStatement<Scope2, Selection2>) => JoinedFactory<Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias2}.${Selection2}` | `${Alias1}.${Selection}`, Alias1 | Alias2, Extract<Selection2, Selection>, Extract<Selection2, Selection>>
+joinSelect: <
+  Alias1 extends string,
+  Scope2 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  thisSelectAlias: Alias1,
+  operator: string,
+  selectAlias: Alias2,
+  select: SelectStatement<Scope2, Selection2>
+) =>
+  JoinedFactory<
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`
+    | `${Alias1}.${Selection}`,
+    Alias1 | Alias2,
+    Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -203,7 +309,23 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-commaJoinCompound: <Alias1 extends string, Selection2 extends string, Alias2 extends string>(thisSelectAlias: Alias1, compoundAlias: Alias2, compound: Compound<Selection2, Selection2>) => Joined<Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias1}.${Selection}` | `${Alias2}.${Selection2}`, Alias1 | Alias2, Extract<Selection2, Selection>>
+commaJoinCompound: <
+  Alias1 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  thisSelectAlias: Alias1,
+  compoundAlias: Alias2,
+  compound: Compound<Selection2, Selection2>
+) =>
+  Joined<
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias1}.${Selection}`
+    | `${Alias2}.${Selection2}`,
+    Alias1 | Alias2,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -213,7 +335,25 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-joinCompound: <Alias1 extends string, Selection2 extends string, Alias2 extends string>(thisSelectAlias: Alias1, operator: string, compoundAlias: Alias2, compound: Compound<Selection2, Selection2>) => JoinedFactory<Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias1}.${Selection}` | `${Alias2}.${Selection2}`, Alias1 | Alias2, Extract<Selection2, Selection>, Extract<Selection2, Selection>>
+joinCompound: <
+  Alias1 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  thisSelectAlias: Alias1,
+  operator: string,
+  compoundAlias: Alias2,
+  compound: Compound<Selection2, Selection2>
+) =>
+  JoinedFactory<
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias1}.${Selection}`
+    | `${Alias2}.${Selection2}`,
+    Alias1 | Alias2,
+    Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -223,7 +363,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-stringify: () => string
+stringify: () => string;
 ```
 
 Added in v0.0.0

@@ -11,6 +11,7 @@ import type { Code } from "mdast";
 import yaml from "js-yaml";
 import { pipe } from "fp-ts/lib/function";
 import * as O from "fp-ts/lib/Option";
+import * as prettier from "prettier";
 
 const isYaml = (it: Parent): it is Code & Parent => it.type === "yaml";
 
@@ -60,7 +61,7 @@ const fixFrontmatter =
         });
     };
 
-const process = async (
+const processRemark = async (
     content: string,
     parent: string,
     grand_parent: string | null
@@ -90,8 +91,9 @@ const copyFile = async (
     if (src.endsWith(".ts.md") && dest.endsWith(".ts.md")) {
         const content = await fs.readFile(src, "utf-8");
 
-        const processed = await process(content, parent, grand_parent);
-        await fs.writeFile(dest, processed);
+        const processed = await processRemark(content, parent, grand_parent);
+        const pretty = await prettier.format(processed, { filepath: "it.md" });
+        await fs.writeFile(dest, pretty);
     }
 };
 

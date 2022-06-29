@@ -4,7 +4,6 @@ nav_order: 2
 parent: Classes
 layout: default
 grand_parent: Api
-
 ---
 
 ## cte overview
@@ -22,11 +21,11 @@ export declare class CommonTableExpression<Selection, Alias> {
   private constructor(
     /* @internal */
     public __props: {
-      columns: string[]
-      alias: string
-      select: SelectStatement<any, any>
+      columns: string[];
+      alias: string;
+      select: SelectStatement<any, any>;
     }
-  )
+  );
 }
 ```
 
@@ -37,7 +36,12 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-select: <NewSelection extends string>(f: (f: Record<Selection | `${Alias}.${Selection}`, SafeString> & NoSelectFieldsCompileError) => Record<NewSelection, SafeString>) => SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection>
+select: <NewSelection extends string>(
+  f: (
+    f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
+      NoSelectFieldsCompileError
+  ) => Record<NewSelection, SafeString>
+) => SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection>;
 ```
 
 Added in v0.0.0

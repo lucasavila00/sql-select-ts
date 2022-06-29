@@ -291,7 +291,10 @@ const processFile = async (
         return;
     }
 
-    await fs.writeFile(ouputFile, String(file));
+    await fs.writeFile(
+        ouputFile,
+        prettier.format(String(file), { filepath: "it.md" })
+    );
 };
 async function main() {
     const transpileOnly = argv.some((it) => it.includes("--transpileOnly"));

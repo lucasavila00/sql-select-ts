@@ -1,21 +1,21 @@
 # Build
 
--   [ ] copy from fp-ts
+- [ ] copy from fp-ts
 
 # DOCS
 
--   [ ] document clickhouse extensions
+- [ ] document clickhouse extensions
 
--   [ ] cte examples
+- [ ] cte examples
 
--   [ ] easy extension sql safe string, example boolean in CH
+- [ ] easy extension sql safe string, example boolean in CH
 
 # Global
 
--   [ ] CI specify node version
+- [ ] CI specify node version
 
--   [ ] check TODO
+- [ ] check TODO
 
--   [ ] istanbul ignore, can some be removed?
+- [ ] istanbul ignore, can some be removed?
 
--   [ ] eslint (no console, no skip)
+- [ ] eslint (no console, no skip)

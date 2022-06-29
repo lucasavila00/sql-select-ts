@@ -4,7 +4,6 @@ nav_order: 5
 parent: Classes
 layout: default
 grand_parent: Api
-
 ---
 
 ## table overview
@@ -32,12 +31,12 @@ export declare class Table<Selection, Alias> {
   private constructor(
     /* @internal */
     public __props: {
-      columns: string[]
-      alias: string
-      name: string
-      final: boolean
+      columns: string[];
+      alias: string;
+      name: string;
+      final: boolean;
     }
-  )
+  );
 }
 ```
 
@@ -48,7 +47,9 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-clickhouse: { final: () => Table<Selection, Alias>; }
+clickhouse: {
+  final: () => Table<Selection, Alias>;
+}
 ```
 
 Added in v0.0.0
@@ -58,7 +59,12 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-select: <NewSelection extends string>(f: (f: Record<Selection | `${Alias}.${Selection}`, SafeString> & NoSelectFieldsCompileError) => Record<NewSelection, SafeString>) => SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection>
+select: <NewSelection extends string>(
+  f: (
+    f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
+      NoSelectFieldsCompileError
+  ) => Record<NewSelection, SafeString>
+) => SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection>;
 ```
 
 Added in v0.0.0
@@ -68,7 +74,8 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-selectStar: () => SelectStatement<Selection | `${Alias}.${Selection}`, Selection>
+selectStar: () =>
+  SelectStatement<Selection | `${Alias}.${Selection}`, Selection>;
 ```
 
 Added in v0.0.0
@@ -78,7 +85,17 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-commaJoinTable: <Selection2 extends string, Alias2 extends string>(table: Table<Selection2, Alias2>) => Joined<`${Alias}.${Selection}` | Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias2}.${Selection2}`, Alias | Alias2, Extract<Selection2, Selection>>
+commaJoinTable: <Selection2 extends string, Alias2 extends string>(
+  table: Table<Selection2, Alias2>
+) =>
+  Joined<
+    | `${Alias}.${Selection}`
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`,
+    Alias | Alias2,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -88,7 +105,19 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-joinTable: <Selection2 extends string, Alias2 extends string>(operator: string, table: Table<Selection2, Alias2>) => JoinedFactory<`${Alias}.${Selection}` | Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias2}.${Selection2}`, Alias | Alias2, Extract<Selection2, Selection>, Extract<Selection2, Selection>>
+joinTable: <Selection2 extends string, Alias2 extends string>(
+  operator: string,
+  table: Table<Selection2, Alias2>
+) =>
+  JoinedFactory<
+    | `${Alias}.${Selection}`
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`,
+    Alias | Alias2,
+    Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -98,7 +127,22 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-commaJoinSelect: <Scope2 extends string, Selection2 extends string, Alias2 extends string>(selectAlias: Alias2, select: SelectStatement<Scope2, Selection2>) => Joined<`${Alias}.${Selection}` | Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias2}.${Selection2}`, Alias | Alias2, Extract<Selection2, Selection>>
+commaJoinSelect: <
+  Scope2 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  selectAlias: Alias2,
+  select: SelectStatement<Scope2, Selection2>
+) =>
+  Joined<
+    | `${Alias}.${Selection}`
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`,
+    Alias | Alias2,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -108,7 +152,24 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-joinSelect: <Scope2 extends string, Selection2 extends string, Alias2 extends string>(selectAlias: Alias2, operator: string, select: SelectStatement<Scope2, Selection2>) => JoinedFactory<`${Alias}.${Selection}` | Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias2}.${Selection2}`, Alias | Alias2, Extract<Selection2, Selection>, Extract<Selection2, Selection>>
+joinSelect: <
+  Scope2 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  selectAlias: Alias2,
+  operator: string,
+  select: SelectStatement<Scope2, Selection2>
+) =>
+  JoinedFactory<
+    | `${Alias}.${Selection}`
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`,
+    Alias | Alias2,
+    Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -118,7 +179,18 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-commaJoinCompound: <Selection2 extends string, Alias2 extends string>(compoundAlias: Alias2, compound: Compound<Selection2, Selection2>) => Joined<`${Alias}.${Selection}` | Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias2}.${Selection2}`, Alias | Alias2, Extract<Selection2, Selection>>
+commaJoinCompound: <Selection2 extends string, Alias2 extends string>(
+  compoundAlias: Alias2,
+  compound: Compound<Selection2, Selection2>
+) =>
+  Joined<
+    | `${Alias}.${Selection}`
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`,
+    Alias | Alias2,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
@@ -128,7 +200,20 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-joinCompound: <Selection2 extends string, Alias2 extends string>(compoundAlias: Alias2, operator: string, compound: Compound<Selection2, Selection2>) => JoinedFactory<`${Alias}.${Selection}` | Exclude<Selection, Selection2> | Exclude<Selection2, Selection> | `${Alias2}.${Selection2}`, Alias | Alias2, Extract<Selection2, Selection>, Extract<Selection2, Selection>>
+joinCompound: <Selection2 extends string, Alias2 extends string>(
+  compoundAlias: Alias2,
+  operator: string,
+  compound: Compound<Selection2, Selection2>
+) =>
+  JoinedFactory<
+    | `${Alias}.${Selection}`
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`,
+    Alias | Alias2,
+    Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
 ```
 
 Added in v0.0.0
