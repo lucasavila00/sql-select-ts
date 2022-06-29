@@ -7,49 +7,14 @@ import { Parent, Node, Data } from "unist";
 import { format } from "sql-formatter";
 import * as Babel from "@babel/standalone";
 import { Plugin } from "unified";
-
-import {
-    SafeString,
-    sql as _sql,
-    table as _table,
-    unionAll as _unionAll,
-    castSafe as _castSafe,
-    fromNothing as _fromNothing,
-} from "../../lib/src";
-
-const table = _table;
-const sql = _sql;
-const unionAll = _unionAll;
-const castSafe = _castSafe;
-const fromNothing = _fromNothing;
-
-const users = table(
-    /* columns: */ ["id", "age", "name"],
-    /* db-name & alias: */ "users"
-);
-
-const admins = table(
-    /* columns: */ ["id", "age", "name"],
-    /* alias: */ "adm",
-    /* db-name: */ "admins"
-);
-
-const analytics = table(
-    /* columns: */ ["id", "clicks"],
-    /* db-name & alias: */ "analytics"
-);
-
-const equals = (
-    a: SafeString | number | string,
-    b: SafeString | number | string
-): SafeString => sql`${a} = ${b}`;
-
-const OR = (cases: SafeString[]): SafeString => {
-    const j = cases.map((it) => it.content).join(" OR ");
-    return castSafe(`(${j})`);
-};
+import { spawnSync } from "child_process";
+import { Ast, parseCommand } from "./command";
+import * as E from "fp-ts/lib/Either";
+import { pipe } from "fp-ts/lib/function";
 
 const isCode = (it: Parent): it is Code & Parent => it.type === "code";
+const isTsCode = (it: Parent): it is Code & Parent =>
+    isCode(it) && it.lang === "ts";
 
 const flatMap = (
     ast: Parent,
@@ -63,7 +28,7 @@ const flatMap = (
         if (node.children) {
             const out: (Node<Data> | Parent<Node<Data>, Data>)[] = [];
             for (let i = 0, n = node.children.length; i < n; i++) {
-                //@ts-expect-error
+                //@ts-ignore
                 const xs = transform(node.children[i], i, node);
                 if (xs) {
                     for (let j = 0, m = xs.length; j < m; j++) {
@@ -80,54 +45,132 @@ const flatMap = (
     return transform(ast, 0, null)[0];
 };
 
-const execTypescriptCode: Plugin = () => async (tree) => {
-    flatMap(tree as Parent, (node) => {
-        if (
-            isCode(node) &&
-            node.lang === "ts" &&
-            String(node.meta).split(" ").includes("eval-sql")
-        ) {
-            const jsCode = Babel.transform(node.value, {
-                filename: "any.ts",
-                presets: ["typescript"],
-            }).code;
+// TODO process AST, prevent 2 yeilds
+const isYieldBlock = (code: string) => code.includes("yield");
 
-            return [
-                { ...node, meta: null },
-                {
-                    type: "code",
-                    value: String(format(eval(jsCode!))),
-                    lang: "sql",
-                },
-            ];
-        }
-
-        return [node];
-    });
+const getFormattedCode = (meta: string, result: string) => {
+    if (meta.includes("--yield=sql")) {
+        return {
+            type: "code",
+            value: format(result),
+            lang: "sql",
+        };
+    }
+    throw new Error("not known meta: " + meta);
 };
-const collectTypescriptCode: Plugin = () => async (tree) => {
-    flatMap(tree as Parent, (node) => {
-        if (
-            isCode(node) &&
-            node.lang === "ts" &&
-            String(node.meta).split(" ").includes("eval")
-        ) {
-            console.error(node.value);
-        }
+const cmdParser = (source: string) =>
+    pipe(
+        source,
+        parseCommand("eval", (c) => `command not found: ${c}`),
+        E.fold(
+            (it) => null,
+            (it) => it
+        )
+    );
+const recreateMarkdown =
+    (jsonFile: string): Plugin =>
+    () =>
+    async (tree) => {
+        const vs = await fs.readFile(jsonFile, "utf8");
+        const values = JSON.parse(vs);
+        let idx = 0;
 
-        return [node];
-    });
-};
+        flatMap(tree as Parent, (node) => {
+            if (isTsCode(node)) {
+                const cmd = cmdParser(String(node.meta));
+                if (cmd != null) {
+                    if (isYieldBlock(node.value)) {
+                        const it = values[idx];
+                        idx++;
+                        return [
+                            {
+                                ...node,
+                                meta: null,
+                                value: node.value.replace("yield ", ""),
+                            },
+                            getFormattedCode(String(node.meta), it),
+                        ];
+                    }
+                    return [{ ...node, meta: null }];
+                }
+            }
+
+            return [node];
+        });
+    };
+const executeTypescript =
+    (tsFile: string, jsonFile: string): Plugin =>
+    () =>
+    async (tree) => {
+        let beforeFirstYield = "";
+        let code = "";
+        let hasYield = false;
+        flatMap(tree as Parent, (node) => {
+            if (isTsCode(node)) {
+                const cmd = cmdParser(String(node.meta));
+                if (cmd != null) {
+                    if (node.value.includes("yield")) {
+                        hasYield = true;
+                    }
+                    if (hasYield) {
+                        code += node.value;
+                        code += "\n";
+                    } else {
+                        beforeFirstYield += node.value;
+                        beforeFirstYield += "\n";
+                    }
+                }
+            }
+
+            return [node];
+        });
+
+        let final = "import * as fs from 'fs';\n";
+
+        final += beforeFirstYield;
+        final += `\nfunction* generator() {\n`;
+        final += code;
+        final += `\
+\n}
+const gen = generator();
+
+let collected = []
+for (const iterator of gen) {
+    collected.push(iterator);
+}
+fs.writeFileSync("${jsonFile}", JSON.stringify(collected));
+
+`;
+
+        await fs.writeFile(tsFile, final);
+
+        const it = spawnSync("ts-node", [tsFile], {
+            stdio: "pipe",
+            encoding: "utf8",
+        });
+        if (it.status !== 0) {
+            throw new Error(it.stderr);
+        }
+    };
+const convertOriginalFile = (originalFile: string, newExt: string): string =>
+    originalFile.replace(".md", newExt);
 async function main() {
-    const doc = await fs.readFile("./join.md");
+    const originalMarkdownFile = "./docs/select.md";
+    const tsFile = convertOriginalFile(originalMarkdownFile, ".exec.ts");
+    const jsonFile = convertOriginalFile(originalMarkdownFile, ".exec.json");
+    const execMarkdownFile = convertOriginalFile(
+        originalMarkdownFile,
+        ".exec.md"
+    );
 
+    const doc = await fs.readFile(originalMarkdownFile);
     const file = await unified()
         .use(remarkParse)
-        .use(collectTypescriptCode)
-        .use(execTypescriptCode)
+        .use(executeTypescript(tsFile, jsonFile))
+        .use(recreateMarkdown(jsonFile))
         .use(remarkStringify)
         .process(doc);
 
-    // console.log(String(file));
+    await fs.writeFile(execMarkdownFile, String(file));
 }
 main();

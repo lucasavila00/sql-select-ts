@@ -1,0 +1,4 @@
+node_modules/
+*.exec.ts
+*.exec.json
+# *.exec.md

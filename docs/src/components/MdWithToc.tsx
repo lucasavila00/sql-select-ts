@@ -15,23 +15,42 @@ export const MdWithToc: FC<{
   const responsive = useContext(ResponsiveContext);
   useScrollIntoView();
   return (
-    <Box
-      direction="row"
-      margin="auto"
-      justify="center"
-      pad={{ left: "medium" }}
-    >
-      <Box width="large" pad={{ top: "large" }}>
-        <Heading margin="none">{title}</Heading>
-        <MarkdocRenderer content={content} />
-      </Box>
+    <>
       {responsive === "small" ? (
-        <></>
-      ) : (
         <Box width="medium">
           <TableOfContents entries={tocEntries} headings={headings} />
         </Box>
+      ) : (
+        <></>
       )}
-    </Box>
+      <Box
+        direction="row"
+        margin="auto"
+        justify="center"
+        pad={{ left: "medium" }}
+      >
+        <Box width="large" pad={{ top: "large" }}>
+          <Heading margin="none">{title}</Heading>
+          <MarkdocRenderer content={content} />
+        </Box>
+        {responsive === "small" ? (
+          <></>
+        ) : (
+          <Box width="medium">
+            <Box
+              style={{
+                maxHeight: "calc(100vh - 72px)",
+                position: "sticky",
+                top: 72,
+              }}
+              className="hide-scrollbar"
+              overflow="scroll"
+            >
+              <TableOfContents entries={tocEntries} headings={headings} />
+            </Box>
+          </Box>
+        )}
+      </Box>
+    </>
   );
 };

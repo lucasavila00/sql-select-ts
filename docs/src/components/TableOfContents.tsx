@@ -1,4 +1,4 @@
-import { Anchor, Box, Nav } from "grommet";
+import { Anchor, Nav } from "grommet";
 import React, { FC } from "react";
 import { Section } from "../lib/collect-headings";
 import { AnchorLink } from "./AnchorLink";
@@ -60,25 +60,19 @@ export const TableOfContents: FC<{
   entries: TOCEntry[];
   headings: Section[];
 }> = ({ entries, headings }) => (
-  <Box
-    style={{ maxHeight: "calc(100vh - 72px)", position: "sticky", top: 72 }}
-    className="hide-scrollbar"
-    overflow="scroll"
-  >
-    <Nav pad="large">
-      {entries.map((it) => {
-        if (it.isOpen) {
-          return (
-            <OpenLink
-              to={it.appUrl}
-              label={it.title}
-              key={it.appUrl}
-              headings={headings}
-            />
-          );
-        }
-        return <ClosedLink to={it.appUrl} label={it.title} key={it.appUrl} />;
-      })}
-    </Nav>
-  </Box>
+  <Nav pad="large">
+    {entries.map((it) => {
+      if (it.isOpen) {
+        return (
+          <OpenLink
+            to={it.appUrl}
+            label={it.title}
+            key={it.appUrl}
+            headings={headings}
+          />
+        );
+      }
+      return <ClosedLink to={it.appUrl} label={it.title} key={it.appUrl} />;
+    })}
+  </Nav>
 );
