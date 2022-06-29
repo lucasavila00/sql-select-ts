@@ -38,6 +38,6 @@ install: lib-install ex-install
 lib-install:
 	cd lib && npm ci
 
-lib-install:
+ex-install:
 	cd ex && npm ci
 
