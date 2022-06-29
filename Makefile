@@ -1,6 +1,6 @@
 all: static test build-ts-docs
 
-u: update-jest-docs update-jest-lib
+u: update-jest-lib
 
 update-jest-lib:
 	cd lib && npm run test --- -u

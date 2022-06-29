@@ -1,12 +1,12 @@
+# Jekyll
+
+-   [ ] fix docs-ts files automatically
+
+-   [ ] make sure files were rebuilt
+
 # DOCS
 
--   [ ] examples lacks import
-
--   [ ] home lacks import
-
 -   [ ] document clickhouse extensions
-
-# LIB & DOCS
 
 -   [ ] easy extension sql safe string, example boolean in CH
 

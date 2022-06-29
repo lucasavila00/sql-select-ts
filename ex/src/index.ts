@@ -325,7 +325,7 @@ async function main() {
     const transpileOnly = argv.some((it) => it.includes("--transpileOnly"));
     const checkOnly = argv.some((it) => it.includes("--checkOnly"));
     const inFolder = "../../lib/docs-eval";
-    const outFolder = "../../lib/docs/examples";
+    const outFolder = "../../docs/examples";
     const files = (await fs.readdir(path.join(__dirname, inFolder))).filter(
         (it) => path.extname(it) === ".md"
     );
