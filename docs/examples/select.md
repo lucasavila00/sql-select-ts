@@ -1,8 +1,26 @@
+---
+title: Select
+nav_order: 7
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 # From Nothing
 
-## Select
+```ts
+import { fromNothing, sql, table, unionAll } from "../src";
+```
 
-{% printer %}
+## Select
 
 ```ts
 fromNothing({
@@ -11,11 +29,13 @@ fromNothing({
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  system.tables AS `it`,
+  123 + 456 AS `abc`
+```
 
 ## Append Select
-
-{% printer %}
 
 ```ts
 fromNothing({
@@ -28,7 +48,12 @@ fromNothing({
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  system.tables AS `it`,
+  123 AS `abc`,
+  abc + 456 AS `def`
+```
 
 # From Tables
 
@@ -56,29 +81,31 @@ const admins = table(
 
 ## Select star
 
-{% printer %}
-
 ```ts
 users.selectStar().stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+```
 
 ## Select a field
 
-{% printer %}
-
 ```ts
-admins
-  .select((f) => ({ name: f.name }))
-  .stringify();
+admins.select((f) => ({ name: f.name })).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  name AS `name`
+FROM
+  `admins` AS `adm`
+```
 
 ## Select distinct
-
-{% printer %}
 
 ```ts
 admins
@@ -87,11 +114,14 @@ admins
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  DISTINCT name AS `name`
+FROM
+  `admins` AS `adm`
+```
 
 ## Select star and a field
-
-{% printer %}
 
 ```ts
 users
@@ -102,11 +132,15 @@ users
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *,
+  name AS `otherAlias`
+FROM
+  `users`
+```
 
 ## Select a field and star
-
-{% printer %}
 
 ```ts
 admins
@@ -117,11 +151,15 @@ admins
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  adm.name AS `otherAlias`,
+  *
+FROM
+  `admins` AS `adm`
+```
 
 ## Select from sub-select
-
-{% printer %}
 
 ```ts
 users
@@ -131,26 +169,49 @@ users
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  (
+    SELECT
+      age AS `age`
+    FROM
+      (
+        SELECT
+          *
+        FROM
+          `users`
+      )
+  )
+```
 
 ## Select from union
 
-{% printer %}
-
 ```ts
-unionAll([
-  users.selectStar(),
-  admins.selectStar(),
-])
+unionAll([users.selectStar(), admins.selectStar()])
   .select((f) => ({ age: f.age }))
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  age AS `age`
+FROM
+  (
+    SELECT
+      *
+    FROM
+      `users`
+    UNION ALL
+    SELECT
+      *
+    FROM
+      `admins` AS `adm`
+  )
+```
 
 ## Select from join
-
-{% printer %}
 
 ```ts
 users
@@ -163,23 +224,54 @@ users
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  users.name AS `userName`,
+  adm.name AS `admName`
+FROM
+  `users`
+  LEFT JOIN `admins` AS `adm` USING(`id`)
+```
 
 # Don't select the fields object directly
 
-TODO
+This is not valid. The typescript compiler will prevent this.
+
+```ts
+users
+  // @ts-expect-error
+  .select((f) => f);
+```
 
 # Alias of sub-selection
 
-It shows up on the codebase as `main_alias`.
+Sub selections that are not in a join context can be refered to by using `main_alias`.
 
-TODO
+```ts
+users
+  .selectStar()
+  .where((f) => sql`${f.id} = 5`)
+  .select((f) => ({ a: f["main_alias.id"] }))
+  .stringify();
+```
+
+```sql
+SELECT
+  main_alias.id AS `a`
+FROM
+  (
+    SELECT
+      *
+    FROM
+      `users`
+    WHERE
+      id = 5
+  ) AS main_alias
+```
 
 # Control order of selection
 
 Although it works on most cases, order of selection is not guaranteed.
-
-{% printer %}
 
 ```ts
 users
@@ -190,9 +282,13 @@ users
   .stringify();
 ```
 
-{% /printer %}
-
-{% printer %}
+```sql
+SELECT
+  name AS `abc`,
+  id AS `def`
+FROM
+  `users`
+```
 
 ```ts
 users
@@ -204,12 +300,17 @@ users
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  age AS `123`,
+  id AS `456`,
+  name AS `name`
+FROM
+  `users`
+```
 
 To achieve control of the selection order, append each item individually.
 
-{% printer %}
-
 ```ts
 users
   .select((f) => ({
@@ -224,4 +325,11 @@ users
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  age AS `123`,
+  name AS `name`,
+  id AS `456`
+FROM
+  `users`
+```

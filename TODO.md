@@ -1,12 +1,12 @@
+# Jekyll
+
+-   [ ] fix docs-ts files automatically
+
+-   [ ] make sure files were rebuilt
+
 # DOCS
 
--   [ ] ID in dom is not taking it's parent into account (join table click in join examples)
-
--   [ ] examples lacks import
-
--   [ ] home lacks import
-
-# LIB & DOCS
+-   [ ] document clickhouse extensions
 
 -   [ ] easy extension sql safe string, example boolean in CH
 

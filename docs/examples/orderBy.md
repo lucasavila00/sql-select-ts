@@ -1,3 +1,23 @@
+---
+title: Order by
+nav_order: 10
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+```ts
+import { table, sql } from "../src";
+```
+
 We will use this table
 
 ```sql
@@ -15,8 +35,6 @@ const users = table(
 
 # One Clause
 
-{% printer %}
-
 ```ts
 users
   .selectStar()
@@ -24,29 +42,37 @@ users
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+ORDER BY
+  age
+```
 
 # Two Clauses
 
 ## One call
 
-{% printer %}
-
 ```ts
 users
   .selectStar()
-  .orderBy((f) => [
-    sql`${f.age} DESC`,
-    f.id,
-  ])
+  .orderBy((f) => [sql`${f.age} DESC`, f.id])
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+ORDER BY
+  age DESC,
+  id
+```
 
 ## Two calls
-
-{% printer %}
 
 ```ts
 users
@@ -56,4 +82,12 @@ users
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+ORDER BY
+  age,
+  id
+```

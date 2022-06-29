@@ -4,15 +4,21 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "e2": "node --loader ts-node/esm --experimental-specifier-resolution=node ./src/index.ts",
-        "e": "ts-node ./src/index.ts",
-        "t": "node --loader ts-node/esm --experimental-specifier-resolution=node ./src/template.ts"
+        "transpile": "nodemon --quiet --watch ../lib/docs-eval -e md --exec \"ts-node\" --transpileOnly ./src/index.ts --transpileOnly",
+        "check": "nodemon --watch ../lib/docs-eval -e md --exec \"ts-node\" --transpileOnly ./src/index.ts --checkOnly",
+        "all": "concurrently --raw  \"npm run transpile\" \"npm run check\""
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
         "@babel/standalone": "^7.18.5",
+        "concurrently": "^7.2.2",
+        "fp-ts": "^2.12.1",
+        "nodemon": "^2.0.18",
+        "parser-ts": "^0.6.16",
+        "prettier": "^2.7.1",
+        "remark-frontmatter": "^3.0.0",
         "remark-parse": "^9.0.0",
         "remark-stringify": "^9.0.1",
         "sql-formatter": "^7.0.2",
@@ -24,6 +30,7 @@
     },
     "devDependencies": {
         "@types/babel__standalone": "^7.1.4",
-        "@types/node": "^18.0.0"
+        "@types/node": "^18.0.0",
+        "@types/prettier": "^2.6.3"
     }
 }

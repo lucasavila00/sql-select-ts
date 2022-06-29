@@ -1,3 +1,23 @@
+---
+title: Where
+nav_order: 15
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+```ts
+import { table, sql } from "../src";
+```
+
 We will use this table
 
 ```sql
@@ -15,52 +35,62 @@ const users = table(
 
 # One Clause
 
-{% printer %}
-
 ```ts
 const name = "Lucas";
 users
   .selectStar()
-  .where(
-    (f) => sql`${f.name} = ${name}`
-  )
+  .where((f) => sql`${f.name} = ${name}`)
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+WHERE
+  name = 'Lucas'
+```
 
 # Two Clauses
 
 ## One call
 
-{% printer %}
-
 ```ts
-const name = "Lucas";
+const name2 = "Lucas";
 users
   .selectStar()
-  .where((f) => [
-    sql`${f.name} = ${name}`,
-    sql`${f.id} = 5`,
-  ])
+  .where((f) => [sql`${f.name} = ${name2}`, sql`${f.id} = 5`])
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+WHERE
+  name = 'Lucas'
+  AND id = 5
+```
 
 ## Two calls
-
-{% printer %}
 
 ```ts
 const id = 5;
 users
   .selectStar()
-  .where(
-    (f) => sql`${f.name} = 'Lucas'`
-  )
+  .where((f) => sql`${f.name} = 'Lucas'`)
   .where((f) => sql`${f.id} = ${id}`)
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+WHERE
+  name = 'Lucas'
+  AND id = 5
+```

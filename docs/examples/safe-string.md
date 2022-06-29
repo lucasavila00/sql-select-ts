@@ -1,6 +1,24 @@
+---
+title: Safe string
+nav_order: 6
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 # sql - As Function
 
-{% printer %}
+```ts
+import { fromNothing, sql, unionAll, SafeString, castSafe } from "../src";
+```
 
 ```ts
 fromNothing({
@@ -10,13 +28,16 @@ fromNothing({
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  'abc' AS `string`,
+  123 AS `number`,
+  NULL AS `null`
+```
 
 # sql - As String Template Literal
 
 ## String Literal
-
-{% printer %}
 
 ```ts
 fromNothing({
@@ -24,11 +45,12 @@ fromNothing({
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  system.tables AS `it`
+```
 
 ## String Interpolation
-
-{% printer %}
 
 ```ts
 const name = "Lucas";
@@ -37,11 +59,12 @@ fromNothing({
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  'a' = 'Lucas' AS `it`
+```
 
 ## Number Interpolation
-
-{% printer %}
 
 ```ts
 const n = 456;
@@ -50,11 +73,12 @@ fromNothing({
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  123 = 456 AS `it`
+```
 
 ## Array Interpolation
-
-{% printer %}
 
 ```ts
 const nums = [1, 2, 3];
@@ -64,26 +88,31 @@ fromNothing({
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  1 IN (1, 2, 3) AS `it`
+```
 
 ## Select Interpolation
 
-{% printer %}
-
 ```ts
-const q1 = fromNothing({
+const q0 = fromNothing({
   it: sql`123 = 456`,
 });
 fromNothing({
-  isIn: sql`something IN ${q1}`,
+  isIn: sql`something IN ${q0}`,
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  something IN (
+    SELECT
+      123 = 456 AS `it`
+  ) AS `isIn`
+```
 
 ## Compound Interpolation
-
-{% printer %}
 
 ```ts
 const q1 = fromNothing({
@@ -98,37 +127,63 @@ fromNothing({
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  something IN (
+    SELECT
+      123 = 456 AS `it`
+    UNION ALL
+    SELECT
+      1 > 0 AS `it`
+  ) AS `isIn`
+```
 
 ## Composition
 
-{% printer %}
-
 ```ts
-const square = (
-  it: SafeString
-): SafeString =>
-  sql`((${it}) * (${it}))`;
+const square = (it: SafeString): SafeString => sql`((${it}) * (${it}))`;
 
 const four = square(sql(2));
 
 fromNothing({
   four,
-  it: square(
-    square(
-      square(
-        sql`system.tables + ${four}`
-      )
-    )
-  ),
+  it: square(square(square(sql`system.tables + ${four}`))),
 }).stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  ((2) * (2)) AS `four`,
+  (
+    (
+      (
+        (
+          (
+            (system.tables + ((2) * (2))) * (system.tables + ((2) * (2)))
+          )
+        ) * (
+          (
+            (system.tables + ((2) * (2))) * (system.tables + ((2) * (2)))
+          )
+        )
+      )
+    ) * (
+      (
+        (
+          (
+            (system.tables + ((2) * (2))) * (system.tables + ((2) * (2)))
+          )
+        ) * (
+          (
+            (system.tables + ((2) * (2))) * (system.tables + ((2) * (2)))
+          )
+        )
+      )
+    )
+  ) AS `it`
+```
 
 # Convert Raw String to Safe String
-
-{% printer %}
 
 ```ts
 const str = `aFunction(123)`;
@@ -136,21 +191,23 @@ const filter = castSafe(str);
 fromNothing({ it: filter }).stringify();
 ```
 
-{% /printer %}
-
-{% printer %}
-
-```ts
-const str = `aFunction(123)`;
-const filter = sql`${str}`;
-fromNothing({ it: filter }).stringify();
+```sql
+SELECT
+  aFunction(123) AS `it`
 ```
 
-{% /printer %}
+```ts
+const str2 = `aFunction(123)`;
+const filter2 = sql`${str2}`;
+fromNothing({ it: filter2 }).stringify();
+```
+
+```sql
+SELECT
+  'aFunction(123)' AS `it`
+```
 
 # Accessing string content
-
-{% printer %}
 
 ```ts
 const b = "b";
@@ -158,7 +215,9 @@ const it = sql`a = ${b}`;
 it.content;
 ```
 
-{% /printer %}
+```sql
+a = 'b'
+```
 
 # Common used helpers
 
@@ -170,34 +229,26 @@ const equals = (
   b: SafeString | number | string
 ): SafeString => sql`${a} = ${b}`;
 
-equals(1, 2).content;
+equals(1, 2);
 ```
 
-```sql
-1 = 2
+```json
+{ "_tag": "SafeString", "content": "1 = 2" }
 ```
 
 ## OR
 
-{% printer %}
-
 ```ts
-const OR = (
-  ...cases: SafeString[]
-): SafeString => {
-  const j = cases
-    .map((it) => it.content)
-    .join(" OR ");
+const OR = (...cases: SafeString[]): SafeString => {
+  const j = cases.map((it) => it.content).join(" OR ");
   return castSafe(`(${j})`);
 };
-OR(
-  equals(1, 2),
-  equals(3, 4),
-  equals("a", "b")
-).content;
+OR(equals(1, 2), equals(3, 4), equals("a", "b"));
 ```
 
-{% /printer %}
+```json
+{ "_tag": "SafeString", "content": "(1 = 2 OR 3 = 4 OR 'a' = 'b')" }
+```
 
 # Extending
 

@@ -1,3 +1,23 @@
+---
+title: Join
+nav_order: 8
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
+```ts
+import { table, SafeString, sql, unionAll } from "../src";
+```
+
 We will use these tables
 
 ```sql
@@ -39,43 +59,46 @@ const equals = (
 
 ## Join Table
 
-{% printer %}
-
 ```ts
 users
   .joinTable("LEFT", admins)
-  .on((f) =>
-    equals(f["adm.id"], f["users.id"])
-  )
+  .on((f) => equals(f["adm.id"], f["users.id"]))
   .selectStar()
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+  LEFT JOIN `admins` AS `adm` ON adm.id = users.id
+```
 
 ## Join Select
 
-{% printer %}
-
 ```ts
 admins
-  .joinSelect(
-    "u",
-    "LEFT",
-    users.selectStar()
-  )
-  .on((f) =>
-    equals(f["u.id"], f["adm.id"])
-  )
+  .joinSelect("u", "LEFT", users.selectStar())
+  .on((f) => equals(f["u.id"], f["adm.id"]))
   .selectStar()
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `admins` AS `adm`
+  LEFT JOIN (
+    SELECT
+      *
+    FROM
+      `users`
+  ) AS `u` ON u.id = adm.id
+```
 
 ## Join Compound
-
-{% printer %}
 
 ```ts
 admins
@@ -83,244 +106,297 @@ admins
     "u",
     "LEFT",
     unionAll([
-      users
-        .selectStar()
-        .where((f) => sql`${f.id} = 1`),
-      users
-        .selectStar()
-        .where((f) => sql`${f.id} = 2`),
+      users.selectStar().where((f) => sql`${f.id} = 1`),
+      users.selectStar().where((f) => sql`${f.id} = 2`),
     ])
   )
-  .on((f) =>
-    equals(f["u.id"], f["adm.id"])
-  )
+  .on((f) => equals(f["u.id"], f["adm.id"]))
   .selectStar()
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `admins` AS `adm`
+  LEFT JOIN (
+    SELECT
+      *
+    FROM
+      `users`
+    WHERE
+      id = 1
+    UNION ALL
+    SELECT
+      *
+    FROM
+      `users`
+    WHERE
+      id = 2
+  ) AS `u` ON u.id = adm.id
+```
 
 ## Join 3 Tables
-
-{% printer %}
 
 ```ts
 users
   .joinTable("LEFT", admins)
-  .on((f) =>
-    equals(f["adm.id"], f["users.id"])
-  )
+  .on((f) => equals(f["adm.id"], f["users.id"]))
   .joinTable("LEFT", analytics)
-  .on((f) =>
-    equals(
-      f["analytics.id"],
-      f["users.id"]
-    )
-  )
+  .on((f) => equals(f["analytics.id"], f["users.id"]))
   .selectStar()
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+  LEFT JOIN `admins` AS `adm` ON adm.id = users.id
+  LEFT JOIN `analytics` ON analytics.id = users.id
+```
 
 ## Join 3 Selects
-
-{% printer %}
 
 ```ts
 const userAndAdmin = users
   .selectStar()
-  .joinSelect(
-    "users",
-    "LEFT",
-    "admins",
-    admins.selectStar()
-  )
-  .on((f) =>
-    equals(
-      f["admins.id"],
-      f["users.id"]
-    )
-  );
+  .joinSelect("users", "LEFT", "admins", admins.selectStar())
+  .on((f) => equals(f["admins.id"], f["users.id"]));
 
 const userAdminAnalytics = userAndAdmin
-  .joinSelect(
-    "LEFT",
-    "analyitcs",
-    analytics.selectStar()
-  )
-  .on((f) =>
-    equals(
-      f["analytics.id"],
-      f["users.id"]
-    )
-  );
+  .joinSelect("LEFT", "analytics", analytics.selectStar())
+  .on((f) => equals(f["analytics.id"], f["users.id"]));
 
-userAdminAnalytics
-  .selectStar()
-  .stringify();
+userAdminAnalytics.selectStar().stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  (
+    SELECT
+      *
+    FROM
+      `users`
+  ) AS `users`
+  LEFT JOIN (
+    SELECT
+      *
+    FROM
+      `admins` AS `adm`
+  ) AS `admins` ON admins.id = users.id
+  LEFT JOIN (
+    SELECT
+      *
+    FROM
+      `analytics`
+  ) AS `analytics` ON analytics.id = users.id
+```
 
 # USING
 
-## Join Table {% #using-join-table %}
-
-{% printer %}
+## Join Table
 
 ```ts
-users
-  .joinTable("LEFT", admins)
-  .using(["id"])
-  .selectStar()
-  .stringify();
+users.joinTable("LEFT", admins).using(["id"]).selectStar().stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+  LEFT JOIN `admins` AS `adm` USING(`id`)
+```
 
-## Join Select {% #using-join-select %}
-
-{% printer %}
+## Join Select
 
 ```ts
 admins
-  .joinSelect(
-    "u",
-    "LEFT",
-    users.selectStar()
-  )
+  .joinSelect("u", "LEFT", users.selectStar())
   .using(["id"])
   .selectStar()
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `admins` AS `adm`
+  LEFT JOIN (
+    SELECT
+      *
+    FROM
+      `users`
+  ) AS `u` USING(`id`)
+```
 
 # No Constraint
 
-## Join Table {% #no-constraint-join-table %}
-
-{% printer %}
+## Join Table
 
 ```ts
-users
-  .joinTable("NATURAL", admins)
-  .noConstraint()
-  .selectStar()
-  .stringify();
+users.joinTable("NATURAL", admins).noConstraint().selectStar().stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`
+  NATURAL JOIN `admins` AS `adm`
+```
 
-## Join Select {% #no-constraint-join-select %}
-
-{% printer %}
+## Join Select
 
 ```ts
 admins
-  .joinSelect(
-    "u",
-    "NATURAL",
-    users.selectStar()
-  )
+  .joinSelect("u", "NATURAL", users.selectStar())
   .noConstraint()
   .selectStar()
   .stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `admins` AS `adm`
+  NATURAL JOIN (
+    SELECT
+      *
+    FROM
+      `users`
+  ) AS `u`
+```
 
 # Comma Join
 
-## Join Table {% #comma-join-table %}
-
-{% printer %}
+## Join Table
 
 ```ts
-users
-  .commaJoinTable(admins)
-  .selectStar()
-  .stringify();
+users.commaJoinTable(admins).selectStar().stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`,
+  `admins` AS `adm`
+```
 
-## Join Select {% #comma-join-select %}
-
-{% printer %}
+## Join Select
 
 ```ts
-admins
-  .commaJoinSelect(
-    "u",
-    users.selectStar()
-  )
-  .selectStar()
-  .stringify();
+admins.commaJoinSelect("u", users.selectStar()).selectStar().stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `admins` AS `adm`,
+  (
+    SELECT
+      *
+    FROM
+      `users`
+  ) AS `u`
+```
 
-## Join Compound {% #comma-join-compound %}
-
-{% printer %}
+## Join Compound
 
 ```ts
 admins
   .commaJoinCompound(
     "u",
     unionAll([
-      users
-        .selectStar()
-        .where((f) => sql`${f.id} = 1`),
-      users
-        .selectStar()
-        .where((f) => sql`${f.id} = 2`),
+      users.selectStar().where((f) => sql`${f.id} = 1`),
+      users.selectStar().where((f) => sql`${f.id} = 2`),
     ])
   )
   .selectStar()
   .stringify();
 ```
 
-{% /printer %}
-
-## Join 3 Tables {% #comma-join-3-tables %}
-
-{% printer %}
-
-```ts
-users
-  .commaJoinTable(admins)
-  .commaJoinTable(analytics)
-  .selectStar()
-  .stringify();
+```sql
+SELECT
+  *
+FROM
+  `admins` AS `adm`,
+  (
+    SELECT
+      *
+    FROM
+      `users`
+    WHERE
+      id = 1
+    UNION ALL
+    SELECT
+      *
+    FROM
+      `users`
+    WHERE
+      id = 2
+  ) AS `u`
 ```
 
-{% /printer %}
-
-## Join 3 Selects {% #comma-join-3-selects %}
-
-{% printer %}
+## Join 3 Tables
 
 ```ts
-const userAndAdmin = users
-  .selectStar()
-  .commaJoinSelect(
-    "users",
-    "admins",
-    admins.selectStar()
-  );
-
-const userAdminAnalytics =
-  userAndAdmin.commaJoinSelect(
-    "analyitcs",
-    analytics.selectStar()
-  );
-
-userAdminAnalytics
-  .selectStar()
-  .stringify();
+users.commaJoinTable(admins).commaJoinTable(analytics).selectStar().stringify();
 ```
 
-{% /printer %}
+```sql
+SELECT
+  *
+FROM
+  `users`,
+  `admins` AS `adm`,
+  `analytics`
+```
+
+## Join 3 Selects
+
+```ts
+const userAndAdmin2 = users
+  .selectStar()
+  .commaJoinSelect("users", "admins", admins.selectStar());
+
+const userAdminAnalytics2 = userAndAdmin2.commaJoinSelect(
+  "analyitcs",
+  analytics.selectStar()
+);
+
+userAdminAnalytics2.selectStar().stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  (
+    SELECT
+      *
+    FROM
+      `users`
+  ) AS `users`,
+  (
+    SELECT
+      *
+    FROM
+      `admins` AS `adm`
+  ) AS `admins`,
+  (
+    SELECT
+      *
+    FROM
+      `analytics`
+  ) AS `analyitcs`
+```
