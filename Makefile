@@ -25,7 +25,7 @@ ts-check-lib:
 prettier-lib:
 	cd lib && npm run prettier-check
 
-install: docs-install lib-install
+install: lib-install
 
 lib-install:
 	cd lib && npm ci

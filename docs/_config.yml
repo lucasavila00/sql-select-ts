@@ -1,5 +1,5 @@
 remote_theme: pmarsceill/just-the-docs
-theme: just-the-docs
+
 # Enable or disable the site search
 search_enabled: true
 
@@ -7,3 +7,6 @@ search_enabled: true
 aux_links:
     "sql-select-ts on GitHub":
         - "https://lucasavila00.github.io/sql-select-ts/"
+
+plugins:
+    - jekyll-remote-theme
