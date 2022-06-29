@@ -5,14 +5,14 @@ import remarkParse from "remark-parse";
 import type { Code } from "mdast";
 import { Parent, Node, Data } from "unist";
 import { format } from "sql-formatter";
-import * as Babel from "@babel/standalone";
 import { Plugin } from "unified";
 import { spawnSync } from "child_process";
 import { Ast, parseCommand } from "./command";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
 import * as prettier from "prettier";
-
+import * as path from "path";
+import { argv } from "node:process";
 const isCode = (it: Parent): it is Code & Parent => it.type === "code";
 const isTsCode = (it: Parent): it is Code & Parent =>
     isCode(it) && it.lang === "ts";
@@ -143,6 +143,15 @@ const getFormattedCode = (cmd: Ast, result: string) => {
             lang: "sql",
         };
     }
+    if (cmd.args.named["yield"] === "json") {
+        return {
+            type: "code",
+            value: prettier
+                .format(JSON.stringify(result), { parser: "json" })
+                .trim(),
+            lang: "json",
+        };
+    }
     throw new Error("not known meta: " + JSON.stringify(cmd));
 };
 const cmdParser = (source: string) =>
@@ -186,7 +195,7 @@ const recreateMarkdown =
         });
     };
 const executeTypescript =
-    (tsFile: string, jsonFile: string): Plugin =>
+    (tsFile: string, jsonFile: string, extraFlags: string[]): Plugin =>
     () =>
     async (tree) => {
         let beforeFirstYield = "";
@@ -215,23 +224,28 @@ const executeTypescript =
         let final = "import * as fs from 'fs';\n";
 
         final += beforeFirstYield;
-        final += `\nfunction* generator() {\n`;
+        final += `\nasync function* generator() {\n`;
         final += code;
         final += `\
 \n}
-const gen = generator();
 
-let collected = []
-for (const iterator of gen) {
-    collected.push(iterator);
+const main = async () => {
+    const gen = generator();
+    let collected : any[]= []
+    for await (const iterator of gen) {
+        collected.push(iterator);
+    }
+    fs.writeFileSync("${jsonFile}", JSON.stringify(collected));
 }
-fs.writeFileSync("${jsonFile}", JSON.stringify(collected));
+main()
 
 `;
 
-        await fs.writeFile(tsFile, final);
-
-        const it = spawnSync("ts-node", [tsFile], {
+        await fs.writeFile(
+            tsFile,
+            prettier.format(final, { filepath: "it.ts" })
+        );
+        const it = spawnSync("ts-node", [...extraFlags, tsFile], {
             stdio: "pipe",
             encoding: "utf8",
         });
@@ -240,24 +254,48 @@ fs.writeFileSync("${jsonFile}", JSON.stringify(collected));
         }
     };
 const convertOriginalFile = (originalFile: string, newExt: string): string =>
-    originalFile.replace(".md", newExt);
-async function main() {
-    const originalMarkdownFile = "./docs/select.md";
-    const tsFile = convertOriginalFile(originalMarkdownFile, ".exec.ts");
-    const jsonFile = convertOriginalFile(originalMarkdownFile, ".exec.json");
-    const execMarkdownFile = convertOriginalFile(
-        originalMarkdownFile,
-        ".exec.md"
+    pipe(originalFile.split("."), (arr) =>
+        arr.slice(0, -1).concat(newExt).join(".")
     );
+
+const processFile = async (
+    inFolder: string,
+    outFolder: string,
+    f: string,
+    transpileOnly: boolean
+) => {
+    const originalMarkdownFile = path.join(__dirname, inFolder, f);
+
+    const ouputFile = path.join(__dirname, outFolder, f);
+
+    const tsFile = convertOriginalFile(originalMarkdownFile, "exec.ts");
+    const jsonFile = convertOriginalFile(originalMarkdownFile, "exec.json");
 
     const doc = await fs.readFile(originalMarkdownFile);
     const file = await unified()
         .use(remarkParse)
-        .use(executeTypescript(tsFile, jsonFile))
+        .use(
+            executeTypescript(
+                tsFile,
+                jsonFile,
+                transpileOnly ? ["--transpileOnly"] : []
+            )
+        )
         .use(recreateMarkdown(jsonFile))
         .use(remarkStringify)
         .process(doc);
 
-    await fs.writeFile(execMarkdownFile, String(file));
+    await fs.writeFile(ouputFile, String(file));
+};
+async function main() {
+    const transpileOnly = argv.some((it) => it.includes("--transpileOnly"));
+    const inFolder = "../../lib/docs-eval";
+    const outFolder = "../../lib/docs/examples";
+    const files = (await fs.readdir(path.join(__dirname, inFolder))).filter(
+        (it) => path.extname(it) === ".md"
+    );
+    await Promise.all(
+        files.map((f) => processFile(inFolder, outFolder, f, transpileOnly))
+    );
 }
 main();
