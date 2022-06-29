@@ -7,6 +7,7 @@
         "transpile": "nodemon --quiet --watch ../lib/docs-eval -e md --exec \"ts-node\" --transpileOnly ./src/run-docs-eval.ts --transpileOnly",
         "check": "nodemon --watch ../lib/docs-eval -e md --exec \"ts-node\" --transpileOnly ./src/run-docs-eval.ts --checkOnly",
         "all": "concurrently --raw  \"npm run transpile\" \"npm run check\"",
+        "run-docs-eval": "ts-node ./src/run-docs-eval.ts",
         "fix-docs-ts": "ts-node ./src/copy-fix-docs-ts.ts"
     },
     "keywords": [],

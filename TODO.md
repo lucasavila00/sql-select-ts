@@ -1,9 +1,3 @@
-# Jekyll
-
--   [ ] fix docs-ts files automatically
-
--   [ ] make sure files were rebuilt
-
 # Build
 
 -   [ ] copy from fp-ts

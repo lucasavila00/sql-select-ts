@@ -14,5 +14,14 @@ jobs:
             - name: Tests
               run: |
                   make install
+                  make static
                   make test
-                  make build-ts-docs
+
+                  echo "Check we are starting with clean git checkout"
+                  if [ -n "$(git status -uno -s)" ]; then echo "git status is not clean"; false; fi
+                  echo "Checking that it was built by building"
+
+                  make md
+
+                  echo "Check that build was unnecessary"
+                  if [ -n "$(git status -uno -s)" ]; then echo -e "!!! Unbuilt files."; false; fi
