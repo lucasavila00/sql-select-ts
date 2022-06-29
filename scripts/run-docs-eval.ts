@@ -3,7 +3,7 @@ import unified from "unified";
 import remarkStringify from "remark-stringify";
 import remarkParse from "remark-parse";
 import type { Code } from "mdast";
-import { Parent, Node, Data } from "unist";
+import { Parent } from "unist";
 import { format } from "sql-formatter";
 import { Plugin } from "unified";
 import { spawnSync } from "child_process";
@@ -37,6 +37,7 @@ function visitNode(node: any, fn: any) {
         // benchmarks well.
         const keys = Object.keys(node);
         for (let i = 0; i < keys.length; i++) {
+            // @ts-ignore
             node[keys[i]] = visitNode(node[keys[i]], fn);
         }
         return fn(node) || node;
@@ -133,7 +134,7 @@ const cmdParser = (source: string) =>
         source,
         parseCommand("eval", (c) => `command not found: ${c}`),
         E.fold(
-            (it) => null,
+            (_it) => null,
             (it) => it
         )
     );
@@ -299,8 +300,8 @@ const processFile = async (
 async function main() {
     const transpileOnly = argv.some((it) => it.includes("--transpileOnly"));
     const checkOnly = argv.some((it) => it.includes("--checkOnly"));
-    const inFolder = "../../lib/docs-eval";
-    const outFolder = "../../docs/examples";
+    const inFolder = "../docs-eval";
+    const outFolder = "../docs/examples";
     const files = (await fs.readdir(path.join(__dirname, inFolder))).filter(
         (it) => path.extname(it) === ".md"
     );

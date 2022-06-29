@@ -16,6 +16,7 @@ export const flatMap = (
                 const xs = transform(node.children[i], i, node);
                 if (xs) {
                     for (let j = 0, m = xs.length; j < m; j++) {
+                        //@ts-ignore
                         out.push(xs[j]);
                     }
                 }
@@ -26,5 +27,6 @@ export const flatMap = (
         return fn(node, index, parent);
     };
 
+    //@ts-ignore
     return transform(ast, 0, null)[0];
 };

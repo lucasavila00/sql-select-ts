@@ -115,8 +115,11 @@ const copyRecursive = async (src: string, dest: string, startDest: string) => {
     } else {
         const parent = pipe(
             dest.replace(startDest, "").split("/"),
-            (it) => it[it.length - 2],
-            (it) => it.charAt(0).toUpperCase() + it.slice(1)
+            (it) => O.fromNullable(it[it.length - 2]),
+            O.map((it) => it.charAt(0).toUpperCase() + it.slice(1)),
+            O.getOrElse<string>(() => {
+                throw new Error("must have parent");
+            })
         );
         const grand_parent = pipe(
             dest.replace(startDest, "").split("/"),
@@ -133,9 +136,9 @@ const copyRecursive = async (src: string, dest: string, startDest: string) => {
 };
 
 export const main = async () => {
-    const inFolder = path.join(__dirname, "../../lib/docs-ts-out/modules");
-    const outFolder = path.join(__dirname, "../../docs/api");
-    const startDest = path.join(__dirname, "../../docs");
+    const inFolder = path.join(__dirname, "../docs-ts-out/modules");
+    const outFolder = path.join(__dirname, "../docs/api");
+    const startDest = path.join(__dirname, "../docs");
 
     await copyRecursive(inFolder, outFolder, startDest);
 };

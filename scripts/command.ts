@@ -174,6 +174,7 @@ const flag: P.Parser<string, Flag> = pipe(
 const named: P.Parser<string, Named> = pipe(
     doubleDash,
     P.chain(() => P.sepBy1(equals, identifier)),
+    //@ts-ignore
     P.map(([name, value]) => Named(name, value))
 );
 
