@@ -6,7 +6,7 @@ search_enabled: true
 # Aux links for the upper right navigation
 aux_links:
     "sql-select-ts on GitHub":
-        - "https://lucasavila00.github.io/sql-select-ts/"
+        - "https://github.com/lucasavila00/sql-select-ts"
 
 plugins:
     - jekyll-remote-theme
