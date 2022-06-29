@@ -3,7 +3,8 @@ title: classes/table.ts
 nav_order: 5
 parent: Classes
 layout: default
-grand_parent: Modules
+grand_parent: Api
+
 ---
 
 ## table overview
@@ -13,24 +14,6 @@ It stores type information of the table Alias and Selection.
 It also stores the table name and the alias.
 
 Added in v0.0.0
-
----
-
-<h2 class="text-delta">Table of contents</h2>
-
--   [utils](#utils)
-    -   [Table (class)](#table-class)
-        -   [clickhouse (property)](#clickhouse-property)
-        -   [select (property)](#select-property)
-        -   [selectStar (property)](#selectstar-property)
-        -   [commaJoinTable (property)](#commajointable-property)
-        -   [joinTable (property)](#jointable-property)
-        -   [commaJoinSelect (property)](#commajoinselect-property)
-        -   [joinSelect (property)](#joinselect-property)
-        -   [commaJoinCompound (property)](#commajoincompound-property)
-        -   [joinCompound (property)](#joincompound-property)
-
----
 
 # utils
 
@@ -46,15 +29,15 @@ This class is not meant to be used directly, but rather through the `table` func
 
 ```ts
 export declare class Table<Selection, Alias> {
-    private constructor(
-        /* @internal */
-        public __props: {
-            columns: string[];
-            alias: string;
-            name: string;
-            final: boolean;
-        }
-    );
+  private constructor(
+    /* @internal */
+    public __props: {
+      columns: string[]
+      alias: string
+      name: string
+      final: boolean
+    }
+  )
 }
 ```
 

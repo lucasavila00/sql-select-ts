@@ -3,7 +3,8 @@ title: classes/compound.ts
 nav_order: 1
 parent: Classes
 layout: default
-grand_parent: Modules
+grand_parent: Api
+
 ---
 
 ## compound overview
@@ -11,26 +12,6 @@ grand_parent: Modules
 Represents https://www.sqlite.org/syntax/compound-select-stmt.html
 
 Added in v0.0.0
-
----
-
-<h2 class="text-delta">Table of contents</h2>
-
--   [utils](#utils)
-    -   [Compound (class)](#compound-class)
-        -   [orderBy (property)](#orderby-property)
-        -   [limit (property)](#limit-property)
-        -   [select (property)](#select-property)
-        -   [selectStar (property)](#selectstar-property)
-        -   [joinTable (property)](#jointable-property)
-        -   [commaJoinTable (property)](#commajointable-property)
-        -   [joinSelect (property)](#joinselect-property)
-        -   [commaJoinSelect (property)](#commajoinselect-property)
-        -   [joinCompound (property)](#joincompound-property)
-        -   [commaJoinCompound (property)](#commajoincompound-property)
-        -   [stringify (property)](#stringify-property)
-
----
 
 # utils
 
@@ -44,15 +25,15 @@ This class is not meant to be used directly, but rather through the `union`, `un
 
 ```ts
 export declare class Compound<Scope, Selection> {
-    private constructor(
-        /* @internal */
-        public __props: {
-            content: TableOrSubquery<any, any, any, any>[];
-            qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
-            orderBy: SafeString[];
-            limit: SafeString | number | null;
-        }
-    );
+  private constructor(
+    /* @internal */
+    public __props: {
+      content: TableOrSubquery<any, any, any, any>[]
+      qualifier: 'UNION' | 'UNION ALL' | 'INTERSECT' | 'EXCEPT'
+      orderBy: SafeString[]
+      limit: SafeString | number | null
+    }
+  )
 }
 ```
 
@@ -163,7 +144,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-stringify: () => string;
+stringify: () => string
 ```
 
 Added in v0.0.0

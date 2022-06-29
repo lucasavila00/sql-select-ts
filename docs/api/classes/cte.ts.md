@@ -3,22 +3,13 @@ title: classes/cte.ts
 nav_order: 2
 parent: Classes
 layout: default
-grand_parent: Modules
+grand_parent: Api
+
 ---
 
 ## cte overview
 
 Added in v0.0.0
-
----
-
-<h2 class="text-delta">Table of contents</h2>
-
--   [utils](#utils)
-    -   [CommonTableExpression (class)](#commontableexpression-class)
-        -   [select (property)](#select-property)
-
----
 
 # utils
 
@@ -28,14 +19,14 @@ Added in v0.0.0
 
 ```ts
 export declare class CommonTableExpression<Selection, Alias> {
-    private constructor(
-        /* @internal */
-        public __props: {
-            columns: string[];
-            alias: string;
-            select: SelectStatement<any, any>;
-        }
-    );
+  private constructor(
+    /* @internal */
+    public __props: {
+      columns: string[]
+      alias: string
+      select: SelectStatement<any, any>
+    }
+  )
 }
 ```
 

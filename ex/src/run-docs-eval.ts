@@ -14,39 +14,11 @@ import * as prettier from "prettier";
 import * as path from "path";
 import { argv } from "node:process";
 import remarkFrontmatter from "remark-frontmatter";
+import { flatMap } from "./flat-map";
 
 const isCode = (it: Parent): it is Code & Parent => it.type === "code";
 const isTsCode = (it: Parent): it is Code & Parent =>
     isCode(it) && it.lang === "ts";
-
-const flatMap = (
-    ast: Parent,
-    fn: (
-        it: Parent,
-        index: number,
-        parent: Parent | null
-    ) => (Parent | Node<Data>)[]
-): Node<Data> => {
-    const transform = (node: Parent, index: number, parent: Parent | null) => {
-        if (node.children) {
-            const out: (Node<Data> | Parent<Node<Data>, Data>)[] = [];
-            for (let i = 0, n = node.children.length; i < n; i++) {
-                //@ts-ignore
-                const xs = transform(node.children[i], i, node);
-                if (xs) {
-                    for (let j = 0, m = xs.length; j < m; j++) {
-                        out.push(xs[j]);
-                    }
-                }
-            }
-            node.children = out;
-        }
-
-        return fn(node, index, parent);
-    };
-
-    return transform(ast, 0, null)[0];
-};
 
 function visitNode(node: any, fn: any) {
     if (Array.isArray(node)) {
@@ -77,7 +49,7 @@ const removeYield = (code: string): string =>
         .format(code, {
             filepath: "it.ts",
             parser: (text, cfg) => {
-                const ast = cfg.typescript(text);
+                const ast: any = cfg.typescript(text);
 
                 const body = visitNode(ast.body, (node: any) => {
                     if (node.type === "YieldExpression") {
