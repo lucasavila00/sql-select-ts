@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest",
     "clear_jest": "jest --clearCache",
-    "start": "parcel src/index.html",
+    "start": "parcel src/index.html --no-cache",
     "build": "parcel build src/index.html --public-url /sql-select-ts",
     "ts": "tsc --noEmit",
     "prettier-check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css}\""

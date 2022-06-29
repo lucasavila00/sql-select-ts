@@ -1,6 +1,6 @@
 # DOCS
 
--   [ ] make docs-ts example a requirement
+-   [ ] ID in dom is not taking it's parent into account (join table click in join examples)
 
 -   [ ] examples lacks import
 

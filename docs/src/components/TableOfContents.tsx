@@ -37,7 +37,7 @@ const OpenLink: FC<{ to: string; label: String; headings: Section[] }> = ({
         <Anchor
           color="text"
           label={it.title}
-          key={it.title}
+          key={it.id}
           size="small"
           weight="normal"
           href={`#${it.id}`}
