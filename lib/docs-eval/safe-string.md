@@ -1,3 +1,19 @@
+---
+title: Safe string
+nav_order: 6
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 # sql - As Function
 
 ```ts eval

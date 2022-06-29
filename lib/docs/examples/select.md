@@ -1,3 +1,19 @@
+---
+title: Select
+nav_order: 7
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 # From Nothing
 
 ```ts
@@ -52,14 +68,14 @@ Which are defined in typescript as
 
 ```ts
 const users = table(
-    /* columns: */ ["id", "age", "name"],
-    /* db-name & alias: */ "users"
+  /* columns: */ ["id", "age", "name"],
+  /* db-name & alias: */ "users"
 );
 
 const admins = table(
-    /* columns: */ ["id", "age", "name"],
-    /* alias: */ "adm",
-    /* db-name: */ "admins"
+  /* columns: */ ["id", "age", "name"],
+  /* alias: */ "adm",
+  /* db-name: */ "admins"
 );
 ```
 
@@ -223,8 +239,8 @@ This is not valid. The typescript compiler will prevent this.
 
 ```ts
 users
-    // @ts-expect-error
-    .select((f) => f);
+  // @ts-expect-error
+  .select((f) => f);
 ```
 
 # Alias of sub-selection

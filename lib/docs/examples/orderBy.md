@@ -1,3 +1,19 @@
+---
+title: Order by
+nav_order: 10
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 ```ts
 import { table, sql } from "../src";
 ```
@@ -12,8 +28,8 @@ Which is defined in typescript as
 
 ```ts
 const users = table(
-    /* columns: */ ["id", "age", "name"],
-    /* db-name & alias: */ "users"
+  /* columns: */ ["id", "age", "name"],
+  /* db-name & alias: */ "users"
 );
 ```
 

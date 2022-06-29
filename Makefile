@@ -47,4 +47,4 @@ lib-install:
 	cd lib && npm ci
 
 build-docs-app:
-	cd docs && npm run build && touch dist/.nojekyll && cp src/404.html dist/404.html
+	cd ex && npm run build

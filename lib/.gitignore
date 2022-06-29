@@ -3,3 +3,4 @@ node_modules/
 *.exec.ts
 *.exec.json
 # *.exec.md
+docs-ts-out/

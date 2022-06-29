@@ -1,7 +1,9 @@
 ---
 title: classes/select-statement.ts
 nav_order: 4
-parent: Modules
+parent: Classes
+layout: default
+grand_parent: Modules
 ---
 
 ## select-statement overview
@@ -14,26 +16,26 @@ Added in v0.0.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [utils](#utils)
-  - [SelectStatement (class)](#selectstatement-class)
-    - [clickhouse (property)](#clickhouse-property)
-    - [select (property)](#select-property)
-    - [selectStar (property)](#selectstar-property)
-    - [appendSelectStar (property)](#appendselectstar-property)
-    - [appendSelect (property)](#appendselect-property)
-    - [where (property)](#where-property)
-    - [having (property)](#having-property)
-    - [distinct (property)](#distinct-property)
-    - [orderBy (property)](#orderby-property)
-    - [groupBy (property)](#groupby-property)
-    - [limit (property)](#limit-property)
-    - [commaJoinTable (property)](#commajointable-property)
-    - [joinTable (property)](#jointable-property)
-    - [commaJoinSelect (property)](#commajoinselect-property)
-    - [joinSelect (property)](#joinselect-property)
-    - [commaJoinCompound (property)](#commajoincompound-property)
-    - [joinCompound (property)](#joincompound-property)
-    - [stringify (property)](#stringify-property)
+-   [utils](#utils)
+    -   [SelectStatement (class)](#selectstatement-class)
+        -   [clickhouse (property)](#clickhouse-property)
+        -   [select (property)](#select-property)
+        -   [selectStar (property)](#selectstar-property)
+        -   [appendSelectStar (property)](#appendselectstar-property)
+        -   [appendSelect (property)](#appendselect-property)
+        -   [where (property)](#where-property)
+        -   [having (property)](#having-property)
+        -   [distinct (property)](#distinct-property)
+        -   [orderBy (property)](#orderby-property)
+        -   [groupBy (property)](#groupby-property)
+        -   [limit (property)](#limit-property)
+        -   [commaJoinTable (property)](#commajointable-property)
+        -   [joinTable (property)](#jointable-property)
+        -   [commaJoinSelect (property)](#commajoinselect-property)
+        -   [joinSelect (property)](#joinselect-property)
+        -   [commaJoinCompound (property)](#commajoincompound-property)
+        -   [joinCompound (property)](#joincompound-property)
+        -   [stringify (property)](#stringify-property)
 
 ---
 
@@ -49,22 +51,22 @@ This class is not meant to be used directly, but rather through the `fromNothing
 
 ```ts
 export declare class SelectStatement<Scope, Selection> {
-  private constructor(
-    /* @internal */
-    public __props: {
-      from: TableOrSubquery<any, any, any, any> | null
-      selection: SelectionWrapperTypes<Selection>
-      replace: ReplaceT<Selection>
-      orderBy: SafeString[]
-      groupBy: SafeString[]
-      limit: SafeString | number | null
-      where: SafeString[]
-      prewhere: SafeString[]
-      having: SafeString[]
-      distinct: boolean
-      clickhouseWith: ClickhouseWith[]
-    }
-  )
+    private constructor(
+        /* @internal */
+        public __props: {
+            from: TableOrSubquery<any, any, any, any> | null;
+            selection: SelectionWrapperTypes<Selection>;
+            replace: ReplaceT<Selection>;
+            orderBy: SafeString[];
+            groupBy: SafeString[];
+            limit: SafeString | number | null;
+            where: SafeString[];
+            prewhere: SafeString[];
+            having: SafeString[];
+            distinct: boolean;
+            clickhouseWith: ClickhouseWith[];
+        }
+    );
 }
 ```
 
@@ -247,7 +249,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-stringify: () => string
+stringify: () => string;
 ```
 
 Added in v0.0.0

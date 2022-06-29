@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "transpile": "nodemon --quiet --watch ../lib/docs-eval -e md --exec \"ts-node\" --transpileOnly ./src/index.ts --transpileOnly",
-        "check": "nodemon --watch ../lib/docs-eval -e md --exec \"ts-node\" ./src/index.ts",
+        "check": "nodemon --watch ../lib/docs-eval -e md --exec \"ts-node\" --transpileOnly ./src/index.ts --checkOnly",
         "all": "concurrently --raw  \"npm run transpile\" \"npm run check\""
     },
     "keywords": [],
@@ -18,6 +18,7 @@
         "nodemon": "^2.0.18",
         "parser-ts": "^0.6.16",
         "prettier": "^2.7.1",
+        "remark-frontmatter": "^3.0.0",
         "remark-parse": "^9.0.0",
         "remark-stringify": "^9.0.1",
         "sql-formatter": "^7.0.2",

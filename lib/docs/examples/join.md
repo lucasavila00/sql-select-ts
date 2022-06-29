@@ -1,3 +1,19 @@
+---
+title: Join
+nav_order: 8
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 ```ts
 import { table, SafeString, sql, unionAll } from "../src";
 ```
@@ -14,19 +30,19 @@ Which are defined in typescript as
 
 ```ts
 const users = table(
-    /* columns: */ ["id", "age", "name"],
-    /* db-name & alias: */ "users"
+  /* columns: */ ["id", "age", "name"],
+  /* db-name & alias: */ "users"
 );
 
 const admins = table(
-    /* columns: */ ["id", "age", "name"],
-    /* alias: */ "adm",
-    /* db-name: */ "admins"
+  /* columns: */ ["id", "age", "name"],
+  /* alias: */ "adm",
+  /* db-name: */ "admins"
 );
 
 const analytics = table(
-    /* columns: */ ["id", "clicks"],
-    /* db-name & alias: */ "analytics"
+  /* columns: */ ["id", "clicks"],
+  /* db-name & alias: */ "analytics"
 );
 ```
 
@@ -34,8 +50,8 @@ We also need a helper function that constructs SafeStrings
 
 ```ts
 const equals = (
-    a: SafeString | number | string,
-    b: SafeString | number | string
+  a: SafeString | number | string,
+  b: SafeString | number | string
 ): SafeString => sql`${a} = ${b}`;
 ```
 

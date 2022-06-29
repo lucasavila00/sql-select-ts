@@ -1,7 +1,9 @@
 ---
 title: classes/cte.ts
 nav_order: 2
-parent: Modules
+parent: Classes
+layout: default
+grand_parent: Modules
 ---
 
 ## cte overview
@@ -12,9 +14,9 @@ Added in v0.0.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [utils](#utils)
-  - [CommonTableExpression (class)](#commontableexpression-class)
-    - [select (property)](#select-property)
+-   [utils](#utils)
+    -   [CommonTableExpression (class)](#commontableexpression-class)
+        -   [select (property)](#select-property)
 
 ---
 
@@ -26,14 +28,14 @@ Added in v0.0.0
 
 ```ts
 export declare class CommonTableExpression<Selection, Alias> {
-  private constructor(
-    /* @internal */
-    public __props: {
-      columns: string[]
-      alias: string
-      select: SelectStatement<any, any>
-    }
-  )
+    private constructor(
+        /* @internal */
+        public __props: {
+            columns: string[];
+            alias: string;
+            select: SelectStatement<any, any>;
+        }
+    );
 }
 ```
 

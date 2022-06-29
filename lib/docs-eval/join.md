@@ -1,3 +1,19 @@
+---
+title: Join
+nav_order: 8
+parent: Examples
+layout: default
+---
+
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 ```ts eval
 import { table, SafeString, sql, unionAll } from "../src";
 ```

@@ -13,6 +13,8 @@ import { pipe } from "fp-ts/lib/function";
 import * as prettier from "prettier";
 import * as path from "path";
 import { argv } from "node:process";
+import remarkFrontmatter from "remark-frontmatter";
+
 const isCode = (it: Parent): it is Code & Parent => it.type === "code";
 const isTsCode = (it: Parent): it is Code & Parent =>
     isCode(it) && it.lang === "ts";
@@ -187,8 +189,28 @@ const recreateMarkdown =
                             getFormattedCode(cmd, it),
                         ];
                     }
-                    return [{ ...node, meta: null }];
+                    return [
+                        {
+                            ...node,
+                            value: prettier
+                                .format(node.value, {
+                                    filepath: "it.ts",
+                                })
+                                .trim(),
+                            meta: null,
+                        },
+                    ];
                 }
+                return [
+                    {
+                        ...node,
+                        value: prettier
+                            .format(node.value, {
+                                filepath: "it.ts",
+                            })
+                            .trim(),
+                    },
+                ];
             }
 
             return [node];
@@ -224,19 +246,25 @@ const executeTypescript =
         let final = "import * as fs from 'fs';\n";
 
         final += beforeFirstYield;
-        final += `\nasync function* generator() {\n`;
+        final += `\nasync function* generator():AsyncGenerator<any, any, any> {\n`;
         final += code;
         final += `\
 \n}
-
 const main = async () => {
     const gen = generator();
-    let collected : any[]= []
-    for await (const iterator of gen) {
-        collected.push(iterator);
+    let collected: any[] = [];
+    let last = null;
+    while (true) {
+        const n: any = await gen.next(last);
+        if (n.done) {
+            fs.writeFileSync("${jsonFile}", JSON.stringify(collected));
+            return;
+        } else {
+            collected.push(n.value);
+            last = n.value;
+        }
     }
-    fs.writeFileSync("${jsonFile}", JSON.stringify(collected));
-}
+};
 main()
 
 `;
@@ -262,7 +290,8 @@ const processFile = async (
     inFolder: string,
     outFolder: string,
     f: string,
-    transpileOnly: boolean
+    transpileOnly: boolean,
+    checkOnly: boolean
 ) => {
     const originalMarkdownFile = path.join(__dirname, inFolder, f);
 
@@ -282,20 +311,28 @@ const processFile = async (
             )
         )
         .use(recreateMarkdown(jsonFile))
+        .use(remarkFrontmatter, ["yaml", "toml"])
         .use(remarkStringify)
         .process(doc);
+
+    if (checkOnly) {
+        return;
+    }
 
     await fs.writeFile(ouputFile, String(file));
 };
 async function main() {
     const transpileOnly = argv.some((it) => it.includes("--transpileOnly"));
+    const checkOnly = argv.some((it) => it.includes("--checkOnly"));
     const inFolder = "../../lib/docs-eval";
     const outFolder = "../../lib/docs/examples";
     const files = (await fs.readdir(path.join(__dirname, inFolder))).filter(
         (it) => path.extname(it) === ".md"
     );
     await Promise.all(
-        files.map((f) => processFile(inFolder, outFolder, f, transpileOnly))
+        files.map((f) =>
+            processFile(inFolder, outFolder, f, transpileOnly, checkOnly)
+        )
     );
 }
 main();

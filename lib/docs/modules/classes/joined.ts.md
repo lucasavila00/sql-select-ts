@@ -1,7 +1,9 @@
 ---
 title: classes/joined.ts
 nav_order: 3
-parent: Modules
+parent: Classes
+layout: default
+grand_parent: Modules
 ---
 
 ## joined overview
@@ -14,21 +16,21 @@ Added in v0.0.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [utils](#utils)
-  - [Joined (class)](#joined-class)
-    - [select (property)](#select-property)
-    - [selectStar (property)](#selectstar-property)
-    - [selectStarOfAliases (property)](#selectstarofaliases-property)
-    - [commaJoinTable (property)](#commajointable-property)
-    - [joinTable (property)](#jointable-property)
-    - [commaJoinSelect (property)](#commajoinselect-property)
-    - [joinSelect (property)](#joinselect-property)
-    - [commaJoinCompound (property)](#commajoincompound-property)
-    - [joinCompound (property)](#joincompound-property)
-  - [JoinedFactory (class)](#joinedfactory-class)
-    - [noConstraint (property)](#noconstraint-property)
-    - [on (property)](#on-property)
-    - [using (property)](#using-property)
+-   [utils](#utils)
+    -   [Joined (class)](#joined-class)
+        -   [select (property)](#select-property)
+        -   [selectStar (property)](#selectstar-property)
+        -   [selectStarOfAliases (property)](#selectstarofaliases-property)
+        -   [commaJoinTable (property)](#commajointable-property)
+        -   [joinTable (property)](#jointable-property)
+        -   [commaJoinSelect (property)](#commajoinselect-property)
+        -   [joinSelect (property)](#joinselect-property)
+        -   [commaJoinCompound (property)](#commajoincompound-property)
+        -   [joinCompound (property)](#joincompound-property)
+    -   [JoinedFactory (class)](#joinedfactory-class)
+        -   [noConstraint (property)](#noconstraint-property)
+        -   [on (property)](#on-property)
+        -   [using (property)](#using-property)
 
 ---
 
@@ -43,13 +45,13 @@ This class is not meant to be used directly, but rather through methods in table
 
 ```ts
 export declare class Joined<Selection, Aliases, Ambiguous> {
-  private constructor(
-    /* @internal */
-    public __props: {
-      commaJoins: CommaJoin
-      properJoins: ProperJoin
-    }
-  )
+    private constructor(
+        /* @internal */
+        public __props: {
+            commaJoins: CommaJoin;
+            properJoins: ProperJoin;
+        }
+    );
 }
 ```
 
@@ -153,15 +155,20 @@ Allows the selection of the constraint to be done in another method call.
 **Signature**
 
 ```ts
-export declare class JoinedFactory<Selection, Aliases, Ambiguous, UsingPossibleKeys> {
-  private constructor(
-    /* @internal */
-    public __props: {
-      commaJoins: CommaJoin
-      properJoins: ProperJoin
-      newProperJoin: Omit<ProperJoinItem, 'constraint'>
-    }
-  )
+export declare class JoinedFactory<
+    Selection,
+    Aliases,
+    Ambiguous,
+    UsingPossibleKeys
+> {
+    private constructor(
+        /* @internal */
+        public __props: {
+            commaJoins: CommaJoin;
+            properJoins: ProperJoin;
+            newProperJoin: Omit<ProperJoinItem, "constraint">;
+        }
+    );
 }
 ```
 
