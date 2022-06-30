@@ -1,8 +1,8 @@
 ---
 title: Classes
 has_children: true
-permalink: /docs/modules/classes
-nav_order: 9
+permalink: /docs/api/classes
+nav_order: 19
 layout: default
-parent: Modules
+parent: Api
 ---
