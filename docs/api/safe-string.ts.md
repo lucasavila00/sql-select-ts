@@ -11,6 +11,15 @@ Safe String and it's building mechanisms allows us to have painless, injection s
 
 Added in v0.0.0
 
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 # string-builder
 
 ## castSafe

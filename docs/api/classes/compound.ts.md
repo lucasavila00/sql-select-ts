@@ -12,6 +12,15 @@ Represents https://www.sqlite.org/syntax/compound-select-stmt.html
 
 Added in v0.0.0
 
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 # utils
 
 ## Compound (class)

@@ -41,11 +41,11 @@ const fixFrontmatter =
     (parent: string, grand_parent: string | null): Plugin =>
     () =>
     async (tree) => {
-        let found = false;
+        let found = 0;
         flatMap(tree as Parent, (node) => {
             if (isYaml(node)) {
-                if (!found) {
-                    found = true;
+                if (found == 0) {
+                    found = 1;
                     return [
                         {
                             ...node,
@@ -54,7 +54,23 @@ const fixFrontmatter =
                     ];
                 }
 
-                return [];
+                if (found == 1) {
+                    found = 2;
+                    return [
+                        {
+                            type: "html",
+                            value:
+                                '<details open markdown="block">\n' +
+                                "  <summary>\n" +
+                                "    Table of contents\n" +
+                                "  </summary>\n" +
+                                "  {: .text-delta }\n" +
+                                "1. TOC\n" +
+                                "{:toc}\n" +
+                                "</details>",
+                        },
+                    ];
+                }
             }
 
             return [node];
