@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, SafeString, sql, unionAll } from "../src";
+import { table, SafeString, sql, unionAll } from "sql-select-ts";
 ```
 
 We will use these tables

@@ -17,7 +17,7 @@ layout: default
 # From Nothing
 
 ```ts
-import { fromNothing, sql, table, unionAll } from "../src";
+import { fromNothing, sql, table, unionAll } from "sql-select-ts";
 ```
 
 ## Select

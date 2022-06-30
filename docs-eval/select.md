@@ -16,7 +16,7 @@ layout: default
 
 # From Nothing
 
-```ts eval
+```ts eval --replacePrintedInput=../src,sql-select-ts
 import { fromNothing, sql, table, unionAll } from "../src";
 ```
 

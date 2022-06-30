@@ -19,7 +19,7 @@ layout: default
 Import the table constructor
 
 ```ts
-import { table, sql, SafeString } from "../src";
+import { table, sql, SafeString } from "sql-select-ts";
 ```
 
 Construct a table instance

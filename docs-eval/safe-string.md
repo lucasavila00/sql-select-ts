@@ -16,7 +16,7 @@ layout: default
 
 # sql - As Function
 
-```ts eval
+```ts eval --replacePrintedInput=../src,sql-select-ts
 import { fromNothing, sql, unionAll, SafeString, castSafe } from "../src";
 ```
 
