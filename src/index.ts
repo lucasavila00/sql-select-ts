@@ -83,68 +83,72 @@ export const union = Compound.union;
  */
 export const unionAll = Compound.unionAll;
 
-/**
- *
- * Creates a SafeString from a string.
- *
- * Useful for embedding other SQL statements in your SQL query, or building helper functions.
- *
- * @example
- *
- * import { castSafe, sql } from "sql-select-ts";
- *
- * assert.strictEqual(castSafe(";'abc'").content, ";'abc'");
- * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
- *
- * @category string-builder
- * @since 0.0.0
- */
-export { castSafe } from "./safe-string";
-
-/**
- *
- * Safe-string builder. Works as a function or string template literal.
- *
- * Check in depth docs in the safe-string.ts module.
- *
- * @example
- * import { fromNothing, sql } from "sql-select-ts";
- * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
- * assert.strictEqual(sql(123).content, "123");
- * assert.strictEqual(sql(null).content, "NULL");
- * assert.strictEqual(sql`${123} + 456`.content, "123 + 456");
- * const name = "A";
- * const names = ["A", "B", "C"];
- * assert.strictEqual(sql`${name} IN (${names})`.content, "'A' IN ('A', 'B', 'C')");
- * const q = fromNothing({ it: sql(123) });
- * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
- *
- * @category string-builder
- * @since 0.0.0
- */
-export { sql } from "./safe-string";
-
-/**
- * Type guard to check if the value is a SafeString.
- *
- * @example
- *
- * import { isSafeString, sql } from "sql-select-ts";
- *
- * assert.strictEqual(isSafeString(sql(123)), true);
- *
- * @category string-builder
- * @since 0.0.0
- */
-
-export { isSafeString } from "./safe-string";
-
-/**
- *
- * @category string-builder
- * @since 0.0.0
- */
-export { buildSerializer, buildSql } from "./safe-string";
+export {
+    /**
+     * Type guard to check if the value is a SafeString.
+     *
+     * @example
+     *
+     * import { isSafeString, sql } from "sql-select-ts";
+     *
+     * assert.strictEqual(isSafeString(sql(123)), true);
+     *
+     * @category string-builder
+     * @since 0.0.0
+     */
+    isSafeString,
+    /**
+     *
+     * Creates a SafeString from a string.
+     *
+     * Useful for embedding other SQL statements in your SQL query, or building helper functions.
+     *
+     * @example
+     *
+     * import { castSafe, sql } from "sql-select-ts";
+     *
+     * assert.strictEqual(castSafe(";'abc'").content, ";'abc'");
+     * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
+     *
+     * @category string-builder
+     * @since 0.0.0
+     */
+    castSafe,
+    /**
+     *
+     * Safe-string builder. Works as a function or string template literal.
+     *
+     * Check in depth docs in the safe-string.ts module.
+     *
+     * @example
+     * import { fromNothing, sql } from "sql-select-ts";
+     * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
+     * assert.strictEqual(sql(123).content, "123");
+     * assert.strictEqual(sql(null).content, "NULL");
+     * assert.strictEqual(sql`${123} + 456`.content, "123 + 456");
+     * const name = "A";
+     * const names = ["A", "B", "C"];
+     * assert.strictEqual(sql`${name} IN (${names})`.content, "'A' IN ('A', 'B', 'C')");
+     * const q = fromNothing({ it: sql(123) });
+     * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
+     *
+     * @category string-builder
+     * @since 0.0.0
+     */
+    sql,
+    /**
+     *
+     * @category string-builder
+     * @since 0.0.1
+     */
+    buildSerializer,
+    /**
+     *
+     * @category string-builder
+     * @since 0.0.1
+     */
+    buildSql,
+} from "./safe-string";
 
 export type {
     /**
