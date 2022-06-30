@@ -181,6 +181,31 @@ export declare const SafeString: SafeString;
 
 Added in v0.0.0
 
+## buildSerializer
+
+**Signature**
+
+```ts
+export declare const buildSerializer: <T>(args: {
+  check: (it: unknown) => it is T;
+  serialize: (it: T) => string;
+}) => Serializer<T>;
+```
+
+Added in v0.0.1
+
+## buildSql
+
+**Signature**
+
+```ts
+export declare const buildSql: <T extends Serializer<any>[]>(
+  serializers: T
+) => SqlStringBuilder<T>;
+```
+
+Added in v0.0.1
+
 ## castSafe
 
 Creates a SafeString from a string.
@@ -233,7 +258,7 @@ Check in depth docs in the safe-string.ts module.
 **Signature**
 
 ```ts
-export declare const sql: typeof _sql;
+export declare const sql: SqlStringBuilder<never[]>;
 ```
 
 **Example**

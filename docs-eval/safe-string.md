@@ -15,7 +15,15 @@ layout: default
 </details>
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { fromNothing, sql, unionAll, SafeString, castSafe } from "../src";
+import {
+    fromNothing,
+    sql,
+    unionAll,
+    SafeString,
+    castSafe,
+    buildSerializer,
+    buildSql,
+} from "../src";
 ```
 
 # sql - As Function
@@ -152,4 +160,23 @@ yield OR(equals(1, 2), equals(3, 4), equals("a", "b"));
 
 # Extending
 
-TODO
+```ts eval
+const boolSerializer = buildSerializer({
+    check: (it: unknown): it is boolean => typeof it == "boolean",
+    serialize: (it: boolean): string => (it ? "1" : "0"),
+});
+
+const sql2 = buildSql([boolSerializer]);
+```
+
+```ts eval --yield=json
+yield sql2(true);
+```
+
+```ts eval --yield=json
+yield sql2(false);
+```
+
+```ts eval --yield=json
+yield sql2`${true} == ${false} == ${123} == ${"abc"}`;
+```

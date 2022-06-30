@@ -4,6 +4,7 @@ module.exports = {
     testEnvironment: "node",
     collectCoverage: true,
     collectCoverageFrom: ["src/**/*.ts"],
+    coverageReporters: ["clover", "json", "lcov", "text", "html"],
     coverageThreshold: {
         global: {
             branches: 100,

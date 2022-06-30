@@ -30,6 +30,13 @@ const chTableFinal = chTableRegular.clickhouse.final();
 yield chTableFinal.selectStar().stringify();
 ```
 
+```ts eval --yield=sql
+yield table(["col1", "col2"], "alias", "tableName")
+    .clickhouse.final()
+    .selectStar()
+    .stringify();
+```
+
 # Prewhere
 
 The API is like WHERE's.

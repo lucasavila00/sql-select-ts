@@ -21,6 +21,8 @@ import {
   unionAll,
   SafeString,
   castSafe,
+  buildSerializer,
+  buildSql,
 } from "sql-select-ts";
 ```
 
@@ -258,4 +260,35 @@ OR(equals(1, 2), equals(3, 4), equals("a", "b"));
 
 # Extending
 
-TODO
+```ts
+const boolSerializer = buildSerializer({
+  check: (it: unknown): it is boolean => typeof it == "boolean",
+  serialize: (it: boolean): string => (it ? "1" : "0"),
+});
+
+const sql2 = buildSql([boolSerializer]);
+```
+
+```ts
+sql2(true);
+```
+
+```json
+{ "_tag": "SafeString", "content": "1" }
+```
+
+```ts
+sql2(false);
+```
+
+```json
+{ "_tag": "SafeString", "content": "0" }
+```
+
+```ts
+sql2`${true} == ${false} == ${123} == ${"abc"}`;
+```
+
+```json
+{ "_tag": "SafeString", "content": "1 == 0 == 123 == 'abc'" }
+```

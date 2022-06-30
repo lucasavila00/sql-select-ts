@@ -44,6 +44,20 @@ FROM
   `tableName` FINAL
 ```
 
+```ts
+table(["col1", "col2"], "alias", "tableName")
+  .clickhouse.final()
+  .selectStar()
+  .stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `tableName` AS `alias` FINAL
+```
+
 # Prewhere
 
 The API is like WHERE's.
