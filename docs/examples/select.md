@@ -52,7 +52,7 @@ fromNothing({
 SELECT
   system.tables AS `it`,
   123 AS `abc`,
-  abc + 456 AS `def`
+  `abc` + 456 AS `def`
 ```
 
 # From Tables
@@ -100,7 +100,7 @@ admins.select((f) => ({ name: f.name })).stringify();
 
 ```sql
 SELECT
-  name AS `name`
+  `name` AS `name`
 FROM
   `admins` AS `adm`
 ```
@@ -116,7 +116,7 @@ admins
 
 ```sql
 SELECT
-  DISTINCT name AS `name`
+  DISTINCT `name` AS `name`
 FROM
   `admins` AS `adm`
 ```
@@ -135,7 +135,7 @@ users
 ```sql
 SELECT
   *,
-  name AS `otherAlias`
+  `name` AS `otherAlias`
 FROM
   `users`
 ```
@@ -153,7 +153,7 @@ admins
 
 ```sql
 SELECT
-  adm.name AS `otherAlias`,
+  `adm`.`name` AS `otherAlias`,
   *
 FROM
   `admins` AS `adm`
@@ -175,7 +175,7 @@ SELECT
 FROM
   (
     SELECT
-      age AS `age`
+      `age` AS `age`
     FROM
       (
         SELECT
@@ -196,7 +196,7 @@ unionAll([users.selectStar(), admins.selectStar()])
 
 ```sql
 SELECT
-  age AS `age`
+  `age` AS `age`
 FROM
   (
     SELECT
@@ -226,8 +226,8 @@ users
 
 ```sql
 SELECT
-  users.name AS `userName`,
-  adm.name AS `admName`
+  `users`.`name` AS `userName`,
+  `adm`.`name` AS `admName`
 FROM
   `users`
   LEFT JOIN `admins` AS `adm` USING(`id`)
@@ -257,7 +257,7 @@ users
 
 ```sql
 SELECT
-  main_alias.id AS `a`
+  `main_alias`.`id` AS `a`
 FROM
   (
     SELECT
@@ -265,8 +265,8 @@ FROM
     FROM
       `users`
     WHERE
-      id = 5
-  ) AS main_alias
+      `id` = 5
+  ) AS `main_alias`
 ```
 
 # Control order of selection
@@ -284,8 +284,8 @@ users
 
 ```sql
 SELECT
-  name AS `abc`,
-  id AS `def`
+  `name` AS `abc`,
+  `id` AS `def`
 FROM
   `users`
 ```
@@ -302,9 +302,9 @@ users
 
 ```sql
 SELECT
-  age AS `123`,
-  id AS `456`,
-  name AS `name`
+  `age` AS `123`,
+  `id` AS `456`,
+  `name` AS `name`
 FROM
   `users`
 ```
@@ -327,9 +327,9 @@ users
 
 ```sql
 SELECT
-  age AS `123`,
-  name AS `name`,
-  id AS `456`
+  `age` AS `123`,
+  `name` AS `name`,
+  `id` AS `456`
 FROM
   `users`
 ```

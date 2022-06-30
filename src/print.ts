@@ -8,14 +8,11 @@ import { isTheProxyObject } from "./proxy";
 import type { SafeString } from "./safe-string";
 import { ClickhouseWith, JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
+import { wrapAlias } from "./wrap-alias";
 
 // re-define to avoid circular dependency
 /* istanbul ignore next */
 const isSafeString = (it: any): it is SafeString => it?._tag === "SafeString";
-
-const ID_GLOBAL_REGEXP = /`/g;
-const wrapAlias = (alias: string) =>
-    "`" + alias.replace(ID_GLOBAL_REGEXP, "``") + "`";
 
 const printOrderBy = (orderBy: SafeString[]): string =>
     orderBy.length > 0
@@ -237,7 +234,7 @@ export const printSelectStatementInternal = <
 
     const doesSelectMainAlias = selection.includes("main_alias");
 
-    const main_alias = doesSelectMainAlias ? "AS main_alias" : "";
+    const main_alias = doesSelectMainAlias ? "AS `main_alias`" : "";
 
     const distinct = selectStatement.__props.distinct ? "DISTINCT" : "";
 

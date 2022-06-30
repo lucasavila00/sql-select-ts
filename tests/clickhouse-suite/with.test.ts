@@ -40,7 +40,7 @@ describe("clickhouse with", () => {
             .appendSelect((f) => ({ it: f.abc }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `WITH (SELECT 20 AS \`n\`) AS \`abc\` SELECT abc AS \`it\``
+            `WITH (SELECT 20 AS \`n\`) AS \`abc\` SELECT \`abc\` AS \`it\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [

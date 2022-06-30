@@ -42,7 +42,7 @@ describe("joinTable", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT a AS \`x\`, d AS \`y\`, t1.c AS \`z\` FROM \`t1\` NATURAL JOIN \`t2\``
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM \`t1\` NATURAL JOIN \`t2\``
         );
     });
 
@@ -58,7 +58,7 @@ describe("joinTable", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT a AS \`x\`, d AS \`y\`, c AS \`z\` FROM \`t1\` LEFT JOIN \`t2\``
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM \`t1\` LEFT JOIN \`t2\``
         );
     });
 
@@ -69,7 +69,7 @@ describe("joinTable", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` LEFT JOIN \`t2\` ON a = d`
+            `SELECT * FROM \`t1\` LEFT JOIN \`t2\` ON \`a\` = \`d\``
         );
     });
 
@@ -80,7 +80,7 @@ describe("joinTable", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` LEFT JOIN \`t2\` ON t1.a = t2.d`
+            `SELECT * FROM \`t1\` LEFT JOIN \`t2\` ON \`t1\`.\`a\` = \`t2\`.\`d\``
         );
     });
 
@@ -126,7 +126,7 @@ describe("joinTable", () => {
             .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT a AS \`x\`, d AS \`y\`, q1.c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN \`t2\``
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN \`t2\``
         );
     });
 
@@ -143,7 +143,7 @@ describe("joinTable", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT a AS \`x\`, d AS \`y\`, c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\``
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\``
         );
     });
 
@@ -155,7 +155,7 @@ describe("joinTable", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\` ON a = d`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\` ON \`a\` = \`d\``
         );
     });
 
@@ -167,7 +167,7 @@ describe("joinTable", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\` ON q1.a = t2.d`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\` ON \`q1\`.\`a\` = \`t2\`.\`d\``
         );
     });
 
@@ -217,7 +217,7 @@ describe("joinTable", () => {
             .select((f) => ({ x: f.a, y: f.e, d: f["t2.d"], d2: f["t3.d"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT a AS \`x\`, e AS \`y\`, t2.d AS \`d\`, t3.d AS \`d2\` FROM \`t1\` NATURAL JOIN \`t2\` NATURAL JOIN \`t3\``
+            `SELECT \`a\` AS \`x\`, \`e\` AS \`y\`, \`t2\`.\`d\` AS \`d\`, \`t3\`.\`d\` AS \`d2\` FROM \`t1\` NATURAL JOIN \`t2\` NATURAL JOIN \`t3\``
         );
     });
 
@@ -232,7 +232,7 @@ describe("joinTable", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` ON b = e`
+            `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` ON \`b\` = \`e\``
         );
     });
     it("joined -> table -- ON", async () => {
@@ -245,7 +245,7 @@ describe("joinTable", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` ON a = e`
+            `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` ON \`a\` = \`e\``
         );
     });
     it("joined -> table -- ON QUALIFIED", async () => {
@@ -258,7 +258,7 @@ describe("joinTable", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` ON t1.a = t3.e`
+            `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` ON \`t1\`.\`a\` = \`t3\`.\`e\``
         );
     });
     it("joined -> table -- USING", async () => {
@@ -310,7 +310,7 @@ describe("joinTable", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT a AS \`x\`, d AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` NATURAL JOIN \`t2\``
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` NATURAL JOIN \`t2\``
         );
     });
 
@@ -326,7 +326,7 @@ describe("joinTable", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT a AS \`x\`, b AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` NATURAL JOIN \`t2\``
+            `SELECT \`a\` AS \`x\`, \`b\` AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` NATURAL JOIN \`t2\``
         );
     });
 
@@ -337,7 +337,7 @@ describe("joinTable", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` LEFT JOIN \`t2\` ON a = q1.b`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` LEFT JOIN \`t2\` ON \`a\` = \`q1\`.\`b\``
         );
     });
 
@@ -348,7 +348,7 @@ describe("joinTable", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` LEFT JOIN \`t2\` ON q1.a = q1.b`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` LEFT JOIN \`t2\` ON \`q1\`.\`a\` = \`q1\`.\`b\``
         );
     });
 

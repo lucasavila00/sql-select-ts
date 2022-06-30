@@ -1,6 +1,6 @@
 {
     "name": "sql-select-ts",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "A modern, database-agnostic, composable SELECT query builder with great typescript support.",
     "main": "lib/index.js",
     "module": "es6/index.js",
