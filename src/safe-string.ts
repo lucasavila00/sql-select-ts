@@ -79,8 +79,9 @@ const escapeForSql = function (
     val: any,
     serializers: Serializer<any>[]
 ): string {
-    if (serializers.some((s) => s.check(val))) {
-        return serializers.find((s) => s.check(val))!.serialize(val);
+    const serializer = serializers.find((s) => s.check(val));
+    if (serializer != null) {
+        return serializer.serialize(val);
     }
 
     if (val === undefined || val === null) {
@@ -162,11 +163,9 @@ type TemplateLiteralSql = [
 ];
 
 /**
- * TODO
- *
+ * A custom serializer for the SQL string builder.
  *
  * @since 0.0.1
- *
  */
 export type Serializer<T> = {
     check: (it: unknown) => it is T;
@@ -180,11 +179,9 @@ type SerializerInnerType<T extends Serializer<any>> = T extends Serializer<
     : never;
 
 /**
- * TODO
- *
+ * A `sql` builder generic overloaded function.
  *
  * @since 0.0.1
- *
  */
 export interface SqlStringBuilderOverloadedFn<T> {
     (it: string | number | null | T): SafeString;
@@ -199,21 +196,17 @@ type ArgsOfSerializerList<T extends Serializer<any>[]> = SerializerInnerType<
 >;
 
 /**
- * TODO
- *
+ * A `sql` builder type based on the serializer types.
  *
  * @since 0.0.1
- *
  */
 export type SqlStringBuilder<T extends Serializer<any>[]> =
     SqlStringBuilderOverloadedFn<ArgsOfSerializerList<T>>;
 /**
- * TODO
+ * Create one serializer.
  *
  * @category string-builder
- *
  * @since 0.0.1
- *
  */
 export const buildSerializer = <T>(args: {
     check: (it: unknown) => it is T;
@@ -221,12 +214,11 @@ export const buildSerializer = <T>(args: {
 }): Serializer<T> => args;
 
 /**
- * TODO
+ * Create a custom version of the `sql` SafeString builder, using the serializers to serialize values.
+ * The types allowed in the string templates will be inferred from the serializers.
  *
  * @category string-builder
- *
  * @since 0.0.1
- *
  */
 export const buildSql =
     <T extends Serializer<any>[]>(serializers: T): SqlStringBuilder<T> =>

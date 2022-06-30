@@ -1,12 +1,10 @@
 # DOCS
 
--   [ ] final ch + alias
+-   [ ] typed response
 
--   [ ] easy extension sql safe string, example boolean in CH
+-   [ ] dbs extensions
 
 # Global
-
--   [ ] check TODO
 
 -   [ ] istanbul ignore, can some be removed?
 

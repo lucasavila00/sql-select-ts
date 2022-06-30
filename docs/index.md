@@ -76,8 +76,8 @@ users
 
 ### Usage with sqlite
 
-TODO
+Check out the [examples](/docs/examples/sqlite-usage).
 
 ### Usage with Clickhouse
 
-TODO
+Check out the [examples](/docs/examples/clickhouse-usage).

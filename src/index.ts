@@ -8,12 +8,6 @@ import { Compound } from "./classes/compound";
 import { CommonTableExpression } from "./classes/cte";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
-// import renaming, then re-export to make sure docs-ts can run the inline tests
-import {
-    castSafe as _castSafe,
-    sql as _sql,
-    isSafeString as _isSafeString,
-} from "./safe-string";
 
 /**
  *
@@ -105,7 +99,7 @@ export const unionAll = Compound.unionAll;
  * @category string-builder
  * @since 0.0.0
  */
-export const castSafe = _castSafe;
+export { castSafe } from "./safe-string";
 
 /**
  *
@@ -128,7 +122,7 @@ export const castSafe = _castSafe;
  * @category string-builder
  * @since 0.0.0
  */
-export const sql = _sql;
+export { sql } from "./safe-string";
 
 /**
  * Type guard to check if the value is a SafeString.
@@ -142,7 +136,15 @@ export const sql = _sql;
  * @category string-builder
  * @since 0.0.0
  */
-export const isSafeString = _isSafeString;
+
+export { isSafeString } from "./safe-string";
+
+/**
+ *
+ * @category string-builder
+ * @since 0.0.0
+ */
+export { buildSerializer, buildSql } from "./safe-string";
 
 export type {
     /**

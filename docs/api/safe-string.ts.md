@@ -24,7 +24,7 @@ Added in v0.0.0
 
 ## buildSerializer
 
-TODO
+Create one serializer.
 
 **Signature**
 
@@ -39,7 +39,8 @@ Added in v0.0.1
 
 ## buildSql
 
-TODO
+Create a custom version of the `sql` SafeString builder, using the serializers to serialize values.
+The types allowed in the string templates will be inferred from the serializers.
 
 **Signature**
 
@@ -155,7 +156,7 @@ Added in v0.0.0
 
 ## Serializer (type alias)
 
-TODO
+A custom serializer for the SQL string builder.
 
 **Signature**
 
@@ -170,7 +171,7 @@ Added in v0.0.1
 
 ## SqlStringBuilder (type alias)
 
-TODO
+A `sql` builder type based on the serializer types.
 
 **Signature**
 
@@ -183,7 +184,7 @@ Added in v0.0.1
 
 ## SqlStringBuilderOverloadedFn (interface)
 
-TODO
+A `sql` builder generic overloaded function.
 
 **Signature**
 
