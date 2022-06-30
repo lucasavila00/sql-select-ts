@@ -5,6 +5,8 @@ import {
     sql,
     union,
     unionAll,
+    except,
+    intersect,
 } from "../../src";
 import { configureSqlite } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
@@ -1604,6 +1606,49 @@ describe("sqlite select1", () => {
               },
             ]
         `);
+    });
+
+    it("select1-17.3, except", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const u = except([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .limit(1);
+
+        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` EXCEPT SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                f1: 11,
+                f2: 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-17.3, intersect", async () => {
+        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+
+        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+
+        const u = intersect([q1, q2])
+            .orderBy((f) => f.f1)
+            .orderBy((f) => f.f2)
+            .limit(1);
+
+        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` INTERSECT SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
     it("select1-17.3 -- select comma join compound", async () => {

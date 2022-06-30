@@ -16,7 +16,7 @@ npm i sql-select-ts
 
 # Getting started
 
-Check out the [examples](/docs/examples/getting-started).
+Check out the [examples](/examples/getting-started.html).
 
 # Features
 

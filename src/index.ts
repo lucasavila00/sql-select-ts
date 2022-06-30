@@ -83,6 +83,38 @@ export const union = Compound.union;
  */
 export const unionAll = Compound.unionAll;
 
+/**
+ * Creates a compound query using 'INTERSECT'
+ *
+ * @example
+ * import { fromNothing, sql, intersect } from "sql-select-ts";
+ * const q1 = fromNothing({ a: sql(123) });
+ * const q2 = fromNothing({ a: sql(456) });
+ *
+ * const u = intersect([q1, q2]);
+ * assert.strictEqual(u.stringify(), "SELECT 123 AS `a` INTERSECT SELECT 456 AS `a`");
+ *
+ * @category compound
+ * @since 0.0.1
+ */
+export const intersect = Compound.intersect;
+
+/**
+ * Creates a compound query using 'EXCEPT'
+ *
+ * @example
+ * import { fromNothing, sql, except } from "sql-select-ts";
+ * const q1 = fromNothing({ a: sql(123) });
+ * const q2 = fromNothing({ a: sql(456) });
+ *
+ * const u = except([q1, q2]);
+ * assert.strictEqual(u.stringify(), "SELECT 123 AS `a` EXCEPT SELECT 456 AS `a`");
+ *
+ * @category compound
+ * @since 0.0.1
+ */
+export const except = Compound.except;
+
 export {
     /**
      * Type guard to check if the value is a SafeString.
@@ -160,3 +192,63 @@ export type {
      */
     SafeString,
 } from "./safe-string";
+
+export type {
+    /**
+     * Return an array of objects, where the object keys are the columns of the selection.
+     *
+     * @example
+     *
+     * import { table, RowsArray } from "sql-select-ts";
+     * const t1 = table(["id", "name"], "users");
+     * const q = t1.selectStar();
+     * type Ret = RowsArray<typeof q>;
+     * const ret: Ret = [];
+     * console.log(ret?.[0]?.id)
+     * console.log(ret?.[0]?.name)
+     * //@ts-expect-error
+     * console.log(ret?.[0]?.abc)
+     *
+     * @since 0.0.1
+     */
+    RowsArray,
+    /**
+     * Given a stringifyable object, returns the union of the selection keys.
+     *
+     * @example
+     *
+     * import { table, SelectionOf } from "sql-select-ts";
+     * const t1 = table(["id", "name"], "users");
+     * const q = t1.selectStar();
+     * type Key = SelectionOf<typeof q>;
+     * const k: Key = 'id';
+     * assert.strictEqual(k, 'id');
+     * //@ts-expect-error
+     * const k2: Key = 'abc';
+     *
+     * @since 0.0.1
+     */
+    SelectionOf,
+    /**
+     * @since 0.0.1
+     */
+    AnyStringifyable,
+    /**
+     * Return a objects, where the keys are the columns of the selection.
+     *
+     * @example
+     *
+     * import { table, RowOf } from "sql-select-ts";
+     * const t1 = table(["id", "name"], "users");
+     * const q = t1.selectStar();
+     * type Ret = RowOf<typeof q>;
+     * const ret: Ret = {id: 1, name: null}
+     * console.log(ret.id)
+     * console.log(ret.name)
+     * //@ts-expect-error
+     * console.log(ret.abc)
+     *
+     * @since 0.0.1
+     */
+    RowOf,
+} from "./ts-helpers";

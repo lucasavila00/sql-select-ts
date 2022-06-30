@@ -14,11 +14,11 @@ layout: default
 {:toc}
 </details>
 
-# From Nothing
-
 ```ts eval --replacePrintedInput=../src,sql-select-ts
 import { fromNothing, sql, table, unionAll } from "../src";
 ```
+
+# From Nothing
 
 ## Select
 
@@ -39,6 +39,18 @@ yield fromNothing({
     .appendSelect((f) => ({
         def: sql`${f.abc} + 456`,
     }))
+    .stringify();
+```
+
+## Select from Select
+
+```ts eval --yield=sql
+yield fromNothing({
+    it: sql(0),
+})
+    .selectStar()
+    .select((f) => ({ it2: f.it }))
+    .selectStar()
     .stringify();
 ```
 

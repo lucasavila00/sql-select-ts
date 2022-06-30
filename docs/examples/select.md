@@ -14,11 +14,11 @@ layout: default
 {:toc}
 </details>
 
-# From Nothing
-
 ```ts
 import { fromNothing, sql, table, unionAll } from "sql-select-ts";
 ```
+
+# From Nothing
 
 ## Select
 
@@ -53,6 +53,38 @@ SELECT
   system.tables AS `it`,
   123 AS `abc`,
   `abc` + 456 AS `def`
+```
+
+## Select from Select
+
+```ts
+fromNothing({
+  it: sql(0),
+})
+  .selectStar()
+  .select((f) => ({ it2: f.it }))
+  .selectStar()
+  .stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  (
+    SELECT
+      `it` AS `it2`
+    FROM
+      (
+        SELECT
+          *
+        FROM
+          (
+            SELECT
+              0 AS `it`
+          )
+      )
+  )
 ```
 
 # From Tables
