@@ -1,4 +1,4 @@
-import { buildSerializer, buildSql } from "../src/safe-string";
+import { buildSerializer, buildSql } from "../src";
 import { addSimpleStringSerializer } from "./utils";
 addSimpleStringSerializer();
 

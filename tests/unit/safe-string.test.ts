@@ -1,6 +1,13 @@
-import { fromNothing, isSafeString, sql } from "../../src";
+import { castSafe, fromNothing, isSafeString, sql } from "../../src";
 import { addSimpleStringSerializer } from "../utils";
 addSimpleStringSerializer();
+
+describe("castSafe", () => {
+    it("works", () => {
+        expect(castSafe("abc").content).toBe("abc");
+        expect(castSafe('"\'"').content).toBe('"\'"');
+    });
+});
 
 describe("isSafeString", () => {
     it("works", () => {
