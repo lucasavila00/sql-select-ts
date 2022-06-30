@@ -62,8 +62,9 @@ export const isSafeString = (it: any): it is SafeString =>
     it?._tag === SafeStringURI;
 
 // adapted from https://github.com/mysqljs/sqlstring/blob/master/lib/SqlString.js
-var CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a\"\'\\]/g; // eslint-disable-line no-control-regex
-var CHARS_ESCAPE_MAP = {
+// eslint-disable-next-line no-useless-escape
+const CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a\"\'\\]/g; // eslint-disable-line no-control-regex
+const CHARS_ESCAPE_MAP = {
     "\0": "\\0",
     "\b": "\\b",
     "\t": "\\t",
@@ -114,9 +115,9 @@ const arrayToList = function arrayToList<T>(
     array: T[],
     serializers: Serializer<any>[]
 ) {
-    var sql = "";
+    let sql = "";
 
-    for (var i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
         sql += (i === 0 ? "" : ", ") + escapeForSql(array[i], serializers);
     }
 
@@ -124,11 +125,12 @@ const arrayToList = function arrayToList<T>(
 };
 
 function escapeString(val: string) {
-    var chunkIndex = (CHARS_GLOBAL_REGEXP.lastIndex = 0);
-    var escapedVal = "";
-    var match;
+    let chunkIndex = (CHARS_GLOBAL_REGEXP.lastIndex = 0);
+    let escapedVal = "";
+    let match;
 
     while ((match = CHARS_GLOBAL_REGEXP.exec(val))) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         escapedVal +=
             val.slice(chunkIndex, match.index) +

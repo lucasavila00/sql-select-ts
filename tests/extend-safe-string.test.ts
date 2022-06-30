@@ -21,7 +21,9 @@ describe("extend safe string", () => {
             sql2`${a}`;
             // @ts-expect-error
             sql2(a);
-        } catch (e) {}
+        } catch (e) {
+            //
+        }
 
         const d = new Date("2022-06-30T03:31:42.035Z");
         const it = sql2`${d} = ${true}`;

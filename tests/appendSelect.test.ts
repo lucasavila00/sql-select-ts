@@ -24,5 +24,6 @@ describe("appendSelect", () => {
             (f) => f
         );
         t1.selectStar().appendSelect((f) => ({ a: f.a }));
+        expect(1).toBe(1);
     });
 });

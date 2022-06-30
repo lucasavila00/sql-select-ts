@@ -15,7 +15,7 @@ import remarkFrontmatter from "remark-frontmatter";
 import { flatMap } from "./flat-map";
 import CLI from "command-line-args";
 
-type Ast = { yield?: String; replacePrintedInput?: string };
+type Ast = { yield?: string; replacePrintedInput?: string };
 
 const isCode = (it: Parent): it is Code & Parent => it.type === "code";
 const isTsCode = (it: Parent): it is Code & Parent =>
@@ -38,7 +38,8 @@ function visitNode(node: any, fn: any) {
         // benchmarks well.
         const keys = Object.keys(node);
         for (let i = 0; i < keys.length; i++) {
-            // @ts-ignore
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
             node[keys[i]] = visitNode(node[keys[i]], fn);
         }
         return fn(node) || node;
@@ -326,7 +327,9 @@ async function main() {
 
     try {
         await fs.mkdir(path.join(__dirname, outFolder));
-    } catch (e) {}
+    } catch (e) {
+        //
+    }
 
     await Promise.all(
         files.map((f) =>

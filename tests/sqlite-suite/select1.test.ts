@@ -416,7 +416,7 @@ describe("sqlite select1", () => {
             ]
         `);
     });
-    it("select1-1.10 -- collision fixed", async () => {
+    it("select1-1.10 -- collision fixed2", async () => {
         const q = test1
             .commaJoinTable(test1_dup)
             .commaJoinTable(test2)
@@ -1801,7 +1801,7 @@ describe("sqlite select1", () => {
             ]
         `);
     });
-    it("select1-12.10 -- main alias ", async () => {
+    it("select1-12.10 -- main alias", async () => {
         const q = test1
             .select((f) => ({ f1: f["test1.f1"], f2: f["test1.f2"] }))
             .where((f) => sql`${f.f1} < ${f.f2}`)
