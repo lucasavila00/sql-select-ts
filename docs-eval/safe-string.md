@@ -14,11 +14,11 @@ layout: default
 {:toc}
 </details>
 
-# sql - As Function
-
 ```ts eval --replacePrintedInput=../src,sql-select-ts
 import { fromNothing, sql, unionAll, SafeString, castSafe } from "../src";
 ```
+
+# sql - As Function
 
 ```ts eval --yield=sql
 yield fromNothing({
