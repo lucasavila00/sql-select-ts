@@ -16,8 +16,6 @@ layout: default
 
 # Getting started
 
-Import the table constructor
-
 ```ts eval --replacePrintedInput=../src,sql-select-ts
 import { table, sql, SafeString } from "../src";
 ```

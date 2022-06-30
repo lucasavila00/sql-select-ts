@@ -16,8 +16,6 @@ layout: default
 
 # Getting started
 
-Import the table constructor
-
 ```ts
 import { table, sql, SafeString } from "sql-select-ts";
 ```
