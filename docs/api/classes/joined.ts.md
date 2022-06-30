@@ -12,6 +12,15 @@ Represents a source of data composed of JOINed tables or sub-selects.
 
 Added in v0.0.0
 
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 # utils
 
 ## Joined (class)
