@@ -25,6 +25,7 @@ jobs:
                   if [ -n "$(git status -uno -s)" ]; then echo "git status is not clean"; false; fi
                   echo "Checking that it was built by building"
 
+                  rm -rf docs/api/ && rm -rf docs/examples
                   npm run md
 
                   echo "Check that build was unnecessary"

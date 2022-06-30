@@ -14,8 +14,6 @@ layout: default
 {:toc}
 </details>
 
-# sql - As Function
-
 ```ts
 import {
   fromNothing,
@@ -25,6 +23,8 @@ import {
   castSafe,
 } from "sql-select-ts";
 ```
+
+# sql - As Function
 
 ```ts
 fromNothing({

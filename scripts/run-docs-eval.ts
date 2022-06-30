@@ -323,6 +323,11 @@ async function main() {
     const files = (await fs.readdir(path.join(__dirname, inFolder))).filter(
         (it) => path.extname(it) === ".md"
     );
+
+    try {
+        await fs.mkdir(path.join(__dirname, outFolder));
+    } catch (e) {}
+
     await Promise.all(
         files.map((f) =>
             processFile(inFolder, outFolder, f, transpileOnly, checkOnly)
