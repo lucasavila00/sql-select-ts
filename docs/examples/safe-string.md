@@ -17,7 +17,13 @@ layout: default
 # sql - As Function
 
 ```ts
-import { fromNothing, sql, unionAll, SafeString, castSafe } from "../src";
+import {
+  fromNothing,
+  sql,
+  unionAll,
+  SafeString,
+  castSafe,
+} from "sql-select-ts";
 ```
 
 ```ts

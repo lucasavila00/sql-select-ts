@@ -7,14 +7,15 @@ import { Parent } from "unist";
 import { format } from "sql-formatter";
 import { Plugin } from "unified";
 import { spawnSync } from "child_process";
-import { Ast, parseCommand } from "./command";
-import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
 import * as prettier from "prettier";
 import * as path from "path";
 import { argv } from "node:process";
 import remarkFrontmatter from "remark-frontmatter";
 import { flatMap } from "./flat-map";
+import CLI from "command-line-args";
+
+type Ast = { yield?: String; replacePrintedInput?: string };
 
 const isCode = (it: Parent): it is Code & Parent => it.type === "code";
 const isTsCode = (it: Parent): it is Code & Parent =>
@@ -66,7 +67,7 @@ const removeYield = (code: string): string =>
         .trimEnd();
 
 const isYieldBlock = (code: string, cmd: Ast) => {
-    const hasArg = cmd.args.named["yield"] != null;
+    const hasArg = cmd.yield != null;
     const isByCode = isYieldBlockByCount(code);
     if (hasArg || isByCode) {
         if (!isByCode || !hasArg) {
@@ -89,7 +90,7 @@ const isYieldBlockByCount = (code: string) => {
     prettier.format(code, {
         filepath: "it.ts",
         parser: (text, cfg) => {
-            const ast = cfg.typescript(text);
+            const ast: any = cfg.typescript(text);
 
             visitNode(ast.body, (node: any) => {
                 if (node.type === "YieldExpression") {
@@ -111,14 +112,14 @@ const isYieldBlockByCount = (code: string) => {
     throw new Error("yield count is not 1 or 0: " + yieldCount);
 };
 const getFormattedCode = (cmd: Ast, result: string) => {
-    if (cmd.args.named["yield"] === "sql") {
+    if (cmd.yield === "sql") {
         return {
             type: "code",
             value: format(result),
             lang: "sql",
         };
     }
-    if (cmd.args.named["yield"] === "json") {
+    if (cmd.yield === "json") {
         return {
             type: "code",
             value: prettier
@@ -129,15 +130,42 @@ const getFormattedCode = (cmd: Ast, result: string) => {
     }
     throw new Error("not known meta: " + JSON.stringify(cmd));
 };
-const cmdParser = (source: string) =>
-    pipe(
-        source,
-        parseCommand("eval", (c) => `command not found: ${c}`),
-        E.fold(
-            (_it) => null,
-            (it) => it
-        )
-    );
+const cmdParser = (source: string): Ast | null => {
+    if (!source.startsWith("eval")) {
+        return null;
+    }
+    return CLI(
+        [
+            { name: "yield", type: String },
+            { name: "replacePrintedInput", type: String },
+        ],
+        {
+            argv: source
+                .replace("eval", "")
+                .split(" ")
+                .filter((it) => it.length > 0),
+        }
+    ) as Ast;
+};
+
+const escapeRegExp = (string: string): string =>
+    string.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+    ); /* $& means the whole matched string*/
+const replaceAll =
+    (find: string, replace: string) =>
+    (str: string): string =>
+        str.replace(new RegExp(escapeRegExp(find), "g"), replace);
+const replacePrintedInput = (cmd: Ast, code: string): string => {
+    const cfg = cmd.replacePrintedInput;
+
+    if (cfg != null) {
+        const [from, to] = cfg.split(",");
+        return replaceAll(from, to)(code);
+    }
+    return code;
+};
 const recreateMarkdown =
     (jsonFile: string): Plugin =>
     () =>
@@ -157,7 +185,10 @@ const recreateMarkdown =
                             {
                                 ...node,
                                 meta: null,
-                                value: removeYield(node.value),
+                                value: replacePrintedInput(
+                                    cmd,
+                                    removeYield(node.value)
+                                ),
                             },
                             getFormattedCode(cmd, it),
                         ];
@@ -165,25 +196,12 @@ const recreateMarkdown =
                     return [
                         {
                             ...node,
-                            value: prettier
-                                .format(node.value, {
-                                    filepath: "it.ts",
-                                })
-                                .trim(),
+                            value: replacePrintedInput(cmd, node.value),
                             meta: null,
                         },
                     ];
                 }
-                return [
-                    {
-                        ...node,
-                        value: prettier
-                            .format(node.value, {
-                                filepath: "it.ts",
-                            })
-                            .trim(),
-                    },
-                ];
+                return [node];
             }
 
             return [node];

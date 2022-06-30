@@ -14,7 +14,7 @@ layout: default
 {:toc}
 </details>
 
-```ts eval
+```ts eval --replacePrintedInput=../src,sql-select-ts
 import { table, SafeString, sql, unionAll } from "../src";
 ```
 
