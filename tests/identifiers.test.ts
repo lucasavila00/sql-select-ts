@@ -24,7 +24,7 @@ describe("identifiers", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`a\`, f1 AS \` a\`, f1 AS \`\`\` a\`, f1 AS \`\`\`. a\`, f1 AS \`0123\` FROM \`test1\``
+            `SELECT \`f1\` AS \`a\`, \`f1\` AS \` a\`, \`f1\` AS \`\`\` a\`, \`f1\` AS \`\`\`. a\`, \`f1\` AS \`0123\` FROM \`test1\``
         );
         await run(q);
     });

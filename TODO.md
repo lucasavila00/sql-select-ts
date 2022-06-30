@@ -1,7 +1,3 @@
-# LIB
-
--   [ ] stuff that comes from safe string should be wrapped as alias
-
 # DOCS
 
 -   [ ] document clickhouse extensions

@@ -47,7 +47,7 @@ describe("joinCompound", () => {
             .select((f) => ({ x: f["u.a"], y: f["u.b"], z: f["t1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT u.a AS \`x\`, u.b AS \`y\`, t1.c AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
+            `SELECT \`u\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
 
@@ -63,7 +63,7 @@ describe("joinCompound", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT t1.a AS \`x\`, u.b AS \`y\`, c AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
+            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`c\` AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
 
@@ -74,7 +74,7 @@ describe("joinCompound", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON t1.a = u.a`
+            `SELECT * FROM \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON \`t1\`.\`a\` = \`u\`.\`a\``
         );
     });
 
@@ -85,7 +85,7 @@ describe("joinCompound", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON t1.a = u.b`
+            `SELECT * FROM \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON \`t1\`.\`a\` = \`u\`.\`b\``
         );
     });
 
@@ -129,7 +129,7 @@ describe("joinCompound", () => {
             .select((f) => ({ x: f["u.a"], y: f["u.b"], z: f["t1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT u.a AS \`x\`, u.b AS \`y\`, t1.c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
+            `SELECT \`u\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
 
@@ -145,7 +145,7 @@ describe("joinCompound", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT t1.a AS \`x\`, u.b AS \`y\`, c AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
+            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
     it("select -> compound -- ON", async () => {
@@ -155,7 +155,7 @@ describe("joinCompound", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON t1.a = u.a`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON \`t1\`.\`a\` = \`u\`.\`a\``
         );
     });
     it("select -> compound -- ON QUALIFIED", async () => {
@@ -165,7 +165,7 @@ describe("joinCompound", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON t1.a = u.b`
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON \`t1\`.\`a\` = \`u\`.\`b\``
         );
     });
 
@@ -212,7 +212,7 @@ describe("joinCompound", () => {
             .select((f) => ({ x: f["u.a"], y: f["u.b"], z: f["t1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT u.a AS \`x\`, u.b AS \`y\`, t1.c AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
+            `SELECT \`u\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
 
@@ -230,7 +230,7 @@ describe("joinCompound", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT t1.a AS \`x\`, u.b AS \`y\`, c AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
+            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
     it("compound -> compound -- ON", async () => {
@@ -242,7 +242,7 @@ describe("joinCompound", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON t1.a = u.a`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON \`t1\`.\`a\` = \`u\`.\`a\``
         );
     });
     it("compound -> compound -- ON QUALIFIED", async () => {
@@ -254,7 +254,7 @@ describe("joinCompound", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON t1.a = u.b`
+            `SELECT * FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON \`t1\`.\`a\` = \`u\`.\`b\``
         );
     });
 
@@ -305,7 +305,7 @@ describe("joinCompound", () => {
             .select((f) => ({ x: f["u.a"], y: f["u.b"], z: f["t1.c"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT u.a AS \`x\`, u.b AS \`y\`, t1.c AS \`z\` FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
+            `SELECT \`u\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
 
@@ -323,7 +323,7 @@ describe("joinCompound", () => {
             }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT t1.a AS \`x\`, u.b AS \`y\`, a AS \`z\` FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
+            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`a\` AS \`z\` FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
     it("joined -> compound -- ON", async () => {
@@ -335,7 +335,7 @@ describe("joinCompound", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON t1.a = u.a`
+            `SELECT * FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON \`t1\`.\`a\` = \`u\`.\`a\``
         );
     });
     it("joined -> compound -- ON QUALIFIED", async () => {
@@ -347,7 +347,7 @@ describe("joinCompound", () => {
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON t1.a = u.b`
+            `SELECT * FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` ON \`t1\`.\`a\` = \`u\`.\`b\``
         );
     });
 

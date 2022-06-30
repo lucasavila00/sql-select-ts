@@ -66,11 +66,11 @@ q2.stringify();
 
 ```sql
 SELECT
-  age AS `age`
+  `age` AS `age`
 FROM
   `users`
 WHERE
-  id = 1
+  `id` = 1
 ```
 
 ## String interpolation helpers
@@ -92,11 +92,11 @@ q3.stringify();
 
 ```sql
 SELECT
-  MAX(age) AS `age`
+  MAX(`age`) AS `age`
 FROM
   `users`
 WHERE
-  id = 1
+  `id` = 1
 ```
 
 ## Composition
@@ -119,10 +119,10 @@ FROM
   ) AS `q`,
   (
     SELECT
-      MAX(age) AS `age`
+      MAX(`age`) AS `age`
     FROM
       `users`
     WHERE
-      id = 1
+      `id` = 1
   ) AS `q3`
 ```

@@ -48,7 +48,7 @@ SELECT
 FROM
   `users`
 ORDER BY
-  age
+  `age`
 ```
 
 # Two Clauses
@@ -68,8 +68,8 @@ SELECT
 FROM
   `users`
 ORDER BY
-  age DESC,
-  id
+  `age` DESC,
+  `id`
 ```
 
 ## Two calls
@@ -88,6 +88,6 @@ SELECT
 FROM
   `users`
 ORDER BY
-  age,
-  id
+  `age`,
+  `id`
 ```

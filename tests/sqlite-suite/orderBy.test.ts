@@ -18,7 +18,7 @@ describe("sqlite order by", () => {
             .orderBy((f) => f.x)
             .stringify();
 
-        expect(q).toMatchInlineSnapshot(`SELECT * FROM \`t0\` ORDER BY x`);
+        expect(q).toMatchInlineSnapshot(`SELECT * FROM \`t0\` ORDER BY \`x\``);
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
@@ -29,7 +29,7 @@ describe("sqlite order by", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT y AS \`it\` FROM \`t0\` ORDER BY x`
+            `SELECT \`y\` AS \`it\` FROM \`t0\` ORDER BY \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -41,7 +41,9 @@ describe("sqlite order by", () => {
             .orderBy((f) => f.y)
             .stringify();
 
-        expect(q).toMatchInlineSnapshot(`SELECT * FROM \`t0\` ORDER BY x, y`);
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM \`t0\` ORDER BY \`x\`, \`y\``
+        );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("2 items, one call", async () => {
@@ -50,7 +52,9 @@ describe("sqlite order by", () => {
             .orderBy((f) => [f.x, f.y])
             .stringify();
 
-        expect(q).toMatchInlineSnapshot(`SELECT * FROM \`t0\` ORDER BY x, y`);
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM \`t0\` ORDER BY \`x\`, \`y\``
+        );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 });

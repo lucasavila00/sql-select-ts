@@ -27,7 +27,7 @@ describe("clickhouse final", () => {
             .select((f) => ({ it: f.x, y: f["t1_clickhouse.y"] }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT x AS \`it\`, t1_clickhouse.y AS \`y\` FROM \`t1_clickhouse\` FINAL`
+            `SELECT \`x\` AS \`it\`, \`t1_clickhouse\`.\`y\` AS \`y\` FROM \`t1_clickhouse\` FINAL`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -41,7 +41,7 @@ describe("clickhouse final", () => {
     it("with alias -- select", async () => {
         const q = t1c.select((f) => ({ it: f.x, y: f["t1c.y"] })).stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT x AS \`it\`, t1c.y AS \`y\` FROM \`t1_clickhouse\` AS \`t1c\` FINAL`
+            `SELECT \`x\` AS \`it\`, \`t1c\`.\`y\` AS \`y\` FROM \`t1_clickhouse\` AS \`t1c\` FINAL`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

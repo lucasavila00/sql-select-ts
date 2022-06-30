@@ -49,7 +49,7 @@ SELECT
 FROM
   `users`
 WHERE
-  name = 'Lucas'
+  `name` = 'Lucas'
 ```
 
 # Two Clauses
@@ -70,8 +70,8 @@ SELECT
 FROM
   `users`
 WHERE
-  name = 'Lucas'
-  AND id = 5
+  `name` = 'Lucas'
+  AND `id` = 5
 ```
 
 ## Two calls
@@ -91,6 +91,6 @@ SELECT
 FROM
   `users`
 WHERE
-  name = 'Lucas'
-  AND id = 5
+  `name` = 'Lucas'
+  AND `id` = 5
 ```

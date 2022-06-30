@@ -20,7 +20,7 @@ describe("clickhouse replace", () => {
             .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * REPLACE (y+1 AS \`x\`) FROM \`t3_clickhouse\``
+            `SELECT * REPLACE (\`y\`+1 AS \`x\`) FROM \`t3_clickhouse\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -31,7 +31,7 @@ describe("clickhouse replace", () => {
             .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT * REPLACE (y+1 AS \`x\`) FROM \`t3_clickhouse\``
+            `SELECT * REPLACE (\`y\`+1 AS \`x\`) FROM \`t3_clickhouse\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

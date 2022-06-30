@@ -44,11 +44,38 @@ describe("sqlite select1", () => {
         await run(`INSERT INTO t6 VALUES('c','2');`);
         await run(`INSERT INTO t6 VALUES('d','3');`);
     });
+    it("select0", async () => {
+        const q = test1
+            .select((f) => ({
+                //
+                ["f1"]: f.f1,
+                ["1"]: f.f1,
+                ["-asd-"]: f.f1,
+                ["//as/d/asd"]: f.f1,
+            }))
+            .groupBy((f) => f["//as/d/asd"])
+            .stringify();
 
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`f1\` AS \`1\`, \`f1\` AS \`f1\`, \`f1\` AS \`-asd-\`, \`f1\` AS \`//as/d/asd\` FROM \`test1\` GROUP BY \`//as/d/asd\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                -asd-: 11,
+                //as/d/asd: 11,
+                1: 11,
+                f1: 11,
+              },
+            ]
+        `);
+    });
     it("select1-1.4", async () => {
         const q = test1.select((f) => ({ f1: f.f1 })).stringify();
 
-        expect(q).toMatchInlineSnapshot(`SELECT f1 AS \`f1\` FROM \`test1\``);
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\``
+        );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -65,7 +92,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\`, f2 AS \`f2\` FROM \`test1\``
+            `SELECT \`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -81,7 +108,7 @@ describe("sqlite select1", () => {
         const q = test1.select((f) => ({ f1: f["test1.f1"] })).stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.f1 AS \`f1\` FROM \`test1\``
+            `SELECT \`test1\`.\`f1\` AS \`f1\` FROM \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -99,7 +126,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.f1 AS \`f1\`, test1.f2 AS \`f2\` FROM \`test1\``
+            `SELECT \`test1\`.\`f1\` AS \`f1\`, \`test1\`.\`f2\` AS \`f2\` FROM \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -120,7 +147,9 @@ describe("sqlite select1", () => {
             }))
             .stringify();
 
-        expect(q).toMatchInlineSnapshot(`SELECT f3 AS \`f1\` FROM \`test1\``);
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`f3\` AS \`f1\` FROM \`test1\``
+        );
         expect(await fail(q)).toMatchInlineSnapshot(
             `Error: SQLITE_ERROR: no such column: f3`
         );
@@ -129,7 +158,9 @@ describe("sqlite select1", () => {
     it("select1-1.4 -- destructuring", async () => {
         const q = test1.select(({ f1 }) => ({ f1 })).stringify();
 
-        expect(q).toMatchInlineSnapshot(`SELECT f1 AS \`f1\` FROM \`test1\``);
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\``
+        );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
               Object {
@@ -143,7 +174,7 @@ describe("sqlite select1", () => {
         const q = test1.select((f) => ({ f1: f.f1, f2: f.f2 })).stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\`, f2 AS \`f2\` FROM \`test1\``
+            `SELECT \`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -159,7 +190,7 @@ describe("sqlite select1", () => {
         const q = test1.select(({ f1, f2 }) => ({ f1, f2 })).stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\`, f2 AS \`f2\` FROM \`test1\``
+            `SELECT \`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -225,7 +256,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT *, min(f1, f2) AS \`min\`, max(f1, f2) AS \`max\` FROM \`test1\``
+            `SELECT *, min(\`f1\`, \`f2\`) AS \`min\`, max(\`f1\`, \`f2\`) AS \`max\` FROM \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -333,7 +364,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\`, r1 AS \`r1\` FROM \`test1\`, \`test2\``
+            `SELECT \`f1\` AS \`f1\`, \`r1\` AS \`r1\` FROM \`test1\`, \`test2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -357,7 +388,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\`, f2 AS \`f2\` FROM \`test1\`, \`test1_dup\``
+            `SELECT \`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM \`test1\`, \`test1_dup\``
         );
         expect(await fail(q)).toMatchInlineSnapshot(
             `Error: SQLITE_ERROR: ambiguous column name: f1`
@@ -374,7 +405,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.f1 AS \`f1\`, test1_dup.f2 AS \`f2\` FROM \`test1\`, \`test1_dup\``
+            `SELECT \`test1\`.\`f1\` AS \`f1\`, \`test1_dup\`.\`f2\` AS \`f2\` FROM \`test1\`, \`test1_dup\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -396,7 +427,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.f1 AS \`f1\`, test1_dup.f2 AS \`f2\` FROM \`test1\`, \`test1_dup\`, \`test2\``
+            `SELECT \`test1\`.\`f1\` AS \`f1\`, \`test1_dup\`.\`f2\` AS \`f2\` FROM \`test1\`, \`test1_dup\`, \`test2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -417,7 +448,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.f1 AS \`f1\`, test2.r1 AS \`r1\` FROM \`test1\`, \`test2\``
+            `SELECT \`test1\`.\`f1\` AS \`f1\`, \`test2\`.\`r1\` AS \`r1\` FROM \`test1\`, \`test2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -471,7 +502,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT a.f1 AS \`f1\`, b.f2 AS \`f2\` FROM \`test1\` AS \`a\`, \`test1\` AS \`b\``
+            `SELECT \`a\`.\`f1\` AS \`f1\`, \`b\`.\`f2\` AS \`f2\` FROM \`test1\` AS \`a\`, \`test1\` AS \`b\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -491,7 +522,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT max(test1.f1, test2.r1) AS \`max\`, min(test1.f2, test2.r2) AS \`min\` FROM \`test1\`, \`test2\``
+            `SELECT max(\`test1\`.\`f1\`, \`test2\`.\`r1\`) AS \`max\`, min(\`test1\`.\`f2\`, \`test2\`.\`r2\`) AS \`min\` FROM \`test1\`, \`test2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -509,7 +540,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` WHERE f1 < 11`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < 11`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -520,7 +551,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f3\` FROM \`test1\` WHERE f3 < 11`
+            `SELECT \`f1\` AS \`f3\` FROM \`test1\` WHERE \`f3\` < 11`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -537,7 +568,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f3\` FROM \`test1\` WHERE f5 < 11`
+            `SELECT \`f1\` AS \`f3\` FROM \`test1\` WHERE \`f5\` < 11`
         );
         expect(await fail(q)).toMatchInlineSnapshot(
             `Error: SQLITE_ERROR: no such column: f5`
@@ -552,7 +583,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` WHERE f1 < 11 AND f2 > 0`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < 11 AND \`f2\` > 0`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -564,7 +595,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` WHERE f1 < 11`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < 11`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -576,7 +607,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` WHERE f1 < 11 AND f2 > 0`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < 11 AND \`f2\` > 0`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -588,7 +619,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` ORDER BY f1`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` ORDER BY \`f1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -607,7 +638,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` ORDER BY f1, f2`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` ORDER BY \`f1\`, \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -625,7 +656,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` ORDER BY f1, f2`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` ORDER BY \`f1\`, \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -643,7 +674,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` ORDER BY f1 ASC, f2 DESC`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` ORDER BY \`f1\` ASC, \`f2\` DESC`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -661,7 +692,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f3\` FROM \`test1\` ORDER BY f3`
+            `SELECT \`f1\` AS \`f3\` FROM \`test1\` ORDER BY \`f3\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -679,7 +710,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`test1\` WHERE f1 == 11`
+            `SELECT * FROM \`test1\` WHERE \`f1\` == 11`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -699,7 +730,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT DISTINCT * FROM \`test1\` WHERE f1 == 11`
+            `SELECT DISTINCT * FROM \`test1\` WHERE \`f1\` == 11`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -718,7 +749,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`xyzzy \` FROM \`test1\` ORDER BY f2`
+            `SELECT \`f1\` AS \`xyzzy \` FROM \`test1\` ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -736,7 +767,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.f1 + f2 AS \`it\` FROM \`test1\` ORDER BY f2`
+            `SELECT \`test1\`.\`f1\` + \`f2\` AS \`it\` FROM \`test1\` ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -754,7 +785,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.f1 + f2 AS \`it\`, r2 AS \`r2\` FROM \`test1\`, \`test2\` ORDER BY f2`
+            `SELECT \`test1\`.\`f1\` + \`f2\` AS \`it\`, \`r2\` AS \`r2\` FROM \`test1\`, \`test2\` ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -774,7 +805,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT a.f1 AS \`it\`, r2 AS \`r2\` FROM \`test1\` AS \`a\`, \`test2\` ORDER BY f2`
+            `SELECT \`a\`.\`f1\` AS \`it\`, \`r2\` AS \`r2\` FROM \`test1\` AS \`a\`, \`test2\` ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -795,7 +826,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT a.f1 AS \`it\`, b.r2 AS \`r2\` FROM \`test1\` AS \`a\`, \`test2\` AS \`b\` ORDER BY a.f1, b.r2`
+            `SELECT \`a\`.\`f1\` AS \`it\`, \`b\`.\`r2\` AS \`r2\` FROM \`test1\` AS \`a\`, \`test2\` AS \`b\` ORDER BY \`a\`.\`f1\`, \`b\`.\`r2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -952,7 +983,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT a.f1 AS \`a\`, x AS \`b\`, b.y AS \`b2\` FROM \`test1\` AS \`a\`, (SELECT 5 AS \`x\`, 6 AS \`y\`) AS \`b\` LIMIT 1`
+            `SELECT \`a\`.\`f1\` AS \`a\`, \`x\` AS \`b\`, \`b\`.\`y\` AS \`b2\` FROM \`test1\` AS \`a\`, (SELECT 5 AS \`x\`, 6 AS \`y\`) AS \`b\` LIMIT 1`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -975,7 +1006,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT a.f1 AS \`f1\`, b.f2 AS \`f2\` FROM \`test1\` AS \`a\`, \`test1\` AS \`b\` LIMIT 1`
+            `SELECT \`a\`.\`f1\` AS \`f1\`, \`b\`.\`f2\` AS \`f2\` FROM \`test1\` AS \`a\`, \`test1\` AS \`b\` LIMIT 1`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -993,7 +1024,7 @@ describe("sqlite select1", () => {
         }).stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT 2 IN (SELECT f1 AS \`f1\` FROM \`test1\`) AS \`it\``
+            `SELECT 2 IN (SELECT \`f1\` AS \`f1\` FROM \`test1\`) AS \`it\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1014,7 +1045,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT a AS \`a\` FROM \`t6\` WHERE b IN (SELECT b AS \`b\` FROM \`t6\` WHERE a<='b')`
+            `SELECT \`a\` AS \`a\` FROM \`t6\` WHERE \`b\` IN (SELECT \`b\` AS \`b\` FROM \`t6\` WHERE a<='b')`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1035,7 +1066,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`test1\` WHERE f1 < (SELECT count(*) AS \`c\` FROM \`test2\`)`
+            `SELECT * FROM \`test1\` WHERE \`f1\` < (SELECT count(*) AS \`c\` FROM \`test2\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -1047,7 +1078,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`test1\` WHERE f1 < (SELECT count(*) AS \`c\` FROM \`test2\`)`
+            `SELECT * FROM \`test1\` WHERE \`f1\` < (SELECT count(*) AS \`c\` FROM \`test2\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -1062,7 +1093,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`test1\` WHERE f1 = (SELECT 11 AS \`it\`)`
+            `SELECT * FROM \`test1\` WHERE \`f1\` = (SELECT 11 AS \`it\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1152,7 +1183,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT 1 AS \`1\` FROM \`test1\` WHERE (SELECT 2 AS \`2\` FROM \`test2\` WHERE (SELECT 3 AS \`it\` FROM (SELECT f1 AS \`f1\` FROM \`test1\` WHERE f1 = f2 OR f1 = (SELECT f1 AS \`it\` FROM \`test2\`)) WHERE f1 > it OR f1 = it))`
+            `SELECT 1 AS \`1\` FROM \`test1\` WHERE (SELECT 2 AS \`2\` FROM \`test2\` WHERE (SELECT 3 AS \`it\` FROM (SELECT \`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` = \`f2\` OR \`f1\` = (SELECT \`f1\` AS \`it\` FROM \`test2\`)) WHERE \`f1\` > \`it\` OR \`f1\` = \`it\`))`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1181,7 +1212,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT 1 AS \`1\` FROM \`test1\`, \`test2\` WHERE (SELECT 2 AS \`2\` FROM \`test2\` WHERE (SELECT 3 AS \`it\` FROM (SELECT f1 AS \`f1\` FROM \`test1\` WHERE f1 = f2) WHERE f1 > it OR f1 = it))`
+            `SELECT 1 AS \`1\` FROM \`test1\`, \`test2\` WHERE (SELECT 2 AS \`2\` FROM \`test2\` WHERE (SELECT 3 AS \`it\` FROM (SELECT \`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` = \`f2\`) WHERE \`f1\` > \`it\` OR \`f1\` = \`it\`))`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -1198,7 +1229,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.* FROM \`test1\`, (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\``
+            `SELECT test1.* FROM \`test1\`, (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1226,7 +1257,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`a\`, f2 AS \`b\` FROM (SELECT test1.* FROM \`test1\`, (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\`)`
+            `SELECT \`f1\` AS \`a\`, \`f2\` AS \`b\` FROM (SELECT test1.* FROM \`test1\`, (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1258,7 +1289,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`a\`, f2 AS \`b\`, test1.f1 AS \`c\`, test1.f2 AS \`d\` FROM (SELECT test1.* FROM \`test1\`, (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\`)`
+            `SELECT \`f1\` AS \`a\`, \`f2\` AS \`b\`, \`test1\`.\`f1\` AS \`c\`, \`test1\`.\`f2\` AS \`d\` FROM (SELECT test1.* FROM \`test1\`, (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\`)`
         );
         expect(await fail(q)).toMatchInlineSnapshot(
             `Error: SQLITE_ERROR: no such column: test1.f1`
@@ -1284,7 +1315,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`a\`, r2 AS \`e\`, it.r2 AS \`f\` FROM (SELECT test1.* FROM \`test1\`, (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\`)`
+            `SELECT \`f1\` AS \`a\`, \`r2\` AS \`e\`, \`it\`.\`r2\` AS \`f\` FROM (SELECT test1.* FROM \`test1\`, (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\`)`
         );
         expect(await fail(q)).toMatchInlineSnapshot(
             `Error: SQLITE_ERROR: no such column: r2`
@@ -1303,7 +1334,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT test1.* FROM (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\`, \`test1\``
+            `SELECT test1.* FROM (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\`, \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1327,7 +1358,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT it.* FROM (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\`, \`test1\``
+            `SELECT it.* FROM (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\`, \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1351,7 +1382,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT it.* FROM \`test1\`, (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\``
+            `SELECT it.* FROM \`test1\`, (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1374,7 +1405,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT it.*, test1.* FROM (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\`, \`test1\``
+            `SELECT it.*, test1.* FROM (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\`, \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1401,7 +1432,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT DISTINCT it.*, test1.* FROM (SELECT max(r2) AS \`r2\`, max(r1) AS \`r1\` FROM \`test2\`) AS \`it\`, \`test1\``
+            `SELECT DISTINCT it.*, test1.* FROM (SELECT max(\`r2\`) AS \`r2\`, max(\`r1\`) AS \`r1\` FROM \`test2\`) AS \`it\`, \`test1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1428,7 +1459,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`test1\`, (SELECT * FROM \`test2\` WHERE r2 = 2 ORDER BY r1, r2 LIMIT 4) AS \`it\``
+            `SELECT * FROM \`test1\`, (SELECT * FROM \`test2\` WHERE \`r2\` = 2 ORDER BY \`r1\`, \`r2\` LIMIT 4) AS \`it\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -1441,7 +1472,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` UNION SELECT f2 AS \`f2\` FROM \`test1\` ORDER BY f2`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` UNION SELECT \`f2\` AS \`f2\` FROM \`test1\` ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1463,7 +1494,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`f1\` FROM \`test1\` UNION SELECT f2 AS \`f2\` FROM \`test1\` ORDER BY f1`
+            `SELECT \`f1\` AS \`f1\` FROM \`test1\` UNION SELECT \`f2\` AS \`f2\` FROM \`test1\` ORDER BY \`f1\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1485,7 +1516,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`test1\` UNION SELECT 4 AS \`4\`, 3 AS \`a\` ORDER BY a`
+            `SELECT * FROM \`test1\` UNION SELECT 4 AS \`4\`, 3 AS \`a\` ORDER BY \`a\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1539,7 +1570,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`it\` FROM \`test1\` WHERE f1 IN (SELECT 3 AS \`x\` UNION SELECT f1 AS \`f1\` FROM \`test1\` WHERE f1 < f2 ORDER BY 1 DESC LIMIT 1)`
+            `SELECT \`f1\` AS \`it\` FROM \`test1\` WHERE \`f1\` IN (SELECT 3 AS \`x\` UNION SELECT \`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < \`f2\` ORDER BY 1 DESC LIMIT 1)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1563,7 +1594,7 @@ describe("sqlite select1", () => {
         const q = test1.commaJoinCompound("u", u).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) AS \`u\``
+            `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1592,7 +1623,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`test1\`) AS \`t1\`, (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) AS \`u\``
+            `SELECT * FROM (SELECT * FROM \`test1\`) AS \`t1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1617,7 +1648,7 @@ describe("sqlite select1", () => {
         const q = test1.commaJoinCompound("u", u).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1 OFFSET 10) AS \`u\``
+            `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1 OFFSET 10) AS \`u\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -1634,7 +1665,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT main_alias.f1 AS \`f1\`, f2 AS \`f2\` FROM (SELECT * FROM (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2)) AS main_alias`
+            `SELECT \`main_alias\`.\`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM (SELECT * FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\`)) AS \`main_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1662,7 +1693,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`it\` FROM (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) ORDER BY f2`
+            `SELECT \`f1\` AS \`it\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1689,7 +1720,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT f1 AS \`it\` FROM (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) ORDER BY test1.f2`
+            `SELECT \`f1\` AS \`it\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) ORDER BY \`test1\`.\`f2\``
         );
         expect(await fail(q)).toMatchInlineSnapshot(
             `Error: SQLITE_ERROR: no such column: test1.f2`
@@ -1712,7 +1743,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT main_alias.f1 AS \`it\` FROM (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) AS main_alias ORDER BY f2`
+            `SELECT \`main_alias\`.\`f1\` AS \`it\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`main_alias\` ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1740,7 +1771,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT main_alias.f1 AS \`f1\`, main_alias.f2 AS \`f2\` FROM (SELECT * FROM \`test1\` WHERE f1 < f2 UNION ALL SELECT * FROM \`test1\` WHERE f1 > f2 ORDER BY f1, f2 LIMIT 1) AS main_alias ORDER BY f2`
+            `SELECT \`main_alias\`.\`f1\` AS \`f1\`, \`main_alias\`.\`f2\` AS \`f2\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`main_alias\` ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1760,7 +1791,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT main_alias.f1 AS \`f1\` FROM (SELECT * FROM \`test1\` WHERE f1 < f2) AS main_alias`
+            `SELECT \`main_alias\`.\`f1\` AS \`f1\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\`) AS \`main_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1778,7 +1809,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT main_alias.f1 AS \`f1\` FROM (SELECT test1.f1 AS \`f1\`, test1.f2 AS \`f2\` FROM \`test1\` WHERE f1 < f2) AS main_alias`
+            `SELECT \`main_alias\`.\`f1\` AS \`f1\` FROM (SELECT \`test1\`.\`f1\` AS \`f1\`, \`test1\`.\`f2\` AS \`f2\` FROM \`test1\` WHERE \`f1\` < \`f2\`) AS \`main_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1797,7 +1828,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT main_alias.f1 AS \`f1\` FROM (SELECT *, test1.f1 AS \`f1\` FROM \`test1\` WHERE f1 < f2) AS main_alias`
+            `SELECT \`main_alias\`.\`f1\` AS \`f1\` FROM (SELECT *, \`test1\`.\`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < \`f2\`) AS \`main_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1818,7 +1849,7 @@ describe("sqlite select1", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT main_alias.f1 AS \`f1\`, main_alias.f2 AS \`f2\` FROM (SELECT *, test1.f1 AS \`f1\` FROM \`test1\` WHERE f1 < f2) AS main_alias`
+            `SELECT \`main_alias\`.\`f1\` AS \`f1\`, \`main_alias\`.\`f2\` AS \`f2\` FROM (SELECT *, \`test1\`.\`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < \`f2\`) AS \`main_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [

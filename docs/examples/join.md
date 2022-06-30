@@ -72,7 +72,7 @@ SELECT
   *
 FROM
   `users`
-  LEFT JOIN `admins` AS `adm` ON adm.id = users.id
+  LEFT JOIN `admins` AS `adm` ON `adm`.`id` = `users`.`id`
 ```
 
 ## Join Select
@@ -95,7 +95,7 @@ FROM
       *
     FROM
       `users`
-  ) AS `u` ON u.id = adm.id
+  ) AS `u` ON `u`.`id` = `adm`.`id`
 ```
 
 ## Join Compound
@@ -126,15 +126,15 @@ FROM
     FROM
       `users`
     WHERE
-      id = 1
+      `id` = 1
     UNION ALL
     SELECT
       *
     FROM
       `users`
     WHERE
-      id = 2
-  ) AS `u` ON u.id = adm.id
+      `id` = 2
+  ) AS `u` ON `u`.`id` = `adm`.`id`
 ```
 
 ## Join 3 Tables
@@ -154,8 +154,8 @@ SELECT
   *
 FROM
   `users`
-  LEFT JOIN `admins` AS `adm` ON adm.id = users.id
-  LEFT JOIN `analytics` ON analytics.id = users.id
+  LEFT JOIN `admins` AS `adm` ON `adm`.`id` = `users`.`id`
+  LEFT JOIN `analytics` ON `analytics`.`id` = `users`.`id`
 ```
 
 ## Join 3 Selects
@@ -188,13 +188,13 @@ FROM
       *
     FROM
       `admins` AS `adm`
-  ) AS `admins` ON admins.id = users.id
+  ) AS `admins` ON `admins`.`id` = `users`.`id`
   LEFT JOIN (
     SELECT
       *
     FROM
       `analytics`
-  ) AS `analytics` ON analytics.id = users.id
+  ) AS `analytics` ON `analytics`.`id` = `users`.`id`
 ```
 
 # USING
@@ -336,14 +336,14 @@ FROM
     FROM
       `users`
     WHERE
-      id = 1
+      `id` = 1
     UNION ALL
     SELECT
       *
     FROM
       `users`
     WHERE
-      id = 2
+      `id` = 2
   ) AS `u`
 ```
 
