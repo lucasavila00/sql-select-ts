@@ -16,7 +16,7 @@ npm i sql-select-ts
 
 # Getting started
 
-TODO
+Check out the [examples](/examples/getting-started).
 
 # Features
 
@@ -39,7 +39,7 @@ const myString = sql`column = ${userInput}`;
 // column = '\';'
 ```
 
-## Typescript template literal types
+## Typescript checking
 
 Provides type checking for identifiers names, with optional source qualifier, among other features.
 
@@ -58,13 +58,21 @@ t1.joinTable("NATURAL", t2)
 
 ## Composable
 
-TODO
+```ts
+const users = table(["id", "age", "name"], "users");
+const admins = table(["id", "age", "name"], "adm", "admins");
+const analytics = table(["id", "clicks"], "analytics");
+
+users
+    .joinTable("LEFT", admins)
+    .on((f) => equals(f["adm.id"], f["users.id"]))
+    .joinTable("LEFT", analytics)
+    .on((f) => equals(f["analytics.id"], f["users.id"]))
+    .selectStar()
+    .stringify();
+```
 
 ## Database agnostic
-
-We focus on generating correct SQL syntax-wise, and let you take care of semantics.
-
-This allows usage in any SQL database.
 
 ### Usage with sqlite
 

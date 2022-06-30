@@ -35,7 +35,7 @@ export const table = Table.define;
 
 /**
  *
- * TODO
+ * Create a common table expression.
  *
  * @category starter
  * @since 0.0.0

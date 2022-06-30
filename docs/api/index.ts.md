@@ -153,7 +153,7 @@ Added in v0.0.0
 
 ## with\_
 
-TODO
+Create a common table expression.
 
 **Signature**
 

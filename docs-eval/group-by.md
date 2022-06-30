@@ -1,6 +1,6 @@
 ---
-title: Limit
-nav_order: 9
+title: Group by
+nav_order: 10
 parent: Examples
 layout: default
 ---
@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts eval
-import { table, sql } from "../src";
+import { table } from "../src";
 ```
 
 We will use this table
@@ -33,17 +33,32 @@ const users = table(
 );
 ```
 
-# Limiting to a number
-
-```ts eval --yield=sql
-yield users.selectStar().limit(5).stringify();
-```
-
-# Limiting with offset
+# One Clause
 
 ```ts eval --yield=sql
 yield users
     .selectStar()
-    .limit(sql`1 OFFSET 10`)
+    .groupBy((f) => f.age)
+    .stringify();
+```
+
+# Two Clauses
+
+## One call
+
+```ts eval --yield=sql
+yield users
+    .selectStar()
+    .groupBy((f) => [f.age, f.id])
+    .stringify();
+```
+
+## Two calls
+
+```ts eval --yield=sql
+yield users
+    .selectStar()
+    .groupBy((f) => f.age)
+    .groupBy((f) => f.id)
     .stringify();
 ```

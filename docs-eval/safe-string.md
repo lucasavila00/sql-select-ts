@@ -1,5 +1,5 @@
 ---
-title: Safe string
+title: Safe String
 nav_order: 6
 parent: Examples
 layout: default
