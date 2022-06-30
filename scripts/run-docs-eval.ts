@@ -85,6 +85,26 @@ const isYieldBlock = (code: string, cmd: Ast) => {
     }
     return false;
 };
+const isAwaitBlock = (code: string) => {
+    let found = false;
+    prettier.format(code, {
+        filepath: "it.ts",
+        parser: (text, cfg) => {
+            const ast: any = cfg.typescript(text);
+
+            visitNode(ast.body, (node: any) => {
+                if (node.type === "AwaitExpression") {
+                    found = true;
+                }
+                return node;
+            });
+
+            return ast;
+        },
+    });
+
+    return found;
+};
 const isYieldBlockByCount = (code: string) => {
     let yieldCount = 0;
 
@@ -123,9 +143,14 @@ const getFormattedCode = (cmd: Ast, result: string) => {
     if (cmd.yield === "json") {
         return {
             type: "code",
-            value: prettier
-                .format(JSON.stringify(result), { parser: "json" })
-                .trim(),
+            value:
+                result === null
+                    ? "null"
+                    : result === undefined
+                    ? "undefined"
+                    : prettier
+                          .format(JSON.stringify(result), { parser: "json" })
+                          .trim(),
             lang: "json",
         };
     }
@@ -212,22 +237,25 @@ const executeTypescript =
     (tsFile: string, jsonFile: string, extraFlags: string[]): Plugin =>
     () =>
     async (tree) => {
-        let beforeFirstYield = "";
+        let beforeFirstYieldOrAwait = "";
         let code = "";
-        let hasYield = false;
+        let hasYieldOrAwait = false;
         flatMap(tree as Parent, (node) => {
             if (isTsCode(node)) {
                 const cmd = cmdParser(String(node.meta));
                 if (cmd != null) {
-                    if (isYieldBlock(node.value, cmd)) {
-                        hasYield = true;
+                    if (
+                        isYieldBlock(node.value, cmd) ||
+                        isAwaitBlock(node.value)
+                    ) {
+                        hasYieldOrAwait = true;
                     }
-                    if (hasYield) {
+                    if (hasYieldOrAwait) {
                         code += node.value;
                         code += "\n";
                     } else {
-                        beforeFirstYield += node.value;
-                        beforeFirstYield += "\n";
+                        beforeFirstYieldOrAwait += node.value;
+                        beforeFirstYieldOrAwait += "\n";
                     }
                 }
             }
@@ -237,7 +265,7 @@ const executeTypescript =
 
         let final = "import * as fs from 'fs';\n";
 
-        final += beforeFirstYield;
+        final += beforeFirstYieldOrAwait;
         final += `\nasync function* generator():AsyncGenerator<any, any, any> {\n`;
         final += code;
         final += `\

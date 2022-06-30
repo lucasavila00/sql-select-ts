@@ -22,6 +22,81 @@ Added in v0.0.0
 
 # compound
 
+## except
+
+Creates a compound query using 'EXCEPT'
+
+**Signature**
+
+```ts
+export declare const except: <
+  C extends SelectStatement<any, any>,
+  CS extends SelectStatement<any, any>[]
+>(
+  content: [C, ...CS]
+) => Compound<
+  | (C extends SelectStatement<infer _Scope, infer Selection>
+      ? Selection
+      : never)
+  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
+      ? Selection
+      : never),
+  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+>;
+```
+
+**Example**
+
+```ts
+import { fromNothing, sql, except } from "sql-select-ts";
+const q1 = fromNothing({ a: sql(123) });
+const q2 = fromNothing({ a: sql(456) });
+
+const u = except([q1, q2]);
+assert.strictEqual(u.stringify(), "SELECT 123 AS `a` EXCEPT SELECT 456 AS `a`");
+```
+
+Added in v0.0.1
+
+## intersect
+
+Creates a compound query using 'INTERSECT'
+
+**Signature**
+
+```ts
+export declare const intersect: <
+  C extends SelectStatement<any, any>,
+  CS extends SelectStatement<any, any>[]
+>(
+  content: [C, ...CS]
+) => Compound<
+  | (C extends SelectStatement<infer _Scope, infer Selection>
+      ? Selection
+      : never)
+  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
+      ? Selection
+      : never),
+  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+>;
+```
+
+**Example**
+
+```ts
+import { fromNothing, sql, intersect } from "sql-select-ts";
+const q1 = fromNothing({ a: sql(123) });
+const q2 = fromNothing({ a: sql(456) });
+
+const u = intersect([q1, q2]);
+assert.strictEqual(
+  u.stringify(),
+  "SELECT 123 AS `a` INTERSECT SELECT 456 AS `a`"
+);
+```
+
+Added in v0.0.1
+
 ## union
 
 Creates a compound query using 'UNION'
@@ -280,3 +355,94 @@ assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
 ```
 
 Added in v0.0.0
+
+# utils
+
+## AnyStringifyable
+
+**Signature**
+
+```ts
+export declare const AnyStringifyable: AnyStringifyable;
+```
+
+Added in v0.0.1
+
+## RowOf
+
+Return a objects, where the keys are the columns of the selection.
+
+**Signature**
+
+```ts
+export declare const RowOf: {
+  [K in SelectionOf<T>]: string | number | null | undefined;
+};
+```
+
+**Example**
+
+```ts
+import { table, RowOf } from "sql-select-ts";
+const t1 = table(["id", "name"], "users");
+const q = t1.selectStar();
+type Ret = RowOf<typeof q>;
+const ret: Ret = { id: 1, name: null };
+console.log(ret.id);
+console.log(ret.name);
+//@ts-expect-error
+console.log(ret.abc);
+```
+
+Added in v0.0.1
+
+## RowsArray
+
+Return an array of objects, where the object keys are the columns of the selection.
+
+**Signature**
+
+```ts
+export declare const RowsArray: RowsArray<T>;
+```
+
+**Example**
+
+```ts
+import { table, RowsArray } from "sql-select-ts";
+const t1 = table(["id", "name"], "users");
+const q = t1.selectStar();
+type Ret = RowsArray<typeof q>;
+const ret: Ret = [];
+console.log(ret?.[0]?.id);
+console.log(ret?.[0]?.name);
+//@ts-expect-error
+console.log(ret?.[0]?.abc);
+```
+
+Added in v0.0.1
+
+## SelectionOf
+
+Given a stringifyable object, returns the union of the selection keys.
+
+**Signature**
+
+```ts
+export declare const SelectionOf: SelectionOf<T>;
+```
+
+**Example**
+
+```ts
+import { table, SelectionOf } from "sql-select-ts";
+const t1 = table(["id", "name"], "users");
+const q = t1.selectStar();
+type Key = SelectionOf<typeof q>;
+const k: Key = "id";
+assert.strictEqual(k, "id");
+//@ts-expect-error
+const k2: Key = "abc";
+```
+
+Added in v0.0.1

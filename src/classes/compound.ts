@@ -73,6 +73,44 @@ export class Compound<Scope extends string, Selection extends string> {
             limit: null,
         });
 
+    /**
+     * @internal
+     */
+    public static intersect = <
+        C extends SelectStatement<any, any>,
+        CS extends SelectStatement<any, any>[]
+    >(
+        content: [C, ...CS]
+    ): Compound<
+        SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+        SelectionOfSelectStatement<C>
+    > =>
+        new Compound({
+            content,
+            qualifier: "INTERSECT",
+            orderBy: [],
+            limit: null,
+        });
+
+    /**
+     * @internal
+     */
+    public static except = <
+        C extends SelectStatement<any, any>,
+        CS extends SelectStatement<any, any>[]
+    >(
+        content: [C, ...CS]
+    ): Compound<
+        SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+        SelectionOfSelectStatement<C>
+    > =>
+        new Compound({
+            content,
+            qualifier: "EXCEPT",
+            orderBy: [],
+            limit: null,
+        });
+
     private copy = (): Compound<Scope, Selection> =>
         new Compound({ ...this.__props });
 

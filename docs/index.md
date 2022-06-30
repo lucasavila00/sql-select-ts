@@ -16,7 +16,7 @@ npm i sql-select-ts
 
 # Getting started
 
-Check out the [examples](/docs/examples/getting-started).
+Check out the [examples](/examples/getting-started.html).
 
 # Features
 
@@ -72,12 +72,14 @@ users
     .stringify();
 ```
 
+## 0 dependencies
+
 ## Database agnostic
 
 ### Usage with sqlite
 
-Check out the [examples](/docs/examples/sqlite-usage).
+Check out the [examples](/examples/sqlite-usage.html).
 
 ### Usage with Clickhouse
 
-Check out the [examples](/docs/examples/clickhouse-usage).
+Check out the [examples](/examples/clickhouse-usage.html).
