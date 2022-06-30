@@ -1,6 +1,6 @@
 ---
-title: Limit
-nav_order: 9
+title: Group by
+nav_order: 10
 parent: Examples
 layout: default
 ---
@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, sql } from "../src";
+import { table } from "../src";
 ```
 
 We will use this table
@@ -33,27 +33,12 @@ const users = table(
 );
 ```
 
-# Limiting to a number
-
-```ts
-users.selectStar().limit(5).stringify();
-```
-
-```sql
-SELECT
-  *
-FROM
-  `users`
-LIMIT
-  5
-```
-
-# Limiting with offset
+# One Clause
 
 ```ts
 users
   .selectStar()
-  .limit(sql`1 OFFSET 10`)
+  .groupBy((f) => f.age)
   .stringify();
 ```
 
@@ -62,8 +47,47 @@ SELECT
   *
 FROM
   `users`
-LIMIT
-  1
-OFFSET
-  10
+GROUP BY
+  `age`
+```
+
+# Two Clauses
+
+## One call
+
+```ts
+users
+  .selectStar()
+  .groupBy((f) => [f.age, f.id])
+  .stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `users`
+GROUP BY
+  `age`,
+  `id`
+```
+
+## Two calls
+
+```ts
+users
+  .selectStar()
+  .groupBy((f) => f.age)
+  .groupBy((f) => f.id)
+  .stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `users`
+GROUP BY
+  `age`,
+  `id`
 ```
