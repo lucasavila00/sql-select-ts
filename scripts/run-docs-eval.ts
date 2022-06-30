@@ -143,9 +143,14 @@ const getFormattedCode = (cmd: Ast, result: string) => {
     if (cmd.yield === "json") {
         return {
             type: "code",
-            value: prettier
-                .format(JSON.stringify(result), { parser: "json" })
-                .trim(),
+            value:
+                result === null
+                    ? "null"
+                    : result === undefined
+                    ? "undefined"
+                    : prettier
+                          .format(JSON.stringify(result), { parser: "json" })
+                          .trim(),
             lang: "json",
         };
     }
