@@ -233,7 +233,7 @@ Check in depth docs in the safe-string.ts module.
 **Signature**
 
 ```ts
-export declare const sql: typeof _sql;
+export declare const sql: SqlStringBuilder<never[]>;
 ```
 
 **Example**

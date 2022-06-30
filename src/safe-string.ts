@@ -61,69 +61,6 @@ export const castSafe = (content: string): SafeString => ({
 export const isSafeString = (it: any): it is SafeString =>
     it?._tag === SafeStringURI;
 
-type SqlSupportedTypes =
-    | SafeString
-    | string
-    | number
-    | null
-    | undefined
-    | SelectStatement<any, any>
-    | Compound<any, any>;
-
-type TemplateLiteralSql = [
-    ReadonlyArray<string>,
-    ...(SqlSupportedTypes | readonly SqlSupportedTypes[])[]
-];
-
-/**
- *
- * Safe-string builder. Works as a function or string template literal.
- *
- * @example
- * import { fromNothing, sql } from "sql-select-ts";
- * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
- * assert.strictEqual(sql(123).content, "123");
- * assert.strictEqual(sql(null).content, "NULL");
- * assert.strictEqual(sql`${123} + 456`.content, "123 + 456");
- * const name = "A";
- * const names = ["A", "B", "C"];
- * assert.strictEqual(sql`${name} IN (${names})`.content, "'A' IN ('A', 'B', 'C')");
- * const q = fromNothing({ it: sql(123) });
- * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
- *
- * @category string-builder
- * @since 0.0.0
- */
-export function sql(it: string | number | null): SafeString;
-export function sql(
-    template: ReadonlyArray<string>,
-    ...args: (SqlSupportedTypes | readonly SqlSupportedTypes[])[]
-): SafeString;
-export function sql(
-    ...argsRaw: [string | number | null] | TemplateLiteralSql
-): SafeString {
-    const firstArg = argsRaw[0];
-
-    // called as template literal
-    if (Array.isArray(firstArg)) {
-        const [template, ...args] = argsRaw as TemplateLiteralSql;
-        let str = "";
-        template.forEach((string, i) => {
-            const item = args[i];
-
-            if (args.length > i) {
-                str += string + escapeForSql(item);
-            } else {
-                str += string;
-            }
-        });
-        return castSafe(str);
-    }
-
-    // called as function
-    return castSafe(escapeForSql(firstArg));
-}
-
 // adapted from https://github.com/mysqljs/sqlstring/blob/master/lib/SqlString.js
 var CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a\"\'\\]/g; // eslint-disable-line no-control-regex
 var CHARS_ESCAPE_MAP = {
@@ -138,7 +75,14 @@ var CHARS_ESCAPE_MAP = {
     "\\": "\\\\",
 };
 
-const escapeForSql = function (val: any) {
+const escapeForSql = function (
+    val: any,
+    serializers: Serializer<any>[]
+): string {
+    if (serializers.some((s) => s.check(val))) {
+        return serializers.find((s) => s.check(val))!.serialize(val);
+    }
+
     if (val === undefined || val === null) {
         return "NULL";
     }
@@ -154,7 +98,7 @@ const escapeForSql = function (val: any) {
             } else if (val instanceof Compound) {
                 return printCompoundInternal(val, true).content;
             } else if (Array.isArray(val)) {
-                return arrayToList(val);
+                return arrayToList(val, serializers);
             } else {
                 throw new Error(
                     `unsupported value ${val} of type ${typeof val} `
@@ -165,11 +109,14 @@ const escapeForSql = function (val: any) {
     }
 };
 
-const arrayToList = function arrayToList<T>(array: T[]) {
+const arrayToList = function arrayToList<T>(
+    array: T[],
+    serializers: Serializer<any>[]
+) {
     var sql = "";
 
     for (var i = 0; i < array.length; i++) {
-        sql += (i === 0 ? "" : ", ") + escapeForSql(array[i]);
+        sql += (i === 0 ? "" : ", ") + escapeForSql(array[i], serializers);
     }
 
     return sql;
@@ -199,3 +146,130 @@ function escapeString(val: string) {
 
     return "'" + escapedVal + "'";
 }
+
+type SqlSupportedTypes =
+    | SafeString
+    | string
+    | number
+    | null
+    | undefined
+    | SelectStatement<any, any>
+    | Compound<any, any>;
+
+type TemplateLiteralSql = [
+    ReadonlyArray<string>,
+    ...(SqlSupportedTypes | readonly SqlSupportedTypes[])[]
+];
+
+/**
+ * TODO
+ *
+ *
+ * @since 0.0.1
+ *
+ */
+export type Serializer<T> = {
+    check: (it: unknown) => it is T;
+    serialize: (it: T) => string;
+};
+
+type SerializerInnerType<T extends Serializer<any>> = T extends Serializer<
+    infer U
+>
+    ? U
+    : never;
+
+/**
+ * TODO
+ *
+ *
+ * @since 0.0.1
+ *
+ */
+export interface SqlStringBuilderOverloadedFn<T> {
+    (it: string | number | null | T): SafeString;
+    (
+        template: ReadonlyArray<string>,
+        ...args: (SqlSupportedTypes | T | readonly (SqlSupportedTypes | T)[])[]
+    ): SafeString;
+}
+
+type ArgsOfSerializerList<T extends Serializer<any>[]> = SerializerInnerType<
+    T[number]
+>;
+
+/**
+ * TODO
+ *
+ *
+ * @since 0.0.1
+ *
+ */
+export type SqlStringBuilder<T extends Serializer<any>[]> =
+    SqlStringBuilderOverloadedFn<ArgsOfSerializerList<T>>;
+/**
+ * TODO
+ *
+ * @category string-builder
+ *
+ * @since 0.0.1
+ *
+ */
+export const buildSerializer = <T>(args: {
+    check: (it: unknown) => it is T;
+    serialize: (it: T) => string;
+}): Serializer<T> => args;
+
+/**
+ * TODO
+ *
+ * @category string-builder
+ *
+ * @since 0.0.1
+ *
+ */
+export const buildSql =
+    <T extends Serializer<any>[]>(serializers: T): SqlStringBuilder<T> =>
+    (...argsRaw: [string | number | null] | TemplateLiteralSql): SafeString => {
+        const firstArg = argsRaw[0];
+
+        // called as template literal
+        if (Array.isArray(firstArg)) {
+            const [template, ...args] = argsRaw as TemplateLiteralSql;
+            let str = "";
+            template.forEach((string, i) => {
+                const item = args[i];
+
+                if (args.length > i) {
+                    str += string + escapeForSql(item, serializers);
+                } else {
+                    str += string;
+                }
+            });
+            return castSafe(str);
+        }
+
+        // called as function
+        return castSafe(escapeForSql(firstArg, serializers));
+    };
+
+/**
+ *
+ * Safe-string builder. Works as a function or string template literal.
+ *
+ * @example
+ * import { fromNothing, sql } from "sql-select-ts";
+ * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
+ * assert.strictEqual(sql(123).content, "123");
+ * assert.strictEqual(sql(null).content, "NULL");
+ * assert.strictEqual(sql`${123} + 456`.content, "123 + 456");
+ * const name = "A";
+ * const names = ["A", "B", "C"];
+ * assert.strictEqual(sql`${name} IN (${names})`.content, "'A' IN ('A', 'B', 'C')");
+ * const q = fromNothing({ it: sql(123) });
+ * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
+ *
+ * @category string-builder
+ * @since 0.0.0
+ */
+export const sql = buildSql([]);

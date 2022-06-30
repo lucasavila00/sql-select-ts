@@ -1,6 +1,6 @@
 # DOCS
 
--   [ ] from nothing examples
+-   [ ] final ch + alias
 
 -   [ ] easy extension sql safe string, example boolean in CH
 

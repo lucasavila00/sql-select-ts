@@ -22,6 +22,35 @@ Added in v0.0.0
 
 # string-builder
 
+## buildSerializer
+
+TODO
+
+**Signature**
+
+```ts
+export declare const buildSerializer: <T>(args: {
+  check: (it: unknown) => it is T;
+  serialize: (it: T) => string;
+}) => Serializer<T>;
+```
+
+Added in v0.0.1
+
+## buildSql
+
+TODO
+
+**Signature**
+
+```ts
+export declare const buildSql: <T extends Serializer<any>[]>(
+  serializers: T
+) => SqlStringBuilder<T>;
+```
+
+Added in v0.0.1
+
 ## castSafe
 
 Creates a SafeString from a string.
@@ -72,11 +101,7 @@ Safe-string builder. Works as a function or string template literal.
 **Signature**
 
 ```ts
-export declare function sql(it: string | number | null): SafeString;
-export declare function sql(
-  template: ReadonlyArray<string>,
-  ...args: (SqlSupportedTypes | readonly SqlSupportedTypes[])[]
-): SafeString;
+export declare const sql: SqlStringBuilder<never[]>;
 ```
 
 **Example**
@@ -127,3 +152,49 @@ export declare const SafeStringURI: "SafeString";
 ```
 
 Added in v0.0.0
+
+## Serializer (type alias)
+
+TODO
+
+**Signature**
+
+```ts
+export type Serializer<T> = {
+  check: (it: unknown) => it is T;
+  serialize: (it: T) => string;
+};
+```
+
+Added in v0.0.1
+
+## SqlStringBuilder (type alias)
+
+TODO
+
+**Signature**
+
+```ts
+export type SqlStringBuilder<T extends Serializer<any>[]> =
+  SqlStringBuilderOverloadedFn<ArgsOfSerializerList<T>>;
+```
+
+Added in v0.0.1
+
+## SqlStringBuilderOverloadedFn (interface)
+
+TODO
+
+**Signature**
+
+```ts
+export interface SqlStringBuilderOverloadedFn<T> {
+  (it: string | number | null | T): SafeString;
+  (
+    template: ReadonlyArray<string>,
+    ...args: (SqlSupportedTypes | T | readonly (SqlSupportedTypes | T)[])[]
+  ): SafeString;
+}
+```
+
+Added in v0.0.1
