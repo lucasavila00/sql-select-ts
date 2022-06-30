@@ -9,8 +9,12 @@ jobs:
                 ports:
                     - 8124:8123
         steps:
-            - name: Checkout 🛎️
-              uses: actions/checkout@v3
+            - uses: actions/checkout@v3
+            # Setup .npmrc file to publish to npm
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "16.x"
+                  registry-url: "https://registry.npmjs.org"
             - name: Tests
               run: |
                   npm ci
