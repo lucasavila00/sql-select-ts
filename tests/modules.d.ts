@@ -1,7 +1,7 @@
 declare module "@apla/clickhouse" {
     import { Writable } from "stream";
 
-    export type AplaQueryOptions = {
+    type AplaQueryOptions = {
         queryOptions?: {
             node?: string;
             force?: "true";

@@ -4,3 +4,4 @@ node_modules/
 *.exec.json
 # *.exec.md
 docs-ts-out/
+dist/
