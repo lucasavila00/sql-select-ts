@@ -17,7 +17,7 @@ export interface FileSystem {
 }
 
 const readFile = TE.taskify<fs.PathLike, string, NodeJS.ErrnoException, string>(
-    //@ts-ignore
+    //@ts-expect-error
     fs.readFile
 );
 const writeFile = TE.taskify<fs.PathLike, string, NodeJS.ErrnoException, void>(
@@ -33,7 +33,7 @@ const glob = TE.taskify<string, Error, ReadonlyArray<string>>(G);
 const mkdirTE = TE.taskify(fs.mkdir);
 
 export const fileSystem: FileSystem = {
-    //@ts-ignore
+    //@ts-expect-error
     readFile: (path) => readFile(path, "utf8"),
     writeFile,
     copyFile,

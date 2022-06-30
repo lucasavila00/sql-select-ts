@@ -133,27 +133,6 @@ describe("sqlite join", () => {
         `);
     });
 
-    // It's valid but we can't type it.
-    // it("join-1.3.4", async () => {
-    //     const q = t1
-    //         .joinTable("NATURAL", t2)
-    //         .select((f) => ({ b: f.b }))
-    //         .stringify();
-    //     expect(q).toMatchInlineSnapshot(
-    //         `"SELECT b AS b FROM t1 NATURAL JOIN t2;"`
-    //     );
-    //     expect(await run(q)).toMatchInlineSnapshot(`
-    //         Array [
-    //           Object {
-    //             "b": 2,
-    //           },
-    //           Object {
-    //             "b": 3,
-    //           },
-    //         ]
-    //     `);
-    // });
-
     it("join-1.3.5", async () => {
         const q = t2
             .joinTable("NATURAL", t1)
@@ -590,25 +569,6 @@ describe("sqlite join", () => {
             `Error: SQLITE_ERROR: ambiguous column name: b`
         );
     });
-
-    // Valid but we can't type it.
-    // it("join-1.4.5 -- using", async () => {
-    //     const q = t2
-    //         .joinTable("INNER", t1)
-    //         .using(["b"])
-    //         .select((f) => ({
-    //             b:
-    //                 // @ts-expect-error
-    //                 f.b,
-    //         }))
-    //         .stringify();
-    //     expect(q).toMatchInlineSnapshot(
-    //         `"SELECT b AS b FROM t2 INNER JOIN t1 USING(b);"`
-    //     );
-    //     expect(await fail(q)).toMatchInlineSnapshot(
-    //         `"Error: SQLITE_ERROR: ambiguous column name: b"`
-    //     );
-    // });
 
     it("join-2.4", async () => {
         const q = t2

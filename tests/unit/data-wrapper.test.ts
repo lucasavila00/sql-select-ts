@@ -16,7 +16,7 @@ describe("isStarSymbol", () => {
     });
 });
 
-describe("isStarSymbol", () => {
+describe("isStarOfAliasSymbol", () => {
     it("works", () => {
         expect(isStarOfAliasSymbol(false)).toBe(false);
         expect(isStarOfAliasSymbol(null)).toBe(false);

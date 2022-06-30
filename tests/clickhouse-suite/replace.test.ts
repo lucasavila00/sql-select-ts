@@ -14,7 +14,7 @@ describe("clickhouse replace", () => {
         );
     });
 
-    it("it works", async () => {
+    it("works", async () => {
         const q = t3
             .selectStar()
             .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
@@ -25,7 +25,7 @@ describe("clickhouse replace", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
-    it("it works with safe strings", async () => {
+    it("works with safe strings", async () => {
         const q = t3
             .selectStar()
             .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
@@ -36,7 +36,7 @@ describe("clickhouse replace", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
-    it("it works with number", async () => {
+    it("works with number", async () => {
         const q = t3
             .selectStar()
             .clickhouse.replace((_f) => [["x", 1]])
@@ -51,5 +51,6 @@ describe("clickhouse replace", () => {
         t3.selectStar()
             //@ts-expect-error
             .clickhouse.replace((f) => [["z", sql`${f.y}+1`]]);
+        expect(1).toBe(1);
     });
 });

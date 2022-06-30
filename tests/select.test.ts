@@ -34,6 +34,7 @@ describe("select", () => {
         // @ts-expect-error
         t1.selectStar().select((f) => f);
         t1.selectStar().select((f) => ({ a: f.a }));
+        expect(1).toBe(1);
     });
     it("join - no identity function", async () => {
         t1.joinTable("NATURAL", t2)
@@ -46,6 +47,7 @@ describe("select", () => {
         t1.joinTable("NATURAL", t2)
             .noConstraint()
             .select((f) => ({ a: f.a }));
+        expect(1).toBe(1);
     });
     it("compound - no identity function", async () => {
         const u = unionAll([t1.selectStar(), t2.selectStar()]);
@@ -54,5 +56,6 @@ describe("select", () => {
             (f) => f
         );
         u.select((f) => ({ a: f.a }));
+        expect(1).toBe(1);
     });
 });

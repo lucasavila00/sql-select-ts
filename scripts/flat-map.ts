@@ -12,10 +12,12 @@ export const flatMap = (
         if (node.children) {
             const out: (Node<Data> | Parent<Node<Data>, Data>)[] = [];
             for (let i = 0, n = node.children.length; i < n; i++) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 //@ts-ignore
                 const xs = transform(node.children[i], i, node);
                 if (xs) {
                     for (let j = 0, m = xs.length; j < m; j++) {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         //@ts-ignore
                         out.push(xs[j]);
                     }
@@ -27,6 +29,7 @@ export const flatMap = (
         return fn(node, index, parent);
     };
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     return transform(ast, 0, null)[0];
 };
