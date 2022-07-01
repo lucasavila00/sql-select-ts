@@ -303,10 +303,6 @@ users
   .select((f) => f);
 ```
 
-# Alias of sub-selection
-
-TODO
-
 # Control order of selection
 
 Although it works on most cases, order of selection is not guaranteed.
