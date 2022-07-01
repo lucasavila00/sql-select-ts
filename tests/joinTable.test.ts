@@ -55,22 +55,6 @@ describe("joinTable", () => {
         );
     });
 
-    it("table -> table -- prevents ambiguous", async () => {
-        const q = t1
-            .joinTable("LEFT", t2)
-            .noConstraint()
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM \`t1\` LEFT JOIN \`t2\``
-        );
-    });
-
     it("table -> table -- ON", async () => {
         const q = t1
             .joinTable("LEFT", t2)
@@ -136,23 +120,6 @@ describe("joinTable", () => {
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN \`t2\``
-        );
-    });
-
-    it("select -> table -- prevents ambigous", async () => {
-        const q = t1
-            .selectStar()
-            .joinTable("q1", "LEFT", t2)
-            .noConstraint()
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\``
         );
     });
 
@@ -226,22 +193,6 @@ describe("joinTable", () => {
         );
     });
 
-    it("stringified select -> table -- prevents ambigous", async () => {
-        const q = str1
-            .joinTable("q1", "LEFT", t2)
-            .noConstraint()
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\``
-        );
-    });
-
     it("stringified select -> table -- ON", async () => {
         const q = str1
             .joinTable("q1", "LEFT", t2)
@@ -311,21 +262,6 @@ describe("joinTable", () => {
             `SELECT \`a\` AS \`x\`, \`e\` AS \`y\`, \`t2\`.\`d\` AS \`d\`, \`t3\`.\`d\` AS \`d2\` FROM \`t1\` NATURAL JOIN \`t2\` NATURAL JOIN \`t3\``
         );
     });
-
-    it("joined -> table -- prevents ambigous", async () => {
-        const q = t1
-            .joinTable("NATURAL", t2)
-            .noConstraint()
-            .joinTable("LEFT", t3)
-            // @ts-expect-error
-            .on((f) => equals(f.b, f.e))
-            .selectStar()
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` ON \`b\` = \`e\``
-        );
-    });
     it("joined -> table -- ON", async () => {
         const q = t1
             .joinTable("NATURAL", t2)
@@ -350,19 +286,6 @@ describe("joinTable", () => {
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` ON \`t1\`.\`a\` = \`t3\`.\`e\``
-        );
-    });
-    it("joined -> table -- USING", async () => {
-        const q = t1
-            .joinTable("NATURAL", t2)
-            .noConstraint()
-            .joinTable("LEFT", t3)
-            .using(["d"])
-            .selectStar()
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t1\` NATURAL JOIN \`t2\` LEFT JOIN \`t3\` USING(\`d\`)`
         );
     });
     it("joined -> table -- NO CONSTRAINT", async () => {
@@ -402,22 +325,6 @@ describe("joinTable", () => {
 
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` NATURAL JOIN \`t2\``
-        );
-    });
-
-    it("compound -> table -- prevents ambigous", async () => {
-        const a = t1.selectStar();
-        const b = t3.selectStar();
-        const u = unionAll([a, b]);
-        const q = u
-            .joinTable("q1", "NATURAL", t2)
-            .noConstraint()
-            // @ts-expect-error
-            .select((f) => ({ x: f.a, e: f.b }))
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`b\` AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\` NATURAL JOIN \`t2\``
         );
     });
 

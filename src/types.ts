@@ -21,7 +21,7 @@ export type TableOrSubquery<
     | StringifiedSelectStatement<Selection>
     | Table<Alias, Selection>
     | CommonTableExpression<Alias, Selection>
-    | Joined<Ambiguous, Alias, Selection>
+    | Joined<Selection, Scope, Alias, Ambiguous>
     | Compound<Scope, Selection>;
 
 export type NoSelectFieldsCompileError = {

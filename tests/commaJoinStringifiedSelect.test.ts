@@ -58,21 +58,6 @@ describe("commaJoinStringifiedSelect", () => {
         );
     });
 
-    it("table -> select -- prevents ambiguous", async () => {
-        const q = t1
-            .commaJoinStringifiedSelect("t2", str2)
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM \`t1\`, (SELECT * FROM \`t2\`) AS \`t2\``
-        );
-    });
-
     it("select -> select", async () => {
         const q = t1
             .selectStar()
@@ -96,23 +81,6 @@ describe("commaJoinStringifiedSelect", () => {
         );
     });
 
-    it("select -> select -- prevents ambigous", async () => {
-        const q = t1
-            .selectStar()
-            .commaJoinStringifiedSelect("q1", "t2", str2)
-
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\`) AS \`t2\``
-        );
-    });
-
     it("stringified select -> select", async () => {
         const q = str1
             .commaJoinStringifiedSelect("t1", "t2", str2)
@@ -130,21 +98,6 @@ describe("commaJoinStringifiedSelect", () => {
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\`) AS \`t2\``
-        );
-    });
-
-    it("stringified select -> select -- prevents ambigous", async () => {
-        const q = str1
-            .commaJoinStringifiedSelect("q1", "t2", str2)
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
     });
 
@@ -193,21 +146,6 @@ describe("commaJoinStringifiedSelect", () => {
 
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\`, (SELECT * FROM \`t3\`) AS \`t3\``
-        );
-    });
-
-    it("compound -> select -- prevents ambigous", async () => {
-        const a = t1.selectStar();
-        const b = t3.selectStar();
-        const u = unionAll([a, b]);
-        const q = u
-            .commaJoinStringifiedSelect("q1", "t3", str3)
-            // @ts-expect-error
-            .select((f) => ({ x: f.c }))
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`c\` AS \`x\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\`, (SELECT * FROM \`t3\`) AS \`t3\``
         );
     });
 });
