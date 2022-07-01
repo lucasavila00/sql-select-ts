@@ -7,7 +7,7 @@ describe("table", () => {
         const q2 = table(cols, "b").selectStar();
         const u = unionAll([q1, q2]);
         expect(u.stringify()).toMatchInlineSnapshot(
-            `"SELECT * FROM \`system\`.\`tables\`"`
+            `"SELECT * FROM \`a\` UNION ALL SELECT * FROM \`b\`"`
         );
     });
 
@@ -19,7 +19,7 @@ describe("table", () => {
 
         const u = unionAll(arr);
         expect(u.stringify()).toMatchInlineSnapshot(
-            `"SELECT * FROM \`system\`.\`tables\`"`
+            `"SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\`"`
         );
     });
 
@@ -27,7 +27,7 @@ describe("table", () => {
         const q1 = table(cols, "a").selectStar();
         const u = unionAll([q1, q1, q1]);
         expect(u.stringify()).toMatchInlineSnapshot(
-            `"SELECT * FROM \`system\`.\`tables\`"`
+            `"SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\`"`
         );
     });
 });
