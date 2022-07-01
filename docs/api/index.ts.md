@@ -33,15 +33,10 @@ export declare const except: <
   C extends SelectStatement<any, any>,
   CS extends SelectStatement<any, any>[]
 >(
-  content: [C, ...CS]
+  content: CS & { 0: C }
 ) => Compound<
-  | (C extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never)
-  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never),
-  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+  SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -69,15 +64,10 @@ export declare const intersect: <
   C extends SelectStatement<any, any>,
   CS extends SelectStatement<any, any>[]
 >(
-  content: [C, ...CS]
+  content: CS & { 0: C }
 ) => Compound<
-  | (C extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never)
-  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never),
-  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+  SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -108,15 +98,10 @@ export declare const union: <
   C extends SelectStatement<any, any>,
   CS extends SelectStatement<any, any>[]
 >(
-  content: [C, ...CS]
+  content: CS & { 0: C }
 ) => Compound<
-  | (C extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never)
-  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never),
-  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+  SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -144,15 +129,10 @@ export declare const unionAll: <
   C extends SelectStatement<any, any>,
   CS extends SelectStatement<any, any>[]
 >(
-  content: [C, ...CS]
+  content: CS & { 0: C }
 ) => Compound<
-  | (C extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never)
-  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never),
-  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+  SelectionOfSelectStatement<C>
 >;
 ```
 

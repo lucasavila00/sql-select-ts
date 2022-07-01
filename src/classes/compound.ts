@@ -8,19 +8,16 @@ import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { printCompound } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
+import {
+    TableOrSubquery,
+    NoSelectFieldsCompileError,
+    SelectionOfSelectStatement,
+} from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 import { StringifiedSelectStatement } from "./stringified-select-statement";
 import { Table } from "./table";
-
-type SelectionOfSelectStatement<T> = T extends SelectStatement<
-    infer _Scope,
-    infer Selection
->
-    ? Selection
-    : never;
 
 /**
  * Represents https://www.sqlite.org/syntax/compound-select-stmt.html
@@ -48,7 +45,9 @@ export class Compound<Scope extends string, Selection extends string> {
         C extends SelectStatement<any, any>,
         CS extends SelectStatement<any, any>[]
     >(
-        content: [C, ...CS]
+        content: CS & {
+            0: C;
+        }
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
@@ -62,7 +61,9 @@ export class Compound<Scope extends string, Selection extends string> {
         C extends SelectStatement<any, any>,
         CS extends SelectStatement<any, any>[]
     >(
-        content: [C, ...CS]
+        content: CS & {
+            0: C;
+        }
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
@@ -81,7 +82,9 @@ export class Compound<Scope extends string, Selection extends string> {
         C extends SelectStatement<any, any>,
         CS extends SelectStatement<any, any>[]
     >(
-        content: [C, ...CS]
+        content: CS & {
+            0: C;
+        }
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
@@ -100,7 +103,9 @@ export class Compound<Scope extends string, Selection extends string> {
         C extends SelectStatement<any, any>,
         CS extends SelectStatement<any, any>[]
     >(
-        content: [C, ...CS]
+        content: CS & {
+            0: C;
+        }
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
