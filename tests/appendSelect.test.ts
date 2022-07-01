@@ -1,7 +1,8 @@
 import { table } from "../src";
 
 describe("appendSelect", () => {
-    const t1 = table(["a", "b", "c"], "t1");
+    const cols = ["a", "b", "c"] as const;
+    const t1 = table(cols, "t1");
 
     /*
     CREATE TABLE t1(a,b,c);

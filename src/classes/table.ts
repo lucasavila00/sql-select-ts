@@ -29,7 +29,7 @@ export class Table<Selection extends string, Alias extends string> {
     private constructor(
         /* @internal */
         public __props: {
-            columns: string[];
+            columns: readonly string[];
             alias: string;
             name: string;
             final: boolean;
@@ -38,7 +38,7 @@ export class Table<Selection extends string, Alias extends string> {
 
     /*  @internal */
     public static define = <Selection extends string, Alias extends string>(
-        columns: Selection[],
+        columns: readonly Selection[],
         alias: Alias,
         name: string = alias
     ): Table<Selection, Alias> =>
