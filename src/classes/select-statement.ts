@@ -190,7 +190,10 @@ export class SelectStatement<Scope extends string, Selection extends string> {
          * @since 0.0.0
          */
         with_: <NewSelection extends string>(
-            it: Record<NewSelection, SelectStatement<any, any>>
+            it: Record<
+                NewSelection,
+                SelectStatement<any, any> | StringifiedSelectStatement<any>
+            >
         ): SelectStatement<Scope | NewSelection, Selection> =>
             this.copy().setClickhouseWith([
                 ...this.__props.clickhouseWith,

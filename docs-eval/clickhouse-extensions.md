@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table, sql } from "../src";
+import { table, sql, fromStringifiedSelectStatement } from "../src";
 ```
 
 # Final Table
@@ -78,6 +78,18 @@ yield chTableRegular
     }))
     .clickhouse.with_({
         abc: chTableFinal.select((_f) => ({ count: sql`COUNT()` })),
+    })
+    .appendSelect((f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
+    .stringify();
+```
+
+```ts eval --yield=sql
+yield chTableRegular
+    .select((f) => ({
+        res1: f.col1,
+    }))
+    .clickhouse.with_({
+        abc: fromStringifiedSelectStatement(sql`20`),
     })
     .appendSelect((f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
     .stringify();

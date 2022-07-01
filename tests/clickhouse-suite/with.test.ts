@@ -1,4 +1,4 @@
-import { fromNothing, table } from "../../src";
+import { fromNothing, fromStringifiedSelectStatement, table } from "../../src";
 import { sql } from "../../src/safe-string";
 import { configureClickhouse } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
@@ -32,6 +32,43 @@ describe("clickhouse with", () => {
             ]
         `);
     });
+
+    it("from stringified select statement", async () => {
+        const q = fromNothing({ it: sql(10) })
+            .clickhouse.with_({
+                wont_use: fromStringifiedSelectStatement(sql`SELECT 20 AS it`),
+            })
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `WITH (SELECT 20 AS it) AS \`wont_use\` SELECT 10 AS \`it\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Array [
+                10,
+              ],
+            ]
+        `);
+    });
+
+    it("from stringified select statement2", async () => {
+        const q = fromNothing({ it: sql(10) })
+            .clickhouse.with_({
+                wont_use: fromStringifiedSelectStatement(sql`20`),
+            })
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `WITH (20) AS \`wont_use\` SELECT 10 AS \`it\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Array [
+                10,
+              ],
+            ]
+        `);
+    });
+
     it("use it in selection", async () => {
         const q = fromNothing({})
             .clickhouse.with_({
