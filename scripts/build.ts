@@ -12,6 +12,11 @@ type Build<A> = RTE.ReaderTaskEither<FileSystem, Error, A>;
 const OUTPUT_FOLDER = "dist";
 const PKG = "package.json";
 
+const version = process.argv[2];
+if (version == null) {
+    throw new Error("use npm run build 0.0.X");
+}
+
 export const copyPackageJson: Build<void> = (C) =>
     pipe(
         C.readFile(PKG),
@@ -22,6 +27,8 @@ export const copyPackageJson: Build<void> = (C) =>
             delete clone.scripts;
             delete clone.files;
             delete clone.devDependencies;
+
+            clone.version = version;
 
             return clone;
         }),
