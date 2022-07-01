@@ -48,3 +48,10 @@ export type JoinConstraint =
       }
     | { _tag: "on"; on: NonEmptyArray<SafeString> }
     | { _tag: "using"; keys: string[] };
+
+export type SelectionOfSelectStatement<T> = T extends SelectStatement<
+    infer _Scope,
+    infer Selection
+>
+    ? Selection
+    : never;

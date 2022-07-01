@@ -8,19 +8,16 @@ import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { printCompound } from "../print";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { TableOrSubquery, NoSelectFieldsCompileError } from "../types";
+import {
+    TableOrSubquery,
+    NoSelectFieldsCompileError,
+    SelectionOfSelectStatement,
+} from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 import { StringifiedSelectStatement } from "./stringified-select-statement";
 import { Table } from "./table";
-
-type SelectionOfSelectStatement<T> = T extends SelectStatement<
-    infer _Scope,
-    infer Selection
->
-    ? Selection
-    : never;
 
 /**
  * Represents https://www.sqlite.org/syntax/compound-select-stmt.html

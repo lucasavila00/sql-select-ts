@@ -35,13 +35,8 @@ export declare const except: <
 >(
   content: [C, ...CS]
 ) => Compound<
-  | (C extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never)
-  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never),
-  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+  SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -71,13 +66,8 @@ export declare const intersect: <
 >(
   content: [C, ...CS]
 ) => Compound<
-  | (C extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never)
-  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never),
-  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+  SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -110,13 +100,8 @@ export declare const union: <
 >(
   content: [C, ...CS]
 ) => Compound<
-  | (C extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never)
-  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never),
-  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+  SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -146,13 +131,8 @@ export declare const unionAll: <
 >(
   content: [C, ...CS]
 ) => Compound<
-  | (C extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never)
-  | (CS[number] extends SelectStatement<infer _Scope, infer Selection>
-      ? Selection
-      : never),
-  C extends SelectStatement<infer _Scope, infer Selection> ? Selection : never
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+  SelectionOfSelectStatement<C>
 >;
 ```
 
