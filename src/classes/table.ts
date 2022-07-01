@@ -88,6 +88,7 @@ export class Table<Selection extends string, Alias extends string> {
     public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
         table: Table<Selection2, Alias2>
     ): Joined<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
@@ -113,6 +114,7 @@ export class Table<Selection extends string, Alias extends string> {
         operator: string,
         table: Table<Selection2, Alias2>
     ): JoinedFactory<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
@@ -146,6 +148,7 @@ export class Table<Selection extends string, Alias extends string> {
         selectAlias: Alias2,
         select: StringifiedSelectStatement<Selection2>
     ): Joined<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
@@ -175,6 +178,7 @@ export class Table<Selection extends string, Alias extends string> {
         selectAlias: Alias2,
         select: SelectStatement<Scope2, Selection2>
     ): Joined<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
@@ -204,6 +208,7 @@ export class Table<Selection extends string, Alias extends string> {
         operator: string,
         select: StringifiedSelectStatement<Selection2>
     ): JoinedFactory<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
@@ -239,6 +244,7 @@ export class Table<Selection extends string, Alias extends string> {
         operator: string,
         select: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
@@ -272,6 +278,7 @@ export class Table<Selection extends string, Alias extends string> {
         compoundAlias: Alias2,
         compound: Compound<Selection2, Selection2>
     ): Joined<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
@@ -298,6 +305,7 @@ export class Table<Selection extends string, Alias extends string> {
         operator: string,
         compound: Compound<Selection2, Selection2>
     ): JoinedFactory<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`

@@ -552,24 +552,6 @@ describe("sqlite join", () => {
             ]
         `);
     });
-    it("join-1.4.5", async () => {
-        const q = t2
-            .joinTable("INNER", t1)
-            .on((f) => [equals(f["t1.b"], f["t2.b"])])
-            .select((f) => ({
-                b:
-                    // @ts-expect-error
-                    f.b,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`b\` AS \`b\` FROM \`t2\` INNER JOIN \`t1\` ON \`t1\`.\`b\` = \`t2\`.\`b\``
-        );
-        expect(await fail(q)).toMatchInlineSnapshot(
-            `Error: SQLITE_ERROR: ambiguous column name: b`
-        );
-    });
-
     it("join-2.4", async () => {
         const q = t2
             .joinTable("LEFT", t1)

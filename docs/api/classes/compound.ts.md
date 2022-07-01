@@ -110,6 +110,7 @@ joinTable: <
   table: Table<Selection2, Alias2>
 ) =>
   JoinedFactory<
+    Selection,
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
     | `${Alias1}.${Selection}`
@@ -136,6 +137,7 @@ commaJoinTable: <
   table: Table<Selection2, Alias2>
 ) =>
   Joined<
+    Selection,
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
     | `${Alias1}.${Selection}`
@@ -163,6 +165,7 @@ joinStringifiedSelect: <
   select: StringifiedSelectStatement<Selection2>
 ) =>
   JoinedFactory<
+    Selection,
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
     | `${Alias2}.${Selection2}`
@@ -192,6 +195,7 @@ joinSelect: <
   select: SelectStatement<Scope2, Selection2>
 ) =>
   JoinedFactory<
+    Selection,
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
     | `${Alias2}.${Selection2}`
@@ -219,6 +223,7 @@ commaJoinStringifiedSelect: <
   select: StringifiedSelectStatement<Selection2>
 ) =>
   Joined<
+    Selection,
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
     | `${Alias2}.${Selection2}`
@@ -246,6 +251,7 @@ commaJoinSelect: <
   select: SelectStatement<Scope2, Selection2>
 ) =>
   Joined<
+    Selection,
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
     | `${Alias2}.${Selection2}`
@@ -274,6 +280,7 @@ joinCompound: <
   compound: Compound<Scope2, Selection2>
 ) =>
   JoinedFactory<
+    Selection,
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
     | `${Alias2}.${Selection2}`
@@ -302,6 +309,7 @@ commaJoinCompound: <
   compound: Compound<Scope2, Selection2>
 ) =>
   Joined<
+    Selection,
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
     | `${Alias2}.${Selection2}`

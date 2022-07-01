@@ -65,6 +65,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         thisQueryAlias: Alias1,
         table: Table<Selection2, Alias2>
     ): Joined<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`,
@@ -94,6 +95,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         operator: string,
         table: Table<Selection2, Alias2>
     ): JoinedFactory<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
@@ -129,6 +131,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         selectAlias: Alias2,
         select: StringifiedSelectStatement<Selection2>
     ): Joined<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
@@ -160,6 +163,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         selectAlias: Alias2,
         select: SelectStatement<Scope2, Selection2>
     ): Joined<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
@@ -191,6 +195,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         selectAlias: Alias2,
         select: StringifiedSelectStatement<Selection2>
     ): JoinedFactory<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
@@ -228,6 +233,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         selectAlias: Alias2,
         select: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
@@ -263,6 +269,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         compoundAlias: Alias2,
         compound: Compound<Selection2, Selection2>
     ): Joined<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
@@ -294,6 +301,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         compoundAlias: Alias2,
         compound: Compound<Selection2, Selection2>
     ): JoinedFactory<
+        Selection,
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`

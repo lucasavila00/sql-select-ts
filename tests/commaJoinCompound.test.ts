@@ -53,21 +53,6 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("table -> compound -- prevents ambiguous", async () => {
-        const q = t1
-            .commaJoinCompound("t2", u1)
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM \`t1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t2\``
-        );
-    });
-
     it("select -> compound", async () => {
         const q = t1
             .selectStar()
@@ -91,23 +76,6 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("select -> compound -- prevents ambigous", async () => {
-        const q = t1
-            .selectStar()
-            .commaJoinCompound("q1", "t2", u1)
-
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t2\``
-        );
-    });
-
     it("stringified select -> compound", async () => {
         const q = str1
             .commaJoinCompound("t1", "t2", u1)
@@ -125,21 +93,6 @@ describe("commaJoinCompound", () => {
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t2\``
-        );
-    });
-
-    it("stringified select -> compound -- prevents ambigous", async () => {
-        const q = str1
-            .commaJoinCompound("q1", "t2", u1)
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t2\``
         );
     });
 
@@ -167,24 +120,6 @@ describe("commaJoinCompound", () => {
         );
     });
 
-    it("joined -> compound -- prevents ambiguous", async () => {
-        const q = t1
-            .joinTable("NATURAL", t2)
-            .noConstraint()
-            .commaJoinCompound("t3", u1)
-            .select((f) => ({
-                x: f.a,
-                // @ts-expect-error
-                y: f.b,
-                d: f["t2.d"],
-                d2: f["t3.d"],
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`b\` AS \`y\`, \`t2\`.\`d\` AS \`d\`, \`t3\`.\`d\` AS \`d2\` FROM \`t1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t3\` NATURAL JOIN \`t2\``
-        );
-    });
-
     it("compound -> compound", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
             .commaJoinCompound("q1", "t3", u1)
@@ -206,21 +141,6 @@ describe("commaJoinCompound", () => {
 
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`e\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t3\``
-        );
-    });
-
-    it("compound -> compound -- prevents ambigous", async () => {
-        const a = t1.selectStar();
-        const b = t3.selectStar();
-        const u = unionAll([a, b]);
-        const q = u
-            .commaJoinCompound("q1", "t3", u1)
-            // @ts-expect-error
-            .select((f) => ({ x: f.c }))
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`c\` AS \`x\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`q1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t3\``
         );
     });
 });

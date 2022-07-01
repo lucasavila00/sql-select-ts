@@ -125,10 +125,11 @@ const printAliasedCode = (
 };
 const printJoinedInternal = <
     Selection extends string,
+    Scope extends string,
     Aliases extends string,
     Ambiguous extends string
 >(
-    joined: Joined<Selection, Aliases, Ambiguous>
+    joined: Joined<Selection, Scope, Aliases, Ambiguous>
 ): PrintInternalRet => {
     const head = joined.__props.commaJoins
         .map((it) => printAliasedCode(it.code, it.alias))

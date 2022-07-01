@@ -378,25 +378,6 @@ describe("sqlite select1", () => {
         `);
     });
 
-    it("select1-1.10 -- collision", async () => {
-        const q = test1
-            .commaJoinTable(test1_dup)
-            .select((f) => ({
-                //@ts-expect-error
-                f1: f.f1,
-                //@ts-expect-error
-                f2: f.f2,
-            }))
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM \`test1\`, \`test1_dup\``
-        );
-        expect(await fail(q)).toMatchInlineSnapshot(
-            `Error: SQLITE_ERROR: ambiguous column name: f1`
-        );
-    });
-
     it("select1-1.10 -- collision fixed", async () => {
         const q = test1
             .commaJoinTable(test1_dup)

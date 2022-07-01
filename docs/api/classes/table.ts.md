@@ -98,6 +98,7 @@ commaJoinTable: <Selection2 extends string, Alias2 extends string>(
   table: Table<Selection2, Alias2>
 ) =>
   Joined<
+    Selection,
     | `${Alias}.${Selection}`
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
@@ -119,6 +120,7 @@ joinTable: <Selection2 extends string, Alias2 extends string>(
   table: Table<Selection2, Alias2>
 ) =>
   JoinedFactory<
+    Selection,
     | `${Alias}.${Selection}`
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
@@ -141,6 +143,7 @@ commaJoinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
   select: StringifiedSelectStatement<Selection2>
 ) =>
   Joined<
+    Selection,
     | `${Alias}.${Selection}`
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
@@ -166,6 +169,7 @@ commaJoinSelect: <
   select: SelectStatement<Scope2, Selection2>
 ) =>
   Joined<
+    Selection,
     | `${Alias}.${Selection}`
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
@@ -188,6 +192,7 @@ joinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
   select: StringifiedSelectStatement<Selection2>
 ) =>
   JoinedFactory<
+    Selection,
     | `${Alias}.${Selection}`
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
@@ -215,6 +220,7 @@ joinSelect: <
   select: SelectStatement<Scope2, Selection2>
 ) =>
   JoinedFactory<
+    Selection,
     | `${Alias}.${Selection}`
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
@@ -237,6 +243,7 @@ commaJoinCompound: <Selection2 extends string, Alias2 extends string>(
   compound: Compound<Selection2, Selection2>
 ) =>
   Joined<
+    Selection,
     | `${Alias}.${Selection}`
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>
@@ -259,6 +266,7 @@ joinCompound: <Selection2 extends string, Alias2 extends string>(
   compound: Compound<Selection2, Selection2>
 ) =>
   JoinedFactory<
+    Selection,
     | `${Alias}.${Selection}`
     | Exclude<Selection, Selection2>
     | Exclude<Selection2, Selection>

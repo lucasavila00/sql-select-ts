@@ -64,22 +64,6 @@ describe("joinStringifiedSelect", () => {
         );
     });
 
-    it("table -> select -- prevents ambiguous", async () => {
-        const q = t1
-            .joinStringifiedSelect("q2", "NATURAL", str2)
-            .noConstraint()
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
-        );
-    });
-
     it("table -> select -- ON", async () => {
         const q = t1
             .joinStringifiedSelect("q2", "LEFT", str2)
@@ -143,22 +127,6 @@ describe("joinStringifiedSelect", () => {
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
-        );
-    });
-
-    it("select -> select -- prevents ambiguous", async () => {
-        const q = q1
-            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
-            .noConstraint()
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
 
@@ -226,23 +194,6 @@ describe("joinStringifiedSelect", () => {
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
-
-    it("stringified select -> select -- prevents ambiguous", async () => {
-        const q = str1
-            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
-            .noConstraint()
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
-        );
-    });
-
     it("stringified select -> select -- ON", async () => {
         const q = str1
             .joinStringifiedSelect("q1", "LEFT", "q2", str2)
@@ -312,23 +263,6 @@ describe("joinStringifiedSelect", () => {
         );
     });
 
-    it("joined -> select -- prevents ambiguous", async () => {
-        const q = q1
-            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
-            .noConstraint()
-            .joinStringifiedSelect("NATURAL", "q3", str3)
-            .noConstraint()
-            .select((f) => ({
-                x: f.a,
-                // @ts-expect-error
-                y: f.d,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
-        );
-    });
-
     it("joined -> select -- ON", async () => {
         const q = q1
             .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
@@ -352,20 +286,6 @@ describe("joinStringifiedSelect", () => {
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\` ON \`q1\`.\`a\` = \`q2\`.\`d\``
-        );
-    });
-
-    it("joined -> select -- USING", async () => {
-        const q = q1
-            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
-            .noConstraint()
-            .joinStringifiedSelect("LEFT", "q3", str3)
-            .using(["d"])
-            .selectStar()
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN (SELECT * FROM \`t2\`) AS \`q2\` LEFT JOIN (SELECT * FROM \`t3\`) AS \`q3\` USING(\`d\`)`
         );
     });
 
@@ -401,22 +321,6 @@ describe("joinStringifiedSelect", () => {
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`u\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
-        );
-    });
-
-    it("compound -> select -- prevents ambiguous", async () => {
-        const q = unionAll([q1, q2])
-            .joinStringifiedSelect("u", "NATURAL", "q3", str3)
-            .noConstraint()
-            .select((f) => ({
-                x: f.a,
-                y: f.d,
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\` NATURAL JOIN (SELECT * FROM \`t3\`) AS \`q3\``
         );
     });
     it("compound -> select -- ON", async () => {

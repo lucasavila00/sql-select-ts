@@ -62,22 +62,6 @@ describe("joinCompound", () => {
         );
     });
 
-    it("table-> compound -- prevents ambiguous", async () => {
-        const q = t1
-            .joinCompound("u", "NATURAL", u)
-            .noConstraint()
-            .select((f) => ({
-                x: f["t1.a"],
-                y: f["u.b"],
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`c\` AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
-        );
-    });
-
     it("table -> compound -- ON", async () => {
         const q = t1
             .joinCompound("u", "LEFT", u)
@@ -144,21 +128,6 @@ describe("joinCompound", () => {
         );
     });
 
-    it("select-> compound -- prevents ambiguous", async () => {
-        const q = q1
-            .joinCompound("t1", "LEFT", "u", u)
-            .noConstraint()
-            .select((f) => ({
-                x: f["t1.a"],
-                y: f["u.b"],
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
-        );
-    });
     it("select -> compound -- ON", async () => {
         const q = q1
             .joinCompound("t1", "LEFT", "u", u)
@@ -223,21 +192,6 @@ describe("joinCompound", () => {
         );
     });
 
-    it("stringified select-> compound -- prevents ambiguous", async () => {
-        const q = str1
-            .joinCompound("t1", "LEFT", "u", u)
-            .noConstraint()
-            .select((f) => ({
-                x: f["t1.a"],
-                y: f["u.b"],
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
-        );
-    });
     it("stringified select -> compound -- ON", async () => {
         const q = str1
             .joinCompound("t1", "LEFT", "u", u)
@@ -306,23 +260,6 @@ describe("joinCompound", () => {
         );
     });
 
-    it("compound -> compound -- prevents ambiguous", async () => {
-        const u1 = unionAll([q1, q3]);
-
-        const q = u1
-            .joinCompound("t1", "LEFT", "u", u)
-            .noConstraint()
-            .select((f) => ({
-                x: f["t1.a"],
-                y: f["u.b"],
-                // @ts-expect-error
-                z: f.c,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t3\`) AS \`t1\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
-        );
-    });
     it("compound -> compound -- ON", async () => {
         const u1 = unionAll([q1, q3]);
 
@@ -396,24 +333,6 @@ describe("joinCompound", () => {
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`u\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
-        );
-    });
-
-    it("joined-> compound -- prevents ambiguous", async () => {
-        const q = t1
-            .joinTable("LEFT", t2)
-            .noConstraint()
-            .joinCompound("LEFT", "u", u)
-            .noConstraint()
-            .select((f) => ({
-                x: f["t1.a"],
-                y: f["u.b"],
-                // @ts-expect-error
-                z: f.a,
-            }))
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`t1\`.\`a\` AS \`x\`, \`u\`.\`b\` AS \`y\`, \`a\` AS \`z\` FROM \`t1\` LEFT JOIN \`t2\` LEFT JOIN (SELECT * FROM \`t1\` UNION ALL SELECT * FROM \`t2\`) AS \`u\``
         );
     });
     it("joined -> compound -- ON", async () => {

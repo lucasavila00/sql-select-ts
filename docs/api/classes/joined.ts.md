@@ -31,7 +31,7 @@ This class is not meant to be used directly, but rather through methods in table
 **Signature**
 
 ```ts
-export declare class Joined<Selection, Aliases, Ambiguous> {
+export declare class Joined<Selection, Scope, Aliases, Ambiguous> {
   private constructor(
     /* @internal */
     public __props: {
@@ -51,9 +51,9 @@ Added in v0.0.0
 ```ts
 select: <NewSelection extends string>(
   f: (
-    f: Record<Selection, SafeString> & NoSelectFieldsCompileError
+    f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
   ) => Record<NewSelection, SafeString>
-) => SelectStatement<Selection, NewSelection>;
+) => SelectStatement<Selection | Scope, NewSelection>;
 ```
 
 Added in v0.0.0
@@ -63,7 +63,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-selectStar: () => SelectStatement<Selection, Selection>;
+selectStar: () => SelectStatement<Selection | Scope, Selection>;
 ```
 
 Added in v0.0.0
@@ -75,8 +75,10 @@ Added in v0.0.0
 ```ts
 selectStarOfAliases: <TheAliases extends Aliases>(aliases: TheAliases[]) =>
   SelectStatement<
-    RemoveAliasFromSelection<TheAliases, Selection>,
-    RemoveAliasFromSelection<TheAliases, Selection>
+    | RemoveAliasFromSelection<TheAliases, Selection>
+    | RemoveAliasFromSelection<TheAliases, Scope>,
+    | RemoveAliasFromSelection<TheAliases, Selection>
+    | RemoveAliasFromSelection<TheAliases, Scope>
   >;
 ```
 
@@ -91,6 +93,8 @@ commaJoinTable: <Selection2 extends string, Alias2 extends string>(
   table: Table<Selection2, Alias2>
 ) =>
   Joined<
+    Selection,
+    | Scope
     | Exclude<Selection, Selection2>
     | Exclude<Exclude<Selection2, Selection>, Ambiguous>
     | Exclude<Selection2, Ambiguous>
@@ -112,6 +116,8 @@ joinTable: <Selection2 extends string, Alias2 extends string>(
   table: Table<Selection2, Alias2>
 ) =>
   JoinedFactory<
+    Selection,
+    | Scope
     | Exclude<Selection, Selection2>
     | Exclude<Exclude<Selection2, Selection>, Ambiguous>
     | `${Alias2}.${Selection2}`,
@@ -133,6 +139,8 @@ commaJoinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
   select: StringifiedSelectStatement<Selection2>
 ) =>
   Joined<
+    Selection,
+    | Scope
     | Exclude<Selection, Selection2>
     | Exclude<Exclude<Selection2, Selection>, Ambiguous>
     | `${Alias2}.${Selection2}`,
@@ -157,6 +165,8 @@ commaJoinSelect: <
   select: SelectStatement<Scope2, Selection2>
 ) =>
   Joined<
+    Selection,
+    | Scope
     | Exclude<Selection, Selection2>
     | Exclude<Exclude<Selection2, Selection>, Ambiguous>
     | `${Alias2}.${Selection2}`,
@@ -178,6 +188,8 @@ joinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
   table: StringifiedSelectStatement<Selection2>
 ) =>
   JoinedFactory<
+    Selection,
+    | Scope
     | Exclude<Selection, Selection2>
     | Exclude<Exclude<Selection2, Selection>, Ambiguous>
     | `${Alias2}.${Selection2}`,
@@ -204,6 +216,8 @@ joinSelect: <
   table: SelectStatement<Scope2, Selection2>
 ) =>
   JoinedFactory<
+    Selection,
+    | Scope
     | Exclude<Selection, Selection2>
     | Exclude<Exclude<Selection2, Selection>, Ambiguous>
     | `${Alias2}.${Selection2}`,
@@ -229,6 +243,8 @@ commaJoinCompound: <
   compound: Compound<Scope2, Selection2>
 ) =>
   Joined<
+    Selection,
+    | Scope
     | Exclude<Selection, Selection2>
     | Exclude<Exclude<Selection2, Selection>, Ambiguous>
     | `${Alias2}.${Selection2}`,
@@ -254,6 +270,8 @@ joinCompound: <
   compound: Compound<Scope2, Selection2>
 ) =>
   JoinedFactory<
+    Selection,
+    | Scope
     | Exclude<Selection, Selection2>
     | Exclude<Exclude<Selection2, Selection>, Ambiguous>
     | `${Alias2}.${Selection2}`,
@@ -275,6 +293,7 @@ Allows the selection of the constraint to be done in another method call.
 ```ts
 export declare class JoinedFactory<
   Selection,
+  Scope,
   Aliases,
   Ambiguous,
   UsingPossibleKeys
@@ -297,7 +316,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-noConstraint: () => Joined<Selection, Aliases, Ambiguous>;
+noConstraint: () => Joined<Selection, Scope, Aliases, Ambiguous>;
 ```
 
 Added in v0.0.0
@@ -307,9 +326,8 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-on: (
-  on: (fields: Record<Selection, SafeString>) => SafeString | SafeString[]
-) => Joined<Selection, Aliases, Ambiguous>;
+on: (on: (fields: Record<Scope, SafeString>) => SafeString | SafeString[]) =>
+  Joined<Selection, Scope, Aliases, Ambiguous>;
 ```
 
 Added in v0.0.0
@@ -319,7 +337,8 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-using: (keys: UsingPossibleKeys[]) => Joined<Selection, Aliases, Ambiguous>;
+using: (keys: UsingPossibleKeys[]) =>
+  Joined<Selection, Scope, Aliases, Ambiguous>;
 ```
 
 Added in v0.0.0
