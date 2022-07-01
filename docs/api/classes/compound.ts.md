@@ -78,10 +78,9 @@ Added in v0.0.0
 ```ts
 select: <NewSelection extends string>(
   f: (
-    fields: Record<Selection | `main_alias.${Selection}`, SafeString> &
-      NoSelectFieldsCompileError
+    fields: Record<Selection, SafeString> & NoSelectFieldsCompileError
   ) => Record<NewSelection, SafeString>
-) => SelectStatement<Selection | `main_alias.${Selection}`, NewSelection>;
+) => SelectStatement<Selection, NewSelection>;
 ```
 
 Added in v0.0.0

@@ -1706,11 +1706,11 @@ describe("sqlite select1", () => {
             .orderBy((f) => f.f1)
             .orderBy((f) => f.f2)
             .selectStar()
-            .select((f) => ({ f1: f["main_alias.f1"], f2: f.f2 }))
+            .select((f) => ({ f1: f["f1"], f2: f.f2 }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT \`main_alias\`.\`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM (SELECT * FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\`)) AS \`main_alias\``
+            `SELECT \`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM (SELECT * FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\`))`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1783,12 +1783,12 @@ describe("sqlite select1", () => {
             .limit(1);
 
         const q = u
-            .select((f) => ({ it: f["main_alias.f1"] }))
+            .select((f) => ({ it: f["f1"] }))
             .orderBy((f) => f.f2)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT \`main_alias\`.\`f1\` AS \`it\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`main_alias\` ORDER BY \`f2\``
+            `SELECT \`f1\` AS \`it\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1810,13 +1810,13 @@ describe("sqlite select1", () => {
             .limit(1);
 
         const q = u
-            .select((f) => ({ f1: f["main_alias.f1"] }))
-            .appendSelect((f) => ({ f2: f["main_alias.f2"] }))
+            .select((f) => ({ f1: f["f1"] }))
+            .appendSelect((f) => ({ f2: f["f2"] }))
             .orderBy((f) => f.f2)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT \`main_alias\`.\`f1\` AS \`f1\`, \`main_alias\`.\`f2\` AS \`f2\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`main_alias\` ORDER BY \`f2\``
+            `SELECT \`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) ORDER BY \`f2\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1832,11 +1832,11 @@ describe("sqlite select1", () => {
         const q = test1
             .selectStar()
             .where((f) => sql`${f.f1} < ${f.f2}`)
-            .select((f) => ({ f1: f["main_alias.f1"] }))
+            .select((f) => ({ f1: f["f1"] }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT \`main_alias\`.\`f1\` AS \`f1\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\`) AS \`main_alias\``
+            `SELECT \`f1\` AS \`f1\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1850,11 +1850,11 @@ describe("sqlite select1", () => {
         const q = test1
             .select((f) => ({ f1: f["test1.f1"], f2: f["test1.f2"] }))
             .where((f) => sql`${f.f1} < ${f.f2}`)
-            .select((f) => ({ f1: f["main_alias.f1"] }))
+            .select((f) => ({ f1: f["f1"] }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT \`main_alias\`.\`f1\` AS \`f1\` FROM (SELECT \`test1\`.\`f1\` AS \`f1\`, \`test1\`.\`f2\` AS \`f2\` FROM \`test1\` WHERE \`f1\` < \`f2\`) AS \`main_alias\``
+            `SELECT \`f1\` AS \`f1\` FROM (SELECT \`test1\`.\`f1\` AS \`f1\`, \`test1\`.\`f2\` AS \`f2\` FROM \`test1\` WHERE \`f1\` < \`f2\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1869,11 +1869,11 @@ describe("sqlite select1", () => {
             .selectStar()
             .appendSelect((f) => ({ f1: f["test1.f1"] }))
             .where((f) => sql`${f.f1} < ${f.f2}`)
-            .select((f) => ({ f1: f["main_alias.f1"] }))
+            .select((f) => ({ f1: f["f1"] }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT \`main_alias\`.\`f1\` AS \`f1\` FROM (SELECT *, \`test1\`.\`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < \`f2\`) AS \`main_alias\``
+            `SELECT \`f1\` AS \`f1\` FROM (SELECT *, \`test1\`.\`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < \`f2\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
@@ -1889,12 +1889,12 @@ describe("sqlite select1", () => {
             .selectStar()
             .appendSelect((f) => ({ f1: f["test1.f1"] }))
             .where((f) => sql`${f.f1} < ${f.f2}`)
-            .select((f) => ({ f1: f["main_alias.f1"] }))
-            .appendSelect((f) => ({ f2: f["main_alias.f2"] }))
+            .select((f) => ({ f1: f["f1"] }))
+            .appendSelect((f) => ({ f2: f["f2"] }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT \`main_alias\`.\`f1\` AS \`f1\`, \`main_alias\`.\`f2\` AS \`f2\` FROM (SELECT *, \`test1\`.\`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < \`f2\`) AS \`main_alias\``
+            `SELECT \`f1\` AS \`f1\`, \`f2\` AS \`f2\` FROM (SELECT *, \`test1\`.\`f1\` AS \`f1\` FROM \`test1\` WHERE \`f1\` < \`f2\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [

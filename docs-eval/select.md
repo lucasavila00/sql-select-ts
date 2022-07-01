@@ -179,18 +179,6 @@ users
     .select((f) => f);
 ```
 
-# Alias of sub-selection
-
-Sub selections that are not in a join context can be refered to by using `main_alias`.
-
-```ts eval --yield=sql
-yield users
-    .selectStar()
-    .where((f) => sql`${f.id} = 5`)
-    .select((f) => ({ a: f["main_alias.id"] }))
-    .stringify();
-```
-
 # Control order of selection
 
 Although it works on most cases, order of selection is not guaranteed.

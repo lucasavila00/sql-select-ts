@@ -238,10 +238,6 @@ export const printSelectStatementInternal = <
             ? printInternal(selectStatement.__props.from, true).with_ ?? ""
             : "";
 
-    const doesSelectMainAlias = selection.includes("main_alias");
-
-    const main_alias = doesSelectMainAlias ? "AS `main_alias`" : "";
-
     const distinct = selectStatement.__props.distinct ? "DISTINCT" : "";
 
     const clickhouseWith =
@@ -260,7 +256,6 @@ export const printSelectStatementInternal = <
         selection,
         replace,
         from,
-        main_alias,
         prewhere,
         where,
         printGroupBy(selectStatement.__props.groupBy),

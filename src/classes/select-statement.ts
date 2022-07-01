@@ -233,10 +233,9 @@ export class SelectStatement<Scope extends string, Selection extends string> {
      */
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection | `main_alias.${Selection}`, SafeString> &
-                NoSelectFieldsCompileError
+            f: Record<Selection, SafeString> & NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection | `main_alias.${Selection}`, NewSelection> =>
+    ): SelectStatement<Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**
@@ -256,10 +255,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
      */
     public appendSelect = <NewSelection extends string>(
         f: (
-            f: Record<
-                Selection | Scope | `main_alias.${Selection}`,
-                SafeString
-            > &
+            f: Record<Selection | Scope, SafeString> &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<Scope, Selection | NewSelection> =>

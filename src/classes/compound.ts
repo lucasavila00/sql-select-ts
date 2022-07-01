@@ -155,10 +155,9 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public select = <NewSelection extends string>(
         f: (
-            fields: Record<Selection | `main_alias.${Selection}`, SafeString> &
-                NoSelectFieldsCompileError
+            fields: Record<Selection, SafeString> & NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection | `main_alias.${Selection}`, NewSelection> =>
+    ): SelectStatement<Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 
     /**

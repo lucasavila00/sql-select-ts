@@ -82,10 +82,9 @@ Added in v0.0.0
 ```ts
 select: <NewSelection extends string>(
   f: (
-    f: Record<Selection | `main_alias.${Selection}`, SafeString> &
-      NoSelectFieldsCompileError
+    f: Record<Selection, SafeString> & NoSelectFieldsCompileError
   ) => Record<NewSelection, SafeString>
-) => SelectStatement<Selection | `main_alias.${Selection}`, NewSelection>;
+) => SelectStatement<Selection, NewSelection>;
 ```
 
 Added in v0.0.0
@@ -117,8 +116,7 @@ Added in v0.0.0
 ```ts
 appendSelect: <NewSelection extends string>(
   f: (
-    f: Record<Selection | Scope | `main_alias.${Selection}`, SafeString> &
-      NoSelectFieldsCompileError
+    f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
   ) => Record<NewSelection, SafeString>
 ) => SelectStatement<Scope, Selection | NewSelection>;
 ```
