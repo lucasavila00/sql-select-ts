@@ -7,6 +7,7 @@ import { Compound } from "./classes/compound";
 import { CommonTableExpression } from "./classes/cte";
 import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
+import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
 import { Table } from "./classes/table";
 import { SafeString } from "./safe-string";
 
@@ -17,6 +18,7 @@ export type TableOrSubquery<
     Ambiguous extends string
 > =
     | SelectStatement<Scope, Selection>
+    | StringifiedSelectStatement<Selection>
     | Table<Alias, Selection>
     | CommonTableExpression<Alias, Selection>
     | Joined<Ambiguous, Alias, Selection>

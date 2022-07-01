@@ -1,104 +1,61 @@
 /**
  *
- * Represents a table in the database.
- * It stores type information of the table Alias and Selection.
- * It also stores the table name and the alias.
+ * Represents a select statement that was built from a raw string.
  *
- * @since 0.0.0
+ * @since 0.0.3
  */
-import { AliasedRows, StarSymbol } from "../data-wrappers";
-import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { NoSelectFieldsCompileError } from "../types";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
-import { StringifiedSelectStatement } from "./stringified-select-statement";
+import { Table } from "./table";
 
 /**
  *
- * Represents a table in the database.
- * It stores type information of the table Alias and Selection.
- * It also stores the table name and the alias.
+ * Represents a select statement that was built from a raw string.
  *
- * This class is not meant to be used directly, but rather through the `table` function.
- *
- * @since 0.0.0
+ * @since 0.0.3
  */
-export class Table<Selection extends string, Alias extends string> {
+export class StringifiedSelectStatement<Selection extends string> {
     /* @internal */
     private constructor(
         /* @internal */
         public __props: {
-            columns: readonly string[];
-            alias: string;
-            name: string;
-            final: boolean;
+            content: SafeString;
         }
     ) {}
 
-    /*  @internal */
-    public static define = <Selection extends string, Alias extends string>(
-        columns: readonly Selection[],
-        alias: Alias,
-        name: string = alias
-    ): Table<Selection, Alias> =>
-        new Table({ columns, alias, name, final: false });
-
-    private copy = (): Table<Selection, Alias> =>
-        new Table({ ...this.__props });
-
-    private setFinal = (final: boolean): this => {
-        this.__props = { ...this.__props, final };
-        return this;
-    };
+    public static fromSafeString = <NewSelection extends string>(
+        content: SafeString
+    ): StringifiedSelectStatement<NewSelection> =>
+        new StringifiedSelectStatement(
+            //
+            {
+                content,
+            }
+        );
 
     /**
-     * @since 0.0.0
+     * @since 0.0.3
      */
-    public clickhouse = {
-        /**
-         * @since 0.0.0
-         */
-        final: (): Table<Selection, Alias> => this.copy().setFinal(true),
-    };
-
-    /**
-     * @since 0.0.0
-     */
-    public select = <NewSelection extends string>(
-        f: (
-            f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
-                NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
-
-    /**
-     * @since 0.0.0
-     */
-    public selectStar = (): SelectStatement<
-        Selection | `${Alias}.${Selection}`,
-        Selection
-    > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
-
-    /**
-     * @since 0.0.0
-     */
-    public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
+    public commaJoinTable = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisQueryAlias: Alias1,
         table: Table<Selection2, Alias2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias}.${Selection}`
-        | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
         Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__props.alias,
+                alias: thisQueryAlias,
             },
             {
                 code: table,
@@ -107,17 +64,22 @@ export class Table<Selection extends string, Alias extends string> {
         ]);
 
     /**
-     * @since 0.0.0
+     * @since 0.0.3
      */
-    public joinTable = <Selection2 extends string, Alias2 extends string>(
+    public joinTable = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisQueryAlias: Alias1,
         operator: string,
         table: Table<Selection2, Alias2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias}.${Selection}`
+        | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
+        Alias1 | Alias2,
         Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
@@ -125,7 +87,7 @@ export class Table<Selection extends string, Alias extends string> {
             [
                 {
                     code: this,
-                    alias: this.__props.alias,
+                    alias: thisQueryAlias,
                 },
             ],
             [],
@@ -140,23 +102,25 @@ export class Table<Selection extends string, Alias extends string> {
      * @since 0.0.3
      */
     public commaJoinStringifiedSelect = <
+        Alias1 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
+        thisSelectAlias: Alias1,
         selectAlias: Alias2,
         select: StringifiedSelectStatement<Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias}.${Selection}`
-        | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
         Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__props.alias,
+                alias: thisSelectAlias,
             },
             {
                 code: select,
@@ -165,27 +129,29 @@ export class Table<Selection extends string, Alias extends string> {
         ]);
 
     /**
-     * @since 0.0.0
+     * @since 0.0.3
      */
     public commaJoinSelect = <
+        Alias1 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
+        thisSelectAlias: Alias1,
         selectAlias: Alias2,
         select: SelectStatement<Scope2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias}.${Selection}`
-        | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
         Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__props.alias,
+                alias: thisSelectAlias,
             },
             {
                 code: select,
@@ -197,18 +163,20 @@ export class Table<Selection extends string, Alias extends string> {
      * @since 0.0.3
      */
     public joinStringifiedSelect = <
+        Alias1 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
-        selectAlias: Alias2,
+        thisSelectAlias: Alias1,
         operator: string,
+        selectAlias: Alias2,
         select: StringifiedSelectStatement<Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias}.${Selection}`
-        | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
         Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
@@ -216,7 +184,7 @@ export class Table<Selection extends string, Alias extends string> {
             [
                 {
                     code: this,
-                    alias: this.__props.alias,
+                    alias: thisSelectAlias,
                 },
             ],
             [],
@@ -228,22 +196,24 @@ export class Table<Selection extends string, Alias extends string> {
         );
 
     /**
-     * @since 0.0.0
+     * @since 0.0.3
      */
     public joinSelect = <
+        Alias1 extends string,
         Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
-        selectAlias: Alias2,
+        thisSelectAlias: Alias1,
         operator: string,
+        selectAlias: Alias2,
         select: SelectStatement<Scope2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias}.${Selection}`
-        | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
         Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
@@ -251,7 +221,7 @@ export class Table<Selection extends string, Alias extends string> {
             [
                 {
                     code: this,
-                    alias: this.__props.alias,
+                    alias: thisSelectAlias,
                 },
             ],
             [],
@@ -263,26 +233,28 @@ export class Table<Selection extends string, Alias extends string> {
         );
 
     /**
-     * @since 0.0.0
+     * @since 0.0.3
      */
     public commaJoinCompound = <
+        Alias1 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
+        thisSelectAlias: Alias1,
         compoundAlias: Alias2,
         compound: Compound<Selection2, Selection2>
     ): Joined<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias}.${Selection}`
+        | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
+        Alias1 | Alias2,
         Extract<Selection2, Selection>
     > =>
         Joined.__fromCommaJoin([
             {
                 code: this,
-                alias: this.__props.alias,
+                alias: thisSelectAlias,
             },
             {
                 code: compound,
@@ -291,18 +263,23 @@ export class Table<Selection extends string, Alias extends string> {
         ]);
 
     /**
-     * @since 0.0.0
+     * @since 0.0.3
      */
-    public joinCompound = <Selection2 extends string, Alias2 extends string>(
-        compoundAlias: Alias2,
+    public joinCompound = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisSelectAlias: Alias1,
         operator: string,
+        compoundAlias: Alias2,
         compound: Compound<Selection2, Selection2>
     ): JoinedFactory<
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
-        | `${Alias}.${Selection}`
+        | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
+        Alias1 | Alias2,
         Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
@@ -310,7 +287,7 @@ export class Table<Selection extends string, Alias extends string> {
             [
                 {
                     code: this,
-                    alias: this.__props.alias,
+                    alias: thisSelectAlias,
                 },
             ],
             [],
@@ -320,4 +297,9 @@ export class Table<Selection extends string, Alias extends string> {
                 operator,
             }
         );
+
+    /**
+     * @since 0.0.3
+     */
+    public stringify = (): string => this.__props.content.content;
 }
