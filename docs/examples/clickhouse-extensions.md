@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, sql } from "sql-select-ts";
+import { table, sql, fromStringifiedSelectStatement } from "sql-select-ts";
 ```
 
 # Final Table
@@ -138,6 +138,28 @@ WITH
     FROM
       `tableName` FINAL
   ) AS `abc`
+SELECT
+  `col1` AS `res1`,
+  `col2` + `abc` AS `res2`
+FROM
+  `tableName`
+```
+
+```ts
+chTableRegular
+  .select((f) => ({
+    res1: f.col1,
+  }))
+  .clickhouse.with_({
+    abc: fromStringifiedSelectStatement(sql`20`),
+  })
+  .appendSelect((f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
+  .stringify();
+```
+
+```sql
+WITH
+  (20) AS `abc`
 SELECT
   `col1` AS `res1`,
   `col2` + `abc` AS `res2`

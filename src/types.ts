@@ -38,7 +38,10 @@ export interface CompileError<_ErrorMessageT extends any[]> {
 export interface NonEmptyArray<A> extends Array<A> {
     0: A;
 }
-export type ClickhouseWith = Record<string, SelectStatement<any, any>>;
+export type ClickhouseWith = Record<
+    string,
+    SelectStatement<any, any> | StringifiedSelectStatement<any>
+>;
 export type JoinConstraint =
     | {
           _tag: "no_constraint";

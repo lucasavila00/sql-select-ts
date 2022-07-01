@@ -62,8 +62,9 @@ Clickhouse specific syntax extensions.
 
 ```ts
 clickhouse: {
-  with_: <NewSelection extends string>(it: Record<NewSelection, SelectStatement<any, any>>) =>
-    SelectStatement<Scope | NewSelection, Selection>
+  with_: <NewSelection extends string>(
+    it: Record<NewSelection, SelectStatement<any, any> | StringifiedSelectStatement<any>>
+  ) => SelectStatement<Scope | NewSelection, Selection>
   prewhere: (f: (fields: Record<Scope | Selection, SafeString>) => SafeString[] | SafeString) =>
     SelectStatement<Scope, Selection>
   replace: <NewSelection extends string>(
