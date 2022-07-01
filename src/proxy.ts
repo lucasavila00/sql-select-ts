@@ -1,5 +1,5 @@
 import { castSafe } from "./safe-string";
-import { wrapAlias } from "./wrap-alias";
+import { wrapAliasSplitDots } from "./wrap-alias";
 
 export const proxy = new Proxy(
     {
@@ -7,7 +7,7 @@ export const proxy = new Proxy(
     },
     {
         get: function (_target, prop, _receiver) {
-            return castSafe(String(prop).split(".").map(wrapAlias).join("."));
+            return castSafe(wrapAliasSplitDots(String(prop)));
         },
     }
 ) as any;

@@ -9,7 +9,7 @@ import { isTheProxyObject } from "./proxy";
 import type { SafeString } from "./safe-string";
 import { ClickhouseWith, JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
-import { wrapAlias } from "./wrap-alias";
+import { wrapAlias, wrapAliasSplitDots } from "./wrap-alias";
 
 // re-define to avoid circular dependency
 /* istanbul ignore next */
@@ -82,10 +82,10 @@ const printTableInternal = <Selection extends string, Alias extends string>(
 ): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
-        return { content: wrapAlias(table.__props.name) + final };
+        return { content: wrapAliasSplitDots(table.__props.name) + final };
     }
     return {
-        content: `${wrapAlias(table.__props.name)} AS ${wrapAlias(
+        content: `${wrapAliasSplitDots(table.__props.name)} AS ${wrapAlias(
             table.__props.alias
         )}${final}`,
     };
