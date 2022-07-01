@@ -1,6 +1,6 @@
 {
     "name": "sql-select-ts",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A modern, database-agnostic, composable SELECT query builder with great typescript support.",
     "main": "lib/index.js",
     "module": "es6/index.js",
@@ -62,7 +62,7 @@
         "sqlite3": "^5.0.8",
         "ts-jest": "^28.0.4",
         "ts-node": "^10.8.1",
-        "typescript": "^4.7.4",
+        "typescript": "^4.6.4",
         "unified": "^9.2.2",
         "unist-util-flatmap": "^1.0.0",
         "unist-util-visit": "^4.1.0"
