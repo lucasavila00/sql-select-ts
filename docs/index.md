@@ -16,7 +16,7 @@ npm i sql-select-ts
 
 # Getting started
 
-Check out the [examples](/examples/getting-started.html).
+Check out the [examples](/sql-select-ts/examples/getting-started.html).
 
 # Features
 
@@ -78,8 +78,8 @@ users
 
 ### Usage with sqlite
 
-Check out the [examples](/examples/sqlite-usage.html).
+Check out the [examples](/sql-select-ts/examples/sqlite-usage.html).
 
 ### Usage with Clickhouse
 
-Check out the [examples](/examples/clickhouse-usage.html).
+Check out the [examples](/sql-select-ts/examples/clickhouse-usage.html).
