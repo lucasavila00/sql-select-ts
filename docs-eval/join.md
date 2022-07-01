@@ -15,7 +15,14 @@ layout: default
 </details>
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table, SafeString, sql, unionAll } from "../src";
+import {
+    table,
+    SafeString,
+    sql,
+    unionAll,
+    fromStringifiedSelectStatement,
+    castSafe,
+} from "../src";
 ```
 
 We will use these tables
@@ -72,6 +79,22 @@ yield users
 ```ts eval --yield=sql
 yield admins
     .joinSelect("u", "LEFT", users.selectStar())
+    .on((f) => equals(f["u.id"], f["adm.id"]))
+    .selectStar()
+    .stringify();
+```
+
+## Join Stringified Select
+
+```ts eval --yield=sql
+const aQueryThatIsAString = users.selectStar().stringify();
+
+const usersStringifiedQuery = fromStringifiedSelectStatement<
+    "id" | "age" | "name"
+>(castSafe(aQueryThatIsAString));
+
+yield admins
+    .joinStringifiedSelect("u", "LEFT", usersStringifiedQuery)
     .on((f) => equals(f["u.id"], f["adm.id"]))
     .selectStar()
     .stringify();

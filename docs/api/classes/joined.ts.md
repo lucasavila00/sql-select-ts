@@ -123,6 +123,26 @@ joinTable: <Selection2 extends string, Alias2 extends string>(
 
 Added in v0.0.0
 
+### commaJoinStringifiedSelect (property)
+
+**Signature**
+
+```ts
+commaJoinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
+  alias: Alias2,
+  select: StringifiedSelectStatement<Selection2>
+) =>
+  Joined<
+    | Exclude<Selection, Selection2>
+    | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+    | `${Alias2}.${Selection2}`,
+    Aliases | Alias2,
+    Ambiguous | Extract<Selection2, Selection>
+  >;
+```
+
+Added in v0.0.3
+
 ### commaJoinSelect (property)
 
 **Signature**
@@ -146,6 +166,28 @@ commaJoinSelect: <
 ```
 
 Added in v0.0.0
+
+### joinStringifiedSelect (property)
+
+**Signature**
+
+```ts
+joinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
+  operator: string,
+  alias: Alias2,
+  table: StringifiedSelectStatement<Selection2>
+) =>
+  JoinedFactory<
+    | Exclude<Selection, Selection2>
+    | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+    | `${Alias2}.${Selection2}`,
+    Aliases | Alias2,
+    Ambiguous | Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
+```
+
+Added in v0.0.3
 
 ### joinSelect (property)
 

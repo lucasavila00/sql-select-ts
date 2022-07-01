@@ -1,6 +1,6 @@
 ---
 title: safe-string.ts
-nav_order: 7
+nav_order: 8
 parent: Api
 layout: default
 ---

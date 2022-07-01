@@ -8,6 +8,23 @@ import { Compound } from "./classes/compound";
 import { CommonTableExpression } from "./classes/cte";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
+import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
+
+/**
+ *
+ * Create a select statement from a raw string.
+ *
+ * @example
+ *
+ * import { fromStringifiedSelectStatement, castSafe } from "sql-select-ts";
+ * const s1 = fromStringifiedSelectStatement(castSafe("SELECT * FROM `users`"))
+ * assert.strictEqual(s1.selectStar().stringify(), "SELECT * FROM (SELECT * FROM `users`)");
+ *
+ * @category starter
+ * @since 0.0.3
+ */
+export const fromStringifiedSelectStatement =
+    StringifiedSelectStatement.fromSafeString;
 
 /**
  *

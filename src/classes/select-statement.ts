@@ -16,6 +16,7 @@ import {
 import { makeArray } from "../utils";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
+import { StringifiedSelectStatement } from "./stringified-select-statement";
 import { Table } from "./table";
 
 type SelectionWrapperTypes<Selection extends string> = (
@@ -387,6 +388,36 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         );
 
     /**
+     * @since 0.0.3
+     */
+    public commaJoinStringifiedSelect = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisSelectAlias: Alias1,
+        selectAlias: Alias2,
+        select: StringifiedSelectStatement<Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>
+    > =>
+        Joined.__fromCommaJoin([
+            {
+                code: this,
+                alias: thisSelectAlias,
+            },
+            {
+                code: select,
+                alias: selectAlias,
+            },
+        ]);
+
+    /**
      * @since 0.0.0
      */
     public commaJoinSelect = <
@@ -416,6 +447,42 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 alias: selectAlias,
             },
         ]);
+
+    /**
+     * @since 0.0.3
+     */
+    public joinStringifiedSelect = <
+        Alias1 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        thisSelectAlias: Alias1,
+        operator: string,
+        selectAlias: Alias2,
+        select: StringifiedSelectStatement<Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Selection2, Selection>
+        | `${Alias2}.${Selection2}`
+        | `${Alias1}.${Selection}`,
+        Alias1 | Alias2,
+        Extract<Selection2, Selection>,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            [
+                {
+                    code: this,
+                    alias: thisSelectAlias,
+                },
+            ],
+            [],
+            {
+                code: select,
+                alias: selectAlias,
+                operator,
+            }
+        );
 
     /**
      * @since 0.0.0

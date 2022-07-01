@@ -15,6 +15,7 @@ import {
 import { makeNonEmptyArray } from "../utils";
 import { Compound } from "./compound";
 import { SelectStatement } from "./select-statement";
+import { StringifiedSelectStatement } from "./stringified-select-statement";
 import { Table } from "./table";
 
 type CommaJoin = {
@@ -216,6 +217,32 @@ export class Joined<
                 operator,
             }
         );
+    /**
+     * @since 0.0.3
+     */
+    public commaJoinStringifiedSelect = <
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        alias: Alias2,
+        select: StringifiedSelectStatement<Selection2>
+    ): Joined<
+        | Exclude<Selection, Selection2>
+        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | `${Alias2}.${Selection2}`,
+        Aliases | Alias2,
+        Ambiguous | Extract<Selection2, Selection>
+    > =>
+        Joined.__fromAll(
+            [
+                ...this.__props.commaJoins,
+                {
+                    code: select,
+                    alias: alias,
+                },
+            ],
+            this.__props.properJoins
+        );
 
     /**
      * @since 0.0.0
@@ -243,6 +270,34 @@ export class Joined<
                 },
             ],
             this.__props.properJoins
+        );
+
+    /**
+     * @since 0.0.3
+     */
+    public joinStringifiedSelect = <
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        operator: string,
+        alias: Alias2,
+        table: StringifiedSelectStatement<Selection2>
+    ): JoinedFactory<
+        | Exclude<Selection, Selection2>
+        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | `${Alias2}.${Selection2}`,
+        Aliases | Alias2,
+        Ambiguous | Extract<Selection2, Selection>,
+        Extract<Selection2, Selection>
+    > =>
+        JoinedFactory.__fromAll(
+            this.__props.commaJoins,
+            this.__props.properJoins,
+            {
+                code: table,
+                alias: alias,
+                operator,
+            }
         );
 
     /**

@@ -1,4 +1,11 @@
-import { SafeString, sql, table, unionAll } from "../src";
+import {
+    castSafe,
+    fromStringifiedSelectStatement,
+    SafeString,
+    sql,
+    table,
+    unionAll,
+} from "../src";
 import { addSimpleStringSerializer } from "./utils";
 addSimpleStringSerializer();
 
@@ -8,7 +15,9 @@ describe("joinTable", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
-
+    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+        castSafe(t1.selectStar().stringify())
+    );
     /*
     CREATE TABLE t1(a,b,c);
     INSERT INTO t1 VALUES(1,2,3);
@@ -186,6 +195,88 @@ describe("joinTable", () => {
     it("select -> table -- NO CONSTRAIN", async () => {
         const q = t1
             .selectStar()
+            .joinTable("q1", "LEFT", t2)
+            .noConstraint()
+            .selectStar()
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\``
+        );
+    });
+
+    it("stringigied select -> table", async () => {
+        const q = str1
+            .joinTable("q1", "NATURAL", t2)
+            .noConstraint()
+            .selectStar()
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN \`t2\``
+        );
+    });
+
+    it("stringified select -> table -- select", async () => {
+        const q = str1
+            .joinTable("q1", "NATURAL", t2)
+            .noConstraint()
+            .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN \`t2\``
+        );
+    });
+
+    it("stringified select -> table -- prevents ambigous", async () => {
+        const q = str1
+            .joinTable("q1", "LEFT", t2)
+            .noConstraint()
+            .select((f) => ({
+                x: f.a,
+                y: f.d,
+                // @ts-expect-error
+                z: f.c,
+            }))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\``
+        );
+    });
+
+    it("stringified select -> table -- ON", async () => {
+        const q = str1
+            .joinTable("q1", "LEFT", t2)
+            .on((f) => equals(f.a, f.d))
+            .selectStar()
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\` ON \`a\` = \`d\``
+        );
+    });
+
+    it("stringified select -> table -- ON QUALIFIED", async () => {
+        const q = str1
+            .joinTable("q1", "LEFT", t2)
+            .on((f) => equals(f["q1.a"], f["t2.d"]))
+            .selectStar()
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\` ON \`q1\`.\`a\` = \`t2\`.\`d\``
+        );
+    });
+
+    it("stringified select -> table -- USING", async () => {
+        const q = str1
+            .joinTable("q1", "LEFT", t2)
+            .using(["b"])
+            .selectStar()
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\` USING(\`b\`)`
+        );
+    });
+
+    it("stringified select -> table -- NO CONSTRAIN", async () => {
+        const q = str1
             .joinTable("q1", "LEFT", t2)
             .noConstraint()
             .selectStar()

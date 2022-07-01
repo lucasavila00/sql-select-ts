@@ -15,7 +15,14 @@ layout: default
 </details>
 
 ```ts
-import { table, SafeString, sql, unionAll } from "sql-select-ts";
+import {
+  table,
+  SafeString,
+  sql,
+  unionAll,
+  fromStringifiedSelectStatement,
+  castSafe,
+} from "sql-select-ts";
 ```
 
 We will use these tables
@@ -80,6 +87,35 @@ FROM
 ```ts
 admins
   .joinSelect("u", "LEFT", users.selectStar())
+  .on((f) => equals(f["u.id"], f["adm.id"]))
+  .selectStar()
+  .stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `admins` AS `adm`
+  LEFT JOIN (
+    SELECT
+      *
+    FROM
+      `users`
+  ) AS `u` ON `u`.`id` = `adm`.`id`
+```
+
+## Join Stringified Select
+
+```ts
+const aQueryThatIsAString = users.selectStar().stringify();
+
+const usersStringifiedQuery = fromStringifiedSelectStatement<
+  "id" | "age" | "name"
+>(castSafe(aQueryThatIsAString));
+
+admins
+  .joinStringifiedSelect("u", "LEFT", usersStringifiedQuery)
   .on((f) => equals(f["u.id"], f["adm.id"]))
   .selectStar()
   .stringify();

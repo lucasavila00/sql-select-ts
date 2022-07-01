@@ -15,7 +15,35 @@ layout: default
 </details>
 
 ```ts
-import { fromNothing, sql, table, unionAll } from "sql-select-ts";
+import {
+  fromNothing,
+  sql,
+  table,
+  unionAll,
+  fromStringifiedSelectStatement,
+} from "sql-select-ts";
+```
+
+# From Raw String (Stringified Select Statement)
+
+```ts
+const q = fromStringifiedSelectStatement<"a">(sql`SELECT 1 AS a`);
+
+q.selectStar()
+  .orderBy((f) => f.a)
+  .stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  (
+    SELECT
+      1 AS a
+  )
+ORDER BY
+  `a`
 ```
 
 # From Nothing

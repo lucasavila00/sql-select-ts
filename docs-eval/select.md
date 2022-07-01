@@ -15,7 +15,24 @@ layout: default
 </details>
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { fromNothing, sql, table, unionAll } from "../src";
+import {
+    fromNothing,
+    sql,
+    table,
+    unionAll,
+    fromStringifiedSelectStatement,
+} from "../src";
+```
+
+# From Raw String (Stringified Select Statement)
+
+```ts eval --yield=sql
+const q = fromStringifiedSelectStatement<"a">(sql`SELECT 1 AS a`);
+
+yield q
+    .selectStar()
+    .orderBy((f) => f.a)
+    .stringify();
 ```
 
 # From Nothing

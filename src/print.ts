@@ -2,6 +2,7 @@ import { Compound } from "./classes/compound";
 import { CommonTableExpression } from "./classes/cte";
 import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
+import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
 import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import { isTheProxyObject } from "./proxy";
@@ -59,6 +60,11 @@ type PrintInternalRet = {
     with_?: string;
 };
 
+const printStringifiedSelectInternal = <Selection extends string>(
+    it: StringifiedSelectStatement<Selection>
+): PrintInternalRet => ({
+    content: `(${it.__props.content.content})`,
+});
 const printCteInternal = <Selection extends string, Alias extends string>(
     cte: CommonTableExpression<Selection, Alias>
 ): PrintInternalRet => {
@@ -291,6 +297,9 @@ const printInternal = (
     }
     if (it instanceof CommonTableExpression) {
         return printCteInternal(it);
+    }
+    if (it instanceof StringifiedSelectStatement) {
+        return printStringifiedSelectInternal(it);
     }
     /* istanbul ignore next */
     return absurd(it);
