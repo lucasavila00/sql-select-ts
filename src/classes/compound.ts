@@ -45,7 +45,9 @@ export class Compound<Scope extends string, Selection extends string> {
         C extends SelectStatement<any, any>,
         CS extends SelectStatement<any, any>[]
     >(
-        content: [C, ...CS]
+        content: CS & {
+            0: C;
+        }
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
@@ -59,7 +61,9 @@ export class Compound<Scope extends string, Selection extends string> {
         C extends SelectStatement<any, any>,
         CS extends SelectStatement<any, any>[]
     >(
-        content: [C, ...CS]
+        content: CS & {
+            0: C;
+        }
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
@@ -78,7 +82,9 @@ export class Compound<Scope extends string, Selection extends string> {
         C extends SelectStatement<any, any>,
         CS extends SelectStatement<any, any>[]
     >(
-        content: [C, ...CS]
+        content: CS & {
+            0: C;
+        }
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
@@ -97,7 +103,9 @@ export class Compound<Scope extends string, Selection extends string> {
         C extends SelectStatement<any, any>,
         CS extends SelectStatement<any, any>[]
     >(
-        content: [C, ...CS]
+        content: CS & {
+            0: C;
+        }
     ): Compound<
         SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
         SelectionOfSelectStatement<C>
