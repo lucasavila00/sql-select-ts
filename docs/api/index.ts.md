@@ -204,7 +204,7 @@ Create a table definition. Optinionally, you can provide an alias for the table,
 
 ```ts
 export declare const table: <Selection extends string, Alias extends string>(
-  columns: Selection[],
+  columns: readonly Selection[],
   alias: Alias,
   name?: string
 ) => Table<Selection, Alias>;
