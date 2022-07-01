@@ -1,4 +1,9 @@
-import { table, unionAll } from "../src";
+import {
+    castSafe,
+    fromStringifiedSelectStatement,
+    table,
+    unionAll,
+} from "../src";
 import { addSimpleStringSerializer } from "./utils";
 addSimpleStringSerializer();
 
@@ -6,7 +11,9 @@ describe("commaJoinTable", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
-
+    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+        castSafe(t1.selectStar().stringify())
+    );
     /*
     CREATE TABLE t1(a,b,c);
     INSERT INTO t1 VALUES(1,2,3);
@@ -85,6 +92,38 @@ describe("commaJoinTable", () => {
             .selectStar()
             .commaJoinTable("q1", t2)
 
+            .select((f) => ({
+                x: f.a,
+                y: f.d,
+                // @ts-expect-error
+                z: f.c,
+            }))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, \`t2\``
+        );
+    });
+
+    it("stringified select -> table", async () => {
+        const q = str1.commaJoinTable("q1", t2).selectStar().stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\`, \`t2\``
+        );
+    });
+
+    it("stringified select -> table -- select", async () => {
+        const q = str1
+            .commaJoinTable("q1", t2)
+            .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, \`t2\``
+        );
+    });
+
+    it("stringified select -> table -- prevents ambigous", async () => {
+        const q = str1
+            .commaJoinTable("q1", t2)
             .select((f) => ({
                 x: f.a,
                 y: f.d,

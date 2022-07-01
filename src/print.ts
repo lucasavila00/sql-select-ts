@@ -60,6 +60,11 @@ type PrintInternalRet = {
     with_?: string;
 };
 
+const printStringifiedSelectInternal = <Selection extends string>(
+    it: StringifiedSelectStatement<Selection>
+): PrintInternalRet => ({
+    content: `(${it.__props.content.content})`,
+});
 const printCteInternal = <Selection extends string, Alias extends string>(
     cte: CommonTableExpression<Selection, Alias>
 ): PrintInternalRet => {
@@ -294,7 +299,7 @@ const printInternal = (
         return printCteInternal(it);
     }
     if (it instanceof StringifiedSelectStatement) {
-        return { content: it.__props.content.content };
+        return printStringifiedSelectInternal(it);
     }
     /* istanbul ignore next */
     return absurd(it);

@@ -8,6 +8,17 @@ import { Compound } from "./classes/compound";
 import { CommonTableExpression } from "./classes/cte";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
+import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
+
+/**
+ *
+ * TODO
+ *
+ * @category starter
+ * @since 0.0.0
+ */
+export const fromStringifiedSelectStatement =
+    StringifiedSelectStatement.fromSafeString;
 
 /**
  *

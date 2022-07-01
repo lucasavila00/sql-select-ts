@@ -11,7 +11,7 @@ addSimpleStringSerializer();
 
 const equals = (a: SafeString, b: SafeString) => sql`${a} = ${b}`;
 
-describe("joinSelect", () => {
+describe("joinStringifiedSelect", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
@@ -21,7 +21,12 @@ describe("joinSelect", () => {
     const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
         castSafe(q1.stringify())
     );
-
+    const str2 = fromStringifiedSelectStatement<"b" | "c" | "d">(
+        castSafe(q2.stringify())
+    );
+    const str3 = fromStringifiedSelectStatement<"c" | "d" | "e">(
+        castSafe(q3.stringify())
+    );
     /*
     CREATE TABLE t1(a,b,c);
     INSERT INTO t1 VALUES(1,2,3);
@@ -39,7 +44,7 @@ describe("joinSelect", () => {
 
     it("table -> select", async () => {
         const q = t1
-            .joinSelect("q2", "NATURAL", q2)
+            .joinStringifiedSelect("q2", "NATURAL", str2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -50,7 +55,7 @@ describe("joinSelect", () => {
 
     it("table -> select -- select", async () => {
         const q = t1
-            .joinSelect("q2", "NATURAL", q2)
+            .joinStringifiedSelect("q2", "NATURAL", str2)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
             .stringify();
@@ -61,7 +66,7 @@ describe("joinSelect", () => {
 
     it("table -> select -- prevents ambiguous", async () => {
         const q = t1
-            .joinSelect("q2", "NATURAL", q2)
+            .joinStringifiedSelect("q2", "NATURAL", str2)
             .noConstraint()
             .select((f) => ({
                 x: f.a,
@@ -77,7 +82,7 @@ describe("joinSelect", () => {
 
     it("table -> select -- ON", async () => {
         const q = t1
-            .joinSelect("q2", "LEFT", q2)
+            .joinStringifiedSelect("q2", "LEFT", str2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
             .stringify();
@@ -88,7 +93,7 @@ describe("joinSelect", () => {
 
     it("table -> select -- ON QUALIFIED", async () => {
         const q = t1
-            .joinSelect("q2", "LEFT", q2)
+            .joinStringifiedSelect("q2", "LEFT", str2)
             .on((f) => equals(f["t1.a"], f["q2.d"]))
             .selectStar()
             .stringify();
@@ -99,7 +104,7 @@ describe("joinSelect", () => {
 
     it("table -> select -- USING", async () => {
         const q = t1
-            .joinSelect("q2", "LEFT", q2)
+            .joinStringifiedSelect("q2", "LEFT", str2)
             .using(["b"])
             .selectStar()
             .stringify();
@@ -110,7 +115,7 @@ describe("joinSelect", () => {
 
     it("table -> select -- NO CONSTRAINT", async () => {
         const q = t1
-            .joinSelect("q2", "LEFT", q2)
+            .joinStringifiedSelect("q2", "LEFT", str2)
             .using(["b"])
             .selectStar()
             .stringify();
@@ -121,7 +126,7 @@ describe("joinSelect", () => {
 
     it("select -> select", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -132,7 +137,7 @@ describe("joinSelect", () => {
 
     it("select -> select -- select", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
             .stringify();
@@ -143,7 +148,7 @@ describe("joinSelect", () => {
 
     it("select -> select -- prevents ambiguous", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
             .select((f) => ({
                 x: f.a,
@@ -159,7 +164,7 @@ describe("joinSelect", () => {
 
     it("select -> select -- ON", async () => {
         const q = q1
-            .joinSelect("q1", "LEFT", "q2", q2)
+            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
             .stringify();
@@ -170,7 +175,7 @@ describe("joinSelect", () => {
 
     it("select -> select -- ON QUALIFIED", async () => {
         const q = q1
-            .joinSelect("q1", "LEFT", "q2", q2)
+            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
             .on((f) => equals(f["q1.a"], f["q2.d"]))
             .selectStar()
             .stringify();
@@ -180,7 +185,7 @@ describe("joinSelect", () => {
     });
     it("select -> select -- USING", async () => {
         const q = q1
-            .joinSelect("q1", "LEFT", "q2", q2)
+            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
             .using(["b"])
             .selectStar()
             .stringify();
@@ -191,7 +196,7 @@ describe("joinSelect", () => {
 
     it("select -> select -- NO CONSTRAINT", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -202,7 +207,7 @@ describe("joinSelect", () => {
 
     it("stringified select -> select", async () => {
         const q = str1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -213,7 +218,7 @@ describe("joinSelect", () => {
 
     it("stringified select -> select -- select", async () => {
         const q = str1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
             .stringify();
@@ -224,7 +229,7 @@ describe("joinSelect", () => {
 
     it("stringified select -> select -- prevents ambiguous", async () => {
         const q = str1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
             .select((f) => ({
                 x: f.a,
@@ -240,7 +245,7 @@ describe("joinSelect", () => {
 
     it("stringified select -> select -- ON", async () => {
         const q = str1
-            .joinSelect("q1", "LEFT", "q2", q2)
+            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
             .stringify();
@@ -251,7 +256,7 @@ describe("joinSelect", () => {
 
     it("stringified select -> select -- ON QUALIFIED", async () => {
         const q = str1
-            .joinSelect("q1", "LEFT", "q2", q2)
+            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
             .on((f) => equals(f["q1.a"], f["q2.d"]))
             .selectStar()
             .stringify();
@@ -261,7 +266,7 @@ describe("joinSelect", () => {
     });
     it("stringified select -> select -- USING", async () => {
         const q = str1
-            .joinSelect("q1", "LEFT", "q2", q2)
+            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
             .using(["b"])
             .selectStar()
             .stringify();
@@ -272,7 +277,7 @@ describe("joinSelect", () => {
 
     it("stringified select -> select -- NO CONSTRAINT", async () => {
         const q = str1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -283,9 +288,9 @@ describe("joinSelect", () => {
 
     it("joined -> select", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
-            .joinSelect("NATURAL", "q3", q3)
+            .joinStringifiedSelect("NATURAL", "q3", str3)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -296,9 +301,9 @@ describe("joinSelect", () => {
 
     it("joined -> select -- select", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
-            .joinSelect("NATURAL", "q3", q3)
+            .joinStringifiedSelect("NATURAL", "q3", str3)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f["q2.d"], z: f["q1.c"] }))
             .stringify();
@@ -309,9 +314,9 @@ describe("joinSelect", () => {
 
     it("joined -> select -- prevents ambiguous", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
-            .joinSelect("NATURAL", "q3", q3)
+            .joinStringifiedSelect("NATURAL", "q3", str3)
             .noConstraint()
             .select((f) => ({
                 x: f.a,
@@ -326,9 +331,9 @@ describe("joinSelect", () => {
 
     it("joined -> select -- ON", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
-            .joinSelect("LEFT", "q3", q3)
+            .joinStringifiedSelect("LEFT", "q3", str3)
             .on((f) => equals(f.a, f["q2.d"]))
             .selectStar()
             .stringify();
@@ -339,9 +344,9 @@ describe("joinSelect", () => {
 
     it("joined -> select -- ON QUALIFIED", async () => {
         const q = q1
-            .joinSelect("q1", "NATURAL", "q2", q2)
+            .joinStringifiedSelect("q1", "NATURAL", "q2", str2)
             .noConstraint()
-            .joinSelect("LEFT", "q3", q3)
+            .joinStringifiedSelect("LEFT", "q3", str3)
             .on((f) => equals(f["q1.a"], f["q2.d"]))
             .selectStar()
             .stringify();
@@ -352,9 +357,9 @@ describe("joinSelect", () => {
 
     it("joined -> select -- USING", async () => {
         const q = q1
-            .joinSelect("q1", "LEFT", "q2", q2)
+            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
             .noConstraint()
-            .joinSelect("LEFT", "q3", q3)
+            .joinStringifiedSelect("LEFT", "q3", str3)
             .using(["d"])
             .selectStar()
             .stringify();
@@ -366,9 +371,9 @@ describe("joinSelect", () => {
 
     it("joined -> select -- NO CONSTRAINT", async () => {
         const q = q1
-            .joinSelect("q1", "LEFT", "q2", q2)
+            .joinStringifiedSelect("q1", "LEFT", "q2", str2)
             .noConstraint()
-            .joinSelect("NATURAL", "q3", q3)
+            .joinStringifiedSelect("NATURAL", "q3", str3)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -379,7 +384,7 @@ describe("joinSelect", () => {
 
     it("compound -> select", async () => {
         const q = unionAll([q1, q2])
-            .joinSelect("u", "NATURAL", "q3", q3)
+            .joinStringifiedSelect("u", "NATURAL", "q3", str3)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -390,7 +395,7 @@ describe("joinSelect", () => {
 
     it("compound -> select -- select", async () => {
         const q = unionAll([q1, q2])
-            .joinSelect("u", "NATURAL", "q3", q3)
+            .joinStringifiedSelect("u", "NATURAL", "q3", str3)
             .noConstraint()
             .select((f) => ({ x: f.a, y: f.d, z: f["u.c"] }))
             .stringify();
@@ -401,7 +406,7 @@ describe("joinSelect", () => {
 
     it("compound -> select -- prevents ambiguous", async () => {
         const q = unionAll([q1, q2])
-            .joinSelect("u", "NATURAL", "q3", q3)
+            .joinStringifiedSelect("u", "NATURAL", "q3", str3)
             .noConstraint()
             .select((f) => ({
                 x: f.a,
@@ -416,7 +421,7 @@ describe("joinSelect", () => {
     });
     it("compound -> select -- ON", async () => {
         const q = unionAll([q1, q2])
-            .joinSelect("u", "LEFT", "q3", q3)
+            .joinStringifiedSelect("u", "LEFT", "q3", str3)
             .on((f) => equals(f.a, f.d))
             .selectStar()
             .stringify();
@@ -427,7 +432,7 @@ describe("joinSelect", () => {
 
     it("compound -> select -- ON QUALIFIED", async () => {
         const q = unionAll([q1, q2])
-            .joinSelect("u", "LEFT", "q3", q3)
+            .joinStringifiedSelect("u", "LEFT", "q3", str3)
             .on((f) => equals(f["u.a"], f["q3.d"]))
             .selectStar()
             .stringify();
@@ -437,7 +442,7 @@ describe("joinSelect", () => {
     });
     it("compound -> select -- USING", async () => {
         const q = unionAll([q1, q2])
-            .joinSelect("u", "LEFT", "q3", q3)
+            .joinStringifiedSelect("u", "LEFT", "q3", str3)
             .using(["c"])
             .selectStar()
             .stringify();
@@ -448,7 +453,7 @@ describe("joinSelect", () => {
 
     it("compound -> select -- NO CONSTRAINT", async () => {
         const q = unionAll([q1, q2])
-            .joinSelect("u", "LEFT", "q3", q3)
+            .joinStringifiedSelect("u", "LEFT", "q3", str3)
             .noConstraint()
             .selectStar()
             .stringify();

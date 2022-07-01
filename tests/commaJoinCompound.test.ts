@@ -1,4 +1,9 @@
-import { table, unionAll } from "../src";
+import {
+    castSafe,
+    fromStringifiedSelectStatement,
+    table,
+    unionAll,
+} from "../src";
 import { addSimpleStringSerializer } from "./utils";
 addSimpleStringSerializer();
 
@@ -9,6 +14,9 @@ describe("commaJoinCompound", () => {
     const q2 = t2.selectStar();
     const q3 = t3.selectStar();
     const u1 = unionAll([q2, q3]);
+    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+        castSafe(t1.selectStar().stringify())
+    );
     /*
     CREATE TABLE t1(a,b,c);
     INSERT INTO t1 VALUES(1,2,3);
@@ -88,6 +96,41 @@ describe("commaJoinCompound", () => {
             .selectStar()
             .commaJoinCompound("q1", "t2", u1)
 
+            .select((f) => ({
+                x: f.a,
+                y: f.d,
+                // @ts-expect-error
+                z: f.c,
+            }))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t2\``
+        );
+    });
+
+    it("stringified select -> compound", async () => {
+        const q = str1
+            .commaJoinCompound("t1", "t2", u1)
+            .selectStar()
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT * FROM \`t1\`) AS \`t1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t2\``
+        );
+    });
+
+    it("stringified select -> compound -- select", async () => {
+        const q = str1
+            .commaJoinCompound("q1", "t2", u1)
+            .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\` UNION ALL SELECT * FROM \`t3\`) AS \`t2\``
+        );
+    });
+
+    it("stringified select -> compound -- prevents ambigous", async () => {
+        const q = str1
+            .commaJoinCompound("q1", "t2", u1)
             .select((f) => ({
                 x: f.a,
                 y: f.d,
