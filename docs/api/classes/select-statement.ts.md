@@ -82,7 +82,7 @@ Added in v0.0.0
 ```ts
 select: <NewSelection extends string>(
   f: (
-    f: Record<Selection, SafeString> & NoSelectFieldsCompileError
+    f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
   ) => Record<NewSelection, SafeString>
 ) => SelectStatement<Selection, NewSelection>;
 ```

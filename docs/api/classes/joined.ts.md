@@ -75,8 +75,7 @@ Added in v0.0.0
 ```ts
 selectStarOfAliases: <TheAliases extends Aliases>(aliases: TheAliases[]) =>
   SelectStatement<
-    | RemoveAliasFromSelection<TheAliases, Selection>
-    | RemoveAliasFromSelection<TheAliases, Scope>,
+    Selection | Scope,
     | RemoveAliasFromSelection<TheAliases, Selection>
     | RemoveAliasFromSelection<TheAliases, Scope>
   >;
