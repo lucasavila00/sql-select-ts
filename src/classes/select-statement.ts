@@ -233,7 +233,8 @@ export class SelectStatement<Scope extends string, Selection extends string> {
      */
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection, SafeString> & NoSelectFieldsCompileError
+            f: Record<Selection | Scope, SafeString> &
+                NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
     ): SelectStatement<Selection, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);

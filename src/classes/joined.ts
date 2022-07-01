@@ -166,7 +166,7 @@ export class Joined<
     public selectStarOfAliases = <TheAliases extends Aliases>(
         aliases: TheAliases[]
     ): SelectStatement<
-        RemoveAliasFromSelection<TheAliases, Selection | Scope>,
+        Selection | Scope,
         RemoveAliasFromSelection<TheAliases, Selection | Scope>
     > =>
         SelectStatement.__fromTableOrSubquery(this, [
