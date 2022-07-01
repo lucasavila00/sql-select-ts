@@ -305,29 +305,7 @@ users
 
 # Alias of sub-selection
 
-Sub selections that are not in a join context can be refered to by using `main_alias`.
-
-```ts
-users
-  .selectStar()
-  .where((f) => sql`${f.id} = 5`)
-  .select((f) => ({ a: f["main_alias.id"] }))
-  .stringify();
-```
-
-```sql
-SELECT
-  `main_alias`.`id` AS `a`
-FROM
-  (
-    SELECT
-      *
-    FROM
-      `users`
-    WHERE
-      `id` = 5
-  ) AS `main_alias`
-```
+TODO
 
 # Control order of selection
 
