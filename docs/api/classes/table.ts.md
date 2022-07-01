@@ -1,6 +1,6 @@
 ---
 title: classes/table.ts
-nav_order: 5
+nav_order: 6
 parent: Classes
 layout: default
 grand_parent: Api
@@ -131,6 +131,27 @@ joinTable: <Selection2 extends string, Alias2 extends string>(
 
 Added in v0.0.0
 
+### commaJoinStringifiedSelect (property)
+
+**Signature**
+
+```ts
+commaJoinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
+  selectAlias: Alias2,
+  select: StringifiedSelectStatement<Selection2>
+) =>
+  Joined<
+    | `${Alias}.${Selection}`
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`,
+    Alias | Alias2,
+    Extract<Selection2, Selection>
+  >;
+```
+
+Added in v0.0.3
+
 ### commaJoinSelect (property)
 
 **Signature**
@@ -155,6 +176,29 @@ commaJoinSelect: <
 ```
 
 Added in v0.0.0
+
+### joinStringifiedSelect (property)
+
+**Signature**
+
+```ts
+joinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
+  selectAlias: Alias2,
+  operator: string,
+  select: StringifiedSelectStatement<Selection2>
+) =>
+  JoinedFactory<
+    | `${Alias}.${Selection}`
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`,
+    Alias | Alias2,
+    Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
+```
+
+Added in v0.0.3
 
 ### joinSelect (property)
 

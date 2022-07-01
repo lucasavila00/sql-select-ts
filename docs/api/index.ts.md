@@ -1,6 +1,6 @@
 ---
 title: index.ts
-nav_order: 6
+nav_order: 7
 parent: Api
 layout: default
 ---
@@ -195,6 +195,33 @@ assert.strictEqual(q1.stringify(), "SELECT 123 AS `a`");
 ```
 
 Added in v0.0.0
+
+## fromStringifiedSelectStatement
+
+Create a select statement from a raw string.
+
+**Signature**
+
+```ts
+export declare const fromStringifiedSelectStatement: <
+  NewSelection extends string
+>(
+  content: SafeString
+) => StringifiedSelectStatement<NewSelection>;
+```
+
+**Example**
+
+```ts
+import { fromStringifiedSelectStatement, castSafe } from "sql-select-ts";
+const s1 = fromStringifiedSelectStatement(castSafe("SELECT * FROM `users`"));
+assert.strictEqual(
+  s1.selectStar().stringify(),
+  "SELECT * FROM (SELECT * FROM `users`)"
+);
+```
+
+Added in v0.0.3
 
 ## table
 

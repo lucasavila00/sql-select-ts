@@ -251,6 +251,32 @@ joinTable: <
 
 Added in v0.0.0
 
+### commaJoinStringifiedSelect (property)
+
+**Signature**
+
+```ts
+commaJoinStringifiedSelect: <
+  Alias1 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  thisSelectAlias: Alias1,
+  selectAlias: Alias2,
+  select: StringifiedSelectStatement<Selection2>
+) =>
+  Joined<
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`
+    | `${Alias1}.${Selection}`,
+    Alias1 | Alias2,
+    Extract<Selection2, Selection>
+  >;
+```
+
+Added in v0.0.3
+
 ### commaJoinSelect (property)
 
 **Signature**
@@ -277,6 +303,34 @@ commaJoinSelect: <
 ```
 
 Added in v0.0.0
+
+### joinStringifiedSelect (property)
+
+**Signature**
+
+```ts
+joinStringifiedSelect: <
+  Alias1 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  thisSelectAlias: Alias1,
+  operator: string,
+  selectAlias: Alias2,
+  select: StringifiedSelectStatement<Selection2>
+) =>
+  JoinedFactory<
+    | Exclude<Selection, Selection2>
+    | Exclude<Selection2, Selection>
+    | `${Alias2}.${Selection2}`
+    | `${Alias1}.${Selection}`,
+    Alias1 | Alias2,
+    Extract<Selection2, Selection>,
+    Extract<Selection2, Selection>
+  >;
+```
+
+Added in v0.0.3
 
 ### joinSelect (property)
 

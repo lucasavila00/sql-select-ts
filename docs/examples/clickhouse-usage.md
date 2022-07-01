@@ -1,6 +1,6 @@
 ---
 title: Clickhouse Usage
-nav_order: 23
+nav_order: 60
 parent: Examples
 layout: default
 ---

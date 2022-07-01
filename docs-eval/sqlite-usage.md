@@ -1,6 +1,6 @@
 ---
 title: SQLite Usage
-nav_order: 23
+nav_order: 50
 parent: Examples
 layout: default
 ---

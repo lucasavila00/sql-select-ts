@@ -12,10 +12,16 @@ import { StringifiedSelectStatement } from "./classes/stringified-select-stateme
 
 /**
  *
- * TODO
+ * Create a select statement from a raw string.
+ *
+ * @example
+ *
+ * import { fromStringifiedSelectStatement, castSafe } from "sql-select-ts";
+ * const s1 = fromStringifiedSelectStatement(castSafe("SELECT * FROM `users`"))
+ * assert.strictEqual(s1.selectStar().stringify(), "SELECT * FROM (SELECT * FROM `users`)");
  *
  * @category starter
- * @since 0.0.0
+ * @since 0.0.3
  */
 export const fromStringifiedSelectStatement =
     StringifiedSelectStatement.fromSafeString;
