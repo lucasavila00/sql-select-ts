@@ -17,7 +17,7 @@ layout: default
 ```ts
 import {
   fromNothing,
-  sql,
+  dsql as sql,
   unionAll,
   SafeString,
   castSafe,

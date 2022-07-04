@@ -1,5 +1,5 @@
 import { table, with_ } from "../../src";
-import { sql } from "../../src/safe-string";
+import { dsql } from "../../src/safe-string";
 import { configureSqlite } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
 addSimpleStringSerializer();
@@ -22,7 +22,7 @@ describe("sqlite with", () => {
             "x",
             ["a", "b"]
         )
-            .select((_f) => ({ it: sql(10) }))
+            .select((_f) => ({ it: dsql(10) }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -53,7 +53,7 @@ describe("sqlite with", () => {
             "x",
             []
         )
-            .select((_f) => ({ it: sql(10) }))
+            .select((_f) => ({ it: dsql(10) }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -67,7 +67,7 @@ describe("sqlite with", () => {
             t0.selectStar(),
             "x"
         )
-            .select((_f) => ({ it: sql(10) }))
+            .select((_f) => ({ it: dsql(10) }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -114,7 +114,7 @@ describe("sqlite with", () => {
             "x",
             ["a", "b"]
         )
-            .select((_f) => ({ it: sql(10) }))
+            .select((_f) => ({ it: dsql(10) }))
             .selectStar()
             .stringify();
 

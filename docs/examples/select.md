@@ -17,7 +17,7 @@ layout: default
 ```ts
 import {
   fromNothing,
-  sql,
+  dsql as sql,
   table,
   unionAll,
   fromStringifiedSelectStatement,

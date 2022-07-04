@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table, sql } from "../src";
+import { table, dsql as sql } from "../src";
 ```
 
 We will use this table

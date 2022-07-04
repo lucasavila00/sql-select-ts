@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, sql } from "sql-select-ts";
+import { table, dsql as sql } from "sql-select-ts";
 ```
 
 We will use this table

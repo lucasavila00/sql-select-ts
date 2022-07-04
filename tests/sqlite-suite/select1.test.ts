@@ -2,7 +2,7 @@ import {
     fromNothing,
     table,
     SafeString,
-    sql,
+    dsql,
     union,
     unionAll,
     except,
@@ -14,8 +14,8 @@ addSimpleStringSerializer();
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/select1.test
 
-const max = (...it: SafeString[]) => sql`max(${it})`;
-const min = (...it: SafeString[]) => sql`min(${it})`;
+const max = (...it: SafeString[]) => dsql`max(${it})`;
+const min = (...it: SafeString[]) => dsql`min(${it})`;
 describe("sqlite select1", () => {
     const test1 = table(["f1", "f2"], "test1");
 
@@ -252,8 +252,8 @@ describe("sqlite select1", () => {
         const q = test1
             .selectStar()
             .appendSelect(({ f1, f2 }) => ({
-                min: sql`min(${f1}, ${f2})`,
-                max: sql`max(${f1}, ${f2})`,
+                min: dsql`min(${f1}, ${f2})`,
+                max: dsql`max(${f1}, ${f2})`,
             }))
             .stringify();
 
@@ -274,9 +274,9 @@ describe("sqlite select1", () => {
 
     it("select1-1.8.3", async () => {
         const q = test1
-            .select((_f) => ({ one: sql("one") }))
+            .select((_f) => ({ one: dsql("one") }))
             .appendSelectStar()
-            .appendSelect((_f) => ({ two: sql("two") }))
+            .appendSelect((_f) => ({ two: dsql("two") }))
             .appendSelectStar()
             .stringify();
 
@@ -313,7 +313,7 @@ describe("sqlite select1", () => {
     it("select1-1.9.1", async () => {
         const q = fromTest1And2
             .selectStar()
-            .appendSelect((_f) => ({ hi: sql("hi") }))
+            .appendSelect((_f) => ({ hi: dsql("hi") }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -334,9 +334,9 @@ describe("sqlite select1", () => {
 
     it("select1-1.9.2", async () => {
         const q = fromTest1And2
-            .select((_f) => ({ one: sql("one") }))
+            .select((_f) => ({ one: dsql("one") }))
             .appendSelectStar()
-            .appendSelect((_f) => ({ two: sql("two") }))
+            .appendSelect((_f) => ({ two: dsql("two") }))
             .appendSelectStar()
             .stringify();
 
@@ -519,7 +519,7 @@ describe("sqlite select1", () => {
     it("select1-3.1", async () => {
         const q = test1
             .select(({ f1 }) => ({ f1 }))
-            .where(({ f1 }) => sql`${f1} < 11`)
+            .where(({ f1 }) => dsql`${f1} < 11`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -530,7 +530,7 @@ describe("sqlite select1", () => {
     it("select1-3.1 -- from selection", async () => {
         const q = test1
             .select(({ f1 }) => ({ f3: f1 }))
-            .where(({ f3 }) => sql`${f3} < 11`)
+            .where(({ f3 }) => dsql`${f3} < 11`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -546,7 +546,7 @@ describe("sqlite select1", () => {
                 ({
                     //@ts-expect-error
                     f5,
-                }) => sql`${f5} < 11`
+                }) => dsql`${f5} < 11`
             )
             .stringify();
 
@@ -561,8 +561,8 @@ describe("sqlite select1", () => {
     it("select1-3.1 -- two calls", async () => {
         const q = test1
             .select(({ f1 }) => ({ f1 }))
-            .where(({ f1 }) => sql`${f1} < 11`)
-            .where(({ f2 }) => sql`${f2} > 0`)
+            .where(({ f1 }) => dsql`${f1} < 11`)
+            .where(({ f2 }) => dsql`${f2} > 0`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -574,7 +574,7 @@ describe("sqlite select1", () => {
     it("select1-3.1 -- return list", async () => {
         const q = test1
             .select(({ f1 }) => ({ f1 }))
-            .where(({ f1 }) => [sql`${f1} < 11`])
+            .where(({ f1 }) => [dsql`${f1} < 11`])
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -586,7 +586,7 @@ describe("sqlite select1", () => {
     it("select1-3.1 -- return list with 2 items", async () => {
         const q = test1
             .select(({ f1 }) => ({ f1 }))
-            .where(({ f1, f2 }) => [sql`${f1} < 11`, sql`${f2} > 0`])
+            .where(({ f1, f2 }) => [dsql`${f1} < 11`, dsql`${f2} > 0`])
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -653,7 +653,7 @@ describe("sqlite select1", () => {
     it("select1-4.1 -- desc asc", async () => {
         const q = test1
             .select(({ f1 }) => ({ f1 }))
-            .orderBy(({ f1, f2 }) => [sql`${f1} ASC`, sql`${f2} DESC`])
+            .orderBy(({ f1, f2 }) => [dsql`${f1} ASC`, dsql`${f2} DESC`])
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -689,7 +689,7 @@ describe("sqlite select1", () => {
     it("select1-6.1.3", async () => {
         const q = test1
             .selectStar()
-            .where((f) => sql`${f.f1} == 11`)
+            .where((f) => dsql`${f.f1} == 11`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -709,7 +709,7 @@ describe("sqlite select1", () => {
         const q = test1
             .selectStar()
             .distinct()
-            .where((f) => sql`${f.f1} == 11`)
+            .where((f) => dsql`${f.f1} == 11`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -745,7 +745,7 @@ describe("sqlite select1", () => {
 
     it("select1-6.5", async () => {
         const q = test1
-            .select((f) => ({ it: sql`${f["test1.f1"]} + ${f.f2}` }))
+            .select((f) => ({ it: dsql`${f["test1.f1"]} + ${f.f2}` }))
             .orderBy((f) => f.f2)
             .stringify();
 
@@ -763,7 +763,7 @@ describe("sqlite select1", () => {
 
     it("select1-6.6", async () => {
         const q = fromTest1And2
-            .select((f) => ({ it: sql`${f["test1.f1"]} + ${f.f2}`, r2: f.r2 }))
+            .select((f) => ({ it: dsql`${f["test1.f1"]} + ${f.f2}`, r2: f.r2 }))
             .orderBy((f) => f.f2)
             .stringify();
 
@@ -847,8 +847,8 @@ describe("sqlite select1", () => {
             .commaJoinSelect(
                 "it",
                 fromNothing({
-                    "5": sql(5),
-                    "6": sql(6),
+                    "5": dsql(5),
+                    "6": dsql(6),
                 })
             )
             .selectStar()
@@ -871,8 +871,8 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.7 -- inverse", async () => {
         const q = fromNothing({
-            "5": sql(5),
-            "6": sql(6),
+            "5": dsql(5),
+            "6": dsql(6),
         })
             .commaJoinTable("it", table(["f1", "f2"], "a", "test1"))
             .selectStar()
@@ -895,15 +895,15 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.7 -- 2 queries", async () => {
         const q = fromNothing({
-            "5": sql(5),
-            "6": sql(6),
+            "5": dsql(5),
+            "6": dsql(6),
         })
             .commaJoinSelect(
                 "it",
                 "it2",
                 fromNothing({
-                    "5": sql(5),
-                    "6": sql(6),
+                    "5": dsql(5),
+                    "6": dsql(6),
                 })
             )
             .selectStar()
@@ -926,8 +926,8 @@ describe("sqlite select1", () => {
             .commaJoinSelect(
                 "b",
                 fromNothing({
-                    x: sql(5),
-                    y: sql(6),
+                    x: dsql(5),
+                    y: dsql(6),
                 })
             )
             .selectStar()
@@ -953,8 +953,8 @@ describe("sqlite select1", () => {
             .commaJoinSelect(
                 "b",
                 fromNothing({
-                    x: sql(5),
-                    y: sql(6),
+                    x: dsql(5),
+                    y: dsql(6),
                 })
             )
             .select((f) => ({
@@ -1003,7 +1003,7 @@ describe("sqlite select1", () => {
     it("select1-15.3", async () => {
         const subquery = test1.select((f) => ({ f1: f.f1 }));
         const q = fromNothing({
-            it: sql`2 IN ${subquery}`,
+            it: dsql`2 IN ${subquery}`,
         }).stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1020,11 +1020,11 @@ describe("sqlite select1", () => {
     it("select1-6.21 -- no union", async () => {
         const subquery = t6
             .select((f) => ({ b: f.b }))
-            .where((_f) => sql`a<='b'`);
+            .where((_f) => dsql`a<='b'`);
 
         const q = t6
             .select((f) => ({ a: f.a }))
-            .where((f) => sql`${f.b} IN ${subquery}`)
+            .where((f) => dsql`${f.b} IN ${subquery}`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1042,10 +1042,10 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-9.3", async () => {
-        const subquery = test2.select((_f) => ({ c: sql`count(*)` }));
+        const subquery = test2.select((_f) => ({ c: dsql`count(*)` }));
         const q = test1
             .selectStar()
-            .where((f) => sql`${f.f1} < ${subquery}`)
+            .where((f) => dsql`${f.f1} < ${subquery}`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1054,10 +1054,10 @@ describe("sqlite select1", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("select1-9.4", async () => {
-        const subquery = test2.select((_f) => ({ c: sql`count(*)` }));
+        const subquery = test2.select((_f) => ({ c: dsql`count(*)` }));
         const q = test1
             .selectStar()
-            .where((f) => sql`${f.f1} < ${subquery}`)
+            .where((f) => dsql`${f.f1} < ${subquery}`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1068,11 +1068,11 @@ describe("sqlite select1", () => {
 
     it("select1-12.8", async () => {
         const subquery = fromNothing({
-            it: sql(11),
+            it: dsql(11),
         });
         const q = test1
             .selectStar()
-            .where((f) => sql`${f.f1} = ${subquery}`)
+            .where((f) => dsql`${f.f1} = ${subquery}`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1089,7 +1089,7 @@ describe("sqlite select1", () => {
     });
     it("select1-12.1", async () => {
         const q = fromNothing({
-            it: sql`1+2+3`,
+            it: dsql`1+2+3`,
         }).stringify();
 
         expect(q).toMatchInlineSnapshot(`SELECT 1+2+3 AS \`it\``);
@@ -1103,9 +1103,9 @@ describe("sqlite select1", () => {
     });
     it("select1-12.2", async () => {
         const q = fromNothing({
-            "1": sql(1),
-            hello: sql("hello"),
-            "2": sql(2),
+            "1": dsql(1),
+            hello: dsql("hello"),
+            "2": dsql(2),
         }).stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1123,9 +1123,9 @@ describe("sqlite select1", () => {
     });
     it("select1-12.3", async () => {
         const q = fromNothing({
-            a: sql(1),
-            b: sql("hello"),
-            c: sql(2),
+            a: dsql(1),
+            b: dsql("hello"),
+            c: dsql(2),
         }).stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1147,22 +1147,22 @@ describe("sqlite select1", () => {
             .select((f) => ({ f1: f.f1 }))
             .where(
                 (f) =>
-                    sql`${f.f1} = ${f.f2} OR ${f.f1} = ${test2.select(
+                    dsql`${f.f1} = ${f.f2} OR ${f.f1} = ${test2.select(
                         (_test2Fields) => ({
                             it: f.f1,
                         })
                     )}`
             )
-            .select(() => ({ it: sql(3) }))
-            .where((f) => sql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
+            .select(() => ({ it: dsql(3) }))
+            .where((f) => dsql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
 
         const subquery2 = test2
-            .select(() => ({ "2": sql(2) }))
-            .where(() => sql`${subquery}`);
+            .select(() => ({ "2": dsql(2) }))
+            .where(() => dsql`${subquery}`);
 
         const q = test1
-            .select(() => ({ "1": sql(1) }))
-            .where(() => sql`${subquery2}`)
+            .select(() => ({ "1": dsql(1) }))
+            .where(() => dsql`${subquery2}`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1180,18 +1180,18 @@ describe("sqlite select1", () => {
     it("select1-18.4", async () => {
         const subquery = test1
             .select((f) => ({ f1: f.f1 }))
-            .where((f) => sql`${f.f1} = ${f.f2}`)
-            .select(() => ({ it: sql(3) }))
-            .where((f) => sql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
+            .where((f) => dsql`${f.f1} = ${f.f2}`)
+            .select(() => ({ it: dsql(3) }))
+            .where((f) => dsql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
 
         const subquery2 = test2
-            .select(() => ({ "2": sql(2) }))
-            .where(() => sql`${subquery}`);
+            .select(() => ({ "2": dsql(2) }))
+            .where(() => dsql`${subquery}`);
 
         const q = test1
             .commaJoinTable(test2)
-            .select(() => ({ "1": sql(1) }))
-            .where(() => sql`${subquery2}`)
+            .select(() => ({ "1": dsql(1) }))
+            .where(() => dsql`${subquery2}`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1397,7 +1397,7 @@ describe("sqlite select1", () => {
     it("select1-17.2", async () => {
         const subquery = test2
             .selectStar()
-            .where((f) => sql`${f.r2} = 2`)
+            .where((f) => dsql`${f.r2} = 2`)
             .orderBy((f) => f.r1)
             .orderBy((f) => f.r2)
             .limit(4);
@@ -1458,7 +1458,7 @@ describe("sqlite select1", () => {
     });
     it("select1-12.5", async () => {
         const q1 = test1.selectStar();
-        const q2 = fromNothing({ a: sql(3), "4": sql(4) });
+        const q2 = fromNothing({ a: dsql(3), "4": dsql(4) });
 
         const q = union([q1, q2])
             .orderBy((f) => f.a)
@@ -1482,7 +1482,7 @@ describe("sqlite select1", () => {
     });
     it("select1-12.6", async () => {
         const q1 = test1.selectStar();
-        const q2 = fromNothing({ a: sql(3), "4": sql(4) });
+        const q2 = fromNothing({ a: dsql(3), "4": dsql(4) });
 
         const q = union([q2, q1]).stringify();
 
@@ -1505,17 +1505,17 @@ describe("sqlite select1", () => {
     it("select1-6.21", async () => {
         const q1 = test1
             .select((f) => ({ f1: f.f1 }))
-            .where((f) => sql`${f.f1} < ${f.f2}`);
+            .where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = fromNothing({ x: sql(3) });
+        const q2 = fromNothing({ x: dsql(3) });
 
         const u = union([q2, q1])
-            .orderBy((_f) => sql`1 DESC`)
+            .orderBy((_f) => dsql`1 DESC`)
             .limit(1);
 
         const q = test1
             .select((f) => ({ it: f.f1 }))
-            .where((f) => sql`${f.f1} IN ${u}`)
+            .where((f) => dsql`${f.f1} IN ${u}`)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -1531,9 +1531,9 @@ describe("sqlite select1", () => {
     });
 
     it("select1-17.3", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
@@ -1556,9 +1556,9 @@ describe("sqlite select1", () => {
     });
 
     it("select1-17.3, except", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = except([q1, q2])
             .orderBy((f) => f.f1)
@@ -1581,9 +1581,9 @@ describe("sqlite select1", () => {
     });
 
     it("select1-17.3, intersect", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = intersect([q1, q2])
             .orderBy((f) => f.f1)
@@ -1599,9 +1599,9 @@ describe("sqlite select1", () => {
     });
 
     it("select1-17.3 -- select comma join compound", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
@@ -1628,14 +1628,14 @@ describe("sqlite select1", () => {
     });
 
     it("select1-17.3 -- limit safe string", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
             .orderBy((f) => f.f2)
-            .limit(sql`1 OFFSET 10`);
+            .limit(dsql`1 OFFSET 10`);
 
         const q = test1.commaJoinCompound("u", u).selectStar().stringify();
 
@@ -1645,9 +1645,9 @@ describe("sqlite select1", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("select1-17.3 -- compound select star", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const q = unionAll([q1, q2])
             .orderBy((f) => f.f1)
@@ -1670,9 +1670,9 @@ describe("sqlite select1", () => {
     });
 
     it("select1-12.9", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
@@ -1696,9 +1696,9 @@ describe("sqlite select1", () => {
         `);
     });
     it("select1-12.9 -- correct types", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
@@ -1720,9 +1720,9 @@ describe("sqlite select1", () => {
     });
 
     it("select1-12.10", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
@@ -1747,9 +1747,9 @@ describe("sqlite select1", () => {
     });
 
     it("select1-12.10 -- append select", async () => {
-        const q1 = test1.selectStar().where((f) => sql`${f.f1} < ${f.f2}`);
+        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
-        const q2 = test1.selectStar().where((f) => sql`${f.f1} > ${f.f2}`);
+        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
 
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
@@ -1778,7 +1778,7 @@ describe("sqlite select1", () => {
     it("select1-12.10 -- main alias 1 query", async () => {
         const q = test1
             .selectStar()
-            .where((f) => sql`${f.f1} < ${f.f2}`)
+            .where((f) => dsql`${f.f1} < ${f.f2}`)
             .select((f) => ({ f1: f["f1"] }))
             .stringify();
 
@@ -1796,7 +1796,7 @@ describe("sqlite select1", () => {
     it("select1-12.10 -- main alias", async () => {
         const q = test1
             .select((f) => ({ f1: f["test1.f1"], f2: f["test1.f2"] }))
-            .where((f) => sql`${f.f1} < ${f.f2}`)
+            .where((f) => dsql`${f.f1} < ${f.f2}`)
             .select((f) => ({ f1: f["f1"] }))
             .stringify();
 
@@ -1815,7 +1815,7 @@ describe("sqlite select1", () => {
         const q = test1
             .selectStar()
             .appendSelect((f) => ({ f1: f["test1.f1"] }))
-            .where((f) => sql`${f.f1} < ${f.f2}`)
+            .where((f) => dsql`${f.f1} < ${f.f2}`)
             .select((f) => ({ f1: f["f1"] }))
             .stringify();
 
@@ -1835,7 +1835,7 @@ describe("sqlite select1", () => {
         const q = test1
             .selectStar()
             .appendSelect((f) => ({ f1: f["test1.f1"] }))
-            .where((f) => sql`${f.f1} < ${f.f2}`)
+            .where((f) => dsql`${f.f1} < ${f.f2}`)
             .select((f) => ({ f1: f["f1"] }))
             .appendSelect((f) => ({ f2: f["f2"] }))
             .stringify();

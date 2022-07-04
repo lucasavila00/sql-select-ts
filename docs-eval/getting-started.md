@@ -17,7 +17,7 @@ layout: default
 # Getting started
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table, sql, SafeString } from "../src";
+import { table, dsql as sql, SafeString } from "../src";
 ```
 
 Construct a table instance

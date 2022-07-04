@@ -17,7 +17,7 @@ layout: default
 # With - Common Table Expressions
 
 ```ts
-import { table, sql, with_ } from "sql-select-ts";
+import { table, dsql as sql, with_ } from "sql-select-ts";
 ```
 
 ```ts

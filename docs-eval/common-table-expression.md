@@ -17,7 +17,7 @@ layout: default
 # With - Common Table Expressions
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table, sql, with_ } from "../src";
+import { table, dsql as sql, with_ } from "../src";
 ```
 
 ```ts eval

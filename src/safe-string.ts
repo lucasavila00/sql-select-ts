@@ -33,7 +33,7 @@ export type SafeString = {
  *
  * @example
  *
- * import { castSafe, sql } from "sql-select-ts";
+ * import { castSafe, dsql as sql } from "sql-select-ts";
  *
  * assert.strictEqual(castSafe(";'abc'").content, ";'abc'");
  * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
@@ -51,7 +51,7 @@ export const castSafe = (content: string): SafeString => ({
  *
  * @example
  *
- * import { isSafeString, sql } from "sql-select-ts";
+ * import { isSafeString, dsql as sql } from "sql-select-ts";
  *
  * assert.strictEqual(isSafeString(sql(123)), true);
  *
@@ -252,7 +252,7 @@ export const buildSql =
  * Safe-string builder. Works as a function or string template literal.
  *
  * @example
- * import { fromNothing, sql } from "sql-select-ts";
+ * import { fromNothing, dsql as sql } from "sql-select-ts";
  * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
  * assert.strictEqual(sql(123).content, "123");
  * assert.strictEqual(sql(null).content, "NULL");
@@ -264,6 +264,6 @@ export const buildSql =
  * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
  *
  * @category string-builder
- * @since 0.0.0
+ * @since 1.0.0
  */
-export const sql = buildSql([]);
+export const dsql = buildSql([]);
