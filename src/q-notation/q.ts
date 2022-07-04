@@ -250,7 +250,7 @@ export function q<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T>(
     a: A
 ): T;
 export function q(
-    a: unknown,
+    a: Function,
     ab?: Function,
     bc?: Function,
     cd?: Function,
@@ -264,21 +264,21 @@ export function q(
         case 1:
             return a;
         case 2:
-            return ab!(a);
+            return a(ab);
         case 3:
-            return bc!(ab!(a));
+            return a(ab!(bc));
         case 4:
-            return cd!(bc!(ab!(a)));
+            return a(ab!(bc!(cd)));
         case 5:
-            return de!(cd!(bc!(ab!(a))));
+            return a(ab!(bc!(cd!(de))));
         case 6:
-            return ef!(de!(cd!(bc!(ab!(a)))));
+            return a(ab!(bc!(cd!(de!(ef)))));
         case 7:
-            return fg!(ef!(de!(cd!(bc!(ab!(a))))));
+            return a(ab!(bc!(cd!(de!(ef!(fg))))));
         case 8:
-            return gh!(fg!(ef!(de!(cd!(bc!(ab!(a)))))));
+            return a(ab!(bc!(cd!(de!(ef!(fg!(gh)))))));
         case 9:
-            return hi!(gh!(fg!(ef!(de!(cd!(bc!(ab!(a))))))));
+            return a(ab!(bc!(cd!(de!(ef!(fg!(gh!(hi))))))));
         default:
             let ret = arguments[0];
             for (let i = 1; i < arguments.length; i++) {
