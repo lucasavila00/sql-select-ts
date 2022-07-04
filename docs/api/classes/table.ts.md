@@ -40,7 +40,7 @@ export declare class Table<Selection, Alias> {
   private constructor(
     /* @internal */
     public __props: {
-      columns: readonly string[];
+      columns: ReadonlyArray<string>;
       alias: string;
       name: string;
       final: boolean;

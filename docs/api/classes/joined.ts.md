@@ -73,7 +73,9 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-selectStarOfAliases: <TheAliases extends Aliases>(aliases: TheAliases[]) =>
+selectStarOfAliases: <TheAliases extends Aliases>(
+  aliases: readonly TheAliases[]
+) =>
   SelectStatement<
     Selection | Scope,
     | RemoveAliasFromSelection<TheAliases, Selection>
@@ -325,8 +327,11 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-on: (on: (fields: Record<Scope, SafeString>) => SafeString | SafeString[]) =>
-  Joined<Selection, Scope, Aliases, Ambiguous>;
+on: (
+  on: (
+    fields: Record<Scope, SafeString>
+  ) => SafeString | ReadonlyArray<SafeString>
+) => Joined<Selection, Scope, Aliases, Ambiguous>;
 ```
 
 Added in v0.0.0
@@ -336,7 +341,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-using: (keys: UsingPossibleKeys[]) =>
+using: (keys: ReadonlyArray<UsingPossibleKeys>) =>
   Joined<Selection, Scope, Aliases, Ambiguous>;
 ```
 

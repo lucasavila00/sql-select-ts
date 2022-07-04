@@ -15,11 +15,11 @@ import { wrapAlias, wrapAliasSplitDots } from "./wrap-alias";
 /* istanbul ignore next */
 const isSafeString = (it: any): it is SafeString => it?._tag === "SafeString";
 
-const printOrderBy = (orderBy: SafeString[]): string =>
+const printOrderBy = (orderBy: ReadonlyArray<SafeString>): string =>
     orderBy.length > 0
         ? `ORDER BY ${orderBy.map((it) => it.content).join(", ")}`
         : "";
-const printGroupBy = (orderBy: SafeString[]): string =>
+const printGroupBy = (orderBy: ReadonlyArray<SafeString>): string =>
     orderBy.length > 0
         ? `GROUP BY ${orderBy.map((it) => it.content).join(", ")}`
         : "";
@@ -156,7 +156,7 @@ const printJoinedInternal = <
     };
 };
 
-const printClickhouseWith = (withes: ClickhouseWith[]): string =>
+const printClickhouseWith = (withes: ReadonlyArray<ClickhouseWith>): string =>
     withes
         .map((mapOfWith) =>
             Object.entries(mapOfWith).map(

@@ -18,19 +18,19 @@ import { SelectStatement } from "./select-statement";
 import { StringifiedSelectStatement } from "./stringified-select-statement";
 import { Table } from "./table";
 
-type CommaJoin = {
-    code: TableOrSubquery<any, any, any, any>;
-    alias: string;
-}[];
+type CommaJoin = ReadonlyArray<{
+    readonly code: TableOrSubquery<any, any, any, any>;
+    readonly alias: string;
+}>;
 
 type ProperJoinItem = {
-    code: TableOrSubquery<any, any, any, any>;
-    alias: string;
-    operator: string;
-    constraint: JoinConstraint;
+    readonly code: TableOrSubquery<any, any, any, any>;
+    readonly alias: string;
+    readonly operator: string;
+    readonly constraint: JoinConstraint;
 };
 
-type ProperJoin = ProperJoinItem[];
+type ProperJoin = ReadonlyArray<ProperJoinItem>;
 
 type RemoveAliasFromSelection<
     Alias extends string,
@@ -85,7 +85,9 @@ export class JoinedFactory<
      * @since 0.0.0
      */
     public on = (
-        on: (fields: Record<Scope, SafeString>) => SafeString | SafeString[]
+        on: (
+            fields: Record<Scope, SafeString>
+        ) => SafeString | ReadonlyArray<SafeString>
     ): Joined<Selection, Scope, Aliases, Ambiguous> =>
         Joined.__fromAll(this.__props.commaJoins, [
             ...this.__props.properJoins,
@@ -99,7 +101,7 @@ export class JoinedFactory<
      * @since 0.0.0
      */
     public using = (
-        keys: UsingPossibleKeys[]
+        keys: ReadonlyArray<UsingPossibleKeys>
     ): Joined<Selection, Scope, Aliases, Ambiguous> =>
         Joined.__fromAll(this.__props.commaJoins, [
             ...this.__props.properJoins,
@@ -164,7 +166,7 @@ export class Joined<
      * @since 0.0.0
      */
     public selectStarOfAliases = <TheAliases extends Aliases>(
-        aliases: TheAliases[]
+        aliases: ReadonlyArray<TheAliases>
     ): SelectStatement<
         Selection | Scope,
         RemoveAliasFromSelection<TheAliases, Selection | Scope>

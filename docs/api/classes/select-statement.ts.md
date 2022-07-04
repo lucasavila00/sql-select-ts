@@ -39,14 +39,14 @@ export declare class SelectStatement<Scope, Selection> {
       from: TableOrSubquery<any, any, any, any> | null;
       selection: SelectionWrapperTypes<Selection>;
       replace: ReplaceT<Selection>;
-      orderBy: SafeString[];
-      groupBy: SafeString[];
+      orderBy: ReadonlyArray<SafeString>;
+      groupBy: ReadonlyArray<SafeString>;
       limit: SafeString | number | null;
-      where: SafeString[];
-      prewhere: SafeString[];
-      having: SafeString[];
+      where: ReadonlyArray<SafeString>;
+      prewhere: ReadonlyArray<SafeString>;
+      having: ReadonlyArray<SafeString>;
       distinct: boolean;
-      clickhouseWith: ClickhouseWith[];
+      clickhouseWith: ReadonlyArray<ClickhouseWith>;
     }
   );
 }
@@ -65,7 +65,7 @@ clickhouse: {
   with_: <NewSelection extends string>(
     it: Record<NewSelection, SelectStatement<any, any> | StringifiedSelectStatement<any>>
   ) => SelectStatement<Scope | NewSelection, Selection>
-  prewhere: (f: (fields: Record<Scope | Selection, SafeString>) => SafeString[] | SafeString) =>
+  prewhere: (f: (fields: Record<Scope | Selection, SafeString>) => ReadonlyArray<SafeString> | SafeString) =>
     SelectStatement<Scope, Selection>
   replace: <NewSelection extends string>(
     f: (f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError) => ReplaceT<Selection>
@@ -131,7 +131,7 @@ Added in v0.0.0
 where: (
   f: (
     fields: Record<Scope | Selection, SafeString>
-  ) => SafeString[] | SafeString
+  ) => ReadonlyArray<SafeString> | SafeString
 ) => SelectStatement<Scope, Selection>;
 ```
 
@@ -145,7 +145,7 @@ Added in v0.0.0
 having: (
   f: (
     fields: Record<Scope | Selection, SafeString>
-  ) => SafeString[] | SafeString
+  ) => ReadonlyArray<SafeString> | SafeString
 ) => SelectStatement<Scope, Selection>;
 ```
 
@@ -169,7 +169,7 @@ Added in v0.0.0
 orderBy: (
   f: (
     fields: Record<Scope | Selection, SafeString>
-  ) => SafeString[] | SafeString
+  ) => ReadonlyArray<SafeString> | SafeString
 ) => SelectStatement<Scope, Selection>;
 ```
 
@@ -183,7 +183,7 @@ Added in v0.0.0
 groupBy: (
   f: (
     fields: Record<Scope | Selection, SafeString>
-  ) => SafeString[] | SafeString
+  ) => ReadonlyArray<SafeString> | SafeString
 ) => SelectStatement<Scope, Selection>;
 ```
 

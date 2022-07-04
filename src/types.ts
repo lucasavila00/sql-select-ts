@@ -35,7 +35,7 @@ export interface CompileError<_ErrorMessageT extends any[]> {
     readonly __compileError: never;
 }
 
-export interface NonEmptyArray<A> extends Array<A> {
+export interface NonEmptyArray<A> extends ReadonlyArray<A> {
     0: A;
 }
 export type ClickhouseWith = Record<
@@ -47,7 +47,7 @@ export type JoinConstraint =
           _tag: "no_constraint";
       }
     | { _tag: "on"; on: NonEmptyArray<SafeString> }
-    | { _tag: "using"; keys: string[] };
+    | { _tag: "using"; keys: ReadonlyArray<string> };
 
 export type SelectionOfSelectStatement<T> = T extends SelectStatement<
     infer _Scope,
