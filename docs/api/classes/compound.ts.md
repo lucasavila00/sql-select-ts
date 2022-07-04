@@ -36,10 +36,10 @@ export declare class Compound<Scope, Selection> {
   private constructor(
     /* @internal */
     public __props: {
-      content: ReadonlyArray<TableOrSubquery<any, any, any, any>>;
-      qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
-      orderBy: ReadonlyArray<SafeString>;
-      limit: SafeString | number | null;
+      readonly content: ReadonlyArray<TableOrSubquery<any, any, any, any>>;
+      readonly qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
+      readonly orderBy: ReadonlyArray<SafeString>;
+      readonly limit: SafeString | number | null;
     }
   );
 }

@@ -24,7 +24,7 @@ export class StringifiedSelectStatement<Selection extends string> {
     private constructor(
         /* @internal */
         public __props: {
-            content: SafeString;
+            readonly content: SafeString;
         }
     ) {}
 
