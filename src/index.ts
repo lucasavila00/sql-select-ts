@@ -9,6 +9,8 @@ import { CommonTableExpression } from "./classes/cte";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
+import { SafeString } from "./safe-string";
+import { NoSelectFieldsCompileError, TableOrSubquery } from "./types";
 
 /**
  *
@@ -269,3 +271,23 @@ export type {
      */
     RowOf,
 } from "./ts-helpers";
+
+/**
+ *
+ * Creates a query using the same order as the SQL output query.
+ *
+ * @category starter
+ * @since 1.0.0
+ */
+export const select = <
+    NewSelection extends string,
+    FromAlias extends string,
+    FromSelection extends string,
+    FromScope extends string,
+    FromAmbigous extends string
+>(
+    f: (
+        f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
+    ) => Record<NewSelection, SafeString>,
+    from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
+): SelectStatement<FromSelection, NewSelection> => from.select(f as any) as any;
