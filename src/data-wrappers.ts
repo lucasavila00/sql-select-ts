@@ -13,12 +13,14 @@ export const StarSymbol = (): StarSymbol => ({
 const StarOfAliasSymbolURI = "StarOfAliasSymbol" as const;
 export type StarOfAliasSymbol = {
     _tag: typeof StarOfAliasSymbolURI;
-    aliases: string[];
+    aliases: ReadonlyArray<string>;
 };
 export const isStarOfAliasSymbol = (it: any): it is StarOfAliasSymbol =>
     it?._tag === StarOfAliasSymbolURI;
 
-export const StarOfAliasesSymbol = (aliases: string[]): StarOfAliasSymbol => ({
+export const StarOfAliasesSymbol = (
+    aliases: ReadonlyArray<string>
+): StarOfAliasSymbol => ({
     _tag: StarOfAliasSymbolURI,
     aliases,
 });

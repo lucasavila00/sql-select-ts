@@ -18,7 +18,7 @@ export class CommonTableExpression<
     private constructor(
         /* @internal */
         public __props: {
-            columns: string[];
+            columns: ReadonlyArray<string>;
             alias: string;
             select: SelectStatement<any, any>;
         }
@@ -28,7 +28,7 @@ export class CommonTableExpression<
     public static define = <Selection extends string, Alias extends string>(
         select: SelectStatement<any, any>,
         alias: Alias,
-        columns: Selection[] = []
+        columns: ReadonlyArray<Selection> = []
     ): CommonTableExpression<`${Alias}.${Selection}`, Selection> =>
         new CommonTableExpression({ columns, alias, select });
 

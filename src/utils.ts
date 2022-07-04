@@ -1,21 +1,25 @@
 import { NonEmptyArray } from "./types";
 
-export const makeArray = <T>(it: T | T[]): T[] => {
+export const makeArray = <T>(it: T | ReadonlyArray<T>): ReadonlyArray<T> => {
     if (Array.isArray(it)) {
         return it;
     }
+    // @ts-expect-error - readonly array is array
     return [it];
 };
 
-export const makeNonEmptyArray = <T>(it: T | T[]): NonEmptyArray<T> => {
+export const makeNonEmptyArray = <T>(
+    it: T | ReadonlyArray<T>
+): NonEmptyArray<T> => {
     if (Array.isArray(it)) {
         if (it.length === 0) {
             throw new Error(
                 "Cannot create a non-empty array from an empty array"
             );
         }
-        return it as NonEmptyArray<T>;
+        return it as any as NonEmptyArray<T>;
     }
+    // @ts-expect-error - readonly array is array
     return [it];
 };
 

@@ -31,7 +31,7 @@ Creates a compound query using 'EXCEPT'
 ```ts
 export declare const except: <
   C extends SelectStatement<any, any>,
-  CS extends SelectStatement<any, any>[]
+  CS extends readonly SelectStatement<any, any>[]
 >(
   content: CS & { 0: C }
 ) => Compound<
@@ -62,7 +62,7 @@ Creates a compound query using 'INTERSECT'
 ```ts
 export declare const intersect: <
   C extends SelectStatement<any, any>,
-  CS extends SelectStatement<any, any>[]
+  CS extends readonly SelectStatement<any, any>[]
 >(
   content: CS & { 0: C }
 ) => Compound<
@@ -96,7 +96,7 @@ Creates a compound query using 'UNION'
 ```ts
 export declare const union: <
   C extends SelectStatement<any, any>,
-  CS extends SelectStatement<any, any>[]
+  CS extends readonly SelectStatement<any, any>[]
 >(
   content: CS & { 0: C }
 ) => Compound<
@@ -127,7 +127,7 @@ Creates a compound query using 'UNION ALL'
 ```ts
 export declare const unionAll: <
   C extends SelectStatement<any, any>,
-  CS extends SelectStatement<any, any>[]
+  CS extends readonly SelectStatement<any, any>[]
 >(
   content: CS & { 0: C }
 ) => Compound<
@@ -285,7 +285,7 @@ Create a common table expression.
 export declare const with_: <Selection extends string, Alias extends string>(
   select: SelectStatement<any, any>,
   alias: Alias,
-  columns?: Selection[]
+  columns?: readonly Selection[]
 ) => CommonTableExpression<`${Alias}.${Selection}`, Selection>;
 ```
 

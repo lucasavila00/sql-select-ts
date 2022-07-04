@@ -30,7 +30,7 @@ export declare class CommonTableExpression<Scope, Selection> {
   private constructor(
     /* @internal */
     public __props: {
-      columns: string[];
+      columns: ReadonlyArray<string>;
       alias: string;
       select: SelectStatement<any, any>;
     }

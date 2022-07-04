@@ -19,16 +19,13 @@ import { Joined, JoinedFactory } from "./joined";
 import { StringifiedSelectStatement } from "./stringified-select-statement";
 import { Table } from "./table";
 
-type SelectionWrapperTypes<Selection extends string> = (
-    | AliasedRows<Selection>
-    | StarSymbol
-    | StarOfAliasSymbol
-)[];
+type SelectionWrapperTypes<Selection extends string> = ReadonlyArray<
+    AliasedRows<Selection> | StarSymbol | StarOfAliasSymbol
+>;
 
-type ReplaceT<Selection extends string> = readonly (readonly [
-    Selection,
-    SafeString | number
-])[];
+type ReplaceT<Selection extends string> = ReadonlyArray<
+    readonly [Selection, SafeString | number]
+>;
 
 /**
  *
@@ -46,14 +43,14 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             from: TableOrSubquery<any, any, any, any> | null;
             selection: SelectionWrapperTypes<Selection>;
             replace: ReplaceT<Selection>;
-            orderBy: SafeString[];
-            groupBy: SafeString[];
+            orderBy: ReadonlyArray<SafeString>;
+            groupBy: ReadonlyArray<SafeString>;
             limit: SafeString | number | null;
-            where: SafeString[];
-            prewhere: SafeString[];
-            having: SafeString[];
+            where: ReadonlyArray<SafeString>;
+            prewhere: ReadonlyArray<SafeString>;
+            having: ReadonlyArray<SafeString>;
             distinct: boolean;
-            clickhouseWith: ClickhouseWith[];
+            clickhouseWith: ReadonlyArray<ClickhouseWith>;
         }
     ) {}
 
@@ -122,7 +119,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         return this;
     };
 
-    private setWhere = (where: SafeString[]): this => {
+    private setWhere = (where: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,
             where,
@@ -130,14 +127,14 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         return this;
     };
 
-    private setOrderBy = (orderBy: SafeString[]): this => {
+    private setOrderBy = (orderBy: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,
             orderBy,
         };
         return this;
     };
-    private setGroupBy = (groupBy: SafeString[]): this => {
+    private setGroupBy = (groupBy: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,
             groupBy,
@@ -158,21 +155,23 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         };
         return this;
     };
-    private setClickhouseWith = (clickhouseWith: ClickhouseWith[]): this => {
+    private setClickhouseWith = (
+        clickhouseWith: ReadonlyArray<ClickhouseWith>
+    ): this => {
         this.__props = {
             ...this.__props,
             clickhouseWith,
         };
         return this;
     };
-    private setPrewhere = (prewhere: SafeString[]): this => {
+    private setPrewhere = (prewhere: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,
             prewhere,
         };
         return this;
     };
-    private setHaving = (having: SafeString[]): this => {
+    private setHaving = (having: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,
             having,
@@ -206,7 +205,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         prewhere: (
             f: (
                 fields: Record<Scope | Selection, SafeString>
-            ) => SafeString[] | SafeString
+            ) => ReadonlyArray<SafeString> | SafeString
         ): SelectStatement<Scope, Selection> =>
             this.copy().setPrewhere([
                 ...this.__props.prewhere,
@@ -271,7 +270,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     public where = (
         f: (
             fields: Record<Scope | Selection, SafeString>
-        ) => SafeString[] | SafeString
+        ) => ReadonlyArray<SafeString> | SafeString
     ): SelectStatement<Scope, Selection> =>
         this.copy().setWhere([...this.__props.where, ...makeArray(f(proxy))]);
 
@@ -281,7 +280,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     public having = (
         f: (
             fields: Record<Scope | Selection, SafeString>
-        ) => SafeString[] | SafeString
+        ) => ReadonlyArray<SafeString> | SafeString
     ): SelectStatement<Scope, Selection> =>
         this.copy().setHaving([...this.__props.having, ...makeArray(f(proxy))]);
 
@@ -297,7 +296,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     public orderBy = (
         f: (
             fields: Record<Scope | Selection, SafeString>
-        ) => SafeString[] | SafeString
+        ) => ReadonlyArray<SafeString> | SafeString
     ): SelectStatement<Scope, Selection> =>
         this.copy().setOrderBy([
             ...this.__props.orderBy,
@@ -310,7 +309,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     public groupBy = (
         f: (
             fields: Record<Scope | Selection, SafeString>
-        ) => SafeString[] | SafeString
+        ) => ReadonlyArray<SafeString> | SafeString
     ): SelectStatement<Scope, Selection> =>
         this.copy().setGroupBy([
             ...this.__props.groupBy,

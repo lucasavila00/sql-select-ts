@@ -31,9 +31,9 @@ export class Compound<Scope extends string, Selection extends string> {
     private constructor(
         /* @internal */
         public __props: {
-            content: TableOrSubquery<any, any, any, any>[];
+            content: ReadonlyArray<TableOrSubquery<any, any, any, any>>;
             qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
-            orderBy: SafeString[];
+            orderBy: ReadonlyArray<SafeString>;
             limit: SafeString | number | null;
         }
     ) {}
@@ -43,7 +43,7 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public static union = <
         C extends SelectStatement<any, any>,
-        CS extends SelectStatement<any, any>[]
+        CS extends ReadonlyArray<SelectStatement<any, any>>
     >(
         content: CS & {
             0: C;
@@ -59,7 +59,7 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public static unionAll = <
         C extends SelectStatement<any, any>,
-        CS extends SelectStatement<any, any>[]
+        CS extends ReadonlyArray<SelectStatement<any, any>>
     >(
         content: CS & {
             0: C;
@@ -80,7 +80,7 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public static intersect = <
         C extends SelectStatement<any, any>,
-        CS extends SelectStatement<any, any>[]
+        CS extends ReadonlyArray<SelectStatement<any, any>>
     >(
         content: CS & {
             0: C;
@@ -101,7 +101,7 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public static except = <
         C extends SelectStatement<any, any>,
-        CS extends SelectStatement<any, any>[]
+        CS extends ReadonlyArray<SelectStatement<any, any>>
     >(
         content: CS & {
             0: C;
