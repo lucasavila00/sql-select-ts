@@ -1,6 +1,6 @@
 ---
 title: classes/compound.ts
-nav_order: 1
+nav_order: 2
 parent: Classes
 layout: default
 grand_parent: Api
