@@ -80,7 +80,7 @@ yield selectStar(
 ).stringify();
 ```
 
-Starting with the query root
+Starting at query root
 
 ```ts eval --yield=sql
 yield initialData

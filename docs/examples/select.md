@@ -119,7 +119,7 @@ FROM
   )
 ```
 
-Starting with the query root
+Starting at query root
 
 ```ts
 initialData
