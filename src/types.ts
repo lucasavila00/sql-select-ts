@@ -19,7 +19,7 @@ export type TableOrSubquery<
 > =
     | SelectStatement<Scope, Selection>
     | StringifiedSelectStatement<Selection>
-    | Table<Alias, Selection>
+    | Table<Selection, Alias>
     | CommonTableExpression<Alias, Selection>
     | Joined<Selection, Scope, Alias, Ambiguous>
     | Compound<Scope, Selection>;
