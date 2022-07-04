@@ -17,7 +17,7 @@ layout: default
 ```ts eval --replacePrintedInput=../src,sql-select-ts
 import {
     fromNothing,
-    sql,
+    dsql as sql,
     unionAll,
     SafeString,
     castSafe,

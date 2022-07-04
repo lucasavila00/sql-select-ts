@@ -1,9 +1,9 @@
-import { sql, table } from "../../src";
+import { dsql, table } from "../../src";
 
 describe("table", () => {
     it("columns readonly", () => {
         const cols = ["a", "b"] as const;
-        const q = table(cols, "t").select((_f) => ({ a: sql(1) }));
+        const q = table(cols, "t").select((_f) => ({ a: dsql(1) }));
 
         q.joinSelect("m", "LEFT", "q2", q).on((f) => [
             //@ts-expect-error

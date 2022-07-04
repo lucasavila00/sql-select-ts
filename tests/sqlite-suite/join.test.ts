@@ -1,10 +1,10 @@
-import { SafeString, sql, table } from "../../src";
+import { SafeString, dsql, table } from "../../src";
 import { configureSqlite } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
 addSimpleStringSerializer();
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/join.test
-const equals = (a: SafeString, b: SafeString) => sql`${a} = ${b}`;
+const equals = (a: SafeString, b: SafeString) => dsql`${a} = ${b}`;
 
 describe("sqlite join", () => {
     const t1 = table(["a", "b", "c"], "t1");
@@ -589,7 +589,7 @@ describe("sqlite join", () => {
             .joinTable("LEFT", t1)
             .on((f) => [equals(f["t1.a"], f["t2.d"])])
             .selectStar()
-            .where((f) => sql`${f["t1.a"]} > 1`)
+            .where((f) => dsql`${f["t1.a"]} > 1`)
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`t2\` LEFT JOIN \`t1\` ON \`t1\`.\`a\` = \`t2\`.\`d\` WHERE \`t1\`.\`a\` > 1`
@@ -610,7 +610,7 @@ describe("sqlite join", () => {
             .joinTable("LEFT", t2)
             .on((f) => [equals(f["t1.a"], f["t2.d"])])
             .selectStar()
-            .where((f) => sql`${f["t1.b"]} IS NULL OR ${f["t1.b"]} > 1`)
+            .where((f) => dsql`${f["t1.b"]} IS NULL OR ${f["t1.b"]} > 1`)
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`t1\` LEFT JOIN \`t2\` ON \`t1\`.\`a\` = \`t2\`.\`d\` WHERE \`t1\`.\`b\` IS NULL OR \`t1\`.\`b\` > 1`

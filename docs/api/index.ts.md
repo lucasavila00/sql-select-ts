@@ -43,7 +43,7 @@ export declare const except: <
 **Example**
 
 ```ts
-import { fromNothing, sql, except } from "sql-select-ts";
+import { fromNothing, dsql as sql, except } from "sql-select-ts";
 const q1 = fromNothing({ a: sql(123) });
 const q2 = fromNothing({ a: sql(456) });
 
@@ -74,7 +74,7 @@ export declare const intersect: <
 **Example**
 
 ```ts
-import { fromNothing, sql, intersect } from "sql-select-ts";
+import { fromNothing, dsql as sql, intersect } from "sql-select-ts";
 const q1 = fromNothing({ a: sql(123) });
 const q2 = fromNothing({ a: sql(456) });
 
@@ -108,7 +108,7 @@ export declare const union: <
 **Example**
 
 ```ts
-import { fromNothing, sql, union } from "sql-select-ts";
+import { fromNothing, dsql as sql, union } from "sql-select-ts";
 const q1 = fromNothing({ a: sql(123) });
 const q2 = fromNothing({ a: sql(456) });
 
@@ -139,7 +139,7 @@ export declare const unionAll: <
 **Example**
 
 ```ts
-import { fromNothing, sql, unionAll } from "sql-select-ts";
+import { fromNothing, dsql as sql, unionAll } from "sql-select-ts";
 const q1 = fromNothing({ a: sql(123) });
 const q2 = fromNothing({ a: sql(456) });
 
@@ -169,7 +169,7 @@ export declare const fromNothing: <NewSelection extends string>(
 **Example**
 
 ```ts
-import { fromNothing, sql } from "sql-select-ts";
+import { fromNothing, dsql as sql } from "sql-select-ts";
 const q1 = fromNothing({ a: sql(123) });
 assert.strictEqual(q1.stringify(), "SELECT 123 AS `a`");
 ```
@@ -345,13 +345,45 @@ export declare const castSafe: (content: string) => SafeString;
 **Example**
 
 ```ts
-import { castSafe, sql } from "sql-select-ts";
+import { castSafe, dsql as sql } from "sql-select-ts";
 
 assert.strictEqual(castSafe(";'abc'").content, ";'abc'");
 assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
 ```
 
 Added in v0.0.0
+
+## dsql
+
+Safe-string builder. Works as a function or string template literal.
+
+Check in depth docs in the safe-string.ts module.
+
+**Signature**
+
+```ts
+export declare const dsql: SqlStringBuilder<never[]>;
+```
+
+**Example**
+
+```ts
+import { fromNothing, dsql as sql } from "sql-select-ts";
+assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
+assert.strictEqual(sql(123).content, "123");
+assert.strictEqual(sql(null).content, "NULL");
+assert.strictEqual(sql`${123} + 456`.content, "123 + 456");
+const name = "A";
+const names = ["A", "B", "C"];
+assert.strictEqual(
+  sql`${name} IN (${names})`.content,
+  "'A' IN ('A', 'B', 'C')"
+);
+const q = fromNothing({ it: sql(123) });
+assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
+```
+
+Added in v1.0.0
 
 ## isSafeString
 
@@ -366,41 +398,9 @@ export declare const isSafeString: (it: any) => it is SafeString;
 **Example**
 
 ```ts
-import { isSafeString, sql } from "sql-select-ts";
+import { isSafeString, dsql as sql } from "sql-select-ts";
 
 assert.strictEqual(isSafeString(sql(123)), true);
-```
-
-Added in v0.0.0
-
-## sql
-
-Safe-string builder. Works as a function or string template literal.
-
-Check in depth docs in the safe-string.ts module.
-
-**Signature**
-
-```ts
-export declare const sql: SqlStringBuilder<never[]>;
-```
-
-**Example**
-
-```ts
-import { fromNothing, sql } from "sql-select-ts";
-assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
-assert.strictEqual(sql(123).content, "123");
-assert.strictEqual(sql(null).content, "NULL");
-assert.strictEqual(sql`${123} + 456`.content, "123 + 456");
-const name = "A";
-const names = ["A", "B", "C"];
-assert.strictEqual(
-  sql`${name} IN (${names})`.content,
-  "'A' IN ('A', 'B', 'C')"
-);
-const q = fromNothing({ it: sql(123) });
-assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
 ```
 
 Added in v0.0.0

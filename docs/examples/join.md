@@ -18,7 +18,7 @@ layout: default
 import {
   table,
   SafeString,
-  sql,
+  dsql as sql,
   unionAll,
   fromStringifiedSelectStatement,
   castSafe,

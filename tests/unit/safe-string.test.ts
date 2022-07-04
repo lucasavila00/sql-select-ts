@@ -1,4 +1,4 @@
-import { castSafe, fromNothing, isSafeString, sql } from "../../src";
+import { castSafe, fromNothing, isSafeString, dsql } from "../../src";
 import { addSimpleStringSerializer } from "../utils";
 addSimpleStringSerializer();
 
@@ -11,8 +11,8 @@ describe("castSafe", () => {
 
 describe("isSafeString", () => {
     it("works", () => {
-        expect(isSafeString(sql(123))).toBe(true);
-        expect(isSafeString(sql("123"))).toBe(true);
+        expect(isSafeString(dsql(123))).toBe(true);
+        expect(isSafeString(dsql("123"))).toBe(true);
         expect(isSafeString(123)).toBe(false);
         expect(isSafeString("123")).toBe(false);
         expect(isSafeString(null)).toBe(false);
@@ -24,9 +24,9 @@ describe("isSafeString", () => {
 describe("safe-string", () => {
     it("works as function", () => {
         const q = fromNothing({
-            string: sql("abc"),
-            number: sql(123),
-            null: sql(null),
+            string: dsql("abc"),
+            number: dsql(123),
+            null: dsql(null),
         }).stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT 'abc' AS \`string\`, 123 AS \`number\`, NULL AS \`null\``
@@ -34,15 +34,15 @@ describe("safe-string", () => {
     });
 
     it("throws if invalid type", () => {
-        expect(() => sql(new Map() as any)).toThrow();
+        expect(() => dsql(new Map() as any)).toThrow();
     });
 
     it("works as template string", () => {
         const q = fromNothing({
-            raw: sql`abc`,
-            string: sql`${"abc"}`,
-            number: sql`${123}`,
-            null: sql`${null}`,
+            raw: dsql`abc`,
+            string: dsql`${"abc"}`,
+            number: dsql`${123}`,
+            null: dsql`${null}`,
         }).stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT abc AS \`raw\`, 'abc' AS \`string\`, 123 AS \`number\`, NULL AS \`null\``
@@ -51,18 +51,18 @@ describe("safe-string", () => {
 
     it("works as template string with arrays", () => {
         const q = fromNothing({
-            it: sql`${["abc"]}`,
+            it: dsql`${["abc"]}`,
         }).stringify();
         expect(q).toMatchInlineSnapshot(`SELECT 'abc' AS \`it\``);
     });
 
     it("handles escaped values", () => {
         const q = fromNothing({
-            a: sql("'"),
-            b: sql("\0"),
-            c: sql("\t"),
-            d: sql('"'),
-            e: sql("\\"),
+            a: dsql("'"),
+            b: dsql("\0"),
+            c: dsql("\t"),
+            d: dsql('"'),
+            e: dsql("\\"),
         }).stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT '\\'' AS \`a\`, '\\0' AS \`b\`, '\\t' AS \`c\`, '\\"' AS \`d\`, '\\\\' AS \`e\``
@@ -70,11 +70,11 @@ describe("safe-string", () => {
     });
     it("handles escaped values, not at start", () => {
         const q = fromNothing({
-            a: sql("'abc'abc"),
-            b: sql("\0abc\0abc"),
-            c: sql("\tabc\tabc"),
-            d: sql('"abc"abc'),
-            e: sql("\\abc\\abc"),
+            a: dsql("'abc'abc"),
+            b: dsql("\0abc\0abc"),
+            c: dsql("\tabc\tabc"),
+            d: dsql('"abc"abc'),
+            e: dsql("\\abc\\abc"),
         }).stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT '\\'abc\\'abc' AS \`a\`, '\\0abc\\0abc' AS \`b\`, '\\tabc\\tabc' AS \`c\`, '\\"abc\\"abc' AS \`d\`, '\\\\abc\\\\abc' AS \`e\``

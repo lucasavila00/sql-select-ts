@@ -1,5 +1,5 @@
 import { fromNothing, fromStringifiedSelectStatement, table } from "../../src";
-import { sql } from "../../src/safe-string";
+import { dsql } from "../../src/safe-string";
 import { configureClickhouse } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
 addSimpleStringSerializer();
@@ -16,9 +16,9 @@ describe("clickhouse with", () => {
     });
 
     it("from nothing", async () => {
-        const q = fromNothing({ it: sql(10) })
+        const q = fromNothing({ it: dsql(10) })
             .clickhouse.with_({
-                wont_use: fromNothing({ it: sql(20) }),
+                wont_use: fromNothing({ it: dsql(20) }),
             })
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -34,9 +34,9 @@ describe("clickhouse with", () => {
     });
 
     it("from stringified select statement", async () => {
-        const q = fromNothing({ it: sql(10) })
+        const q = fromNothing({ it: dsql(10) })
             .clickhouse.with_({
-                wont_use: fromStringifiedSelectStatement(sql`SELECT 20 AS it`),
+                wont_use: fromStringifiedSelectStatement(dsql`SELECT 20 AS it`),
             })
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -52,9 +52,9 @@ describe("clickhouse with", () => {
     });
 
     it("from stringified select statement2", async () => {
-        const q = fromNothing({ it: sql(10) })
+        const q = fromNothing({ it: dsql(10) })
             .clickhouse.with_({
-                wont_use: fromStringifiedSelectStatement(sql`20`),
+                wont_use: fromStringifiedSelectStatement(dsql`20`),
             })
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -72,7 +72,7 @@ describe("clickhouse with", () => {
     it("use it in selection", async () => {
         const q = fromNothing({})
             .clickhouse.with_({
-                abc: fromNothing({ n: sql(20) }),
+                abc: fromNothing({ n: dsql(20) }),
             })
             .appendSelect((f) => ({ it: f.abc }))
             .stringify();
@@ -92,7 +92,7 @@ describe("clickhouse with", () => {
         const q = t0
             .selectStar()
             .clickhouse.with_({
-                abc: fromNothing({ n: sql(20) }),
+                abc: fromNothing({ n: dsql(20) }),
             })
             .stringify();
         expect(q).toMatchInlineSnapshot(

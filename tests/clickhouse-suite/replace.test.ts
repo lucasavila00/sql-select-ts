@@ -1,4 +1,4 @@
-import { sql, table } from "../../src";
+import { dsql, table } from "../../src";
 import { configureClickhouse } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
 addSimpleStringSerializer();
@@ -17,7 +17,7 @@ describe("clickhouse replace", () => {
     it("works", async () => {
         const q = t3
             .selectStar()
-            .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
+            .clickhouse.replace((f) => [["x", dsql`${f.y}+1`]])
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * REPLACE (\`y\`+1 AS \`x\`) FROM \`t3_clickhouse\``
@@ -28,7 +28,7 @@ describe("clickhouse replace", () => {
     it("works with safe strings", async () => {
         const q = t3
             .selectStar()
-            .clickhouse.replace((f) => [["x", sql`${f.y}+1`]])
+            .clickhouse.replace((f) => [["x", dsql`${f.y}+1`]])
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * REPLACE (\`y\`+1 AS \`x\`) FROM \`t3_clickhouse\``
@@ -50,7 +50,7 @@ describe("clickhouse replace", () => {
     it("checks column names", async () => {
         t3.selectStar()
             //@ts-expect-error
-            .clickhouse.replace((f) => [["z", sql`${f.y}+1`]]);
+            .clickhouse.replace((f) => [["z", dsql`${f.y}+1`]]);
         expect(1).toBe(1);
     });
 });

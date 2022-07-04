@@ -61,7 +61,7 @@ export const with_ = CommonTableExpression.define;
  *
  * @example
  *
- * import { fromNothing, sql } from "sql-select-ts";
+ * import { fromNothing, dsql as sql } from "sql-select-ts";
  * const q1 = fromNothing({ a: sql(123) });
  * assert.strictEqual(q1.stringify(), "SELECT 123 AS `a`");
  *
@@ -74,7 +74,7 @@ export const fromNothing = SelectStatement.fromNothing;
  * Creates a compound query using 'UNION'
  *
  * @example
- * import { fromNothing, sql, union } from "sql-select-ts";
+ * import { fromNothing, dsql as sql, union } from "sql-select-ts";
  * const q1 = fromNothing({ a: sql(123) });
  * const q2 = fromNothing({ a: sql(456) });
  *
@@ -90,7 +90,7 @@ export const union = Compound.union;
  * Creates a compound query using 'UNION ALL'
  *
  * @example
- * import { fromNothing, sql, unionAll } from "sql-select-ts";
+ * import { fromNothing, dsql as sql, unionAll } from "sql-select-ts";
  * const q1 = fromNothing({ a: sql(123) });
  * const q2 = fromNothing({ a: sql(456) });
  *
@@ -106,7 +106,7 @@ export const unionAll = Compound.unionAll;
  * Creates a compound query using 'INTERSECT'
  *
  * @example
- * import { fromNothing, sql, intersect } from "sql-select-ts";
+ * import { fromNothing, dsql as sql, intersect } from "sql-select-ts";
  * const q1 = fromNothing({ a: sql(123) });
  * const q2 = fromNothing({ a: sql(456) });
  *
@@ -122,7 +122,7 @@ export const intersect = Compound.intersect;
  * Creates a compound query using 'EXCEPT'
  *
  * @example
- * import { fromNothing, sql, except } from "sql-select-ts";
+ * import { fromNothing, dsql as sql, except } from "sql-select-ts";
  * const q1 = fromNothing({ a: sql(123) });
  * const q2 = fromNothing({ a: sql(456) });
  *
@@ -140,7 +140,7 @@ export {
      *
      * @example
      *
-     * import { isSafeString, sql } from "sql-select-ts";
+     * import { isSafeString, dsql as sql } from "sql-select-ts";
      *
      * assert.strictEqual(isSafeString(sql(123)), true);
      *
@@ -156,7 +156,7 @@ export {
      *
      * @example
      *
-     * import { castSafe, sql } from "sql-select-ts";
+     * import { castSafe, dsql as sql } from "sql-select-ts";
      *
      * assert.strictEqual(castSafe(";'abc'").content, ";'abc'");
      * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
@@ -172,7 +172,7 @@ export {
      * Check in depth docs in the safe-string.ts module.
      *
      * @example
-     * import { fromNothing, sql } from "sql-select-ts";
+     * import { fromNothing, dsql as sql } from "sql-select-ts";
      * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
      * assert.strictEqual(sql(123).content, "123");
      * assert.strictEqual(sql(null).content, "NULL");
@@ -184,9 +184,9 @@ export {
      * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
      *
      * @category string-builder
-     * @since 0.0.0
+     * @since 1.0.0
      */
-    sql,
+    dsql,
     /**
      *
      * @category string-builder

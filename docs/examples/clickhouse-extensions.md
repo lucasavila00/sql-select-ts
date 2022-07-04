@@ -15,7 +15,11 @@ layout: default
 </details>
 
 ```ts
-import { table, sql, fromStringifiedSelectStatement } from "sql-select-ts";
+import {
+  table,
+  dsql as sql,
+  fromStringifiedSelectStatement,
+} from "sql-select-ts";
 ```
 
 # Final Table

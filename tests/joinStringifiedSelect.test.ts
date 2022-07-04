@@ -2,14 +2,14 @@ import {
     castSafe,
     fromStringifiedSelectStatement,
     SafeString,
-    sql,
+    dsql,
     table,
     unionAll,
 } from "../src";
 import { addSimpleStringSerializer } from "./utils";
 addSimpleStringSerializer();
 
-const equals = (a: SafeString, b: SafeString) => sql`${a} = ${b}`;
+const equals = (a: SafeString, b: SafeString) => dsql`${a} = ${b}`;
 
 describe("joinStringifiedSelect", () => {
     const t1 = table(["a", "b", "c"], "t1");

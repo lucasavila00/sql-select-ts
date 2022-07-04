@@ -17,7 +17,7 @@ layout: default
 # Getting started
 
 ```ts
-import { table, sql, SafeString } from "sql-select-ts";
+import { table, dsql as sql, SafeString } from "sql-select-ts";
 ```
 
 Construct a table instance
