@@ -21,6 +21,9 @@ import {
     table,
     unionAll,
     fromStringifiedSelectStatement,
+    selectStar,
+    select,
+    SafeString,
 } from "../src";
 ```
 
@@ -41,7 +44,6 @@ yield q
 
 ```ts eval --yield=sql
 yield fromNothing({
-    it: sql`system.tables`,
     abc: sql`123 + 456`,
 }).stringify();
 ```
@@ -50,7 +52,6 @@ yield fromNothing({
 
 ```ts eval --yield=sql
 yield fromNothing({
-    it: sql`system.tables`,
     abc: sql(123),
 })
     .appendSelect((f) => ({
@@ -60,6 +61,23 @@ yield fromNothing({
 ```
 
 ## Select from Select
+
+Starting at query top
+
+```ts eval --yield=sql
+yield selectStar(
+    select(
+        (f) => ({ it2: f.it }),
+        selectStar(
+            fromNothing({
+                it: sql(0),
+            })
+        )
+    )
+).stringify();
+```
+
+Starting with the query root
 
 ```ts eval --yield=sql
 yield fromNothing({
@@ -84,15 +102,21 @@ Which are defined in typescript as
 
 ```ts eval
 const users = table(
-    /* columns: */ ["id", "age", "name"],
+    /* columns: */ ["id", "age", "name", "country"],
     /* db-name & alias: */ "users"
 );
 
 const admins = table(
-    /* columns: */ ["id", "age", "name"],
+    /* columns: */ ["id", "age", "name", "country"],
     /* alias: */ "adm",
     /* db-name: */ "admins"
 );
+```
+
+And a helper function
+
+```ts eval
+const MAX = (it: SafeString): SafeString => sql`MAX(${it})`;
 ```
 
 ## Select star
@@ -103,8 +127,20 @@ yield users.selectStar().stringify();
 
 ## Select a field
 
+From top
+
 ```ts eval --yield=sql
-yield admins.select((f) => ({ name: f.name })).stringify();
+yield select(
+    //
+    (f) => ({ maxAge: MAX(f.age) }),
+    users
+).stringify();
+```
+
+From root
+
+```ts eval --yield=sql
+yield users.select((f) => ({ maxAge: MAX(f.age) })).stringify();
 ```
 
 ## Select distinct

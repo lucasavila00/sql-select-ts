@@ -273,8 +273,7 @@ export type {
 } from "./ts-helpers";
 
 /**
- *
- * Creates a query using the same order as the SQL output query.
+ * Creates a query selecting from the second parameter.
  *
  * @category starter
  * @since 1.0.0
@@ -291,3 +290,19 @@ export const select = <
     ) => Record<NewSelection, SafeString>,
     from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
 ): SelectStatement<FromSelection, NewSelection> => from.select(f as any) as any;
+
+/**
+ *
+ * Creates a query selecting all from the second parameter.
+ *
+ * @category starter
+ * @since 1.0.0
+ */
+export const selectStar = <
+    FromAlias extends string,
+    FromSelection extends string,
+    FromScope extends string,
+    FromAmbigous extends string
+>(
+    from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
+): SelectStatement<FromSelection, FromSelection> => from.selectStar();

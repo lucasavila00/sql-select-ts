@@ -1,4 +1,4 @@
-import { table, select } from "../src";
+import { table, select, selectStar } from "../src";
 import { format } from "sql-formatter";
 
 const cols = ["a", "b", "c"] as const;
@@ -93,6 +93,37 @@ it("3 layers", () => {
             SELECT
               \`colX\` AS \`col1\`,
               \`colY\` AS \`col2\`
+            FROM
+              (
+                SELECT
+                  \`a\` AS \`colX\`,
+                  \`b\` AS \`colY\`
+                FROM
+                  \`t1\`
+              )
+          )"
+    `);
+});
+it("3 layers star", () => {
+    const str = selectStar(
+        selectStar(
+            select(
+                (f) => ({
+                    colX: f.a,
+                    colY: f.b,
+                }),
+                fromTable1
+            )
+        )
+    ).stringify();
+
+    expect(format(str)).toMatchInlineSnapshot(`
+        "SELECT
+          *
+        FROM
+          (
+            SELECT
+              *
             FROM
               (
                 SELECT

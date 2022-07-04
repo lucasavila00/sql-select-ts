@@ -1,7 +1,7 @@
 /**
  * @since 0.0.0
  */
-import { AliasedRows } from "../data-wrappers";
+import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { NoSelectFieldsCompileError } from "../types";
@@ -11,8 +11,8 @@ import { SelectStatement } from "./select-statement";
  * @since 0.0.0
  */
 export class CommonTableExpression<
-    Selection extends string,
-    Alias extends string
+    Scope extends string,
+    Selection extends string
 > {
     /* @internal */
     private constructor(
@@ -29,17 +29,23 @@ export class CommonTableExpression<
         select: SelectStatement<any, any>,
         alias: Alias,
         columns: Selection[] = []
-    ): CommonTableExpression<Selection, Alias> =>
+    ): CommonTableExpression<`${Alias}.${Selection}`, Selection> =>
         new CommonTableExpression({ columns, alias, select });
+
+    /**
+     * @since 0.0.0
+     */
+    public selectStar = (): SelectStatement<Selection | Scope, Selection> =>
+        SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
 
     /**
      * @since 0.0.0
      */
     public select = <NewSelection extends string>(
         f: (
-            f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
+            f: Record<Selection | Scope, SafeString> &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection> =>
+    ): SelectStatement<Selection | Scope, NewSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
 }
