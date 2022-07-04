@@ -30,10 +30,10 @@ export class Table<Selection extends string, Alias extends string> {
     private constructor(
         /* @internal */
         public __props: {
-            columns: ReadonlyArray<string>;
-            alias: string;
-            name: string;
-            final: boolean;
+            readonly columns: ReadonlyArray<string>;
+            readonly alias: string;
+            readonly name: string;
+            readonly final: boolean;
         }
     ) {}
 

@@ -35,8 +35,8 @@ export declare class Joined<Selection, Scope, Aliases, Ambiguous> {
   private constructor(
     /* @internal */
     public __props: {
-      commaJoins: CommaJoin;
-      properJoins: ProperJoin;
+      readonly commaJoins: CommaJoin;
+      readonly properJoins: ProperJoin;
     }
   );
 }
@@ -302,9 +302,9 @@ export declare class JoinedFactory<
   private constructor(
     /* @internal */
     public __props: {
-      commaJoins: CommaJoin;
-      properJoins: ProperJoin;
-      newProperJoin: Omit<ProperJoinItem, "constraint">;
+      readonly commaJoins: CommaJoin;
+      readonly properJoins: ProperJoin;
+      readonly newProperJoin: Omit<ProperJoinItem, "constraint">;
     }
   );
 }
