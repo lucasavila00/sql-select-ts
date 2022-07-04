@@ -203,6 +203,48 @@ assert.strictEqual(
 
 Added in v0.0.3
 
+## select
+
+Creates a query selecting from the second parameter.
+
+**Signature**
+
+```ts
+export declare const select: <
+  NewSelection extends string,
+  FromAlias extends string,
+  FromSelection extends string,
+  FromScope extends string,
+  FromAmbigous extends string
+>(
+  f: (
+    f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
+  ) => Record<NewSelection, SafeString>,
+  from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
+) => SelectStatement<FromSelection, NewSelection>;
+```
+
+Added in v1.0.0
+
+## selectStar
+
+Creates a query selecting all from the second parameter.
+
+**Signature**
+
+```ts
+export declare const selectStar: <
+  FromAlias extends string,
+  FromSelection extends string,
+  FromScope extends string,
+  FromAmbigous extends string
+>(
+  from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
+) => SelectStatement<FromSelection, FromSelection>;
+```
+
+Added in v1.0.0
+
 ## table
 
 Create a table definition. Optinionally, you can provide an alias for the table, which can differ from it's name.
@@ -244,7 +286,7 @@ export declare const with_: <Selection extends string, Alias extends string>(
   select: SelectStatement<any, any>,
   alias: Alias,
   columns?: Selection[]
-) => CommonTableExpression<Selection, Alias>;
+) => CommonTableExpression<`${Alias}.${Selection}`, Selection>;
 ```
 
 Added in v0.0.0

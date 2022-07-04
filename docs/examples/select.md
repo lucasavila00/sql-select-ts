@@ -21,6 +21,9 @@ import {
   table,
   unionAll,
   fromStringifiedSelectStatement,
+  selectStar,
+  select,
+  SafeString,
 } from "sql-select-ts";
 ```
 
@@ -52,14 +55,12 @@ ORDER BY
 
 ```ts
 fromNothing({
-  it: sql`system.tables`,
   abc: sql`123 + 456`,
 }).stringify();
 ```
 
 ```sql
 SELECT
-  system.tables AS `it`,
   123 + 456 AS `abc`
 ```
 
@@ -67,7 +68,6 @@ SELECT
 
 ```ts
 fromNothing({
-  it: sql`system.tables`,
   abc: sql(123),
 })
   .appendSelect((f) => ({
@@ -78,12 +78,48 @@ fromNothing({
 
 ```sql
 SELECT
-  system.tables AS `it`,
   123 AS `abc`,
   `abc` + 456 AS `def`
 ```
 
 ## Select from Select
+
+Starting at query top
+
+```ts
+selectStar(
+  select(
+    (f) => ({ it2: f.it }),
+    selectStar(
+      fromNothing({
+        it: sql(0),
+      })
+    )
+  )
+).stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  (
+    SELECT
+      `it` AS `it2`
+    FROM
+      (
+        SELECT
+          *
+        FROM
+          (
+            SELECT
+              0 AS `it`
+          )
+      )
+  )
+```
+
+Starting with the query root
 
 ```ts
 fromNothing({
@@ -128,15 +164,21 @@ Which are defined in typescript as
 
 ```ts
 const users = table(
-  /* columns: */ ["id", "age", "name"],
+  /* columns: */ ["id", "age", "name", "country"],
   /* db-name & alias: */ "users"
 );
 
 const admins = table(
-  /* columns: */ ["id", "age", "name"],
+  /* columns: */ ["id", "age", "name", "country"],
   /* alias: */ "adm",
   /* db-name: */ "admins"
 );
+```
+
+And a helper function
+
+```ts
+const MAX = (it: SafeString): SafeString => sql`MAX(${it})`;
 ```
 
 ## Select star
@@ -154,15 +196,34 @@ FROM
 
 ## Select a field
 
+From top
+
 ```ts
-admins.select((f) => ({ name: f.name })).stringify();
+select(
+  //
+  (f) => ({ maxAge: MAX(f.age) }),
+  users
+).stringify();
 ```
 
 ```sql
 SELECT
-  `name` AS `name`
+  MAX(`age`) AS `maxAge`
 FROM
-  `admins` AS `adm`
+  `users`
+```
+
+From root
+
+```ts
+users.select((f) => ({ maxAge: MAX(f.age) })).stringify();
+```
+
+```sql
+SELECT
+  MAX(`age`) AS `maxAge`
+FROM
+  `users`
 ```
 
 ## Select distinct

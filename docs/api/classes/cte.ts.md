@@ -26,7 +26,7 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-export declare class CommonTableExpression<Selection, Alias> {
+export declare class CommonTableExpression<Scope, Selection> {
   private constructor(
     /* @internal */
     public __props: {
@@ -40,6 +40,16 @@ export declare class CommonTableExpression<Selection, Alias> {
 
 Added in v0.0.0
 
+### selectStar (property)
+
+**Signature**
+
+```ts
+selectStar: () => SelectStatement<Selection | Scope, Selection>;
+```
+
+Added in v0.0.0
+
 ### select (property)
 
 **Signature**
@@ -47,10 +57,9 @@ Added in v0.0.0
 ```ts
 select: <NewSelection extends string>(
   f: (
-    f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
-      NoSelectFieldsCompileError
+    f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
   ) => Record<NewSelection, SafeString>
-) => SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection>;
+) => SelectStatement<Scope | Selection, NewSelection>;
 ```
 
 Added in v0.0.0

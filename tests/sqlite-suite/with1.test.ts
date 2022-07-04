@@ -30,6 +30,22 @@ describe("sqlite with", () => {
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
+
+    it("with1-1.0 - 2", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "x",
+            ["a", "b"]
+        )
+            .selectStar()
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT * FROM x`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
     it("with1-1.0 -- no columns", async () => {
         const q = with_(
             //

@@ -21,6 +21,7 @@
         "eval:check": "nodemon --watch ./docs-eval -e md --exec \"ts-node\" --transpileOnly ./scripts/run-docs-eval.ts --checkOnly",
         "eval": "concurrently --raw  \"npm run eval:transpile\" \"npm run eval:check\"",
         "run-docs-eval": "ts-node ./scripts/run-docs-eval.ts",
+        "invert": "ts-node --transpileOnly ./scripts/invert-pipe.ts",
         "fix-docs-ts": "ts-node ./scripts/copy-fix-docs-ts.ts && cp -r docs-api-template/* docs/api/",
         "md": "npm run docs && npm run fix-docs-ts && npm run run-docs-eval",
         "build": "rm -rf dist && tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json && ts-node scripts/build",

@@ -19,7 +19,7 @@ jobs:
               run: |
                   npm ci
                   npm run static
-                  npm run test
+                  npm run test -- --collectCoverage
 
                   echo "Check we are starting with clean git checkout"
                   if [ -n "$(git status -uno -s)" ]; then echo "git status is not clean"; false; fi

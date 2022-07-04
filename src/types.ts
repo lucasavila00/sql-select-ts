@@ -19,8 +19,8 @@ export type TableOrSubquery<
 > =
     | SelectStatement<Scope, Selection>
     | StringifiedSelectStatement<Selection>
-    | Table<Alias, Selection>
-    | CommonTableExpression<Alias, Selection>
+    | Table<Selection, Alias>
+    | CommonTableExpression<Scope, Selection>
     | Joined<Selection, Scope, Alias, Ambiguous>
     | Compound<Scope, Selection>;
 
