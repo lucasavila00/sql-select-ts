@@ -4,7 +4,7 @@
  * @since 0.0.0
  */
 import { Compound } from "./classes/compound";
-import { CommonTableExpression } from "./classes/cte";
+import { CommonTableExpression } from "./classes/common-table-expression";
 import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";

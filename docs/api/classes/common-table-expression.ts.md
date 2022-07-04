@@ -1,12 +1,12 @@
 ---
-title: classes/cte.ts
-nav_order: 2
+title: classes/common-table-expression.ts
+nav_order: 1
 parent: Classes
 layout: default
 grand_parent: Api
 ---
 
-## cte overview
+## common-table-expression overview
 
 Added in v0.0.0
 
