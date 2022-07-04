@@ -34,7 +34,7 @@ export declare class StringifiedSelectStatement<Selection> {
   private constructor(
     /* @internal */
     public __props: {
-      content: SafeString;
+      readonly content: SafeString;
     }
   );
 }

@@ -36,17 +36,17 @@ export declare class SelectStatement<Scope, Selection> {
   private constructor(
     /* @internal */
     public __props: {
-      from: TableOrSubquery<any, any, any, any> | null;
-      selection: SelectionWrapperTypes<Selection>;
-      replace: ReplaceT<Selection>;
-      orderBy: ReadonlyArray<SafeString>;
-      groupBy: ReadonlyArray<SafeString>;
-      limit: SafeString | number | null;
-      where: ReadonlyArray<SafeString>;
-      prewhere: ReadonlyArray<SafeString>;
-      having: ReadonlyArray<SafeString>;
-      distinct: boolean;
-      clickhouseWith: ReadonlyArray<ClickhouseWith>;
+      readonly from: TableOrSubquery<any, any, any, any> | null;
+      readonly selection: SelectionWrapperTypes<Selection>;
+      readonly replace: ReplaceT<Selection>;
+      readonly orderBy: ReadonlyArray<SafeString>;
+      readonly groupBy: ReadonlyArray<SafeString>;
+      readonly limit: SafeString | number | null;
+      readonly where: ReadonlyArray<SafeString>;
+      readonly prewhere: ReadonlyArray<SafeString>;
+      readonly having: ReadonlyArray<SafeString>;
+      readonly distinct: boolean;
+      readonly clickhouseWith: ReadonlyArray<ClickhouseWith>;
     }
   );
 }
