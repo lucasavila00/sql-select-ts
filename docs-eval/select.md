@@ -62,29 +62,30 @@ yield fromNothing({
 
 ## Select from Select
 
+```ts eval
+const initialData = fromNothing({
+    it: sql(0),
+});
+```
+
 Starting at query top
 
 ```ts eval --yield=sql
 yield selectStar(
     select(
         (f) => ({ it2: f.it }),
-        selectStar(
-            fromNothing({
-                it: sql(0),
-            })
-        )
-    )
+        //
+        initialData
+    ).where((f) => sql`${f.it2} = 1`)
 ).stringify();
 ```
 
 Starting with the query root
 
 ```ts eval --yield=sql
-yield fromNothing({
-    it: sql(0),
-})
-    .selectStar()
+yield initialData
     .select((f) => ({ it2: f.it }))
+    .where((f) => sql`${f.it2} = 1`)
     .selectStar()
     .stringify();
 ```

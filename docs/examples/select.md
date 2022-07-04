@@ -84,18 +84,21 @@ SELECT
 
 ## Select from Select
 
+```ts
+const initialData = fromNothing({
+  it: sql(0),
+});
+```
+
 Starting at query top
 
 ```ts
 selectStar(
   select(
     (f) => ({ it2: f.it }),
-    selectStar(
-      fromNothing({
-        it: sql(0),
-      })
-    )
-  )
+    //
+    initialData
+  ).where((f) => sql`${f.it2} = 1`)
 ).stringify();
 ```
 
@@ -109,24 +112,19 @@ FROM
     FROM
       (
         SELECT
-          *
-        FROM
-          (
-            SELECT
-              0 AS `it`
-          )
+          0 AS `it`
       )
+    WHERE
+      `it2` = 1
   )
 ```
 
 Starting with the query root
 
 ```ts
-fromNothing({
-  it: sql(0),
-})
-  .selectStar()
+initialData
   .select((f) => ({ it2: f.it }))
+  .where((f) => sql`${f.it2} = 1`)
   .selectStar()
   .stringify();
 ```
@@ -141,13 +139,10 @@ FROM
     FROM
       (
         SELECT
-          *
-        FROM
-          (
-            SELECT
-              0 AS `it`
-          )
+          0 AS `it`
       )
+    WHERE
+      `it2` = 1
   )
 ```
 
