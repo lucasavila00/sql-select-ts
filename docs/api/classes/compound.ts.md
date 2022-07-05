@@ -53,9 +53,11 @@ Added in v0.0.0
 
 ```ts
 orderBy: (
-  f: (
-    fields: Record<Scope | Selection, SafeString>
-  ) => SafeString[] | SafeString
+  f:
+    | readonly (Scope | Selection)[]
+    | ((
+        fields: Record<Scope | Selection, SafeString>
+      ) => SafeString[] | SafeString)
 ) => Compound<Scope, Selection>;
 ```
 

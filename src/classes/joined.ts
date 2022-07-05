@@ -85,11 +85,9 @@ export class JoinedFactory<
      * @since 0.0.0
      */
     public on = (
-        on:
-            | ReadonlyArray<Scope>
-            | ((
-                  fields: Record<Scope, SafeString>
-              ) => SafeString | ReadonlyArray<SafeString>)
+        on: (
+            fields: Record<Scope, SafeString>
+        ) => SafeString | ReadonlyArray<SafeString>
     ): Joined<Selection, Scope, Aliases, Ambiguous> =>
         Joined.__fromAll(this.__props.commaJoins, [
             ...this.__props.properJoins,

@@ -64,6 +64,16 @@ yield t0
     .stringify();
 ```
 
+```ts eval --yield=sql
+yield t0
+    .selectStar()
+    .groupBy(["x"])
+    .having(["x"])
+    .groupBy(["y"])
+    .having(["y"])
+    .stringify();
+```
+
 ## In one call
 
 ```ts eval --yield=sql
@@ -72,4 +82,8 @@ yield t0
     .groupBy((f) => [f.x, f.y])
     .having((f) => [f.x, f.y])
     .stringify();
+```
+
+```ts eval --yield=sql
+yield t0.selectStar().groupBy(["x", "y"]).having(["x", "y"]).stringify();
 ```

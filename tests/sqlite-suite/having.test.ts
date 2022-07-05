@@ -12,6 +12,19 @@ describe("sqlite having", () => {
         await run(`CREATE TABLE t0(x INTEGER, y INTEGER)`);
     });
 
+    it("1 call -- type checks", async () => {
+        t0.selectStar()
+            //@ts-expect-error
+            .having((f) => f.abc)
+            .stringify();
+
+        t0.selectStar()
+            //@ts-expect-error
+            .having(["abc"])
+            .stringify();
+        expect(1).toBe(1);
+    });
+
     it("1 call -- from select", async () => {
         const q = t0
             .select((f) => ({ it: f.x }))
@@ -56,6 +69,18 @@ describe("sqlite having", () => {
             .selectStar()
             .groupBy((f) => [f.x, f.y])
             .having((f) => [f.x, f.y])
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM \`t0\` GROUP BY \`x\`, \`y\` HAVING \`x\` AND \`y\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("2 items, 1 call -- shortcut", async () => {
+        const q = t0
+            .selectStar()
+            .groupBy((f) => [f.x, f.y])
+            .having(["x", "y"])
             .stringify();
 
         expect(q).toMatchInlineSnapshot(

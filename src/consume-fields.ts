@@ -17,7 +17,8 @@ export const consumeRecordCallback = (
           )
         : typeof f === "function"
         ? (f as any)(proxy)
-        : absurd(f as never);
+        : /* istanbul ignore next */
+          absurd(f as never);
 
 export const consumeArrayCallback = (
     f:
@@ -30,4 +31,5 @@ export const consumeArrayCallback = (
         ? f.map((it) => castSafe(wrapAliasSplitDots(it)))
         : typeof f === "function"
         ? (f as any)(proxy)
-        : absurd(f as never);
+        : /* istanbul ignore next */
+          absurd(f as never);

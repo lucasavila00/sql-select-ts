@@ -66,8 +66,11 @@ clickhouse: {
   with_: <NewSelection extends string>(
     it: Record<NewSelection, SelectStatement<any, any> | StringifiedSelectStatement<any>>
   ) => SelectStatement<Scope | NewSelection, Selection>
-  prewhere: (f: (fields: Record<Scope | Selection, SafeString>) => ReadonlyArray<SafeString> | SafeString) =>
-    SelectStatement<Scope, Selection>
+  prewhere: (
+    f:
+      | readonly (Scope | Selection)[]
+      | ((fields: Record<Scope | Selection, SafeString>) => ReadonlyArray<SafeString> | SafeString)
+  ) => SelectStatement<Scope, Selection>
   replace: <NewSelection extends string>(
     f: (f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError) => ReplaceT<Selection>
   ) => SelectStatement<Scope, Selection | NewSelection>
@@ -121,9 +124,11 @@ Added in v0.0.0
 
 ```ts
 appendSelect: <NewSelection extends string>(
-  f: (
-    f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
-  ) => Record<NewSelection, SafeString>
+  f:
+    | readonly (Scope | Selection)[]
+    | ((
+        f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
+      ) => Record<NewSelection, SafeString>)
 ) => SelectStatement<Scope, Selection | NewSelection>;
 ```
 
@@ -135,9 +140,11 @@ Added in v0.0.0
 
 ```ts
 where: (
-  f: (
-    fields: Record<Scope | Selection, SafeString>
-  ) => ReadonlyArray<SafeString> | SafeString
+  f:
+    | readonly (Scope | Selection)[]
+    | ((
+        fields: Record<Scope | Selection, SafeString>
+      ) => ReadonlyArray<SafeString> | SafeString)
 ) => SelectStatement<Scope, Selection>;
 ```
 
@@ -149,9 +156,11 @@ Added in v0.0.0
 
 ```ts
 having: (
-  f: (
-    fields: Record<Scope | Selection, SafeString>
-  ) => ReadonlyArray<SafeString> | SafeString
+  f:
+    | readonly (Scope | Selection)[]
+    | ((
+        fields: Record<Scope | Selection, SafeString>
+      ) => ReadonlyArray<SafeString> | SafeString)
 ) => SelectStatement<Scope, Selection>;
 ```
 
@@ -173,9 +182,11 @@ Added in v0.0.0
 
 ```ts
 orderBy: (
-  f: (
-    fields: Record<Scope | Selection, SafeString>
-  ) => ReadonlyArray<SafeString> | SafeString
+  f:
+    | readonly (Scope | Selection)[]
+    | ((
+        fields: Record<Scope | Selection, SafeString>
+      ) => ReadonlyArray<SafeString> | SafeString)
 ) => SelectStatement<Scope, Selection>;
 ```
 
@@ -187,9 +198,11 @@ Added in v0.0.0
 
 ```ts
 groupBy: (
-  f: (
-    fields: Record<Scope | Selection, SafeString>
-  ) => ReadonlyArray<SafeString> | SafeString
+  f:
+    | readonly (Scope | Selection)[]
+    | ((
+        fields: Record<Scope | Selection, SafeString>
+      ) => ReadonlyArray<SafeString> | SafeString)
 ) => SelectStatement<Scope, Selection>;
 ```
 

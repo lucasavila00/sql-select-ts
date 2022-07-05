@@ -394,9 +394,7 @@ users
   .select((f) => ({
     ["123"]: f.age,
   }))
-  .appendSelect((f) => ({
-    name: f.name,
-  }))
+  .appendSelect(["name"])
   .appendSelect((f) => ({
     ["456"]: f.id,
   }))

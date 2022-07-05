@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table } from "sql-select-ts";
+import { table, dsql as sql, SafeString } from "sql-select-ts";
 ```
 
 We will use this table
@@ -31,6 +31,8 @@ const users = table(
   /* columns: */ ["id", "age", "name"],
   /* db-name & alias: */ "users"
 );
+
+const lowercase = (it: SafeString): SafeString => sql`lowerCase(${it})`;
 ```
 
 # One Clause
@@ -38,7 +40,7 @@ const users = table(
 ```ts
 users
   .selectStar()
-  .groupBy((f) => f.age)
+  .groupBy((f) => lowercase(f.name))
   .stringify();
 ```
 
@@ -48,7 +50,20 @@ SELECT
 FROM
   `users`
 GROUP BY
-  `age`
+  lowerCase(`name`)
+```
+
+```ts
+users.selectStar().groupBy(["name"]).stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `users`
+GROUP BY
+  `name`
 ```
 
 # Two Clauses
@@ -58,7 +73,7 @@ GROUP BY
 ```ts
 users
   .selectStar()
-  .groupBy((f) => [f.age, f.id])
+  .groupBy((f) => [f.name, f.id])
   .stringify();
 ```
 
@@ -68,7 +83,21 @@ SELECT
 FROM
   `users`
 GROUP BY
-  `age`,
+  `name`,
+  `id`
+```
+
+```ts
+users.selectStar().groupBy(["name", "id"]).stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `users`
+GROUP BY
+  `name`,
   `id`
 ```
 
@@ -77,7 +106,7 @@ GROUP BY
 ```ts
 users
   .selectStar()
-  .groupBy((f) => f.age)
+  .groupBy((f) => f.name)
   .groupBy((f) => f.id)
   .stringify();
 ```
@@ -88,6 +117,20 @@ SELECT
 FROM
   `users`
 GROUP BY
-  `age`,
+  `name`,
+  `id`
+```
+
+```ts
+users.selectStar().groupBy(["name"]).groupBy(["id"]).stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `users`
+GROUP BY
+  `name`,
   `id`
 ```
