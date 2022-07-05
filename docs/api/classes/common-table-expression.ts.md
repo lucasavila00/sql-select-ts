@@ -8,7 +8,7 @@ grand_parent: Api
 
 ## common-table-expression overview
 
-Added in v0.0.0
+Added in v1.0.0
 
 <details open markdown="block">
   <summary>
@@ -21,45 +21,58 @@ Added in v0.0.0
 
 # utils
 
-## CommonTableExpression (class)
+## CommonTableExpressionFactory (class)
 
 **Signature**
 
 ```ts
-export declare class CommonTableExpression<Scope, Selection> {
+export declare class CommonTableExpressionFactory<Scope, Aliases> {
   private constructor(
     /* @internal */
     public __props: {
-      readonly columns: ReadonlyArray<string>;
-      readonly alias: string;
-      readonly select: SelectStatement<any, any>;
+      readonly ctes: ReadonlyArray<CTE>;
     }
   );
 }
 ```
 
-Added in v0.0.0
+Added in v1.0.0
 
-### selectStar (property)
+### with\_ (property)
 
 **Signature**
 
 ```ts
-selectStar: () => SelectStatement<Selection | Scope, Selection>;
+with_: <Selection2 extends string, Alias2 extends string>(
+  select: SelectStatement<any, any>,
+  alias: Alias2,
+  columns?: readonly Selection2[]
+) =>
+  CommonTableExpressionFactory<
+    Scope | `${Alias2}.${Selection2}`,
+    Aliases | Alias2
+  >;
 ```
 
-Added in v0.0.0
+Added in v1.0.0
 
-### select (property)
+### selectThis (property)
 
 **Signature**
 
 ```ts
-select: <NewSelection extends string>(
+selectThis: <NewSelection extends string, SelectedAlias extends Aliases>(
   f: (
-    f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
-  ) => Record<NewSelection, SafeString>
-) => SelectStatement<Scope | Selection, NewSelection>;
+    f: Record<Scope | FilterStarting<Scope, SelectedAlias>, SafeString> &
+      NoSelectFieldsCompileError
+  ) => Record<NewSelection, SafeString>,
+  from: SelectedAlias
+) =>
+  SelectStatement<
+    | FilterStarting<Scope, SelectedAlias>
+    | `${SelectedAlias}.${FilterStarting<Scope, SelectedAlias>}`,
+    NewSelection
+  >;
 ```
 
-Added in v0.0.0
+Added in v1.0.0

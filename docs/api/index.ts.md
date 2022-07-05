@@ -286,10 +286,10 @@ export declare const with_: <Selection extends string, Alias extends string>(
   select: SelectStatement<any, any>,
   alias: Alias,
   columns?: readonly Selection[]
-) => CommonTableExpression<`${Alias}.${Selection}`, Selection>;
+) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
 ```
 
-Added in v0.0.0
+Added in v1.0.0
 
 # string-builder
 

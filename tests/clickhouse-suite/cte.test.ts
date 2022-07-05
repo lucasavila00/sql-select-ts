@@ -1,31 +1,32 @@
 import { table, with_ } from "../../src";
 import { dsql as sql } from "../../src/safe-string";
-import { configureSqlite } from "../utils";
+import { configureClickhouse } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
 addSimpleStringSerializer();
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/with1.test
 
-describe("sqlite with", () => {
-    const t0 = table(["x", "y"], "t0");
+describe("clickhouse cte", () => {
+    const t0 = table(["x", "y"], "t15_clickhouse");
 
-    const { run } = configureSqlite();
-
+    const { run } = configureClickhouse();
     beforeAll(async () => {
-        await run(`CREATE TABLE t0(x INTEGER, y INTEGER)`);
+        await run(`DROP TABLE IF EXISTS t15_clickhouse`);
+        await run(
+            `CREATE TABLE IF NOT EXISTS t15_clickhouse(x Int64, y Int64) ENGINE = AggregatingMergeTree() ORDER BY y`
+        );
     });
     it("basic", async () => {
         const q = with_(
             //
             t0.selectStar(),
-            "t0_alias",
-            ["a", "b"]
+            "t0_alias"
         )
             .selectThis((_f) => ({ it: sql(10) }), "t0_alias")
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
+            `WITH t0_alias AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -34,15 +35,14 @@ describe("sqlite with", () => {
         const q = with_(
             //
             t0.selectStar(),
-            "t0_alias",
-            ["a", "b"]
+            "t0_alias"
         )
             .selectThis((_f) => ({ it: sql(10) }), "t0_alias")
-            .appendSelect((f) => ({ it2: f["t0_alias.a"] }))
+            .appendSelect((f) => ({ it2: f["t0_alias.x"] }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t0_alias\`.\`a\` AS \`it2\` FROM \`t0_alias\``
+            `WITH t0_alias AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\`, \`t0_alias\`.\`x\` AS \`it2\` FROM \`t0_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -51,21 +51,19 @@ describe("sqlite with", () => {
         const q = with_(
             //
             t0.selectStar(),
-            "t0_alias",
-            ["a", "b"]
+            "t0_alias"
         )
             .with_(
                 //
                 t0.selectStar(),
-                "t1_alias",
-                ["d", "e"]
+                "t1_alias"
             )
             .selectThis((_f) => ({ it: sql(10) }), "t1_alias")
-            .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
+            .appendSelect((f) => ({ it2: f["t1_alias.y"] }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`), t1_alias(d, e) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
+            `WITH t0_alias AS (SELECT * FROM \`t15_clickhouse\`), t1_alias AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`y\` AS \`it2\` FROM \`t1_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -74,13 +72,12 @@ describe("sqlite with", () => {
         const q = with_(
             //
             t0.selectStar(),
-            "x",
-            ["a", "b"]
+            "x"
         )
             .selectThis((_f) => ({ it: sql(10) }), "x")
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
+            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -95,7 +92,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
+            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -109,7 +106,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
+            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -118,14 +115,13 @@ describe("sqlite with", () => {
         const q = with_(
             //
             t0.selectStar(),
-            "x",
-            ["a", "b"]
+            "x"
         )
-            .selectThis((f) => ({ it: f.a }), "x")
+            .selectThis((f) => ({ it: f.y }), "x")
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT \`a\` AS \`it\` FROM \`x\``
+            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT \`y\` AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -133,14 +129,13 @@ describe("sqlite with", () => {
         const q = with_(
             //
             t0.selectStar(),
-            "x",
-            ["a", "b"]
+            "x"
         )
-            .selectThis((f) => ({ it: f["x.a"] }), "x")
+            .selectThis((f) => ({ it: f["x.x"] }), "x")
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT \`x\`.\`a\` AS \`it\` FROM \`x\``
+            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT \`x\`.\`x\` AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -149,15 +144,14 @@ describe("sqlite with", () => {
         const q = with_(
             //
             t0.selectStar(),
-            "x",
-            ["a", "b"]
+            "x"
         )
             .selectThis((_f) => ({ it: sql(10) }), "x")
             .selectStar()
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\`)`
+            `SELECT * FROM (WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

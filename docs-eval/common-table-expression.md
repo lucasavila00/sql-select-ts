@@ -33,7 +33,7 @@ yield with_(
     "x",
     ["a", "b"]
 )
-    .select((_f) => ({ it: sql(10) }))
+    .selectThis((_f) => ({ it: sql(10) }), "x")
     .stringify();
 ```
 
@@ -44,7 +44,7 @@ const q0 = with_(
     //
     t0.selectStar(),
     "x"
-).select((_f) => ({ it: sql(10) }));
+).selectThis((_f) => ({ it: sql(10) }), "x");
 
 yield q0.stringify();
 ```

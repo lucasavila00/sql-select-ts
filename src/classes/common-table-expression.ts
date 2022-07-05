@@ -6,6 +6,7 @@ import { SafeString } from "../safe-string";
 import { CTE, NoSelectFieldsCompileError } from "../types";
 import { SelectStatement } from "./select-statement";
 import { AliasedRows } from "../data-wrappers";
+import { Table } from "./table";
 
 type FilterStarting<
     All extends string,
@@ -79,12 +80,12 @@ export class CommonTableExpressionFactory<
         ) => Record<NewSelection, SafeString>,
         from: SelectedAlias
     ): SelectStatement<
-        FilterStarting<Scope, SelectedAlias> | Scope,
+        | FilterStarting<Scope, SelectedAlias>
+        | `${SelectedAlias}.${FilterStarting<Scope, SelectedAlias>}`,
         NewSelection
     > =>
         SelectStatement.__fromCommonTableExpression(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.__props.ctes.find((it) => it.alias === from)!.select,
+            Table.define([], from) as any,
             [AliasedRows(f(proxy))],
             this.__props.ctes
         );

@@ -33,7 +33,7 @@ with_(
   "x",
   ["a", "b"]
 )
-  .select((_f) => ({ it: sql(10) }))
+  .selectThis((_f) => ({ it: sql(10) }), "x")
   .stringify();
 ```
 
@@ -48,7 +48,7 @@ WITH
 SELECT
   10 AS `it`
 FROM
-  x
+  `x`
 ```
 
 # No columns specified
@@ -58,7 +58,7 @@ const q0 = with_(
   //
   t0.selectStar(),
   "x"
-).select((_f) => ({ it: sql(10) }));
+).selectThis((_f) => ({ it: sql(10) }), "x");
 
 q0.stringify();
 ```
@@ -74,7 +74,7 @@ WITH
 SELECT
   10 AS `it`
 FROM
-  x
+  `x`
 ```
 
 # Compose
@@ -98,7 +98,7 @@ FROM
     SELECT
       10 AS `it`
     FROM
-      x
+      `x`
   ) AS `q0`,
   `t0`
 ```

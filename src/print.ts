@@ -7,7 +7,7 @@ import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import { isTheProxyObject } from "./proxy";
 import type { SafeString } from "./safe-string";
 import { ClickhouseWith, CTE, JoinConstraint, TableOrSubquery } from "./types";
-import { absurd, hole } from "./utils";
+import { absurd } from "./utils";
 import { wrapAlias, wrapAliasSplitDots } from "./wrap-alias";
 
 // re-define to avoid circular dependency
@@ -237,6 +237,7 @@ export const printSelectStatementInternal = <
     const contentNoParenthesis = [
         withKeyword,
         clickhouseWith,
+        withFromCte,
         "SELECT",
         distinct,
         selection,

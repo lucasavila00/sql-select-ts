@@ -47,6 +47,7 @@ export declare class SelectStatement<Scope, Selection> {
       readonly having: ReadonlyArray<SafeString>;
       readonly distinct: boolean;
       readonly clickhouseWith: ReadonlyArray<ClickhouseWith>;
+      readonly ctes: ReadonlyArray<CTE>;
     }
   );
 }
