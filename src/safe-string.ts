@@ -96,9 +96,9 @@ const escapeForSql = function (
             if (isSafeString(val)) {
                 return val.content;
             } else if (val instanceof SelectStatement) {
-                return printSelectStatementInternal(val, true).content;
+                return printSelectStatementInternal(val, true);
             } else if (val instanceof Compound) {
-                return printCompoundInternal(val, true).content;
+                return printCompoundInternal(val, true);
             } else if (Array.isArray(val)) {
                 return arrayToList(val, serializers);
             } else {

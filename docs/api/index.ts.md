@@ -221,7 +221,7 @@ export declare const select: <
     f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
   ) => Record<NewSelection, SafeString>,
   from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-) => SelectStatement<FromSelection, NewSelection>;
+) => SelectStatement<FromSelection | FromScope, NewSelection>;
 ```
 
 Added in v1.0.0
@@ -275,6 +275,22 @@ assert.strictEqual(
 
 Added in v0.0.0
 
+## withR
+
+Create a common table expression, renaming the selecion.
+
+**Signature**
+
+```ts
+export declare const withR: <Selection extends string, Alias extends string>(
+  alias: Alias,
+  columns: readonly Selection[],
+  select: SelectStatement<any, any>
+) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
+```
+
+Added in v1.0.0
+
 ## with\_
 
 Create a common table expression.
@@ -283,13 +299,12 @@ Create a common table expression.
 
 ```ts
 export declare const with_: <Selection extends string, Alias extends string>(
-  select: SelectStatement<any, any>,
   alias: Alias,
-  columns?: readonly Selection[]
-) => CommonTableExpression<`${Alias}.${Selection}`, Selection>;
+  select: SelectStatement<any, Selection>
+) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
 ```
 
-Added in v0.0.0
+Added in v1.0.0
 
 # string-builder
 

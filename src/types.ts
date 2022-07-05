@@ -4,7 +4,6 @@
  * @since 0.0.0
  */
 import { Compound } from "./classes/compound";
-import { CommonTableExpression } from "./classes/common-table-expression";
 import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
@@ -20,7 +19,6 @@ export type TableOrSubquery<
     | SelectStatement<Scope, Selection>
     | StringifiedSelectStatement<Selection>
     | Table<Selection, Alias>
-    | CommonTableExpression<Scope, Selection>
     | Joined<Selection, Scope, Alias, Ambiguous>
     | Compound<Scope, Selection>;
 
@@ -55,3 +53,9 @@ export type SelectionOfSelectStatement<T> = T extends SelectStatement<
 >
     ? Selection
     : never;
+
+export type CTE = {
+    readonly columns: ReadonlyArray<string>;
+    readonly alias: string;
+    readonly select: SelectStatement<any, any>;
+};

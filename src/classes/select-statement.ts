@@ -12,6 +12,7 @@ import {
     TableOrSubquery,
     NoSelectFieldsCompileError,
     ClickhouseWith,
+    CTE,
 } from "../types";
 import { makeArray } from "../utils";
 import { Compound } from "./compound";
@@ -51,6 +52,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             readonly having: ReadonlyArray<SafeString>;
             readonly distinct: boolean;
             readonly clickhouseWith: ReadonlyArray<ClickhouseWith>;
+            readonly ctes: ReadonlyArray<CTE>;
         }
     ) {}
 
@@ -73,8 +75,10 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 having: [],
                 distinct: false,
                 clickhouseWith: [],
+                ctes: [],
             }
         );
+
     /**
      * @internal
      */
@@ -95,6 +99,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 having: [],
                 distinct: false,
                 clickhouseWith: [],
+                ctes: [],
             }
         );
 
@@ -164,6 +169,17 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         };
         return this;
     };
+    private setCtes = (ctes: ReadonlyArray<CTE>): this => {
+        this.__props = {
+            ...this.__props,
+            ctes,
+        };
+        return this;
+    };
+    /**
+     * @internal
+     */
+    public __setCtes = this.setCtes;
     private setPrewhere = (prewhere: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,

@@ -1,7 +1,8 @@
-import { table, with_ } from "../../src";
-import { dsql } from "../../src/safe-string";
+import { select, table, with_, withR } from "../../src";
+import { dsql as sql, SafeString } from "../../src/safe-string";
 import { configureSqlite } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
+import { format } from "sql-formatter";
 addSimpleStringSerializer();
 
 // mostly from https://github.com/sqlite/sqlite/blob/master/test/with1.test
@@ -14,112 +15,369 @@ describe("sqlite with", () => {
     beforeAll(async () => {
         await run(`CREATE TABLE t0(x INTEGER, y INTEGER)`);
     });
+    it("bun", async () => {
+        const orders = table(
+            ["region", "amount", "product", "quantity"],
+            "orders"
+        );
 
-    it("with1-1.0", async () => {
+        const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
+
+        const q = with_(
+            "regional_sales",
+            select(
+                (f) => ({
+                    region: f.region,
+                    total_sales: SUM(f.amount),
+                }),
+                orders
+            ).groupBy((f) => f.region)
+        )
+            .with_("top_regions", (acc) =>
+                select(
+                    (f) => ({
+                        region: f.region,
+                    }),
+                    acc.regional_sales
+                ).where(
+                    (f) =>
+                        sql`${f.total_sales} > ${select(
+                            (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+                            acc.regional_sales
+                        )}`
+                )
+            )
+            .do((acc) =>
+                select(
+                    (f) => ({
+                        region: f.region,
+                        product: f.product,
+                        product_units: SUM(f.quantity),
+                        product_sales: SUM(f.amount),
+                    }),
+                    orders
+                )
+                    .where(
+                        (f) =>
+                            sql`${f.region} IN ${select(
+                                (f) => ({ region: f.region }),
+                                acc.top_regions
+                            )}`
+                    )
+                    .groupBy((f) => [f.region, f.product])
+            )
+            .stringify();
+
+        expect(format(q)).toMatchInlineSnapshot(`
+            WITH
+              \`regional_sales\` AS (
+                SELECT
+                  \`region\` AS \`region\`,
+                  SUM(\`amount\`) AS \`total_sales\`
+                FROM
+                  \`orders\`
+                GROUP BY
+                  \`region\`
+              ),
+              \`top_regions\` AS (
+                SELECT
+                  \`region\` AS \`region\`
+                FROM
+                  \`regional_sales\`
+                WHERE
+                  \`total_sales\` > (
+                    SELECT
+                      SUM(\`total_sales\`) / 10 AS \`it\`
+                    FROM
+                      \`regional_sales\`
+                  )
+              )
+            SELECT
+              \`region\` AS \`region\`,
+              \`product\` AS \`product\`,
+              SUM(\`quantity\`) AS \`product_units\`,
+              SUM(\`amount\`) AS \`product_sales\`
+            FROM
+              \`orders\`
+            WHERE
+              \`region\` IN (
+                SELECT
+                  \`region\` AS \`region\`
+                FROM
+                  \`top_regions\`
+              )
+            GROUP BY
+              \`region\`,
+              \`product\`
+        `);
+    });
+
+    it("basic - no cols", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "x",
-            ["a", "b"]
+            "t0_alias",
+            t0.selectStar()
         )
-            .select((_f) => ({ it: dsql(10) }))
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x`
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
-    it("with1-1.0 - 2", async () => {
-        const q = with_(
+    it("basic", async () => {
+        const q = withR(
             //
-            t0.selectStar(),
-            "x",
-            ["a", "b"]
+            "t0_alias",
+            ["a", "b"],
+            t0.selectStar()
         )
-            .selectStar()
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT * FROM x`
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("1 with call", async () => {
+        const q = withR(
+            //
+            "t0_alias",
+            ["a", "b"],
+            t0.selectStar()
+        )
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
+            .appendSelect((f) => ({ it2: f["t0_alias.a"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t0_alias\`.\`a\` AS \`it2\` FROM \`t0_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("2 with calls", async () => {
+        const q = withR(
+            //
+            "t0_alias",
+            ["a", "b"],
+            t0.selectStar()
+        )
+            .withR(
+                //
+                "t1_alias",
+                ["d", "e"],
+                () => t0.selectStar()
+            )
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+            .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`), \`t1_alias\`(\`d\`, \`e\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("2 with calls - using prev", async () => {
+        const q = withR(
+            //
+            "t0_alias",
+            ["a", "b"],
+            t0.selectStar()
+        )
+            .withR(
+                //
+                "t1_alias",
+                ["d", "e"],
+                (acc) => acc.t0_alias.selectStar()
+            )
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
+            .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`), \`t1_alias\`(\`d\`, \`e\`) AS (SELECT * FROM \`t0_alias\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("2 with calls - not using prev", async () => {
+        const q = withR(
+            //
+            "t0_alias",
+            ["a", "b"],
+            t0.selectStar()
+        )
+            .withR(
+                //
+                "t1_alias",
+                ["d", "e"],
+                (_acc) => t0.selectStar()
+            )
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
+            .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`), \`t1_alias\`(\`d\`, \`e\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("2 with calls - using prev - no cols", async () => {
+        const q = with_(
+            //
+            "t0_alias",
+            t0.selectStar()
+        )
+            .with_(
+                //
+                "t1_alias",
+                (acc) => acc.t0_alias.selectStar()
+            )
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
+            .appendSelect((f) => ({ it2: f["t1_alias.x"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t0\`), \`t1_alias\` AS (SELECT * FROM \`t0_alias\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`x\` AS \`it2\` FROM \`t1_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    it("2 with calls - not using prev - no cols", async () => {
+        const q = with_(
+            //
+            "t0_alias",
+            t0.selectStar()
+        )
+            .with_(
+                //
+                "t1_alias",
+                () => t0.selectStar()
+            )
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
+            .appendSelect((f) => ({ it2: f["t1_alias.x"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t0\`), \`t1_alias\` AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`x\` AS \`it2\` FROM \`t1_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("3 with calls - using prev", async () => {
+        const q = withR(
+            //
+            "t0_alias",
+            ["a", "b"],
+            t0.selectStar()
+        )
+            .withR(
+                //
+                "t1_alias",
+                ["d", "e"],
+                (acc) => acc.t0_alias.selectStar()
+            )
+            .withR(
+                //
+                "t2_alias",
+                ["abc", "def"],
+                (acc) => acc.t1_alias.selectStar()
+            )
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t2_alias))
+
+            .appendSelect((f) => ({ it2: f["t2_alias.abc"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`), \`t1_alias\`(\`d\`, \`e\`) AS (SELECT * FROM \`t0_alias\`), \`t2_alias\`(\`abc\`, \`def\`) AS (SELECT * FROM \`t1_alias\`) SELECT 10 AS \`it\`, \`t2_alias\`.\`abc\` AS \`it2\` FROM \`t2_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("with1-1.0", async () => {
+        const q = withR(
+            //
+            "x",
+            ["a", "b"],
+            t0.selectStar()
+        )
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with1-1.0 -- no columns", async () => {
-        const q = with_(
+        const q = withR(
             //
-            t0.selectStar(),
             "x",
-            []
+            [],
+            t0.selectStar()
         )
-            .select((_f) => ({ it: dsql(10) }))
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x`
-        );
-        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
-    });
-    it("with1-1.0 -- no columns2", async () => {
-        const q = with_(
-            //
-            t0.selectStar(),
-            "x"
-        )
-            .select((_f) => ({ it: dsql(10) }))
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x`
+            `WITH \`x\` AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
     it("with1-1.0 -- use alias", async () => {
-        const q = with_(
+        const q = withR(
             //
-            t0.selectStar(),
             "x",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
-            .select((f) => ({ it: f.a }))
+            .do((acc) => select((f) => ({ it: f.a }), acc.x))
+
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT \`a\` AS \`it\` FROM x`
+            `WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT \`a\` AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with1-1.0 -- use alias2", async () => {
-        const q = with_(
+        const q = withR(
             //
-            t0.selectStar(),
             "x",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
-            .select((f) => ({ it: f["x.a"] }))
+            .do((acc) => select((f) => ({ it: f["x.a"] }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT \`x\`.\`a\` AS \`it\` FROM x`
+            `WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT \`x\`.\`a\` AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
     it("with1-1.1", async () => {
-        const q = with_(
+        const q = withR(
             //
-            t0.selectStar(),
             "x",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
-            .select((_f) => ({ it: dsql(10) }))
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .selectStar()
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x)`
+            `SELECT * FROM (WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

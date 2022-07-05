@@ -8,7 +8,7 @@ grand_parent: Api
 
 ## common-table-expression overview
 
-Added in v0.0.0
+Added in v1.0.0
 
 <details open markdown="block">
   <summary>
@@ -21,45 +21,68 @@ Added in v0.0.0
 
 # utils
 
-## CommonTableExpression (class)
+## CommonTableExpressionFactory (class)
 
 **Signature**
 
 ```ts
-export declare class CommonTableExpression<Scope, Selection> {
+export declare class CommonTableExpressionFactory<Scope, Aliases> {
   private constructor(
     /* @internal */
     public __props: {
-      readonly columns: ReadonlyArray<string>;
-      readonly alias: string;
-      readonly select: SelectStatement<any, any>;
+      readonly ctes: ReadonlyArray<CTE>;
     }
   );
 }
 ```
 
-Added in v0.0.0
+Added in v1.0.0
 
-### selectStar (property)
-
-**Signature**
-
-```ts
-selectStar: () => SelectStatement<Selection | Scope, Selection>;
-```
-
-Added in v0.0.0
-
-### select (property)
+### with\_ (property)
 
 **Signature**
 
 ```ts
-select: <NewSelection extends string>(
-  f: (
-    f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
-  ) => Record<NewSelection, SafeString>
-) => SelectStatement<Scope | Selection, NewSelection>;
+with_: <Selection2 extends string, Alias2 extends string>(
+  alias: Alias2,
+  select: (acc: {
+    [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+  }) => SelectStatement<any, Selection2>
+) =>
+  CommonTableExpressionFactory<
+    Scope | `${Alias2}.${Selection2}`,
+    Aliases | Alias2
+  >;
 ```
 
-Added in v0.0.0
+Added in v1.0.0
+
+### withR (property)
+
+**Signature**
+
+```ts
+withR: <Selection2 extends string, Alias2 extends string>(
+  alias: Alias2,
+  columns: readonly Selection2[],
+  select: (acc: {
+    [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+  }) => SelectStatement<any, any>
+) =>
+  CommonTableExpressionFactory<
+    Scope | `${Alias2}.${Selection2}`,
+    Aliases | Alias2
+  >;
+```
+
+Added in v1.0.0
+
+### do (property)
+
+**Signature**
+
+```ts
+do: <A extends string, B extends string>(f: (acc: { [K in Aliases]: TableOrSubquery<K, Scope, FilterStarting<Scope, K> | `${K}.${FilterStarting<Scope, K>}`, any>; }) => SelectStatement<A, B>) => SelectStatement<A, B>
+```
+
+Added in v1.0.0
