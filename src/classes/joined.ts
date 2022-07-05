@@ -4,9 +4,8 @@
  *
  * @since 0.0.0
  */
-import { consume } from "../consume-fields";
+import { consumeArrayCallback, consumeRecordCallback } from "../consume-fields";
 import { StarOfAliasesSymbol, StarSymbol, AliasedRows } from "../data-wrappers";
-import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import {
     TableOrSubquery,
@@ -86,15 +85,20 @@ export class JoinedFactory<
      * @since 0.0.0
      */
     public on = (
-        on: (
-            fields: Record<Scope, SafeString>
-        ) => SafeString | ReadonlyArray<SafeString>
+        on:
+            | ReadonlyArray<Scope>
+            | ((
+                  fields: Record<Scope, SafeString>
+              ) => SafeString | ReadonlyArray<SafeString>)
     ): Joined<Selection, Scope, Aliases, Ambiguous> =>
         Joined.__fromAll(this.__props.commaJoins, [
             ...this.__props.properJoins,
             {
                 ...this.__props.newProperJoin,
-                constraint: { _tag: "on", on: makeNonEmptyArray(on(proxy)) },
+                constraint: {
+                    _tag: "on",
+                    on: makeNonEmptyArray(consumeArrayCallback(on)),
+                },
             },
         ]);
 
@@ -160,7 +164,9 @@ export class Joined<
                       NoSelectFieldsCompileError
               ) => Record<NewSelection, SafeString>)
     ): SelectStatement<Selection | Scope, NewSelection | SubSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(consume(f))]);
+        SelectStatement.__fromTableOrSubquery(this, [
+            AliasedRows(consumeRecordCallback(f)),
+        ]);
 
     /**
      * @since 0.0.0

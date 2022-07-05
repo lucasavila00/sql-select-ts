@@ -6,7 +6,7 @@
  *
  * @since 0.0.0
  */
-import { consume } from "../consume-fields";
+import { consumeRecordCallback } from "../consume-fields";
 import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
 import { NoSelectFieldsCompileError } from "../types";
@@ -79,7 +79,10 @@ export class Table<Selection extends string, Alias extends string> {
     ): SelectStatement<
         Selection | `${Alias}.${Selection}`,
         NewSelection | SubSelection
-    > => SelectStatement.__fromTableOrSubquery(this, [AliasedRows(consume(f))]);
+    > =>
+        SelectStatement.__fromTableOrSubquery(this, [
+            AliasedRows(consumeRecordCallback(f)),
+        ]);
 
     /**
      * @since 0.0.0

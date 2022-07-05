@@ -11,7 +11,7 @@ import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 import { AliasedRows, StarSymbol } from "../data-wrappers";
-import { consume } from "../consume-fields";
+import { consumeRecordCallback } from "../consume-fields";
 
 /**
  *
@@ -57,7 +57,9 @@ export class StringifiedSelectStatement<Selection extends string> {
                   f: Record<Selection, SafeString> & NoSelectFieldsCompileError
               ) => Record<NewSelection, SafeString>)
     ): SelectStatement<Selection, NewSelection | SubSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(consume(f))]);
+        SelectStatement.__fromTableOrSubquery(this, [
+            AliasedRows(consumeRecordCallback(f)),
+        ]);
 
     /**
      * @since 0.0.3
