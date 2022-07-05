@@ -298,7 +298,8 @@ export const select = <
         f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
     ) => Record<NewSelection, SafeString>,
     from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-): SelectStatement<FromSelection, NewSelection> => from.select(f as any) as any;
+): SelectStatement<FromScope | FromSelection, NewSelection> =>
+    from.select(f as any) as any;
 
 /**
  *

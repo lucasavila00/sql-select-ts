@@ -120,7 +120,7 @@ describe("sqlite with", () => {
             t0.selectStar(),
             "t0_alias"
         )
-            .selectThis((_f) => ({ it: sql(10) }), "t0_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -136,7 +136,7 @@ describe("sqlite with", () => {
             "t0_alias",
             ["a", "b"]
         )
-            .selectThis((_f) => ({ it: sql(10) }), "t0_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -152,7 +152,7 @@ describe("sqlite with", () => {
             "t0_alias",
             ["a", "b"]
         )
-            .selectThis((_f) => ({ it: sql(10) }), "t0_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .appendSelect((f) => ({ it2: f["t0_alias.a"] }))
             .stringify();
 
@@ -175,7 +175,7 @@ describe("sqlite with", () => {
                 "t1_alias",
                 ["d", "e"]
             )
-            .selectThis((_f) => ({ it: sql(10) }), "t1_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
             .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
             .stringify();
 
@@ -198,7 +198,8 @@ describe("sqlite with", () => {
                 "t1_alias",
                 ["d", "e"]
             )
-            .selectThis((_f) => ({ it: sql(10) }), "t1_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
             .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
             .stringify();
 
@@ -221,7 +222,8 @@ describe("sqlite with", () => {
                 "t1_alias",
                 ["d", "e"]
             )
-            .selectThis((_f) => ({ it: sql(10) }), "t1_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
             .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
             .stringify();
 
@@ -242,7 +244,8 @@ describe("sqlite with", () => {
                 (acc) => acc.t0_alias.selectStar(),
                 "t1_alias"
             )
-            .selectThis((_f) => ({ it: sql(10) }), "t1_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
             .appendSelect((f) => ({ it2: f["t1_alias.x"] }))
             .stringify();
 
@@ -263,7 +266,8 @@ describe("sqlite with", () => {
                 () => t0.selectStar(),
                 "t1_alias"
             )
-            .selectThis((_f) => ({ it: sql(10) }), "t1_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
             .appendSelect((f) => ({ it2: f["t1_alias.x"] }))
             .stringify();
 
@@ -291,7 +295,8 @@ describe("sqlite with", () => {
                 "t2_alias",
                 ["abc", "def"]
             )
-            .selectThis((_f) => ({ it: sql(10) }), "t2_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t2_alias))
+
             .appendSelect((f) => ({ it2: f["t2_alias.abc"] }))
             .stringify();
 
@@ -307,7 +312,7 @@ describe("sqlite with", () => {
             "x",
             ["a", "b"]
         )
-            .selectThis((_f) => ({ it: sql(10) }), "x")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
@@ -321,7 +326,7 @@ describe("sqlite with", () => {
             "x",
             []
         )
-            .selectThis((_f) => ({ it: sql(10) }), "x")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -337,7 +342,8 @@ describe("sqlite with", () => {
             "x",
             ["a", "b"]
         )
-            .selectThis((f) => ({ it: f.a }), "x")
+            .do((acc) => select((f) => ({ it: f.a }), acc.x))
+
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -352,7 +358,7 @@ describe("sqlite with", () => {
             "x",
             ["a", "b"]
         )
-            .selectThis((f) => ({ it: f["x.a"] }), "x")
+            .do((acc) => select((f) => ({ it: f["x.a"] }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -368,7 +374,7 @@ describe("sqlite with", () => {
             "x",
             ["a", "b"]
         )
-            .selectThis((_f) => ({ it: sql(10) }), "x")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .selectStar()
             .stringify();
 

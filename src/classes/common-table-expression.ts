@@ -1,11 +1,8 @@
 /**
  * @since 1.0.0
  */
-import { proxy } from "../proxy";
-import { SafeString } from "../safe-string";
-import { CTE, NoSelectFieldsCompileError, TableOrSubquery } from "../types";
+import { CTE, TableOrSubquery } from "../types";
 import { SelectStatement } from "./select-statement";
-import { AliasedRows } from "../data-wrappers";
 import { Table } from "./table";
 
 type FilterStarting<
@@ -104,32 +101,6 @@ export class CommonTableExpressionFactory<
             { columns, alias, select: select(oldMap) },
         ]) as any;
     };
-
-    /**
-     * @since 1.0.0
-     */
-    public selectThis = <
-        NewSelection extends string,
-        SelectedAlias extends Aliases
-    >(
-        f: (
-            f: Record<
-                Scope | FilterStarting<Scope, SelectedAlias>,
-                SafeString
-            > &
-                NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>,
-        from: SelectedAlias
-    ): SelectStatement<
-        | FilterStarting<Scope, SelectedAlias>
-        | `${SelectedAlias}.${FilterStarting<Scope, SelectedAlias>}`,
-        NewSelection
-    > =>
-        SelectStatement.__fromCommonTableExpression(
-            Table.define([], from) as any,
-            [AliasedRows(f(proxy))],
-            this.__props.ctes
-        );
 
     /**
      * @since 1.0.0

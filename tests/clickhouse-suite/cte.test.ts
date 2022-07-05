@@ -1,4 +1,4 @@
-import { table, with_ } from "../../src";
+import { table, with_, select } from "../../src";
 import { dsql as sql } from "../../src/safe-string";
 import { configureClickhouse } from "../utils";
 import { addSimpleStringSerializer } from "../utils";
@@ -22,7 +22,7 @@ describe("clickhouse cte", () => {
             t0.selectStar(),
             "t0_alias"
         )
-            .selectThis((_f) => ({ it: sql(10) }), "t0_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -37,7 +37,8 @@ describe("clickhouse cte", () => {
             t0.selectStar(),
             "t0_alias"
         )
-            .selectThis((_f) => ({ it: sql(10) }), "t0_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
+
             .appendSelect((f) => ({ it2: f["t0_alias.x"] }))
             .stringify();
 
@@ -58,7 +59,8 @@ describe("clickhouse cte", () => {
                 () => t0.selectStar(),
                 "t1_alias"
             )
-            .selectThis((_f) => ({ it: sql(10) }), "t1_alias")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
+
             .appendSelect((f) => ({ it2: f["t1_alias.y"] }))
             .stringify();
 
@@ -74,7 +76,7 @@ describe("clickhouse cte", () => {
             t0.selectStar(),
             "x"
         )
-            .selectThis((_f) => ({ it: sql(10) }), "x")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `WITH \`x\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
@@ -87,7 +89,7 @@ describe("clickhouse cte", () => {
             t0.selectStar(),
             "x"
         )
-            .selectThis((_f) => ({ it: sql(10) }), "x")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -102,7 +104,7 @@ describe("clickhouse cte", () => {
             t0.selectStar(),
             "x"
         )
-            .selectThis((f) => ({ it: f.y }), "x")
+            .do((acc) => select((f) => ({ it: f.y }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -116,7 +118,7 @@ describe("clickhouse cte", () => {
             t0.selectStar(),
             "x"
         )
-            .selectThis((f) => ({ it: f["x.x"] }), "x")
+            .do((acc) => select((f) => ({ it: f["x.x"] }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -131,7 +133,7 @@ describe("clickhouse cte", () => {
             t0.selectStar(),
             "x"
         )
-            .selectThis((_f) => ({ it: sql(10) }), "x")
+            .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .selectStar()
             .stringify();
 
