@@ -131,6 +131,9 @@ export class CommonTableExpressionFactory<
             this.__props.ctes
         );
 
+    /**
+     * @since 1.0.0
+     */
     public do = <A extends string, B extends string>(
         f: (acc: {
             [K in Aliases]: TableOrSubquery<

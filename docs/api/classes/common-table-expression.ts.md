@@ -44,9 +44,30 @@ Added in v1.0.0
 
 ```ts
 with_: <Selection2 extends string, Alias2 extends string>(
-  select: SelectStatement<any, any>,
+  select: (acc: {
+    [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+  }) => SelectStatement<any, Selection2>,
+  alias: Alias2
+) =>
+  CommonTableExpressionFactory<
+    Scope | `${Alias2}.${Selection2}`,
+    Aliases | Alias2
+  >;
+```
+
+Added in v1.0.0
+
+### withR (property)
+
+**Signature**
+
+```ts
+withR: <Selection2 extends string, Alias2 extends string>(
+  select: (acc: {
+    [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+  }) => SelectStatement<any, any>,
   alias: Alias2,
-  columns?: readonly Selection2[]
+  columns: readonly Selection2[]
 ) =>
   CommonTableExpressionFactory<
     Scope | `${Alias2}.${Selection2}`,
@@ -73,6 +94,16 @@ selectThis: <NewSelection extends string, SelectedAlias extends Aliases>(
     | `${SelectedAlias}.${FilterStarting<Scope, SelectedAlias>}`,
     NewSelection
   >;
+```
+
+Added in v1.0.0
+
+### do (property)
+
+**Signature**
+
+```ts
+do: <A extends string, B extends string>(f: (acc: { [K in Aliases]: TableOrSubquery<K, Scope, FilterStarting<Scope, K>, any>; }) => SelectStatement<A, B>) => SelectStatement<A, B>
 ```
 
 Added in v1.0.0

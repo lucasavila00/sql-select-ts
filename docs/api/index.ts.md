@@ -275,6 +275,22 @@ assert.strictEqual(
 
 Added in v0.0.0
 
+## withR
+
+Create a common table expression, renaming the selecion.
+
+**Signature**
+
+```ts
+export declare const withR: <Selection extends string, Alias extends string>(
+  select: SelectStatement<any, any>,
+  alias: Alias,
+  columns: readonly Selection[]
+) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
+```
+
+Added in v1.0.0
+
 ## with\_
 
 Create a common table expression.
@@ -283,9 +299,8 @@ Create a common table expression.
 
 ```ts
 export declare const with_: <Selection extends string, Alias extends string>(
-  select: SelectStatement<any, any>,
-  alias: Alias,
-  columns?: readonly Selection[]
+  select: SelectStatement<any, Selection>,
+  alias: Alias
 ) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
 ```
 

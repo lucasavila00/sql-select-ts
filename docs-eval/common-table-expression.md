@@ -17,40 +17,62 @@ layout: default
 # With - Common Table Expressions
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table, dsql as sql, with_ } from "../src";
+import { table, dsql as sql, with_, SafeString, select } from "../src";
 ```
 
 ```ts eval
-const t0 = table(["x", "y"], "t0");
+const orders = table(["region", "amount", "product", "quantity"], "orders");
+
+const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 ```
 
 # Specifying columns
 
 ```ts eval --yield=sql
 yield with_(
-    //
-    t0.selectStar(),
-    "x",
-    ["a", "b"]
+    select(
+        (f) => ({
+            region: f.region,
+            total_sales: SUM(f.amount),
+        }),
+        orders
+    ).groupBy((f) => f.region),
+    "regional_sales"
 )
-    .selectThis((_f) => ({ it: sql(10) }), "x")
+    .with_(
+        (acc) =>
+            select(
+                (f) => ({
+                    region: f.region,
+                }),
+                acc.regional_sales
+            ).where(
+                (f) =>
+                    sql`${f.total_sales} > ${select(
+                        (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+                        acc.regional_sales
+                    )}`
+            ),
+        "top_regions"
+    )
+    .do((acc) =>
+        select(
+            (f) => ({
+                region: f.region,
+                product: f.product,
+                product_units: SUM(f.quantity),
+                product_sales: SUM(f.amount),
+            }),
+            orders
+        )
+            .where(
+                (f) =>
+                    sql`${f.region} IN ${select(
+                        (f) => ({ region: f.region }),
+                        acc.top_regions
+                    )}`
+            )
+            .groupBy((f) => [f.region, f.product])
+    )
     .stringify();
-```
-
-# No columns specified
-
-```ts eval --yield=sql
-const q0 = with_(
-    //
-    t0.selectStar(),
-    "x"
-).selectThis((_f) => ({ it: sql(10) }), "x");
-
-yield q0.stringify();
-```
-
-# Compose
-
-```ts eval --yield=sql
-yield q0.commaJoinTable("q0", t0).selectStar().stringify();
 ```

@@ -17,11 +17,13 @@ layout: default
 # With - Common Table Expressions
 
 ```ts
-import { table, dsql as sql, with_ } from "sql-select-ts";
+import { table, dsql as sql, with_, SafeString, select } from "sql-select-ts";
 ```
 
 ```ts
-const t0 = table(["x", "y"], "t0");
+const orders = table(["region", "amount", "product", "quantity"], "orders");
+
+const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 ```
 
 # Specifying columns
@@ -29,76 +31,94 @@ const t0 = table(["x", "y"], "t0");
 ```ts
 with_(
   //
-  t0.selectStar(),
-  "x",
-  ["a", "b"]
+  select(
+    (f) => ({
+      region: f.region,
+      total_sales: SUM(f.amount),
+    }),
+    orders
+  ).groupBy((f) => f.region),
+  "regional_sales"
 )
-  .selectThis((_f) => ({ it: sql(10) }), "x")
+  .with_(
+    //
+    (acc) =>
+      select(
+        (f) => ({
+          region: f.region,
+        }),
+        acc.regional_sales
+      ).where(
+        (f) =>
+          sql`${f.total_sales} > ${select(
+            (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+            acc.regional_sales
+          )}`
+      ),
+    "top_regions"
+  )
+  .do((acc) =>
+    select(
+      //
+      (f) => ({
+        region: f.region,
+        product: f.product,
+        product_units: SUM(f.quantity),
+        product_sales: SUM(f.amount),
+      }),
+      orders
+    )
+      .where(
+        (f) =>
+          sql`${f.region} IN ${select(
+            (f) => ({ region: f.region }),
+            acc.top_regions
+          )}`
+      )
+      .groupBy((f) => [f.region, f.product])
+  )
   .stringify();
 ```
 
 ```sql
 WITH
-  x(a, b) AS (
+  regional_sales AS (
     SELECT
-      *
+      `region` AS `region`,
+      SUM(`amount`) AS `total_sales`
     FROM
-      `t0`
-  )
-SELECT
-  10 AS `it`
-FROM
-  `x`
-```
-
-# No columns specified
-
-```ts
-const q0 = with_(
-  //
-  t0.selectStar(),
-  "x"
-).selectThis((_f) => ({ it: sql(10) }), "x");
-
-q0.stringify();
-```
-
-```sql
-WITH
-  x AS (
+      `orders`
+    GROUP BY
+      `region`
+  ),
+  top_regions AS (
     SELECT
-      *
+      `region` AS `region`
     FROM
-      `t0`
-  )
-SELECT
-  10 AS `it`
-FROM
-  `x`
-```
-
-# Compose
-
-```ts
-q0.commaJoinTable("q0", t0).selectStar().stringify();
-```
-
-```sql
-SELECT
-  *
-FROM
-  (
-    WITH
-      x AS (
+      `regional_sales`
+    WHERE
+      `total_sales` > (
         SELECT
-          *
+          SUM(`total_sales`) / 10 AS `it`
         FROM
-          `t0`
+          `regional_sales`
       )
+  )
+SELECT
+  `region` AS `region`,
+  `product` AS `product`,
+  SUM(`quantity`) AS `product_units`,
+  SUM(`amount`) AS `product_sales`
+FROM
+  `orders`
+WHERE
+  `region` IN (
     SELECT
-      10 AS `it`
+      `region` AS `region`
     FROM
-      `x`
-  ) AS `q0`,
-  `t0`
+      `top_regions`
+  )
+GROUP BY
+  `region`,
+  `product`
 ```

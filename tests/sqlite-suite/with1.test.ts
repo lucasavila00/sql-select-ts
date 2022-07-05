@@ -24,7 +24,6 @@ describe("sqlite with", () => {
         const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 
         const q = with_(
-            //
             select(
                 (f) => ({
                     region: f.region,
@@ -35,7 +34,6 @@ describe("sqlite with", () => {
             "regional_sales"
         )
             .with_(
-                //
                 (acc) =>
                     select(
                         (f) => ({
@@ -53,7 +51,6 @@ describe("sqlite with", () => {
             )
             .do((acc) =>
                 select(
-                    //
                     (f) => ({
                         region: f.region,
                         product: f.product,
