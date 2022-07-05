@@ -30,30 +30,25 @@ const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 
 ```ts eval --yield=sql
 yield with_(
+    "regional_sales",
     select(
-        (f) => ({
-            region: f.region,
-            total_sales: SUM(f.amount),
-        }),
+        (f) => ({ region: f.region, total_sales: SUM(f.amount) }),
         orders
-    ).groupBy((f) => f.region),
-    "regional_sales"
+    ).groupBy((f) => f.region)
 )
-    .with_(
-        (acc) =>
-            select(
-                (f) => ({
-                    region: f.region,
-                }),
-                acc.regional_sales
-            ).where(
-                (f) =>
-                    sql`${f.total_sales} > ${select(
-                        (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
-                        acc.regional_sales
-                    )}`
-            ),
-        "top_regions"
+    .with_("top_regions", (acc) =>
+        select(
+            (f) => ({
+                region: f.region,
+            }),
+            acc.regional_sales
+        ).where(
+            (f) =>
+                sql`${f.total_sales} > ${select(
+                    (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+                    acc.regional_sales
+                )}`
+        )
     )
     .do((acc) =>
         select(

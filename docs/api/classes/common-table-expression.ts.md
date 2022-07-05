@@ -44,10 +44,10 @@ Added in v1.0.0
 
 ```ts
 with_: <Selection2 extends string, Alias2 extends string>(
+  alias: Alias2,
   select: (acc: {
     [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
-  }) => SelectStatement<any, Selection2>,
-  alias: Alias2
+  }) => SelectStatement<any, Selection2>
 ) =>
   CommonTableExpressionFactory<
     Scope | `${Alias2}.${Selection2}`,
@@ -63,36 +63,15 @@ Added in v1.0.0
 
 ```ts
 withR: <Selection2 extends string, Alias2 extends string>(
+  alias: Alias2,
+  columns: readonly Selection2[],
   select: (acc: {
     [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
-  }) => SelectStatement<any, any>,
-  alias: Alias2,
-  columns: readonly Selection2[]
+  }) => SelectStatement<any, any>
 ) =>
   CommonTableExpressionFactory<
     Scope | `${Alias2}.${Selection2}`,
     Aliases | Alias2
-  >;
-```
-
-Added in v1.0.0
-
-### selectThis (property)
-
-**Signature**
-
-```ts
-selectThis: <NewSelection extends string, SelectedAlias extends Aliases>(
-  f: (
-    f: Record<Scope | FilterStarting<Scope, SelectedAlias>, SafeString> &
-      NoSelectFieldsCompileError
-  ) => Record<NewSelection, SafeString>,
-  from: SelectedAlias
-) =>
-  SelectStatement<
-    | FilterStarting<Scope, SelectedAlias>
-    | `${SelectedAlias}.${FilterStarting<Scope, SelectedAlias>}`,
-    NewSelection
   >;
 ```
 
@@ -103,7 +82,7 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-do: <A extends string, B extends string>(f: (acc: { [K in Aliases]: TableOrSubquery<K, Scope, FilterStarting<Scope, K>, any>; }) => SelectStatement<A, B>) => SelectStatement<A, B>
+do: <A extends string, B extends string>(f: (acc: { [K in Aliases]: TableOrSubquery<K, Scope, FilterStarting<Scope, K> | `${K}.${FilterStarting<Scope, K>}`, any>; }) => SelectStatement<A, B>) => SelectStatement<A, B>
 ```
 
 Added in v1.0.0

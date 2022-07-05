@@ -30,9 +30,9 @@ export class CommonTableExpressionFactory<
         Selection extends string,
         Alias extends string
     >(
-        select: SelectStatement<any, any>,
         alias: Alias,
-        columns: ReadonlyArray<Selection>
+        columns: ReadonlyArray<Selection>,
+        select: SelectStatement<any, any>
     ): CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias> =>
         new CommonTableExpressionFactory({
             ctes: [{ columns, alias, select }],
@@ -40,8 +40,8 @@ export class CommonTableExpressionFactory<
 
     /*  @internal */
     public static define = <Selection extends string, Alias extends string>(
-        select: SelectStatement<any, Selection>,
-        alias: Alias
+        alias: Alias,
+        select: SelectStatement<any, Selection>
     ): CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias> =>
         new CommonTableExpressionFactory({
             ctes: [{ columns: [], alias, select }],
@@ -61,10 +61,10 @@ export class CommonTableExpressionFactory<
      * @since 1.0.0
      */
     public with_ = <Selection2 extends string, Alias2 extends string>(
+        alias: Alias2,
         select: (acc: {
             [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
-        }) => SelectStatement<any, Selection2>,
-        alias: Alias2
+        }) => SelectStatement<any, Selection2>
     ): CommonTableExpressionFactory<
         `${Alias2}.${Selection2}` | Scope,
         Aliases | Alias2
@@ -83,11 +83,11 @@ export class CommonTableExpressionFactory<
      * @since 1.0.0
      */
     public withR = <Selection2 extends string, Alias2 extends string>(
+        alias: Alias2,
+        columns: ReadonlyArray<Selection2>,
         select: (acc: {
             [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
-        }) => SelectStatement<any, any>,
-        alias: Alias2,
-        columns: ReadonlyArray<Selection2>
+        }) => SelectStatement<any, any>
     ): CommonTableExpressionFactory<
         `${Alias2}.${Selection2}` | Scope,
         Aliases | Alias2
@@ -110,7 +110,7 @@ export class CommonTableExpressionFactory<
             [K in Aliases]: TableOrSubquery<
                 K,
                 Scope,
-                FilterStarting<Scope, K>,
+                FilterStarting<Scope, K> | `${K}.${FilterStarting<Scope, K>}`,
                 any
             >;
         }) => SelectStatement<A, B>

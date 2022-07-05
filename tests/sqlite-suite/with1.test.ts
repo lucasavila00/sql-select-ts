@@ -24,30 +24,28 @@ describe("sqlite with", () => {
         const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 
         const q = with_(
+            "regional_sales",
             select(
                 (f) => ({
                     region: f.region,
                     total_sales: SUM(f.amount),
                 }),
                 orders
-            ).groupBy((f) => f.region),
-            "regional_sales"
+            ).groupBy((f) => f.region)
         )
-            .with_(
-                (acc) =>
-                    select(
-                        (f) => ({
-                            region: f.region,
-                        }),
-                        acc.regional_sales
-                    ).where(
-                        (f) =>
-                            sql`${f.total_sales} > ${select(
-                                (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
-                                acc.regional_sales
-                            )}`
-                    ),
-                "top_regions"
+            .with_("top_regions", (acc) =>
+                select(
+                    (f) => ({
+                        region: f.region,
+                    }),
+                    acc.regional_sales
+                ).where(
+                    (f) =>
+                        sql`${f.total_sales} > ${select(
+                            (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+                            acc.regional_sales
+                        )}`
+                )
             )
             .do((acc) =>
                 select(
@@ -117,8 +115,8 @@ describe("sqlite with", () => {
     it("basic - no cols", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "t0_alias"
+            "t0_alias",
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
@@ -132,9 +130,9 @@ describe("sqlite with", () => {
     it("basic", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "t0_alias",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
@@ -148,9 +146,9 @@ describe("sqlite with", () => {
     it("1 with call", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "t0_alias",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .appendSelect((f) => ({ it2: f["t0_alias.a"] }))
@@ -165,15 +163,15 @@ describe("sqlite with", () => {
     it("2 with calls", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "t0_alias",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .withR(
                 //
-                () => t0.selectStar(),
                 "t1_alias",
-                ["d", "e"]
+                ["d", "e"],
+                () => t0.selectStar()
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
             .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
@@ -188,15 +186,15 @@ describe("sqlite with", () => {
     it("2 with calls - using prev", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "t0_alias",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .withR(
                 //
-                (acc) => acc.t0_alias.selectStar(),
                 "t1_alias",
-                ["d", "e"]
+                ["d", "e"],
+                (acc) => acc.t0_alias.selectStar()
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
 
@@ -212,15 +210,15 @@ describe("sqlite with", () => {
     it("2 with calls - not using prev", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "t0_alias",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .withR(
                 //
-                (_acc) => t0.selectStar(),
                 "t1_alias",
-                ["d", "e"]
+                ["d", "e"],
+                (_acc) => t0.selectStar()
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
 
@@ -236,13 +234,13 @@ describe("sqlite with", () => {
     it("2 with calls - using prev - no cols", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "t0_alias"
+            "t0_alias",
+            t0.selectStar()
         )
             .with_(
                 //
-                (acc) => acc.t0_alias.selectStar(),
-                "t1_alias"
+                "t1_alias",
+                (acc) => acc.t0_alias.selectStar()
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
 
@@ -258,13 +256,13 @@ describe("sqlite with", () => {
     it("2 with calls - not using prev - no cols", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "t0_alias"
+            "t0_alias",
+            t0.selectStar()
         )
             .with_(
                 //
-                () => t0.selectStar(),
-                "t1_alias"
+                "t1_alias",
+                () => t0.selectStar()
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
 
@@ -279,21 +277,21 @@ describe("sqlite with", () => {
     it("3 with calls - using prev", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "t0_alias",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .withR(
                 //
-                (acc) => acc.t0_alias.selectStar(),
                 "t1_alias",
-                ["d", "e"]
+                ["d", "e"],
+                (acc) => acc.t0_alias.selectStar()
             )
             .withR(
                 //
-                (acc) => acc.t1_alias.selectStar(),
                 "t2_alias",
-                ["abc", "def"]
+                ["abc", "def"],
+                (acc) => acc.t1_alias.selectStar()
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t2_alias))
 
@@ -308,9 +306,9 @@ describe("sqlite with", () => {
     it("with1-1.0", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "x",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
@@ -322,9 +320,9 @@ describe("sqlite with", () => {
     it("with1-1.0 -- no columns", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "x",
-            []
+            [],
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
@@ -338,9 +336,9 @@ describe("sqlite with", () => {
     it("with1-1.0 -- use alias", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "x",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .do((acc) => select((f) => ({ it: f.a }), acc.x))
 
@@ -354,9 +352,9 @@ describe("sqlite with", () => {
     it("with1-1.0 -- use alias2", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "x",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .do((acc) => select((f) => ({ it: f["x.a"] }), acc.x))
             .stringify();
@@ -370,9 +368,9 @@ describe("sqlite with", () => {
     it("with1-1.1", async () => {
         const q = withR(
             //
-            t0.selectStar(),
             "x",
-            ["a", "b"]
+            ["a", "b"],
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .selectStar()

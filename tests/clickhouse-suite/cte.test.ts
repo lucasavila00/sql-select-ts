@@ -16,11 +16,57 @@ describe("clickhouse cte", () => {
             `CREATE TABLE IF NOT EXISTS t15_clickhouse(x Int64, y Int64) ENGINE = AggregatingMergeTree() ORDER BY y`
         );
     });
+
+    it("type checks", async () => {
+        with_(
+            //
+            "t0_alias",
+            t0.selectStar()
+        )
+            .do((acc) =>
+                select(
+                    (f) => ({
+                        //@ts-expect-error
+                        it: f.abc,
+                    }),
+                    acc.t0_alias
+                )
+            )
+            .stringify();
+        try {
+            with_(
+                //
+                "t0_alias",
+                t0.selectStar()
+            )
+                //@ts-expect-error
+                .do((acc) => select((_f) => ({ it: sql(10) }), acc.t5_alias))
+                .stringify();
+
+            with_(
+                //
+                "t0_alias",
+                t0.selectStar()
+            )
+                .with_(
+                    //
+                    //@ts-expect-error
+                    (acc) => acc.abc.selectStar(),
+                    "t1_alias"
+                )
+                .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
+                .stringify();
+        } catch (e) {
+            //
+        }
+        expect(1).toBe(1);
+    });
+
     it("basic", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "t0_alias"
+            "t0_alias",
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
@@ -34,8 +80,8 @@ describe("clickhouse cte", () => {
     it("1 with call", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "t0_alias"
+            "t0_alias",
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
 
@@ -51,13 +97,13 @@ describe("clickhouse cte", () => {
     it("2 with calls", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "t0_alias"
+            "t0_alias",
+            t0.selectStar()
         )
             .with_(
                 //
-                () => t0.selectStar(),
-                "t1_alias"
+                "t1_alias",
+                () => t0.selectStar()
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
 
@@ -73,8 +119,8 @@ describe("clickhouse cte", () => {
     it("with1-1.0", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "x"
+            "x",
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
@@ -86,8 +132,8 @@ describe("clickhouse cte", () => {
     it("with1-1.0 -- no columns2", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "x"
+            "x",
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
@@ -101,8 +147,8 @@ describe("clickhouse cte", () => {
     it("with1-1.0 -- use alias", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "x"
+            "x",
+            t0.selectStar()
         )
             .do((acc) => select((f) => ({ it: f.y }), acc.x))
             .stringify();
@@ -115,8 +161,8 @@ describe("clickhouse cte", () => {
     it("with1-1.0 -- use alias2", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "x"
+            "x",
+            t0.selectStar()
         )
             .do((acc) => select((f) => ({ it: f["x.x"] }), acc.x))
             .stringify();
@@ -130,8 +176,8 @@ describe("clickhouse cte", () => {
     it("with1-1.1", async () => {
         const q = with_(
             //
-            t0.selectStar(),
-            "x"
+            "x",
+            t0.selectStar()
         )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .selectStar()

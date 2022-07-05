@@ -30,30 +30,25 @@ const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 
 ```ts
 with_(
+  "regional_sales",
   select(
-    (f) => ({
-      region: f.region,
-      total_sales: SUM(f.amount),
-    }),
+    (f) => ({ region: f.region, total_sales: SUM(f.amount) }),
     orders
-  ).groupBy((f) => f.region),
-  "regional_sales"
+  ).groupBy((f) => f.region)
 )
-  .with_(
-    (acc) =>
-      select(
-        (f) => ({
-          region: f.region,
-        }),
-        acc.regional_sales
-      ).where(
-        (f) =>
-          sql`${f.total_sales} > ${select(
-            (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
-            acc.regional_sales
-          )}`
-      ),
-    "top_regions"
+  .with_("top_regions", (acc) =>
+    select(
+      (f) => ({
+        region: f.region,
+      }),
+      acc.regional_sales
+    ).where(
+      (f) =>
+        sql`${f.total_sales} > ${select(
+          (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+          acc.regional_sales
+        )}`
+    )
   )
   .do((acc) =>
     select(
@@ -79,7 +74,7 @@ with_(
 
 ```sql
 WITH
-  regional_sales AS (
+  `regional_sales` AS (
     SELECT
       `region` AS `region`,
       SUM(`amount`) AS `total_sales`
@@ -88,7 +83,7 @@ WITH
     GROUP BY
       `region`
   ),
-  top_regions AS (
+  `top_regions` AS (
     SELECT
       `region` AS `region`
     FROM
