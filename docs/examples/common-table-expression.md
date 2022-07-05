@@ -26,8 +26,6 @@ const orders = table(["region", "amount", "product", "quantity"], "orders");
 const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 ```
 
-# Specifying columns
-
 ```ts
 with_(
   "regional_sales",
