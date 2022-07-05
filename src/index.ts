@@ -5,7 +5,7 @@
  */
 
 import { Compound } from "./classes/compound";
-import { CommonTableExpression } from "./classes/common-table-expression";
+import { CommonTableExpressionFactory } from "./classes/common-table-expression";
 import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
@@ -53,7 +53,7 @@ export const table = Table.define;
  * @category starter
  * @since 0.0.0
  */
-export const with_ = CommonTableExpression.define;
+export const with_ = CommonTableExpressionFactory.define;
 
 /**
  *
