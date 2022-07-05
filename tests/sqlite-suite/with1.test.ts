@@ -14,7 +14,7 @@ describe("sqlite with", () => {
     beforeAll(async () => {
         await run(`CREATE TABLE t0(x INTEGER, y INTEGER)`);
     });
-    it.skip("with1-1.0", async () => {
+    it("1 with call", async () => {
         const q = with_(
             //
             t0.selectStar(),
@@ -31,15 +31,31 @@ describe("sqlite with", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
-    // it("with1-1.0 - 2", async () => {
-    //     const q = with_(
-    //         //
-    //         t0.selectStar(),
-    //         "x",
-    //         ["a", "b"]
-    //     )
-    //         .selectStar()
-    //         .stringify();
+    it("2 with calls", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "t0_alias",
+            ["a", "b"]
+        )
+            .with_(
+                //
+                t0.selectStar(),
+                "t1_alias",
+                ["d", "e"]
+            )
+            .selectThis((_f) => ({ it: sql(10) }), "t0_alias")
+            .appendSelect((f) => ({ it2: f.it, it3: f["t0_alias.a"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM x`
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
+    // it("with1-1.0", async () => {
+    //     const q = 1
 
     //     expect(q).toMatchInlineSnapshot(
     //         `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT * FROM x`

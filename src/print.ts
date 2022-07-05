@@ -6,8 +6,8 @@ import { Table } from "./classes/table";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import { isTheProxyObject } from "./proxy";
 import type { SafeString } from "./safe-string";
-import { ClickhouseWith, JoinConstraint, TableOrSubquery } from "./types";
-import { absurd } from "./utils";
+import { ClickhouseWith, CTE, JoinConstraint, TableOrSubquery } from "./types";
+import { absurd, hole } from "./utils";
 import { wrapAlias, wrapAliasSplitDots } from "./wrap-alias";
 
 // re-define to avoid circular dependency
@@ -134,6 +134,15 @@ const printJoinedInternal = <
     const content = [head, tail].filter((it) => it.length > 0).join(" ");
     return content;
 };
+const printCtes = (ctes: ReadonlyArray<CTE>): string =>
+    ctes
+        .map((cte) => {
+            const cols =
+                cte.columns.length > 0 ? `(${cte.columns.join(", ")})` : ``;
+            const content = printInternal(cte.select, false);
+            return `${cte.alias}${cols} AS (${content})`;
+        })
+        .join(", ");
 
 const printClickhouseWith = (withes: ReadonlyArray<ClickhouseWith>): string =>
     withes
@@ -216,7 +225,14 @@ export const printSelectStatementInternal = <
         selectStatement.__props.clickhouseWith.length > 0
             ? printClickhouseWith(selectStatement.__props.clickhouseWith)
             : ``;
-    const withKeyword = clickhouseWith.length > 0 ? "WITH" : "";
+
+    const withFromCte =
+        selectStatement.__props.ctes.length > 0
+            ? printCtes(selectStatement.__props.ctes)
+            : "";
+
+    const withKeyword =
+        withFromCte.length > 0 || clickhouseWith.length > 0 ? "WITH" : "";
 
     const contentNoParenthesis = [
         withKeyword,

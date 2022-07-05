@@ -53,3 +53,9 @@ export type SelectionOfSelectStatement<T> = T extends SelectStatement<
 >
     ? Selection
     : never;
+
+export type CTE = {
+    readonly columns: ReadonlyArray<string>;
+    readonly alias: string;
+    readonly select: SelectStatement<any, any>;
+};

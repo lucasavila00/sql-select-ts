@@ -51,7 +51,7 @@ export const table = Table.define;
  * Create a common table expression.
  *
  * @category starter
- * @since 0.0.0
+ * @since 1.0.0
  */
 export const with_ = CommonTableExpressionFactory.define;
 

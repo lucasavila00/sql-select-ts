@@ -1,21 +1,20 @@
 /**
- * @since 0.0.0
+ * @since 1.0.0
  */
+import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { NoSelectFieldsCompileError } from "../types";
-import { hole } from "../utils";
+import { CTE, NoSelectFieldsCompileError } from "../types";
 import { SelectStatement } from "./select-statement";
+import { AliasedRows } from "../data-wrappers";
 
-export type CTE = {
-    readonly columns: ReadonlyArray<string>;
-    readonly alias: string;
-    readonly select: SelectStatement<any, any>;
-};
-
-export type FilterStarting<
+type FilterStarting<
     All extends string,
     Start extends string
 > = All extends `${Start}.${infer U}` ? U : never;
+
+/**
+ * @since 1.0.0
+ */
 export class CommonTableExpressionFactory<
     Scope extends string,
     Aliases extends string
@@ -48,7 +47,9 @@ export class CommonTableExpressionFactory<
         };
         return this;
     };
-
+    /**
+     * @since 1.0.0
+     */
     public with_ = <Selection2 extends string, Alias2 extends string>(
         select: SelectStatement<any, any>,
         alias: Alias2,
@@ -63,25 +64,28 @@ export class CommonTableExpressionFactory<
         ]) as any;
 
     /**
-     * @since 0.0.0
+     * @since 1.0.0
      */
     public selectThis = <
         NewSelection extends string,
         SelectedAlias extends Aliases
     >(
-        _f: (
+        f: (
             f: Record<
                 Scope | FilterStarting<Scope, SelectedAlias>,
                 SafeString
             > &
                 NoSelectFieldsCompileError
         ) => Record<NewSelection, SafeString>,
-        _from: SelectedAlias
+        from: SelectedAlias
     ): SelectStatement<
         FilterStarting<Scope, SelectedAlias> | Scope,
         NewSelection
-    > => hole();
-    // SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
-
-    // public select, where it chooses one of the CTEs or other table as source, creating CommonTableExpression
+    > =>
+        SelectStatement.__fromCommonTableExpression(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.__props.ctes.find((it) => it.alias === from)!.select,
+            [AliasedRows(f(proxy))],
+            this.__props.ctes
+        );
 }
