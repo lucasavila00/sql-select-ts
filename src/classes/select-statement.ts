@@ -79,30 +79,6 @@ export class SelectStatement<Scope extends string, Selection extends string> {
             }
         );
 
-    /* @internal */
-    public static __fromCommonTableExpression = (
-        it: TableOrSubquery<any, any, any, any>,
-        selection: SelectionWrapperTypes<any>,
-        ctes: ReadonlyArray<CTE>
-    ): SelectStatement<any, any> =>
-        new SelectStatement(
-            //
-            {
-                from: it,
-                selection,
-                replace: [],
-                orderBy: [],
-                groupBy: [],
-                limit: null,
-                where: [],
-                prewhere: [],
-                having: [],
-                distinct: false,
-                clickhouseWith: [],
-                ctes,
-            }
-        );
-
     /**
      * @internal
      */
