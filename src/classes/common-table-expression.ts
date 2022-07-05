@@ -3,7 +3,7 @@
  */
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
-import { CTE, NoSelectFieldsCompileError } from "../types";
+import { CTE, NoSelectFieldsCompileError, TableOrSubquery } from "../types";
 import { SelectStatement } from "./select-statement";
 import { AliasedRows } from "../data-wrappers";
 import { Table } from "./table";
@@ -64,7 +64,7 @@ export class CommonTableExpressionFactory<
      * @since 1.0.0
      */
     public with_ = <Selection2 extends string, Alias2 extends string>(
-        select: (old: {
+        select: (acc: {
             [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
         }) => SelectStatement<any, Selection2>,
         alias: Alias2
@@ -86,7 +86,7 @@ export class CommonTableExpressionFactory<
      * @since 1.0.0
      */
     public withR = <Selection2 extends string, Alias2 extends string>(
-        select: (old: {
+        select: (acc: {
             [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
         }) => SelectStatement<any, any>,
         alias: Alias2,
@@ -131,5 +131,20 @@ export class CommonTableExpressionFactory<
             this.__props.ctes
         );
 
-    // to source ???
+    public do = <A extends string, B extends string>(
+        f: (acc: {
+            [K in Aliases]: TableOrSubquery<
+                K,
+                Scope,
+                FilterStarting<Scope, K>,
+                any
+            >;
+        }) => SelectStatement<A, B>
+    ): SelectStatement<A, B> => {
+        const oldMap: any = {};
+        for (const cte of this.__props.ctes) {
+            oldMap[cte.alias] = Table.define([], cte.alias);
+        }
+        return f(oldMap).__setCtes(this.__props.ctes);
+    };
 }

@@ -193,6 +193,17 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         };
         return this;
     };
+    private setCtes = (ctes: ReadonlyArray<CTE>): this => {
+        this.__props = {
+            ...this.__props,
+            ctes,
+        };
+        return this;
+    };
+    /**
+     * @internal
+     */
+    public __setCtes = this.setCtes;
     private setPrewhere = (prewhere: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,

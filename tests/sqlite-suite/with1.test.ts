@@ -16,7 +16,10 @@ describe("sqlite with", () => {
         await run(`CREATE TABLE t0(x INTEGER, y INTEGER)`);
     });
     it("bun", async () => {
-        const orders = table(["region", "amount"], "orders");
+        const orders = table(
+            ["region", "amount", "product", "quantity"],
+            "orders"
+        );
 
         const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 
@@ -46,9 +49,28 @@ describe("sqlite with", () => {
                                 acc.regional_sales
                             )}`
                     ),
-                "regional_sales"
+                "top_regions"
             )
-            .selectThis((_f) => ({ it: sql(10) }), "regional_sales")
+            .do((acc) =>
+                select(
+                    //
+                    (f) => ({
+                        region: f.region,
+                        product: f.product,
+                        product_units: SUM(f.quantity),
+                        product_sales: SUM(f.amount),
+                    }),
+                    orders
+                )
+                    .where(
+                        (f) =>
+                            sql`${f.region} IN ${select(
+                                (f) => ({ region: f.region }),
+                                acc.top_regions
+                            )}`
+                    )
+                    .groupBy((f) => [f.region, f.product])
+            )
             .stringify();
 
         expect(format(q)).toMatchInlineSnapshot(`
@@ -62,7 +84,7 @@ describe("sqlite with", () => {
                 GROUP BY
                   \`region\`
               ),
-              regional_sales AS (
+              top_regions AS (
                 SELECT
                   \`region\` AS \`region\`
                 FROM
@@ -76,9 +98,22 @@ describe("sqlite with", () => {
                   )
               )
             SELECT
-              10 AS \`it\`
+              \`region\` AS \`region\`,
+              \`product\` AS \`product\`,
+              SUM(\`quantity\`) AS \`product_units\`,
+              SUM(\`amount\`) AS \`product_sales\`
             FROM
-              \`regional_sales\`
+              \`orders\`
+            WHERE
+              \`region\` IN (
+                SELECT
+                  \`region\` AS \`region\`
+                FROM
+                  \`top_regions\`
+              )
+            GROUP BY
+              \`region\`,
+              \`product\`
         `);
     });
 
