@@ -288,18 +288,22 @@ export type {
  * @since 1.0.0
  */
 export const select = <
-    NewSelection extends string,
-    FromAlias extends string,
-    FromSelection extends string,
-    FromScope extends string,
-    FromAmbigous extends string
+    NewSelection extends string = never,
+    FromAlias extends string = never,
+    FromSelection extends string = never,
+    FromScope extends string = never,
+    FromAmbigous extends string = never,
+    SubSelection extends FromSelection = never
 >(
-    f: (
-        f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
-    ) => Record<NewSelection, SafeString>,
+    f:
+        | ReadonlyArray<SubSelection>
+        | ((
+              f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
+          ) => Record<NewSelection, SafeString>),
     from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-): SelectStatement<FromScope | FromSelection, NewSelection> =>
-    from.select(f as any) as any;
+): SelectStatement<FromScope | FromSelection, NewSelection | SubSelection> =>
+    //@ts-expect-error
+    from.select(f);
 
 /**
  *
@@ -309,10 +313,10 @@ export const select = <
  * @since 1.0.0
  */
 export const selectStar = <
-    FromAlias extends string,
-    FromSelection extends string,
-    FromScope extends string,
-    FromAmbigous extends string
+    FromAlias extends string = never,
+    FromSelection extends string = never,
+    FromScope extends string = never,
+    FromAmbigous extends string = never
 >(
     from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
 ): SelectStatement<FromSelection, FromSelection> => from.selectStar();

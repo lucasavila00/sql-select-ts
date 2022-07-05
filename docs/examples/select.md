@@ -95,10 +95,10 @@ Starting at query top
 ```ts
 selectStar(
   select(
-    (f) => ({ it2: f.it }),
+    ["it"],
     //
     initialData
-  ).where((f) => sql`${f.it2} = 1`)
+  ).where((f) => sql`${f.it} = 1`)
 ).stringify();
 ```
 
@@ -108,14 +108,14 @@ SELECT
 FROM
   (
     SELECT
-      `it` AS `it2`
+      `it` AS `it`
     FROM
       (
         SELECT
           0 AS `it`
       )
     WHERE
-      `it2` = 1
+      `it` = 1
   )
 ```
 
@@ -123,8 +123,8 @@ Starting at query root
 
 ```ts
 initialData
-  .select((f) => ({ it2: f.it }))
-  .where((f) => sql`${f.it2} = 1`)
+  .select(["it"])
+  .where((f) => sql`${f.it} = 1`)
   .selectStar()
   .stringify();
 ```
@@ -135,14 +135,14 @@ SELECT
 FROM
   (
     SELECT
-      `it` AS `it2`
+      `it` AS `it`
     FROM
       (
         SELECT
           0 AS `it`
       )
     WHERE
-      `it2` = 1
+      `it` = 1
   )
 ```
 
@@ -224,10 +224,7 @@ FROM
 ## Select distinct
 
 ```ts
-admins
-  .select((f) => ({ name: f.name }))
-  .distinct()
-  .stringify();
+admins.select(["name"]).distinct().stringify();
 ```
 
 ```sql
@@ -278,11 +275,7 @@ FROM
 ## Select from sub-select
 
 ```ts
-users
-  .selectStar()
-  .select((f) => ({ age: f.age }))
-  .selectStar()
-  .stringify();
+users.selectStar().select(["age"]).selectStar().stringify();
 ```
 
 ```sql
@@ -305,9 +298,7 @@ FROM
 ## Select from union
 
 ```ts
-unionAll([users.selectStar(), admins.selectStar()])
-  .select((f) => ({ age: f.age }))
-  .stringify();
+unionAll([users.selectStar(), admins.selectStar()]).select(["age"]).stringify();
 ```
 
 ```sql
@@ -333,17 +324,14 @@ FROM
 users
   .joinTable("LEFT", admins)
   .using(["id"])
-  .select((f) => ({
-    userName: f["users.name"],
-    admName: f["adm.name"],
-  }))
+  .select(["users.name", "adm.name"])
   .stringify();
 ```
 
 ```sql
 SELECT
-  `users`.`name` AS `userName`,
-  `adm`.`name` AS `admName`
+  `users`.`name` AS `users.name`,
+  `adm`.`name` AS `adm.name`
 FROM
   `users`
   LEFT JOIN `admins` AS `adm` USING(`id`)

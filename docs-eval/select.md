@@ -73,10 +73,10 @@ Starting at query top
 ```ts eval --yield=sql
 yield selectStar(
     select(
-        (f) => ({ it2: f.it }),
+        ["it"],
         //
         initialData
-    ).where((f) => sql`${f.it2} = 1`)
+    ).where((f) => sql`${f.it} = 1`)
 ).stringify();
 ```
 
@@ -84,8 +84,8 @@ Starting at query root
 
 ```ts eval --yield=sql
 yield initialData
-    .select((f) => ({ it2: f.it }))
-    .where((f) => sql`${f.it2} = 1`)
+    .select(["it"])
+    .where((f) => sql`${f.it} = 1`)
     .selectStar()
     .stringify();
 ```
@@ -147,10 +147,7 @@ yield users.select((f) => ({ maxAge: MAX(f.age) })).stringify();
 ## Select distinct
 
 ```ts eval --yield=sql
-yield admins
-    .select((f) => ({ name: f.name }))
-    .distinct()
-    .stringify();
+yield admins.select(["name"]).distinct().stringify();
 ```
 
 ## Select star and a field
@@ -178,18 +175,14 @@ yield admins
 ## Select from sub-select
 
 ```ts eval --yield=sql
-yield users
-    .selectStar()
-    .select((f) => ({ age: f.age }))
-    .selectStar()
-    .stringify();
+yield users.selectStar().select(["age"]).selectStar().stringify();
 ```
 
 ## Select from union
 
 ```ts eval --yield=sql
 yield unionAll([users.selectStar(), admins.selectStar()])
-    .select((f) => ({ age: f.age }))
+    .select(["age"])
     .stringify();
 ```
 
@@ -199,10 +192,7 @@ yield unionAll([users.selectStar(), admins.selectStar()])
 yield users
     .joinTable("LEFT", admins)
     .using(["id"])
-    .select((f) => ({
-        userName: f["users.name"],
-        admName: f["adm.name"],
-    }))
+    .select(["users.name", "adm.name"])
     .stringify();
 ```
 

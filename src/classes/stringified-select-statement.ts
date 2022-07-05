@@ -11,7 +11,7 @@ import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 import { Table } from "./table";
 import { AliasedRows, StarSymbol } from "../data-wrappers";
-import { proxy } from "../proxy";
+import { consume } from "../consume-fields";
 
 /**
  *
@@ -47,12 +47,17 @@ export class StringifiedSelectStatement<Selection extends string> {
     /**
      * @since 0.0.3
      */
-    public select = <NewSelection extends string>(
-        f: (
-            f: Record<Selection, SafeString> & NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection, NewSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    public select = <
+        NewSelection extends string = never,
+        SubSelection extends Selection = never
+    >(
+        f:
+            | ReadonlyArray<SubSelection>
+            | ((
+                  f: Record<Selection, SafeString> & NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<Selection, NewSelection | SubSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(consume(f))]);
 
     /**
      * @since 0.0.3

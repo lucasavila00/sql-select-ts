@@ -4,6 +4,7 @@
  *
  * @since 0.0.0
  */
+import { consume } from "../consume-fields";
 import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
 import { printSelectStatement } from "../print";
 import { proxy } from "../proxy";
@@ -246,13 +247,18 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     /**
      * @since 0.0.0
      */
-    public select = <NewSelection extends string>(
-        f: (
-            f: Record<Selection | Scope, SafeString> &
-                NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection, NewSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    public select = <
+        NewSelection extends string = never,
+        SubSelection extends Selection | Scope = never
+    >(
+        f:
+            | ReadonlyArray<SubSelection>
+            | ((
+                  f: Record<Selection | Scope, SafeString> &
+                      NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<Selection, NewSelection | SubSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(consume(f))]);
 
     /**
      * @since 0.0.0

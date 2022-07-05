@@ -57,11 +57,16 @@ Added in v0.0.3
 **Signature**
 
 ```ts
-select: <NewSelection extends string>(
-  f: (
-    f: Record<Selection, SafeString> & NoSelectFieldsCompileError
-  ) => Record<NewSelection, SafeString>
-) => SelectStatement<Selection, NewSelection>;
+select: <
+  NewSelection extends string = never,
+  SubSelection extends Selection = never
+>(
+  f:
+    | readonly SubSelection[]
+    | ((
+        f: Record<Selection, SafeString> & NoSelectFieldsCompileError
+      ) => Record<NewSelection, SafeString>)
+) => SelectStatement<Selection, NewSelection | SubSelection>;
 ```
 
 Added in v0.0.3

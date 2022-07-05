@@ -4,6 +4,7 @@
  *
  * @since 0.0.0
  */
+import { consume } from "../consume-fields";
 import { StarOfAliasesSymbol, StarSymbol, AliasedRows } from "../data-wrappers";
 import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
@@ -148,13 +149,18 @@ export class Joined<
     /**
      * @since 0.0.0
      */
-    public select = <NewSelection extends string>(
-        f: (
-            f: Record<Selection | Scope, SafeString> &
-                NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection | Scope, NewSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    public select = <
+        NewSelection extends string = never,
+        SubSelection extends Selection | Scope = never
+    >(
+        f:
+            | ReadonlyArray<SubSelection>
+            | ((
+                  f: Record<Selection | Scope, SafeString> &
+                      NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<Selection | Scope, NewSelection | SubSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(consume(f))]);
 
     /**
      * @since 0.0.0
