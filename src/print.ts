@@ -138,9 +138,11 @@ const printCtes = (ctes: ReadonlyArray<CTE>): string =>
     ctes
         .map((cte) => {
             const cols =
-                cte.columns.length > 0 ? `(${cte.columns.join(", ")})` : ``;
+                cte.columns.length > 0
+                    ? `(${cte.columns.map(wrapAliasSplitDots).join(", ")})`
+                    : ``;
             const content = printInternal(cte.select, false);
-            return `${cte.alias}${cols} AS (${content})`;
+            return `${wrapAlias(cte.alias)}${cols} AS (${content})`;
         })
         .join(", ");
 

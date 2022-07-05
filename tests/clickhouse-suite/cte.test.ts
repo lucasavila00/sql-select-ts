@@ -26,7 +26,7 @@ describe("clickhouse cte", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -42,7 +42,7 @@ describe("clickhouse cte", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\`, \`t0_alias\`.\`x\` AS \`it2\` FROM \`t0_alias\``
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\`, \`t0_alias\`.\`x\` AS \`it2\` FROM \`t0_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -63,7 +63,7 @@ describe("clickhouse cte", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias AS (SELECT * FROM \`t15_clickhouse\`), t1_alias AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`y\` AS \`it2\` FROM \`t1_alias\``
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t15_clickhouse\`), \`t1_alias\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`y\` AS \`it2\` FROM \`t1_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -77,7 +77,7 @@ describe("clickhouse cte", () => {
             .selectThis((_f) => ({ it: sql(10) }), "x")
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
+            `WITH \`x\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -91,7 +91,7 @@ describe("clickhouse cte", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
+            `WITH \`x\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -106,7 +106,7 @@ describe("clickhouse cte", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT \`y\` AS \`it\` FROM \`x\``
+            `WITH \`x\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT \`y\` AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -120,7 +120,7 @@ describe("clickhouse cte", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT \`x\`.\`x\` AS \`it\` FROM \`x\``
+            `WITH \`x\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT \`x\`.\`x\` AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -136,7 +136,7 @@ describe("clickhouse cte", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\`)`
+            `SELECT * FROM (WITH \`x\` AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

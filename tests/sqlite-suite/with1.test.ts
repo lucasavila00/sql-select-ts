@@ -72,7 +72,7 @@ describe("sqlite with", () => {
 
         expect(format(q)).toMatchInlineSnapshot(`
             WITH
-              regional_sales AS (
+              \`regional_sales\` AS (
                 SELECT
                   \`region\` AS \`region\`,
                   SUM(\`amount\`) AS \`total_sales\`
@@ -81,7 +81,7 @@ describe("sqlite with", () => {
                 GROUP BY
                   \`region\`
               ),
-              top_regions AS (
+              \`top_regions\` AS (
                 SELECT
                   \`region\` AS \`region\`
                 FROM
@@ -124,7 +124,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -140,7 +140,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`t0_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -157,7 +157,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t0_alias\`.\`a\` AS \`it2\` FROM \`t0_alias\``
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t0_alias\`.\`a\` AS \`it2\` FROM \`t0_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -180,7 +180,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`), t1_alias(d, e) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`), \`t1_alias\`(\`d\`, \`e\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -203,7 +203,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`), t1_alias(d, e) AS (SELECT * FROM \`t0_alias\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`), \`t1_alias\`(\`d\`, \`e\`) AS (SELECT * FROM \`t0_alias\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -226,7 +226,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`), t1_alias(d, e) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`), \`t1_alias\`(\`d\`, \`e\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -247,7 +247,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias AS (SELECT * FROM \`t0\`), t1_alias AS (SELECT * FROM \`t0_alias\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`x\` AS \`it2\` FROM \`t1_alias\``
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t0\`), \`t1_alias\` AS (SELECT * FROM \`t0_alias\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`x\` AS \`it2\` FROM \`t1_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -268,7 +268,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias AS (SELECT * FROM \`t0\`), t1_alias AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`x\` AS \`it2\` FROM \`t1_alias\``
+            `WITH \`t0_alias\` AS (SELECT * FROM \`t0\`), \`t1_alias\` AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`x\` AS \`it2\` FROM \`t1_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -296,7 +296,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`), t1_alias(d, e) AS (SELECT * FROM \`t0_alias\`), t2_alias(abc, def) AS (SELECT * FROM \`t1_alias\`) SELECT 10 AS \`it\`, \`t2_alias\`.\`abc\` AS \`it2\` FROM \`t2_alias\``
+            `WITH \`t0_alias\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`), \`t1_alias\`(\`d\`, \`e\`) AS (SELECT * FROM \`t0_alias\`), \`t2_alias\`(\`abc\`, \`def\`) AS (SELECT * FROM \`t1_alias\`) SELECT 10 AS \`it\`, \`t2_alias\`.\`abc\` AS \`it2\` FROM \`t2_alias\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -310,7 +310,7 @@ describe("sqlite with", () => {
             .selectThis((_f) => ({ it: sql(10) }), "x")
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
+            `WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -325,7 +325,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
+            `WITH \`x\` AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -341,7 +341,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT \`a\` AS \`it\` FROM \`x\``
+            `WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT \`a\` AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -356,7 +356,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT \`x\`.\`a\` AS \`it\` FROM \`x\``
+            `WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT \`x\`.\`a\` AS \`it\` FROM \`x\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
@@ -373,7 +373,7 @@ describe("sqlite with", () => {
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM (WITH x(a, b) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\`)`
+            `SELECT * FROM (WITH \`x\`(\`a\`, \`b\`) AS (SELECT * FROM \`t0\`) SELECT 10 AS \`it\` FROM \`x\`)`
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });

@@ -30,7 +30,6 @@ const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 
 ```ts
 with_(
-  //
   select(
     (f) => ({
       region: f.region,
@@ -41,7 +40,6 @@ with_(
   "regional_sales"
 )
   .with_(
-    //
     (acc) =>
       select(
         (f) => ({
@@ -59,7 +57,6 @@ with_(
   )
   .do((acc) =>
     select(
-      //
       (f) => ({
         region: f.region,
         product: f.product,
