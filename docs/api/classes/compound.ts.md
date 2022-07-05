@@ -53,9 +53,11 @@ Added in v0.0.0
 
 ```ts
 orderBy: (
-  f: (
-    fields: Record<Scope | Selection, SafeString>
-  ) => SafeString[] | SafeString
+  f:
+    | readonly (Scope | Selection)[]
+    | ((
+        fields: Record<Scope | Selection, SafeString>
+      ) => SafeString[] | SafeString)
 ) => Compound<Scope, Selection>;
 ```
 
@@ -76,11 +78,16 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-select: <NewSelection extends string>(
-  f: (
-    fields: Record<Selection, SafeString> & NoSelectFieldsCompileError
-  ) => Record<NewSelection, SafeString>
-) => SelectStatement<Selection, NewSelection>;
+select: <
+  NewSelection extends string = never,
+  SubSelection extends Selection = never
+>(
+  f:
+    | readonly SubSelection[]
+    | ((
+        fields: Record<Selection, SafeString> & NoSelectFieldsCompileError
+      ) => Record<NewSelection, SafeString>)
+) => SelectStatement<Selection, NewSelection | SubSelection>;
 ```
 
 Added in v0.0.0

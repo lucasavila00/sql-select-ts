@@ -6,8 +6,8 @@
  *
  * @since 0.0.0
  */
+import { consumeRecordCallback } from "../consume-fields";
 import { AliasedRows, StarSymbol } from "../data-wrappers";
-import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import { NoSelectFieldsCompileError } from "../types";
 import { Compound } from "./compound";
@@ -66,13 +66,23 @@ export class Table<Selection extends string, Alias extends string> {
     /**
      * @since 0.0.0
      */
-    public select = <NewSelection extends string>(
-        f: (
-            f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
-                NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection | `${Alias}.${Selection}`, NewSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    public select = <
+        NewSelection extends string = never,
+        SubSelection extends Selection | `${Alias}.${Selection}` = never
+    >(
+        f:
+            | ReadonlyArray<SubSelection>
+            | ((
+                  f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
+                      NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<
+        Selection | `${Alias}.${Selection}`,
+        NewSelection | SubSelection
+    > =>
+        SelectStatement.__fromTableOrSubquery(this, [
+            AliasedRows(consumeRecordCallback(f)),
+        ]);
 
     /**
      * @since 0.0.0

@@ -96,6 +96,28 @@ HAVING
   AND `y`
 ```
 
+```ts
+t0.selectStar()
+  .groupBy(["x"])
+  .having(["x"])
+  .groupBy(["y"])
+  .having(["y"])
+  .stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `t0`
+GROUP BY
+  `x`,
+  `y`
+HAVING
+  `x`
+  AND `y`
+```
+
 ## In one call
 
 ```ts
@@ -103,6 +125,23 @@ t0.selectStar()
   .groupBy((f) => [f.x, f.y])
   .having((f) => [f.x, f.y])
   .stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `t0`
+GROUP BY
+  `x`,
+  `y`
+HAVING
+  `x`
+  AND `y`
+```
+
+```ts
+t0.selectStar().groupBy(["x", "y"]).having(["x", "y"]).stringify();
 ```
 
 ```sql

@@ -62,3 +62,7 @@ yield users
     .orderBy((f) => f.id)
     .stringify();
 ```
+
+```ts eval --yield=sql
+yield users.selectStar().orderBy(["age", "id"]).stringify();
+```

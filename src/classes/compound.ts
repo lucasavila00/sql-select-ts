@@ -4,9 +4,9 @@
  *
  * @since 0.0.0
  */
+import { consumeArrayCallback, consumeRecordCallback } from "../consume-fields";
 import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { printCompound } from "../print";
-import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import {
     TableOrSubquery,
@@ -142,13 +142,15 @@ export class Compound<Scope extends string, Selection extends string> {
      * @since 0.0.0
      */
     public orderBy = (
-        f: (
-            fields: Record<Scope | Selection, SafeString>
-        ) => SafeString[] | SafeString
+        f:
+            | ReadonlyArray<Scope | Selection>
+            | ((
+                  fields: Record<Scope | Selection, SafeString>
+              ) => SafeString[] | SafeString)
     ): Compound<Scope, Selection> =>
         this.copy().setOrderBy([
             ...this.__props.orderBy,
-            ...makeArray(f(proxy)),
+            ...makeArray(consumeArrayCallback(f)),
         ]);
 
     /**
@@ -160,12 +162,20 @@ export class Compound<Scope extends string, Selection extends string> {
     /**
      * @since 0.0.0
      */
-    public select = <NewSelection extends string>(
-        f: (
-            fields: Record<Selection, SafeString> & NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection, NewSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    public select = <
+        NewSelection extends string = never,
+        SubSelection extends Selection = never
+    >(
+        f:
+            | ReadonlyArray<SubSelection>
+            | ((
+                  fields: Record<Selection, SafeString> &
+                      NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<Selection, NewSelection | SubSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [
+            AliasedRows(consumeRecordCallback(f)),
+        ]);
 
     /**
      * @since 0.0.0

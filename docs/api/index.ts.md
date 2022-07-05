@@ -211,17 +211,20 @@ Creates a query selecting from the second parameter.
 
 ```ts
 export declare const select: <
-  NewSelection extends string,
-  FromAlias extends string,
-  FromSelection extends string,
-  FromScope extends string,
-  FromAmbigous extends string
+  NewSelection extends string = never,
+  FromAlias extends string = never,
+  FromSelection extends string = never,
+  FromScope extends string = never,
+  FromAmbigous extends string = never,
+  SubSelection extends FromSelection = never
 >(
-  f: (
-    f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
-  ) => Record<NewSelection, SafeString>,
+  f:
+    | readonly SubSelection[]
+    | ((
+        f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
+      ) => Record<NewSelection, SafeString>),
   from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-) => SelectStatement<FromSelection | FromScope, NewSelection>;
+) => SelectStatement<FromSelection | FromScope, NewSelection | SubSelection>;
 ```
 
 Added in v1.0.0
@@ -234,10 +237,10 @@ Creates a query selecting all from the second parameter.
 
 ```ts
 export declare const selectStar: <
-  FromAlias extends string,
-  FromSelection extends string,
-  FromScope extends string,
-  FromAmbigous extends string
+  FromAlias extends string = never,
+  FromSelection extends string = never,
+  FromScope extends string = never,
+  FromAmbigous extends string = never
 >(
   from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
 ) => SelectStatement<FromSelection, FromSelection>;

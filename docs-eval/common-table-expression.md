@@ -32,15 +32,10 @@ yield with_(
     select(
         (f) => ({ region: f.region, total_sales: SUM(f.amount) }),
         orders
-    ).groupBy((f) => f.region)
+    ).groupBy(["region"])
 )
     .with_("top_regions", (acc) =>
-        select(
-            (f) => ({
-                region: f.region,
-            }),
-            acc.regional_sales
-        ).where(
+        select(["region"], acc.regional_sales).where(
             (f) =>
                 sql`${f.total_sales} > ${select(
                     (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
@@ -60,12 +55,9 @@ yield with_(
         )
             .where(
                 (f) =>
-                    sql`${f.region} IN ${select(
-                        (f) => ({ region: f.region }),
-                        acc.top_regions
-                    )}`
+                    sql`${f.region} IN ${select(["region"], acc.top_regions)}`
             )
-            .groupBy((f) => [f.region, f.product])
+            .groupBy(["region", "product"])
     )
     .stringify();
 ```

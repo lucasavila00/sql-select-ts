@@ -4,6 +4,7 @@
  *
  * @since 0.0.0
  */
+import { consumeArrayCallback, consumeRecordCallback } from "../consume-fields";
 import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
 import { printSelectStatement } from "../print";
 import { proxy } from "../proxy";
@@ -219,13 +220,15 @@ export class SelectStatement<Scope extends string, Selection extends string> {
          * @since 0.0.0
          */
         prewhere: (
-            f: (
-                fields: Record<Scope | Selection, SafeString>
-            ) => ReadonlyArray<SafeString> | SafeString
+            f:
+                | ReadonlyArray<Scope | Selection>
+                | ((
+                      fields: Record<Scope | Selection, SafeString>
+                  ) => ReadonlyArray<SafeString> | SafeString)
         ): SelectStatement<Scope, Selection> =>
             this.copy().setPrewhere([
                 ...this.__props.prewhere,
-                ...makeArray(f(proxy)),
+                ...makeArray(consumeArrayCallback(f)),
             ]),
 
         /**
@@ -246,13 +249,20 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     /**
      * @since 0.0.0
      */
-    public select = <NewSelection extends string>(
-        f: (
-            f: Record<Selection | Scope, SafeString> &
-                NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>
-    ): SelectStatement<Selection, NewSelection> =>
-        SelectStatement.__fromTableOrSubquery(this, [AliasedRows(f(proxy))]);
+    public select = <
+        NewSelection extends string = never,
+        SubSelection extends Selection | Scope = never
+    >(
+        f:
+            | ReadonlyArray<SubSelection>
+            | ((
+                  f: Record<Selection | Scope, SafeString> &
+                      NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<Selection, NewSelection | SubSelection> =>
+        SelectStatement.__fromTableOrSubquery(this, [
+            AliasedRows(consumeRecordCallback(f)),
+        ]);
 
     /**
      * @since 0.0.0
@@ -270,35 +280,47 @@ export class SelectStatement<Scope extends string, Selection extends string> {
      * @since 0.0.0
      */
     public appendSelect = <NewSelection extends string>(
-        f: (
-            f: Record<Selection | Scope, SafeString> &
-                NoSelectFieldsCompileError
-        ) => Record<NewSelection, SafeString>
+        f:
+            | ReadonlyArray<Selection | Scope>
+            | ((
+                  f: Record<Selection | Scope, SafeString> &
+                      NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>)
     ): SelectStatement<Scope, Selection | NewSelection> =>
         this.copy().setSelection([
             ...(this.__props.selection as any),
-            AliasedRows(f(proxy)),
+            AliasedRows(consumeRecordCallback(f)),
         ]) as any;
 
     /**
      * @since 0.0.0
      */
     public where = (
-        f: (
-            fields: Record<Scope | Selection, SafeString>
-        ) => ReadonlyArray<SafeString> | SafeString
+        f:
+            | ReadonlyArray<Scope | Selection>
+            | ((
+                  fields: Record<Scope | Selection, SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
     ): SelectStatement<Scope, Selection> =>
-        this.copy().setWhere([...this.__props.where, ...makeArray(f(proxy))]);
+        this.copy().setWhere([
+            ...this.__props.where,
+            ...makeArray(consumeArrayCallback(f)),
+        ]);
 
     /**
      * @since 0.0.0
      */
     public having = (
-        f: (
-            fields: Record<Scope | Selection, SafeString>
-        ) => ReadonlyArray<SafeString> | SafeString
+        f:
+            | ReadonlyArray<Scope | Selection>
+            | ((
+                  fields: Record<Scope | Selection, SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
     ): SelectStatement<Scope, Selection> =>
-        this.copy().setHaving([...this.__props.having, ...makeArray(f(proxy))]);
+        this.copy().setHaving([
+            ...this.__props.having,
+            ...makeArray(consumeArrayCallback(f)),
+        ]);
 
     /**
      * @since 0.0.0
@@ -310,26 +332,30 @@ export class SelectStatement<Scope extends string, Selection extends string> {
      * @since 0.0.0
      */
     public orderBy = (
-        f: (
-            fields: Record<Scope | Selection, SafeString>
-        ) => ReadonlyArray<SafeString> | SafeString
+        f:
+            | ReadonlyArray<Scope | Selection>
+            | ((
+                  fields: Record<Scope | Selection, SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
     ): SelectStatement<Scope, Selection> =>
         this.copy().setOrderBy([
             ...this.__props.orderBy,
-            ...makeArray(f(proxy)),
+            ...makeArray(consumeArrayCallback(f)),
         ]);
 
     /**
      * @since 0.0.0
      */
     public groupBy = (
-        f: (
-            fields: Record<Scope | Selection, SafeString>
-        ) => ReadonlyArray<SafeString> | SafeString
+        f:
+            | ReadonlyArray<Scope | Selection>
+            | ((
+                  fields: Record<Scope | Selection, SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
     ): SelectStatement<Scope, Selection> =>
         this.copy().setGroupBy([
             ...this.__props.groupBy,
-            ...makeArray(f(proxy)),
+            ...makeArray(consumeArrayCallback(f)),
         ]);
 
     /**

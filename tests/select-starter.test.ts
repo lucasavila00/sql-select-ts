@@ -3,6 +3,7 @@ import { format } from "sql-formatter";
 
 const cols = ["a", "b", "c"] as const;
 const fromTable1 = table(cols, "t1");
+
 it("type checks", () => {
     select(
         (f) => ({
@@ -10,9 +11,109 @@ it("type checks", () => {
             col3: f.e,
         }),
         fromTable1
-    ),
-        expect(1).toBe(1);
+    );
+    expect(1).toBe(1);
 });
+it("type checks2", () => {
+    const x = select(
+        (f) => ({
+            col3: f.a,
+        }),
+        fromTable1
+    );
+    x.select((f) => ({
+        x:
+            //@ts-expect-error
+            f.abc,
+    }));
+    expect(1).toBe(1);
+});
+
+it("shorthand - sample", () => {
+    const str =
+        //
+        select(
+            (f) => ({
+                a: f.a,
+                b: f.b,
+            }),
+            fromTable1
+        )
+            .selectStar()
+            .select((f) => ({ abc: f.a }))
+            .stringify();
+
+    expect(format(str)).toMatchInlineSnapshot(`
+        "SELECT
+          \`a\` AS \`abc\`
+        FROM
+          (
+            SELECT
+              *
+            FROM
+              (
+                SELECT
+                  \`a\` AS \`a\`,
+                  \`b\` AS \`b\`
+                FROM
+                  \`t1\`
+              )
+          )"
+    `);
+});
+
+it("shorthand", () => {
+    const str =
+        //
+        select(["a", "b"], fromTable1)
+            .selectStar()
+            .select((f) => ({ abc: f.a }))
+            .stringify();
+
+    expect(format(str)).toMatchInlineSnapshot(`
+        "SELECT
+          \`a\` AS \`abc\`
+        FROM
+          (
+            SELECT
+              *
+            FROM
+              (
+                SELECT
+                  \`a\` AS \`a\`,
+                  \`b\` AS \`b\`
+                FROM
+                  \`t1\`
+              )
+          )"
+    `);
+});
+it("shorthand - type checks sample", () => {
+    select(
+        (f) => ({
+            a: f.a,
+            b: f.b,
+        }),
+        fromTable1
+    )
+        .selectStar()
+        //@ts-expect-error
+        .select((f) => ({ abc: f.c }))
+        .stringify();
+
+    expect(1).toBe(1);
+});
+
+it("shorthand -- type checks", () => {
+    select(["a", "b"], fromTable1)
+        .selectStar()
+        //@ts-expect-error
+        .select((f) => ({ abc: f.c }))
+        .stringify();
+
+    expect(1).toBe(1);
+});
+
 it("works", () => {
     const str =
         //
@@ -22,14 +123,21 @@ it("works", () => {
                 col2: f.b,
             }),
             fromTable1
-        ).stringify();
+        )
+            .select((f) => ({ abc: f.col1 }))
+            .stringify();
 
     expect(format(str)).toMatchInlineSnapshot(`
         "SELECT
-          \`a\` AS \`col1\`,
-          \`b\` AS \`col2\`
+          \`col1\` AS \`abc\`
         FROM
-          \`t1\`"
+          (
+            SELECT
+              \`a\` AS \`col1\`,
+              \`b\` AS \`col2\`
+            FROM
+              \`t1\`
+          )"
     `);
 });
 

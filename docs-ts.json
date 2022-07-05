@@ -5,7 +5,8 @@
         "src/proxy.ts",
         "src/types.ts",
         "src/data-wrappers.ts",
-        "src/wrap-alias.ts"
+        "src/wrap-alias.ts",
+        "src/consume-fields.ts"
     ],
     "outDir": "docs-ts-out"
 }

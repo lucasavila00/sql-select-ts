@@ -45,9 +45,7 @@ yield str;
 ## String interpolation
 
 ```ts eval
-const q2 = users
-    .select((fields) => ({ age: fields.age }))
-    .where((fields) => sql`${fields.id}=1`);
+const q2 = users.select(["age"]).where((fields) => sql`${fields.id}=1`);
 ```
 
 ```ts eval --yield=sql

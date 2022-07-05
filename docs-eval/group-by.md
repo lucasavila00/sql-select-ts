@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table } from "../src";
+import { table, dsql as sql, SafeString } from "../src";
 ```
 
 We will use this table
@@ -31,6 +31,8 @@ const users = table(
     /* columns: */ ["id", "age", "name"],
     /* db-name & alias: */ "users"
 );
+
+const lowercase = (it: SafeString): SafeString => sql`lowerCase(${it})`;
 ```
 
 # One Clause
@@ -38,8 +40,12 @@ const users = table(
 ```ts eval --yield=sql
 yield users
     .selectStar()
-    .groupBy((f) => f.age)
+    .groupBy((f) => lowercase(f.name))
     .stringify();
+```
+
+```ts eval --yield=sql
+yield users.selectStar().groupBy(["name"]).stringify();
 ```
 
 # Two Clauses
@@ -49,8 +55,12 @@ yield users
 ```ts eval --yield=sql
 yield users
     .selectStar()
-    .groupBy((f) => [f.age, f.id])
+    .groupBy((f) => [f.name, f.id])
     .stringify();
+```
+
+```ts eval --yield=sql
+yield users.selectStar().groupBy(["name", "id"]).stringify();
 ```
 
 ## Two calls
@@ -58,7 +68,11 @@ yield users
 ```ts eval --yield=sql
 yield users
     .selectStar()
-    .groupBy((f) => f.age)
+    .groupBy((f) => f.name)
     .groupBy((f) => f.id)
     .stringify();
+```
+
+```ts eval --yield=sql
+yield users.selectStar().groupBy(["name"]).groupBy(["id"]).stringify();
 ```

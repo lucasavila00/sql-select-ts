@@ -91,3 +91,17 @@ ORDER BY
   `age`,
   `id`
 ```
+
+```ts
+users.selectStar().orderBy(["age", "id"]).stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  `users`
+ORDER BY
+  `age`,
+  `id`
+```
