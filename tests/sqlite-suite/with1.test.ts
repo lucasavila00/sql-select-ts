@@ -56,7 +56,7 @@ describe("sqlite with", () => {
         )
             .with_(
                 //
-                t0.selectStar(),
+                () => t0.selectStar(),
                 "t1_alias",
                 ["d", "e"]
             )
@@ -70,6 +70,56 @@ describe("sqlite with", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
+    it("2 with calls - using prev", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "t0_alias",
+            ["a", "b"]
+        )
+            .with_(
+                //
+                (acc) => acc.t0_alias.selectStar(),
+                "t1_alias",
+                ["d", "e"]
+            )
+            .selectThis((_f) => ({ it: sql(10) }), "t1_alias")
+            .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`), t1_alias(d, e) AS (SELECT * FROM \`t0_alias\`) SELECT 10 AS \`it\`, \`t1_alias\`.\`d\` AS \`it2\` FROM \`t1_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+    it("3 with calls - using prev", async () => {
+        const q = with_(
+            //
+            t0.selectStar(),
+            "t0_alias",
+            ["a", "b"]
+        )
+            .with_(
+                //
+                (acc) => acc.t0_alias.selectStar(),
+                "t1_alias",
+                ["d", "e"]
+            )
+            .with_(
+                //
+                (acc) => acc.t1_alias.selectStar(),
+                "t2_alias",
+                ["abc", "def"]
+            )
+            .selectThis((_f) => ({ it: sql(10) }), "t2_alias")
+            .appendSelect((f) => ({ it2: f["t2_alias.abc"] }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `WITH t0_alias(a, b) AS (SELECT * FROM \`t0\`), t1_alias(d, e) AS (SELECT * FROM \`t0_alias\`), t2_alias(abc, def) AS (SELECT * FROM \`t1_alias\`) SELECT 10 AS \`it\`, \`t2_alias\`.\`abc\` AS \`it2\` FROM \`t2_alias\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
     it("with1-1.0", async () => {
         const q = with_(
             //

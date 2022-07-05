@@ -55,7 +55,7 @@ describe("clickhouse cte", () => {
         )
             .with_(
                 //
-                t0.selectStar(),
+                () => t0.selectStar(),
                 "t1_alias"
             )
             .selectThis((_f) => ({ it: sql(10) }), "t1_alias")

@@ -52,17 +52,24 @@ export class CommonTableExpressionFactory<
      * @since 1.0.0
      */
     public with_ = <Selection2 extends string, Alias2 extends string>(
-        select: SelectStatement<any, any>,
+        select: (old: {
+            [K in Aliases]: Table<FilterStarting<Scope, K>, Aliases>;
+        }) => SelectStatement<any, any>,
         alias: Alias2,
         columns: ReadonlyArray<Selection2> = []
     ): CommonTableExpressionFactory<
         `${Alias2}.${Selection2}` | Scope,
         Aliases | Alias2
-    > =>
-        this.copy().setCtes([
+    > => {
+        const oldMap: any = {};
+        for (const cte of this.__props.ctes) {
+            oldMap[cte.alias] = Table.define([], cte.alias);
+        }
+        return this.copy().setCtes([
             ...this.__props.ctes,
-            { columns, alias, select },
+            { columns, alias, select: select(oldMap) },
         ]) as any;
+    };
 
     /**
      * @since 1.0.0
