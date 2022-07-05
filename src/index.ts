@@ -57,6 +57,15 @@ export const with_ = CommonTableExpressionFactory.define;
 
 /**
  *
+ * Create a common table expression, renaming the selecion.
+ *
+ * @category starter
+ * @since 1.0.0
+ */
+export const withR = CommonTableExpressionFactory.defineRenamed;
+
+/**
+ *
  * Select data from no source.
  *
  * @example

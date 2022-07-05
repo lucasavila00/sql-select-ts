@@ -29,13 +29,25 @@ export class CommonTableExpressionFactory<
     ) {}
 
     /*  @internal */
-    public static define = <Selection extends string, Alias extends string>(
+    public static defineRenamed = <
+        Selection extends string,
+        Alias extends string
+    >(
         select: SelectStatement<any, any>,
         alias: Alias,
-        columns: ReadonlyArray<Selection> = []
+        columns: ReadonlyArray<Selection>
     ): CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias> =>
         new CommonTableExpressionFactory({
             ctes: [{ columns, alias, select }],
+        });
+
+    /*  @internal */
+    public static define = <Selection extends string, Alias extends string>(
+        select: SelectStatement<any, Selection>,
+        alias: Alias
+    ): CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias> =>
+        new CommonTableExpressionFactory({
+            ctes: [{ columns: [], alias, select }],
         });
 
     private copy = (): CommonTableExpressionFactory<Scope, Aliases> =>
@@ -53,10 +65,32 @@ export class CommonTableExpressionFactory<
      */
     public with_ = <Selection2 extends string, Alias2 extends string>(
         select: (old: {
-            [K in Aliases]: Table<FilterStarting<Scope, K>, Aliases>;
+            [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+        }) => SelectStatement<any, Selection2>,
+        alias: Alias2
+    ): CommonTableExpressionFactory<
+        `${Alias2}.${Selection2}` | Scope,
+        Aliases | Alias2
+    > => {
+        const oldMap: any = {};
+        for (const cte of this.__props.ctes) {
+            oldMap[cte.alias] = Table.define([], cte.alias);
+        }
+        return this.copy().setCtes([
+            ...this.__props.ctes,
+            { columns: [], alias, select: select(oldMap) },
+        ]) as any;
+    };
+
+    /**
+     * @since 1.0.0
+     */
+    public withR = <Selection2 extends string, Alias2 extends string>(
+        select: (old: {
+            [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
         }) => SelectStatement<any, any>,
         alias: Alias2,
-        columns: ReadonlyArray<Selection2> = []
+        columns: ReadonlyArray<Selection2>
     ): CommonTableExpressionFactory<
         `${Alias2}.${Selection2}` | Scope,
         Aliases | Alias2
@@ -96,4 +130,6 @@ export class CommonTableExpressionFactory<
             [AliasedRows(f(proxy))],
             this.__props.ctes
         );
+
+    // to source ???
 }

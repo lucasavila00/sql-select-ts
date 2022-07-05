@@ -81,7 +81,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
 
     /* @internal */
     public static __fromCommonTableExpression = (
-        it: SelectStatement<any, any>,
+        it: TableOrSubquery<any, any, any, any>,
         selection: SelectionWrapperTypes<any>,
         ctes: ReadonlyArray<CTE>
     ): SelectStatement<any, any> =>

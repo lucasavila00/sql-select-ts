@@ -81,21 +81,6 @@ describe("clickhouse cte", () => {
         );
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
-    it("with1-1.0 -- no columns", async () => {
-        const q = with_(
-            //
-            t0.selectStar(),
-            "x",
-            []
-        )
-            .selectThis((_f) => ({ it: sql(10) }), "x")
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `WITH x AS (SELECT * FROM \`t15_clickhouse\`) SELECT 10 AS \`it\` FROM \`x\``
-        );
-        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
-    });
     it("with1-1.0 -- no columns2", async () => {
         const q = with_(
             //
