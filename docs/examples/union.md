@@ -16,6 +16,8 @@ layout: default
 
 ```ts
 import { table, union, unionAll, except, intersect } from "sql-select-ts";
+import * as RNEA from "fp-ts/lib/ReadonlyNonEmptyArray";
+import { pipe } from "fp-ts/lib/function";
 ```
 
 We will use these tables
@@ -40,7 +42,9 @@ const admins = table(
 );
 ```
 
-# Union
+# Supported types
+
+## Union
 
 ```ts
 union([admins.selectStar(), users.selectStar()]).stringify();
@@ -58,7 +62,7 @@ FROM
   `users`
 ```
 
-# Union All
+## Union All
 
 ```ts
 unionAll([admins.selectStar(), users.selectStar()]).stringify();
@@ -76,7 +80,7 @@ FROM
   `users`
 ```
 
-# Except
+## Except
 
 ```ts
 except([admins.selectStar(), users.selectStar()]).stringify();
@@ -94,7 +98,7 @@ FROM
   `users`
 ```
 
-# Intersect
+## Intersect
 
 ```ts
 intersect([admins.selectStar(), users.selectStar()]).stringify();
@@ -110,4 +114,49 @@ SELECT
   *
 FROM
   `users`
+```
+
+# Note on arrays
+
+Arrays passed to compound operators must be non empty, such that the type system can tell the type of the first item.
+
+As shown above, an array literal works fine, but a mapped array needs special care.
+
+[fp-ts](https://gcanti.github.io/fp-ts/modules/ReadonlyNonEmptyArray.ts.html) can be used to work with such ReadOnlyNonEmptyArrays.
+
+```ts
+interface ReadOnlyNonEmptyArray<A> extends ReadonlyArray<A> {
+  0: A;
+}
+```
+
+```ts
+const array2 = pipe(
+  [admins.selectStar(), users.selectStar()],
+  RNEA.map((it) => it.selectStar())
+);
+
+intersect(array2).stringify();
+```
+
+```sql
+SELECT
+  *
+FROM
+  (
+    SELECT
+      *
+    FROM
+      `admins` AS `adm`
+  )
+INTERSECT
+SELECT
+  *
+FROM
+  (
+    SELECT
+      *
+    FROM
+      `users`
+  )
 ```
