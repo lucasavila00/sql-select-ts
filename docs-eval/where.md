@@ -68,7 +68,7 @@ yield users
 
 # OR
 
-```ts eval --yield=json
+```ts eval --yield=sql
 const OR = (...cases: SafeString[]): SafeString => {
     const j = cases.map((it) => it.content).join(" OR ");
     return castSafe(`(${j})`);
