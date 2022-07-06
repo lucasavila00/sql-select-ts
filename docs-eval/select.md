@@ -172,6 +172,12 @@ yield admins
     .stringify();
 ```
 
+## Select star of aliases
+
+```ts eval --yield=sql
+yield admins.commaJoinTable(users).selectStarOfAliases(["users"]).stringify();
+```
+
 ## Select from sub-select
 
 ```ts eval --yield=sql
