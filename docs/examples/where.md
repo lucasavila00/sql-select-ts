@@ -108,6 +108,14 @@ users
   .stringify();
 ```
 
-```json
-"SELECT * FROM `users` WHERE (`name` = 'Lucas' OR `id` = 5)"
+```sql
+SELECT
+  *
+FROM
+  `users`
+WHERE
+  (
+    `name` = 'Lucas'
+    OR `id` = 5
+  )
 ```
