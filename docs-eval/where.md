@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table, dsql as sql } from "../src";
+import { table, dsql as sql, SafeString, castSafe } from "../src";
 ```
 
 We will use this table
@@ -63,5 +63,18 @@ yield users
     .selectStar()
     .where((f) => sql`${f.name} = 'Lucas'`)
     .where((f) => sql`${f.id} = ${id}`)
+    .stringify();
+```
+
+# OR
+
+```ts eval --yield=json
+const OR = (...cases: SafeString[]): SafeString => {
+    const j = cases.map((it) => it.content).join(" OR ");
+    return castSafe(`(${j})`);
+};
+yield users
+    .selectStar()
+    .where((f) => OR(sql`${f.name} = 'Lucas'`, sql`${f.id} = ${id}`))
     .stringify();
 ```
