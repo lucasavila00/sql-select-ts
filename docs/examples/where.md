@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, dsql as sql } from "sql-select-ts";
+import { table, dsql as sql, SafeString, castSafe } from "sql-select-ts";
 ```
 
 We will use this table
@@ -93,4 +93,21 @@ FROM
 WHERE
   `name` = 'Lucas'
   AND `id` = 5
+```
+
+# OR
+
+```ts
+const OR = (...cases: SafeString[]): SafeString => {
+  const j = cases.map((it) => it.content).join(" OR ");
+  return castSafe(`(${j})`);
+};
+users
+  .selectStar()
+  .where((f) => OR(sql`${f.name} = 'Lucas'`, sql`${f.id} = ${id}`))
+  .stringify();
+```
+
+```json
+"SELECT * FROM `users` WHERE (`name` = 'Lucas' OR `id` = 5)"
 ```
