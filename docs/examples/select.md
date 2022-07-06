@@ -272,6 +272,20 @@ FROM
   `admins` AS `adm`
 ```
 
+## Select star of aliases
+
+```ts
+admins.commaJoinTable(users).selectStarOfAliases(["users"]).stringify();
+```
+
+```sql
+SELECT
+  users.*
+FROM
+  `admins` AS `adm`,
+  `users`
+```
+
 ## Select from sub-select
 
 ```ts
