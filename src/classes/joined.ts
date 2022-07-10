@@ -417,4 +417,11 @@ export class Joined<
                 operator,
             }
         );
+
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
 }

@@ -5,7 +5,7 @@
  * @since 0.0.3
  */
 import { SafeString } from "../safe-string";
-import { NoSelectFieldsCompileError } from "../types";
+import { NoSelectFieldsCompileError, TableOrSubquery } from "../types";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
@@ -331,6 +331,13 @@ export class StringifiedSelectStatement<Selection extends string> {
                 operator,
             }
         );
+
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
 
     /**
      * @since 0.0.3

@@ -453,4 +453,11 @@ export class Compound<Scope extends string, Selection extends string> {
      * @since 0.0.0
      */
     public stringify = (): string => printCompound(this);
+
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
 }

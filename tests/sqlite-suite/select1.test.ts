@@ -46,6 +46,28 @@ describe("sqlite select1", () => {
         await run(`INSERT INTO t6 VALUES('c','2');`);
         await run(`INSERT INTO t6 VALUES('d','3');`);
     });
+
+    it("apply type checks", async () => {
+        const q1 = test1.selectStar();
+        unionAll([q1, q1, q1])
+            .apply((it) => it.select(["f1"]))
+            .select((f) => ({
+                //@ts-expect-error
+                b: f.f2,
+            }))
+            .stringify();
+        expect(1).toBe(1);
+
+        unionAll([q1, q1, q1])
+            .select(["f1"])
+            .select((f) => ({
+                //@ts-expect-error
+                b: f.f2,
+            }))
+            .stringify();
+        expect(1).toBe(1);
+    });
+
     it("select0", async () => {
         const q = test1
             .select((f) => ({
@@ -1264,6 +1286,7 @@ describe("sqlite select1", () => {
             .select((f) => ({
                 a: f.f1,
                 b: f.f2,
+                //@ts-expect-error
                 c: f["it.r1"],
             }))
             .stringify();

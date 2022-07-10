@@ -91,7 +91,7 @@ select: <
   f:
     | readonly SubSelection[]
     | ((
-        f: Record<Selection | Scope, SafeString> & NoSelectFieldsCompileError
+        f: Record<Selection, SafeString> & NoSelectFieldsCompileError
       ) => Record<NewSelection, SafeString>)
 ) => SelectStatement<Selection, NewSelection | SubSelection>;
 ```
@@ -440,6 +440,18 @@ joinCompound: <
 ```
 
 Added in v0.0.0
+
+### apply (property)
+
+**Signature**
+
+```ts
+apply: <Ret extends TableOrSubquery<any, any, any, any> = never>(
+  fn: (it: this) => Ret
+) => Ret;
+```
+
+Added in v1.1.1
 
 ### stringify (property)
 
