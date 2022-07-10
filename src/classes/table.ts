@@ -9,7 +9,7 @@
 import { consumeRecordCallback } from "../consume-fields";
 import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
-import { NoSelectFieldsCompileError } from "../types";
+import { NoSelectFieldsCompileError, TableOrSubquery } from "../types";
 import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
@@ -338,4 +338,11 @@ export class Table<Selection extends string, Alias extends string> {
                 operator,
             }
         );
+
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
 }

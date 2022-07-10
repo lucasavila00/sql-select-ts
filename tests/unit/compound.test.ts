@@ -1,7 +1,7 @@
 import { table, unionAll } from "../../src";
 import * as NEA from "fp-ts/lib/NonEmptyArray";
 const cols = ["a", "b"] as const;
-describe("table", () => {
+describe("compound unit", () => {
     it("works", () => {
         const q1 = table(cols, "a").selectStar();
         const q2 = table(cols, "b").selectStar();
@@ -29,5 +29,25 @@ describe("table", () => {
         expect(u.stringify()).toMatchInlineSnapshot(
             `"SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\`"`
         );
+    });
+
+    it("apply", () => {
+        const q1 = table(cols, "a").selectStar();
+        const u = unionAll([q1, q1, q1]).apply((it) => it.select(["a"]));
+        expect(u.stringify()).toMatchInlineSnapshot(
+            `"SELECT \`a\` AS \`a\` FROM (SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\`)"`
+        );
+    });
+
+    it("apply type checks", () => {
+        const q1 = table(cols, "a").selectStar();
+        unionAll([q1, q1, q1])
+            .apply((it) => it.select(["a"]))
+            .select((f) => ({
+                b:
+                    // @ts-expect-error
+                    f.b,
+            }));
+        expect(1).toBe(1);
     });
 });

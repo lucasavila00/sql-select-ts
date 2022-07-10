@@ -256,8 +256,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         f:
             | ReadonlyArray<SubSelection>
             | ((
-                  f: Record<Selection | Scope, SafeString> &
-                      NoSelectFieldsCompileError
+                  f: Record<Selection, SafeString> & NoSelectFieldsCompileError
               ) => Record<NewSelection, SafeString>)
     ): SelectStatement<Selection, NewSelection | SubSelection> =>
         SelectStatement.__fromTableOrSubquery(this, [
@@ -635,6 +634,13 @@ export class SelectStatement<Scope extends string, Selection extends string> {
                 operator,
             }
         );
+
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
 
     /**
      * @since 0.0.0

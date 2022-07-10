@@ -337,3 +337,15 @@ stringify: () => string;
 ```
 
 Added in v0.0.0
+
+### apply (property)
+
+**Signature**
+
+```ts
+apply: <Ret extends TableOrSubquery<any, any, any, any> = never>(
+  fn: (it: this) => Ret
+) => Ret;
+```
+
+Added in v1.1.1
