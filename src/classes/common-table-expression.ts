@@ -63,7 +63,7 @@ export class CommonTableExpressionFactory<
     public with_ = <Selection2 extends string, Alias2 extends string>(
         alias: Alias2,
         select: (acc: {
-            [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+            [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
         }) => SelectStatement<any, Selection2>
     ): CommonTableExpressionFactory<
         `${Alias2}.${Selection2}` | Scope,
@@ -86,7 +86,7 @@ export class CommonTableExpressionFactory<
         alias: Alias2,
         columns: ReadonlyArray<Selection2>,
         select: (acc: {
-            [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+            [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
         }) => SelectStatement<any, any>
     ): CommonTableExpressionFactory<
         `${Alias2}.${Selection2}` | Scope,

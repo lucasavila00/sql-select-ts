@@ -188,8 +188,12 @@ export class Joined<
     /**
      * @since 0.0.0
      */
-    public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
-        table: Table<Selection2, Alias2>
+    public commaJoinTable = <
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        table: Table<Scope2, Selection2, Alias2>
     ): Joined<
         Selection,
         | Scope
@@ -214,9 +218,13 @@ export class Joined<
     /**
      * @since 0.0.0
      */
-    public joinTable = <Selection2 extends string, Alias2 extends string>(
+    public joinTable = <
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
         operator: string,
-        table: Table<Selection2, Alias2>
+        table: Table<Scope2, Selection2, Alias2>
     ): JoinedFactory<
         Selection,
         | Scope

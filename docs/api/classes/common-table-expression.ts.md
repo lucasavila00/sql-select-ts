@@ -46,7 +46,7 @@ Added in v1.0.0
 with_: <Selection2 extends string, Alias2 extends string>(
   alias: Alias2,
   select: (acc: {
-    [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+    [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
   }) => SelectStatement<any, Selection2>
 ) =>
   CommonTableExpressionFactory<
@@ -66,7 +66,7 @@ withR: <Selection2 extends string, Alias2 extends string>(
   alias: Alias2,
   columns: readonly Selection2[],
   select: (acc: {
-    [K in Aliases]: Table<FilterStarting<Scope, K>, K>;
+    [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
   }) => SelectStatement<any, any>
 ) =>
   CommonTableExpressionFactory<

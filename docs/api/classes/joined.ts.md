@@ -95,8 +95,12 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-commaJoinTable: <Selection2 extends string, Alias2 extends string>(
-  table: Table<Selection2, Alias2>
+commaJoinTable: <
+  Scope2 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  table: Table<Scope2, Selection2, Alias2>
 ) =>
   Joined<
     Selection,
@@ -117,9 +121,13 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-joinTable: <Selection2 extends string, Alias2 extends string>(
+joinTable: <
+  Scope2 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
   operator: string,
-  table: Table<Selection2, Alias2>
+  table: Table<Scope2, Selection2, Alias2>
 ) =>
   JoinedFactory<
     Selection,

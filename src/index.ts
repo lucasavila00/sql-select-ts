@@ -298,10 +298,11 @@ export const select = <
     f:
         | ReadonlyArray<SubSelection>
         | ((
-              f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
+              f: Record<FromSelection | FromScope, SafeString> &
+                  NoSelectFieldsCompileError
           ) => Record<NewSelection, SafeString>),
     from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-): SelectStatement<FromScope | FromSelection, NewSelection | SubSelection> =>
+): SelectStatement<FromSelection, NewSelection | SubSelection> =>
     //@ts-expect-error
     from.select(f);
 

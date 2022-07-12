@@ -25,7 +25,11 @@ import { StringifiedSelectStatement } from "./stringified-select-statement";
  *
  * @since 0.0.0
  */
-export class Table<Selection extends string, Alias extends string> {
+export class Table<
+    Scope extends string,
+    Selection extends string,
+    Alias extends string
+> {
     /* @internal */
     private constructor(
         /* @internal */
@@ -42,10 +46,10 @@ export class Table<Selection extends string, Alias extends string> {
         columns: ReadonlyArray<Selection>,
         alias: Alias,
         name: string = alias
-    ): Table<Selection, Alias> =>
+    ): Table<`${Alias}.${Selection}`, Selection, Alias> =>
         new Table({ columns, alias, name, final: false });
 
-    private copy = (): Table<Selection, Alias> =>
+    private copy = (): Table<Scope, Selection, Alias> =>
         new Table({ ...this.__props });
 
     private setFinal = (final: boolean): this => {
@@ -60,7 +64,7 @@ export class Table<Selection extends string, Alias extends string> {
         /**
          * @since 0.0.0
          */
-        final: (): Table<Selection, Alias> => this.copy().setFinal(true),
+        final: (): Table<Scope, Selection, Alias> => this.copy().setFinal(true),
     };
 
     /**
@@ -95,8 +99,12 @@ export class Table<Selection extends string, Alias extends string> {
     /**
      * @since 0.0.0
      */
-    public commaJoinTable = <Selection2 extends string, Alias2 extends string>(
-        table: Table<Selection2, Alias2>
+    public commaJoinTable = <
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
+        table: Table<Scope2, Selection2, Alias2>
     ): Joined<
         Selection,
         | Exclude<Selection, Selection2>
@@ -120,9 +128,13 @@ export class Table<Selection extends string, Alias extends string> {
     /**
      * @since 0.0.0
      */
-    public joinTable = <Selection2 extends string, Alias2 extends string>(
+    public joinTable = <
+        Scope2 extends string,
+        Selection2 extends string,
+        Alias2 extends string
+    >(
         operator: string,
-        table: Table<Selection2, Alias2>
+        table: Table<Scope2, Selection2, Alias2>
     ): JoinedFactory<
         Selection,
         | Exclude<Selection, Selection2>
