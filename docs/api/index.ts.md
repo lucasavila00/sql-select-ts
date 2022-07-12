@@ -221,10 +221,11 @@ export declare const select: <
   f:
     | readonly SubSelection[]
     | ((
-        f: Record<FromSelection, SafeString> & NoSelectFieldsCompileError
+        f: Record<FromSelection | FromScope, SafeString> &
+          NoSelectFieldsCompileError
       ) => Record<NewSelection, SafeString>),
   from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-) => SelectStatement<FromSelection | FromScope, NewSelection | SubSelection>;
+) => SelectStatement<FromSelection, NewSelection | SubSelection>;
 ```
 
 Added in v1.0.0
@@ -259,7 +260,7 @@ export declare const table: <Selection extends string, Alias extends string>(
   columns: readonly Selection[],
   alias: Alias,
   name?: string
-) => Table<Selection, Alias>;
+) => Table<`${Alias}.${Selection}`, Selection, Alias>;
 ```
 
 **Example**

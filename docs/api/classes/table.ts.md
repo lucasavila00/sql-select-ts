@@ -36,7 +36,7 @@ This class is not meant to be used directly, but rather through the `table` func
 **Signature**
 
 ```ts
-export declare class Table<Selection, Alias> {
+export declare class Table<Scope, Selection, Alias> {
   private constructor(
     /* @internal */
     public __props: {
@@ -57,7 +57,7 @@ Added in v0.0.0
 
 ```ts
 clickhouse: {
-  final: () => Table<Selection, Alias>;
+  final: () => Table<Scope, Selection, Alias>;
 }
 ```
 
@@ -103,8 +103,12 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-commaJoinTable: <Selection2 extends string, Alias2 extends string>(
-  table: Table<Selection2, Alias2>
+commaJoinTable: <
+  Scope2 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
+  table: Table<Scope2, Selection2, Alias2>
 ) =>
   Joined<
     Selection,
@@ -124,9 +128,13 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-joinTable: <Selection2 extends string, Alias2 extends string>(
+joinTable: <
+  Scope2 extends string,
+  Selection2 extends string,
+  Alias2 extends string
+>(
   operator: string,
-  table: Table<Selection2, Alias2>
+  table: Table<Scope2, Selection2, Alias2>
 ) =>
   JoinedFactory<
     Selection,
