@@ -188,12 +188,13 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public joinTable = <
         Alias1 extends string,
+        Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         thisCompoundAlias: Alias1,
         operator: string,
-        table: Table<Selection2, Alias2>
+        table: Table<Scope2, Selection2, Alias2>
     ): JoinedFactory<
         Selection,
         | Exclude<Selection, Selection2>
@@ -223,11 +224,12 @@ export class Compound<Scope extends string, Selection extends string> {
      */
     public commaJoinTable = <
         Alias1 extends string,
+        Scope2 extends string,
         Selection2 extends string,
         Alias2 extends string
     >(
         thisSelectAlias: Alias1,
-        table: Table<Selection2, Alias2>
+        table: Table<Scope2, Selection2, Alias2>
     ): Joined<
         Selection,
         | Exclude<Selection, Selection2>

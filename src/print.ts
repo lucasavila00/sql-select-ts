@@ -60,8 +60,12 @@ const printStringifiedSelectInternal = <Selection extends string>(
     it: StringifiedSelectStatement<Selection>
 ): PrintInternalRet => `(${it.__props.content.content})`;
 
-const printTableInternal = <Selection extends string, Alias extends string>(
-    table: Table<Selection, Alias>
+const printTableInternal = <
+    Scope extends string,
+    Selection extends string,
+    Alias extends string
+>(
+    table: Table<Scope, Selection, Alias>
 ): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
