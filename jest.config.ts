@@ -14,4 +14,9 @@ module.exports = {
         },
     },
     testMatch: ["<rootDir>/tests/**/*.(test).(js|jsx|ts)"],
+    globals: {
+        "ts-jest": {
+            isolatedModules: true,
+        },
+    },
 };

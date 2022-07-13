@@ -14,8 +14,9 @@ type FilterStarting<
  * @since 1.0.0
  */
 export class CommonTableExpressionFactory<
+    Alias extends string,
     Scope extends string,
-    Aliases extends string
+    Selection extends string
 > {
     /* @internal */
     private constructor(
@@ -32,7 +33,7 @@ export class CommonTableExpressionFactory<
     >(
         alias: Alias,
         columns: ReadonlyArray<Selection>,
-        select: SelectStatement<any, any>
+        select: SelectStatement<any, any, any>
     ): CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias> =>
         new CommonTableExpressionFactory({
             ctes: [{ columns, alias, select }],
@@ -41,7 +42,7 @@ export class CommonTableExpressionFactory<
     /*  @internal */
     public static define = <Selection extends string, Alias extends string>(
         alias: Alias,
-        select: SelectStatement<any, Selection>
+        select: SelectStatement<any, any, Selection>
     ): CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias> =>
         new CommonTableExpressionFactory({
             ctes: [{ columns: [], alias, select }],
@@ -64,7 +65,7 @@ export class CommonTableExpressionFactory<
         alias: Alias2,
         select: (acc: {
             [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
-        }) => SelectStatement<any, Selection2>
+        }) => SelectStatement<any, any, Selection2>
     ): CommonTableExpressionFactory<
         `${Alias2}.${Selection2}` | Scope,
         Aliases | Alias2
@@ -87,7 +88,7 @@ export class CommonTableExpressionFactory<
         columns: ReadonlyArray<Selection2>,
         select: (acc: {
             [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
-        }) => SelectStatement<any, any>
+        }) => SelectStatement<any, any, any>
     ): CommonTableExpressionFactory<
         `${Alias2}.${Selection2}` | Scope,
         Aliases | Alias2
@@ -112,8 +113,8 @@ export class CommonTableExpressionFactory<
                 Scope,
                 FilterStarting<Scope, K> | `${K}.${FilterStarting<Scope, K>}`
             >;
-        }) => SelectStatement<A, B>
-    ): SelectStatement<A, B> => {
+        }) => SelectStatement<never, A, B>
+    ): SelectStatement<never, A, B> => {
         const oldMap: any = {};
         for (const cte of this.__props.ctes) {
             oldMap[cte.alias] = Table.define([], cte.alias);

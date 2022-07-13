@@ -19,7 +19,11 @@ import { consumeRecordCallback } from "../consume-fields";
  *
  * @since 0.0.3
  */
-export class StringifiedSelectStatement<Selection extends string> {
+export class StringifiedSelectStatement<
+    _Alias extends string,
+    _Scope extends string,
+    Selection extends string
+> {
     /* @internal */
     private constructor(
         /* @internal */

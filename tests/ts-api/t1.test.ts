@@ -1,0 +1,287 @@
+import { Table } from "../../src/classes/table";
+import { format } from "sql-formatter";
+import { dsql } from "../../src";
+
+const t = Table.define(["id", "name"], "users");
+it("select qualified", () => {
+    expect(t.__props.scope).toMatchInlineSnapshot(`
+        Object {
+          "users": undefined,
+        }
+    `);
+    const query1 = t.select((f) => ({
+        abc: f.id,
+        def: f.users.id,
+    }));
+
+    expect(query1.__props.scope).toMatchInlineSnapshot(`Object {}`);
+    expect(query1.__props.selection).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "_tag": "AliasedRows",
+            "content": Object {
+              "abc": Object {
+                "_tag": "SafeString",
+                "content": "\`id\`",
+              },
+              "def": Object {
+                "_tag": "SafeString",
+                "content": "\`users\`.\`id\`",
+              },
+            },
+          },
+        ]
+    `);
+    expect(query1.stringify()).toMatchInlineSnapshot(
+        `"SELECT \`id\` AS \`abc\`, \`users\`.\`id\` AS \`def\` FROM \`users\`"`
+    );
+    const query2 = t.select(["id"]);
+
+    expect(query2.__props.scope).toMatchInlineSnapshot(`Object {}`);
+    expect(query2.__props.selection).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "_tag": "AliasedRows",
+            "content": Object {
+              "id": Object {
+                "_tag": "SafeString",
+                "content": "\`id\`",
+              },
+            },
+          },
+        ]
+    `);
+    expect(query2.stringify()).toMatchInlineSnapshot(
+        `"SELECT \`id\` AS \`id\` FROM \`users\`"`
+    );
+});
+
+it("type checks", () => {
+    t.select((f) => ({
+        //@ts-expect-error
+        abc: f.id2,
+        //@ts-expect-error
+        def: f.users.id2,
+    }));
+    //@ts-expect-error
+    t.select(["id2"]);
+    expect(1).toBe(1);
+});
+
+it("append select", () => {
+    t.select((f) => ({
+        abc: f.id,
+        def: f.users.id,
+    })).appendSelect((f) => ({ y: f.users.name }));
+    expect(1).toBe(1);
+});
+
+it("query alias", () => {
+    const r1 = t.select(
+        (f) => ({
+            abc: f.id,
+            def: f.users.id,
+        }),
+        "alias2"
+    );
+    expect(r1.__props.scope).toMatchInlineSnapshot(`
+        Object {
+          "alias2": undefined,
+        }
+    `);
+    expect(format(r1.stringify())).toMatchInlineSnapshot(`
+        "SELECT
+          \`id\` AS \`abc\`,
+          \`users\`.\`id\` AS \`def\`
+        FROM
+          \`users\`"
+    `);
+    const r2 = r1.select((f) => ({ col1: f.abc, col2: f.alias2.def }));
+
+    expect(r2.__props.scope).toMatchInlineSnapshot(`
+        Object {
+          "alias2": undefined,
+        }
+    `);
+    expect(r2.__props.selection).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "_tag": "AliasedRows",
+            "content": Object {
+              "col1": Object {
+                "_tag": "SafeString",
+                "content": "\`abc\`",
+              },
+              "col2": Object {
+                "_tag": "SafeString",
+                "content": "\`alias2\`.\`def\`",
+              },
+            },
+          },
+        ]
+    `);
+    expect(format(r2.stringify())).toMatchInlineSnapshot(`
+        "SELECT
+          \`abc\` AS \`col1\`,
+          \`alias2\`.\`def\` AS \`col2\`
+        FROM
+          (
+            SELECT
+              \`id\` AS \`abc\`,
+              \`users\`.\`id\` AS \`def\`
+            FROM
+              \`users\`
+          ) AS \`alias2\`"
+    `);
+});
+
+it("query alias type checks", () => {
+    const r1 = t.select((f) => ({
+        abc: f.id,
+        def: f.users.id,
+    }));
+
+    r1.select((f) => ({
+        col1: f.abc,
+        col2:
+            //@ts-expect-error
+            f.alias2.def,
+    }));
+
+    expect(1).toBe(1);
+});
+
+it("join using", () => {
+    const query1 = t
+        .select(
+            (f) => ({
+                id: f.id,
+                def: f.users.id,
+            }),
+            "q1"
+        )
+        .join("LEFT", t)
+        .using(["id"])
+        .select((f) => ({ abc: f.q1.def, x2: f.users.name }))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          \`q1\`.\`def\` AS \`abc\`,
+          \`users\`.\`name\` AS \`x2\`
+        FROM
+          (
+            SELECT
+              \`id\` AS \`id\`,
+              \`users\`.\`id\` AS \`def\`
+            FROM
+              \`users\`
+          ) AS \`q1\`
+          LEFT JOIN \`users\` USING(\`id\`)"
+    `);
+});
+
+it("join then select", () => {
+    const query1 = t
+        .select(
+            (f) => ({
+                id: f.id,
+                def: f.users.id,
+            }),
+            "q1"
+        )
+        .join("LEFT", t)
+        .using(["id"])
+        .select((f) => ({ abc: f.q1.def, x2: f.name }))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          \`q1\`.\`def\` AS \`abc\`,
+          \`name\` AS \`x2\`
+        FROM
+          (
+            SELECT
+              \`id\` AS \`id\`,
+              \`users\`.\`id\` AS \`def\`
+            FROM
+              \`users\`
+          ) AS \`q1\`
+          LEFT JOIN \`users\` USING(\`id\`)"
+    `);
+});
+
+it("join using type checks", () => {
+    t.select(
+        (f) => ({
+            id: f.id,
+            def: f.users.id,
+        }),
+        "q1"
+    )
+        .join("LEFT", t)
+        //@ts-expect-error
+        .using(["name"]);
+
+    expect(1).toBe(1);
+});
+it("join on", () => {
+    const query1 = t
+        .select(
+            (f) => ({
+                id: f.id,
+                def: f.users.id,
+            }),
+            "q1"
+        )
+        .join("LEFT", t)
+        .on((f) => [dsql`${f.q1.def} = ${f.name}`])
+        .select((f) => ({ abc: f.def }))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          \`def\` AS \`abc\`
+        FROM
+          (
+            SELECT
+              \`id\` AS \`id\`,
+              \`users\`.\`id\` AS \`def\`
+            FROM
+              \`users\`
+          ) AS \`q1\`
+          LEFT JOIN \`users\` ON \`q1\`.\`def\` = \`name\`"
+    `);
+});
+
+it("join on 2 queries", () => {
+    const query1 = t
+        .select(
+            (f) => ({
+                id: f.id,
+                def: f.users.id,
+            }),
+            "q1"
+        )
+        .join(
+            "LEFT",
+            t.select((f) => ({ name: f.name }))
+        )
+        .on((f) => [dsql`${f.q1.def} = ${f.name}`])
+        .select((f) => ({ abc: f.def }))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          \`def\` AS \`abc\`
+        FROM
+          (
+            SELECT
+              \`id\` AS \`id\`,
+              \`users\`.\`id\` AS \`def\`
+            FROM
+              \`users\`
+          ) AS \`q1\`
+          LEFT JOIN \`users\` ON \`q1\`.\`def\` = \`name\`"
+    `);
+});

@@ -8,18 +8,29 @@ import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
 import { Table } from "./classes/table";
+import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "./data-wrappers";
 import { SafeString } from "./safe-string";
 
-export type TableOrSubquery<
-    Alias extends string,
-    Scope extends string,
-    Selection extends string
+export type Joinable<
+    Selection extends string = never,
+    Alias extends string = never,
+    Scope extends ScopeShape = never
 > =
-    | SelectStatement<Scope, Selection>
-    | StringifiedSelectStatement<Selection>
-    | Table<Scope, Selection, Alias>
-    | Joined<Selection, Scope, Alias>
-    | Compound<Scope, Selection>;
+    | SelectStatement<Selection, Alias, Scope>
+    // | StringifiedSelectStatement<Alias, Scope, Selection>
+    | Table<Selection, Alias, Scope>;
+// | Compound<Alias, Scope, Selection>;
+
+export type TableOrSubquery<
+    Selection extends string = never,
+    Alias extends string = never,
+    Scope extends ScopeShape = never
+> =
+    | SelectStatement<Selection, Alias, Scope>
+    // | StringifiedSelectStatement<Alias, Scope, Selection>
+    | Table<Selection, Alias, Scope>
+    | Joined<Selection, Alias, Scope>;
+// | Compound<Alias, Scope, Selection>;
 
 export type NoSelectFieldsCompileError = {
     ["✕"]: CompileError<["'.select(f => f)' is invalid"]>;
@@ -37,7 +48,7 @@ export interface ReadOnlyNonEmptyArray<A> extends ReadonlyArray<A> {
 }
 export type ClickhouseWith = Record<
     string,
-    SelectStatement<any, any> | StringifiedSelectStatement<any>
+    SelectStatement<any, any, any> | StringifiedSelectStatement<any, any, any>
 >;
 export type JoinConstraint =
     | {
@@ -47,6 +58,7 @@ export type JoinConstraint =
     | { _tag: "using"; keys: ReadonlyArray<string> };
 
 export type SelectionOfSelectStatement<T> = T extends SelectStatement<
+    infer _Alias,
     infer _Scope,
     infer Selection
 >
@@ -56,5 +68,30 @@ export type SelectionOfSelectStatement<T> = T extends SelectStatement<
 export type CTE = {
     readonly columns: ReadonlyArray<string>;
     readonly alias: string;
-    readonly select: SelectStatement<any, any>;
+    readonly select: SelectStatement<any, any, any>;
 };
+export type ScopeShape = { [key: string]: string };
+export type SelectionOfScope<Scope extends ScopeShape = never> = {
+    [key in keyof Scope]: { [key2 in Scope[key]]: SafeString };
+};
+export type RecordOfSelection<Selection extends string = never> = Record<
+    Selection,
+    SafeString
+>;
+export type SelectionRecordCallbackShape =
+    | ReadonlyArray<string>
+    | ((
+          fields: RecordOfSelection<string> &
+              SelectionOfScope<ScopeShape> &
+              NoSelectFieldsCompileError
+      ) => Record<string, SafeString>);
+
+export type SelectionArrayCallbackShape = (
+    fields: SelectionOfScope<ScopeShape>
+) => SafeString | ReadonlyArray<SafeString>;
+
+export type SelectionWrapperTypes = ReadonlyArray<
+    AliasedRows<any> | StarSymbol | StarOfAliasSymbol
+>;
+
+export type ScopeStorage = Record<string, void>;

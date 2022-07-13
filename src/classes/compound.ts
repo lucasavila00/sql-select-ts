@@ -26,7 +26,11 @@ import { Table } from "./table";
  *
  * @since 0.0.0
  */
-export class Compound<Scope extends string, Selection extends string> {
+export class Compound<
+    Alias extends string,
+    Scope extends string,
+    Selection extends string
+> {
     /* @internal */
     private constructor(
         /* @internal */
@@ -42,8 +46,8 @@ export class Compound<Scope extends string, Selection extends string> {
      * @internal
      */
     public static union = <
-        C extends SelectStatement<any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any>>
+        C extends SelectStatement<any, any, any>,
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>
     >(
         content: CS & {
             0: C;
