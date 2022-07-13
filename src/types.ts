@@ -58,11 +58,19 @@ export type JoinConstraint =
     | { _tag: "using"; keys: ReadonlyArray<string> };
 
 export type SelectionOfSelectStatement<T> = T extends SelectStatement<
+    infer Selection,
     infer _Alias,
-    infer _Scope,
-    infer Selection
+    infer _Scope
 >
     ? Selection
+    : never;
+
+export type ScopeOfSelectStatement<T> = T extends SelectStatement<
+    infer _Selection,
+    infer _Alias,
+    infer Scope
+>
+    ? Scope
     : never;
 
 export type CTE = {

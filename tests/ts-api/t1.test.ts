@@ -3,6 +3,53 @@ import { format } from "sql-formatter";
 import { dsql } from "../../src";
 
 const t = Table.define(["id", "name"], "users");
+it("select star", () => {
+    expect(t.selectStar().stringify()).toMatchInlineSnapshot(
+        `"SELECT * FROM \`users\`"`
+    );
+    expect(
+        t
+            .selectStar()
+            .select((f) => ({ abc: f.name }))
+            .stringify()
+    ).toMatchInlineSnapshot(
+        `"SELECT \`name\` AS \`abc\` FROM (SELECT * FROM \`users\`)"`
+    );
+
+    expect(
+        t
+            .selectStar("t1a")
+            .select((f) => ({ abc: f.t1a.name }))
+            .stringify()
+    ).toMatchInlineSnapshot(
+        `"SELECT \`t1a\`.\`name\` AS \`abc\` FROM (SELECT * FROM \`users\`) AS \`t1a\`"`
+    );
+
+    expect(
+        format(
+            t
+                .selectStar("t1a")
+                .selectStar("t2a")
+                .select((f) => ({ abc: f.t2a.name }))
+                .stringify()
+        )
+    ).toMatchInlineSnapshot(`
+        "SELECT
+          \`t2a\`.\`name\` AS \`abc\`
+        FROM
+          (
+            SELECT
+              *
+            FROM
+              (
+                SELECT
+                  *
+                FROM
+                  \`users\`
+              ) AS \`t1a\`
+          ) AS \`t2a\`"
+    `);
+});
 it("select qualified", () => {
     expect(t.__props.scope).toMatchInlineSnapshot(`
         Object {
@@ -313,6 +360,39 @@ it("join on 2 tables", () => {
     `);
 });
 
+it("join on 2 tables and select star", () => {
+    const t2 = Table.define(["id", "name"], "users2");
+    const query1 = t
+
+        .join("LEFT", t2)
+        .on((f) => [
+            dsql`${f.users.id} = ${f.users2.id}`,
+            dsql`${f.id} = ${f.name}`,
+        ])
+        .selectStar()
+        .select((f) => ({ r3: f.name }))
+        .select((f) => ({ f4: f.r3 }))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          \`r3\` AS \`f4\`
+        FROM
+          (
+            SELECT
+              \`name\` AS \`r3\`
+            FROM
+              (
+                SELECT
+                  *
+                FROM
+                  \`users\`
+                  LEFT JOIN \`users2\` ON \`users\`.\`id\` = \`users2\`.\`id\`
+                  AND \`id\` = \`name\`
+              )
+          )"
+    `);
+});
 it("join on 3 tables", () => {
     const t2 = Table.define(["id", "name"], "users2");
     const t3 = Table.define(["id", "name"], "users3");

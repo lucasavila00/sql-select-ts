@@ -68,6 +68,30 @@ export class SelectStatement<
     ) {}
 
     /* @internal */
+    public static __fromTableOrSubqueryAndSelectionArray = (
+        it: TableOrSubquery<any, any, any>,
+        selection: SelectionWrapperTypes,
+        scope: ScopeStorage,
+        alias?: string
+    ): SelectStatement<any, any, any> =>
+        new SelectStatement({
+            from: it,
+            selection,
+            replace: [],
+            orderBy: [],
+            groupBy: [],
+            limit: null,
+            where: [],
+            prewhere: [],
+            having: [],
+            distinct: false,
+            clickhouseWith: [],
+            ctes: [],
+            alias,
+            scope,
+        });
+
+    /* @internal */
     public static __fromTableOrSubquery = (
         it: TableOrSubquery<any, any, any>,
         selection: SelectionRecordCallbackShape,
@@ -293,11 +317,18 @@ export class SelectStatement<
             as
         );
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public selectStar = (): SelectStatement<Alias, Selection, Selection> =>
-    //     SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
+    /**
+     * @since 0.0.0
+     */
+    public selectStar = <NewAlias extends string = never>(
+        as?: NewAlias
+    ): SelectStatement<Selection, NewAlias, { [key in Alias]: Selection }> =>
+        SelectStatement.__fromTableOrSubqueryAndSelectionArray(
+            this,
+            [StarSymbol()],
+            as ? { [as]: void 0 } : {},
+            as
+        );
 
     // /**
     //  * @since 0.0.0

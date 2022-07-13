@@ -85,7 +85,7 @@ export class JoinedFactory<
      * @since 0.0.0
      */
     public on = (
-        on: (
+        _: (
             fields: RecordOfSelection<Scope[keyof Scope]> &
                 SelectionOfScope<Scope>
         ) => SafeString | ReadonlyArray<SafeString>
@@ -99,7 +99,7 @@ export class JoinedFactory<
                     constraint: {
                         _tag: "on",
                         on: makeNonEmptyArray(
-                            consumeArrayCallback(on as any, this.__props.scope)
+                            consumeArrayCallback(_ as any, this.__props.scope)
                         ),
                     },
                 },
@@ -179,11 +179,19 @@ export class Joined<
             as
         );
 
-    //     /**
-    //      * @since 0.0.0
-    //      */
-    //     public selectStar = (): SelectStatement<Selection | Scope, Selection> =>
-    //         SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
+    /**
+     * @since 0.0.0
+     */
+    public selectStar = <NewAlias extends string = never>(
+        as?: NewAlias
+    ): SelectStatement<Scope[keyof Scope], NewAlias, Scope> =>
+        SelectStatement.__fromTableOrSubqueryAndSelectionArray(
+            this,
+            [StarSymbol()],
+            as ? { [as]: void 0 } : {},
+            as
+        );
+
     //     /**
     //      * @since 0.0.0
     //      */

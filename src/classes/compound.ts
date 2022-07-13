@@ -13,6 +13,8 @@ import {
     NoSelectFieldsCompileError,
     SelectionOfSelectStatement,
     ScopeStorage,
+    ScopeOfSelectStatement,
+    ScopeShape,
 } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
@@ -44,103 +46,124 @@ export class Compound<
         }
     ) {}
 
-    // /**
-    //  * @internal
-    //  */
-    // public static union = <
-    //     C extends SelectStatement<any, any, any>,
-    //     CS extends ReadonlyArray<SelectStatement<any, any, any>>
-    // >(
-    //     content: CS & {
-    //         0: C;
-    //     }
-    // ): Compound<
-    //     SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-    //     SelectionOfSelectStatement<C>
-    // > =>
-    //     new Compound({ content, qualifier: "UNION", orderBy: [], limit: null });
+    /**
+     * @internal
+     */
+    public static union = <
+        C extends SelectStatement<any, any, any>,
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+    >(
+        content: CS & {
+            0: C;
+        }
+    ): Compound<
+        SelectionOfSelectStatement<C>,
+        never,
+        ScopeOfSelectStatement<C> | ScopeOfSelectStatement<CS[number]>
+    > =>
+        new Compound({
+            content,
+            qualifier: "UNION",
+            orderBy: [],
+            limit: null,
+            scope: Object.fromEntries(
+                content.map((it) => [it.__props.alias, void 0])
+            ),
+        });
 
-    // /**
-    //  * @internal
-    //  */
-    // public static unionAll = <
-    //     C extends SelectStatement<any, any>,
-    //     CS extends ReadonlyArray<SelectStatement<any, any>>
-    // >(
-    //     content: CS & {
-    //         0: C;
-    //     }
-    // ): Compound<
-    //     SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-    //     SelectionOfSelectStatement<C>
-    // > =>
-    //     new Compound({
-    //         content,
-    //         qualifier: "UNION ALL",
-    //         orderBy: [],
-    //         limit: null,
-    //     });
+    /**
+     * @internal
+     */
+    public static unionAll = <
+        C extends SelectStatement<any, any>,
+        CS extends ReadonlyArray<SelectStatement<any, any>>
+    >(
+        content: CS & {
+            0: C;
+        }
+    ): Compound<
+        SelectionOfSelectStatement<C>,
+        never,
+        ScopeOfSelectStatement<C> | ScopeOfSelectStatement<CS[number]>
+    > =>
+        new Compound({
+            content,
+            qualifier: "UNION ALL",
+            orderBy: [],
+            limit: null,
+            scope: Object.fromEntries(
+                content.map((it) => [it.__props.alias, void 0])
+            ),
+        });
 
-    // /**
-    //  * @internal
-    //  */
-    // public static intersect = <
-    //     C extends SelectStatement<any, any>,
-    //     CS extends ReadonlyArray<SelectStatement<any, any>>
-    // >(
-    //     content: CS & {
-    //         0: C;
-    //     }
-    // ): Compound<
-    //     SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-    //     SelectionOfSelectStatement<C>
-    // > =>
-    //     new Compound({
-    //         content,
-    //         qualifier: "INTERSECT",
-    //         orderBy: [],
-    //         limit: null,
-    //     });
+    /**
+     * @internal
+     */
+    public static intersect = <
+        C extends SelectStatement<any, any>,
+        CS extends ReadonlyArray<SelectStatement<any, any>>
+    >(
+        content: CS & {
+            0: C;
+        }
+    ): Compound<
+        SelectionOfSelectStatement<C>,
+        never,
+        ScopeOfSelectStatement<C> | ScopeOfSelectStatement<CS[number]>
+    > =>
+        new Compound({
+            content,
+            qualifier: "INTERSECT",
+            orderBy: [],
+            limit: null,
+            scope: Object.fromEntries(
+                content.map((it) => [it.__props.alias, void 0])
+            ),
+        });
 
-    // /**
-    //  * @internal
-    //  */
-    // public static except = <
-    //     C extends SelectStatement<any, any>,
-    //     CS extends ReadonlyArray<SelectStatement<any, any>>
-    // >(
-    //     content: CS & {
-    //         0: C;
-    //     }
-    // ): Compound<
-    //     SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-    //     SelectionOfSelectStatement<C>
-    // > =>
-    //     new Compound({
-    //         content,
-    //         qualifier: "EXCEPT",
-    //         orderBy: [],
-    //         limit: null,
-    //     });
+    /**
+     * @internal
+     */
+    public static except = <
+        C extends SelectStatement<any, any>,
+        CS extends ReadonlyArray<SelectStatement<any, any>>
+    >(
+        content: CS & {
+            0: C;
+        }
+    ): Compound<
+        SelectionOfSelectStatement<C>,
+        never,
+        ScopeOfSelectStatement<C> | ScopeOfSelectStatement<CS[number]>
+    > =>
+        new Compound({
+            content,
+            qualifier: "EXCEPT",
+            orderBy: [],
+            limit: null,
+            scope: Object.fromEntries(
+                content.map((it) => [it.__props.alias, void 0])
+            ),
+        });
 
-    // private copy = (): Compound<Scope, Selection> =>
-    //     new Compound({ ...this.__props });
+    private copy = (): Compound<Selection, Alias, Scope> =>
+        new Compound({ ...this.__props });
 
-    // private setOrderBy = (orderBy: SafeString[]): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         orderBy,
-    //     };
-    //     return this;
-    // };
+    private setOrderBy = (orderBy: SafeString[]): this => {
+        this.__props = {
+            ...this.__props,
+            orderBy,
+        };
+        return this;
+    };
 
-    // private setLimit = (limit: SafeString | number | null): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         limit,
-    //     };
-    //     return this;
-    // };
+    private setLimit = (limit: SafeString | number | null): this => {
+        this.__props = {
+            ...this.__props,
+            limit,
+        };
+        return this;
+    };
 
     // /**
     //  * @since 0.0.0
@@ -157,11 +180,12 @@ export class Compound<
     //         ...makeArray(consumeArrayCallback(f)),
     //     ]);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public limit = (limit: SafeString | number): Compound<Scope, Selection> =>
-    //     this.copy().setLimit(limit);
+    /**
+     * @since 0.0.0
+     */
+    public limit = (
+        limit: SafeString | number
+    ): Compound<Selection, Alias, Scope> => this.copy().setLimit(limit);
 
     // /**
     //  * @since 0.0.0

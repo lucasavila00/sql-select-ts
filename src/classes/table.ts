@@ -7,7 +7,7 @@
  * @since 0.0.0
  */
 import { consumeRecordCallback } from "../consume-fields";
-import { AliasedRows } from "../data-wrappers";
+import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
 import {
     Joinable,
@@ -105,13 +105,18 @@ export class Table<
             as
         );
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public selectStar = (): SelectStatement<
-    //     Selection | `${Alias}.${Selection}`,
-    //     Selection
-    // > => SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
+    /**
+     * @since 0.0.0
+     */
+    public selectStar = <NewAlias extends string = never>(
+        as?: NewAlias
+    ): SelectStatement<Selection, NewAlias, Scope> =>
+        SelectStatement.__fromTableOrSubqueryAndSelectionArray(
+            this,
+            [StarSymbol()],
+            as ? { [as]: void 0 } : {},
+            as
+        );
 
     // /**
     //  * @since 0.0.0
