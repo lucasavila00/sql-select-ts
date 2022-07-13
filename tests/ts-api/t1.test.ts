@@ -439,20 +439,56 @@ it("union", () => {
 
 it("union and select", () => {
     const t2 = Table.define(["id", "name"], "users2").selectStar();
-    const t3 = Table.define(["id", "name"], "users3").selectStar();
+    const t3 = Table.define(["id3", "name3"], "users3").selectStar();
     const query1 = unionAll([t2, t3])
-        .select((f) => ({}))
+        .select((f) => ({ x: f.id, y: f.name3 }))
         .stringify();
 
     expect(format(query1)).toMatchInlineSnapshot(`
         "SELECT
-          *
+          \`id\` AS \`x\`,
+          \`name3\` AS \`y\`
         FROM
-          \`users2\`
-        UNION ALL
-        SELECT
-          *
+          (
+            SELECT
+              *
+            FROM
+              \`users2\`
+            UNION ALL
+            SELECT
+              *
+            FROM
+              \`users3\`
+          )"
+    `);
+});
+it("union and select star", () => {
+    const t2 = Table.define(["id", "name"], "users2").selectStar();
+    const t3 = Table.define(["id3", "name3"], "users3").selectStar();
+    const query1 = unionAll([t2, t3])
+        .selectStar()
+        .select((f) => ({ abc: f.id }))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          \`id\` AS \`abc\`
         FROM
-          \`users3\`"
+          (
+            SELECT
+              *
+            FROM
+              (
+                SELECT
+                  *
+                FROM
+                  \`users2\`
+                UNION ALL
+                SELECT
+                  *
+                FROM
+                  \`users3\`
+              )
+          )"
     `);
 });

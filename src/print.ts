@@ -29,13 +29,11 @@ const printLimit = (limit: number | SafeString | null): string =>
         ? `LIMIT ${limit}`
         : `LIMIT ${limit.content}`;
 
-export const printCompoundInternal = <
-    Scope extends string,
-    Selection extends string
->(
-    compound: Compound<Scope, Selection>,
+export const printCompoundInternal = (
+    compound: Compound<any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
+    console.error("handle alias");
     const sel = compound.__props.content
         .map((it) => printInternal(it, false))
         .join(` ${compound.__props.qualifier} `);
@@ -58,7 +56,10 @@ type PrintInternalRet = string;
 
 const printStringifiedSelectInternal = <Selection extends string>(
     it: StringifiedSelectStatement<Selection>
-): PrintInternalRet => `(${it.__props.content.content})`;
+): PrintInternalRet => {
+    console.error("handle alias");
+    return `(${it.__props.content.content})`;
+};
 
 const printTableInternal = (table: Table<any, any, any>): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";

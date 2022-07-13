@@ -17,6 +17,7 @@ import {
     ScopeShape,
     RecordOfSelection,
     SelectionOfScope,
+    UnionToIntersection,
 } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
@@ -45,6 +46,7 @@ export class Compound<
             readonly orderBy: ReadonlyArray<SafeString>;
             readonly limit: SafeString | number | null;
             readonly scope: ScopeStorage;
+            readonly alias?: string;
         }
     ) {}
 
@@ -53,15 +55,18 @@ export class Compound<
      */
     public static union = <
         C extends SelectStatement<any, any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>,
+        NewAlias extends string = never
     >(
         content: CS & {
             0: C;
-        }
+        },
+        as?: NewAlias
     ): Compound<
         SelectionOfSelectStatement<C>,
         never,
-        ScopeOfSelectStatement<C> & ScopeOfSelectStatement<CS[number]>
+        ScopeOfSelectStatement<C> &
+            UnionToIntersection<ScopeOfSelectStatement<CS[number]>>
     > =>
         new Compound({
             content,
@@ -71,6 +76,7 @@ export class Compound<
             scope: Object.fromEntries(
                 content.map((it) => [it.__props.alias, void 0])
             ),
+            alias: as,
         });
 
     /**
@@ -78,15 +84,18 @@ export class Compound<
      */
     public static unionAll = <
         C extends SelectStatement<any, any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>,
+        NewAlias extends string = never
     >(
         content: CS & {
             0: C;
-        }
+        },
+        as?: NewAlias
     ): Compound<
         SelectionOfSelectStatement<C>,
         never,
-        ScopeOfSelectStatement<C> & ScopeOfSelectStatement<CS[number]>
+        ScopeOfSelectStatement<C> &
+            UnionToIntersection<ScopeOfSelectStatement<CS[number]>>
     > =>
         new Compound({
             content,
@@ -96,6 +105,7 @@ export class Compound<
             scope: Object.fromEntries(
                 content.map((it) => [it.__props.alias, void 0])
             ),
+            alias: as,
         });
 
     /**
@@ -103,15 +113,18 @@ export class Compound<
      */
     public static intersect = <
         C extends SelectStatement<any, any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>,
+        NewAlias extends string = never
     >(
         content: CS & {
             0: C;
-        }
+        },
+        as?: NewAlias
     ): Compound<
         SelectionOfSelectStatement<C>,
         never,
-        ScopeOfSelectStatement<C> & ScopeOfSelectStatement<CS[number]>
+        ScopeOfSelectStatement<C> &
+            UnionToIntersection<ScopeOfSelectStatement<CS[number]>>
     > =>
         new Compound({
             content,
@@ -121,6 +134,7 @@ export class Compound<
             scope: Object.fromEntries(
                 content.map((it) => [it.__props.alias, void 0])
             ),
+            alias: as,
         });
 
     /**
@@ -128,15 +142,18 @@ export class Compound<
      */
     public static except = <
         C extends SelectStatement<any, any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>,
+        NewAlias extends string = never
     >(
         content: CS & {
             0: C;
-        }
+        },
+        as?: NewAlias
     ): Compound<
         SelectionOfSelectStatement<C>,
         never,
-        ScopeOfSelectStatement<C> & ScopeOfSelectStatement<CS[number]>
+        ScopeOfSelectStatement<C> &
+            UnionToIntersection<ScopeOfSelectStatement<CS[number]>>
     > =>
         new Compound({
             content,
@@ -146,6 +163,7 @@ export class Compound<
             scope: Object.fromEntries(
                 content.map((it) => [it.__props.alias, void 0])
             ),
+            alias: as,
         });
 
     private copy = (): Compound<Selection, Alias, Scope> =>
@@ -213,11 +231,18 @@ export class Compound<
             as
         );
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public selectStar = (): SelectStatement<Selection, Selection> =>
-    //     SelectStatement.__fromTableOrSubquery(this, [StarSymbol()]);
+    /**
+     * @since 0.0.0
+     */
+    public selectStar = <NewAlias extends string = never>(
+        as?: NewAlias
+    ): SelectStatement<Selection, NewAlias, { [key in Alias]: Selection }> =>
+        SelectStatement.__fromTableOrSubqueryAndSelectionArray(
+            this,
+            [StarSymbol()],
+            as ? { [as]: void 0 } : {},
+            as
+        );
 
     // /**
     //  * @since 0.0.0

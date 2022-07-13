@@ -65,22 +65,12 @@ export type SelectionOfSelectStatement<T> = T extends SelectStatement<
     ? Selection
     : never;
 
-type UnionToIntersectionHelper<U> = (
-    U extends unknown ? (k: U) => void : never
-) extends (k: infer I) => void
-    ? I
-    : never;
-
-type UnionToIntersection<U> = boolean extends U
-    ? UnionToIntersectionHelper<Exclude<U, boolean>> & boolean
-    : UnionToIntersectionHelper<U>;
-
 export type ScopeOfSelectStatement<T> = T extends SelectStatement<
     infer _Selection,
     infer _Alias,
     infer Scope
 >
-    ? UnionToIntersection<Scope>
+    ? Scope
     : never;
 
 export type CTE = {
@@ -118,3 +108,8 @@ export type ValidAliasInSelection<T, Alias2 extends string = never> = [
 ] extends [never]
     ? CompileError<["use alias"]>
     : T;
+export type UnionToIntersection<T> = (
+    T extends any ? (x: T) => any : never
+) extends (x: infer R) => any
+    ? R
+    : never;
