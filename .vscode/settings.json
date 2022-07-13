@@ -1,3 +1,10 @@
 {
-    "cSpell.words": ["apla", "Clickhouse", "degroote", "Prewhere", "Subquery"]
+    "cSpell.words": [
+        "apla",
+        "Clickhouse",
+        "ctes",
+        "degroote",
+        "Prewhere",
+        "Subquery"
+    ]
 }

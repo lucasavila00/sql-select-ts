@@ -10,13 +10,16 @@ import { consumeRecordCallback } from "../consume-fields";
 import { AliasedRows } from "../data-wrappers";
 import { SafeString } from "../safe-string";
 import {
+    Joinable,
     NoSelectFieldsCompileError,
     RecordOfSelection,
     ScopeShape,
     ScopeStorage,
     SelectionOfScope,
     TableOrSubquery,
+    ValidAliasInSelection,
 } from "../types";
+import { JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 
 /**
@@ -138,225 +141,33 @@ export class Table<
     //         },
     //     ]);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public joinTable = <
-    //     Scope2 extends string,
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     operator: string,
-    //     table: Table<Scope2, Selection2, Alias2>
-    // ): JoinedFactory<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias | Alias2,
-    //     Extract<Selection2, Selection>
-    // > =>
-    //     JoinedFactory.__fromAll(
-    //         [
-    //             {
-    //                 code: this,
-    //                 alias: this.__props.alias,
-    //             },
-    //         ],
-    //         [],
-    //         {
-    //             code: table,
-    //             alias: table.__props.alias,
-    //             operator,
-    //         }
-    //     );
-
-    // /**
-    //  * @since 0.0.3
-    //  */
-    // public commaJoinStringifiedSelect = <
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     selectAlias: Alias2,
-    //     select: StringifiedSelectStatement<Selection2>
-    // ): Joined<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias | Alias2
-    // > =>
-    //     Joined.__fromCommaJoin([
-    //         {
-    //             code: this,
-    //             alias: this.__props.alias,
-    //         },
-    //         {
-    //             code: select,
-    //             alias: selectAlias,
-    //         },
-    //     ]);
-
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public commaJoinSelect = <
-    //     Scope2 extends string,
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     selectAlias: Alias2,
-    //     select: SelectStatement<Scope2, Selection2>
-    // ): Joined<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias | Alias2
-    // > =>
-    //     Joined.__fromCommaJoin([
-    //         {
-    //             code: this,
-    //             alias: this.__props.alias,
-    //         },
-    //         {
-    //             code: select,
-    //             alias: selectAlias,
-    //         },
-    //     ]);
-
-    // /**
-    //  * @since 0.0.3
-    //  */
-    // public joinStringifiedSelect = <
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     selectAlias: Alias2,
-    //     operator: string,
-    //     select: StringifiedSelectStatement<Selection2>
-    // ): JoinedFactory<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias | Alias2,
-    //     Extract<Selection2, Selection>
-    // > =>
-    //     JoinedFactory.__fromAll(
-    //         [
-    //             {
-    //                 code: this,
-    //                 alias: this.__props.alias,
-    //             },
-    //         ],
-    //         [],
-    //         {
-    //             code: select,
-    //             alias: selectAlias,
-    //             operator,
-    //         }
-    //     );
-
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public joinSelect = <
-    //     Scope2 extends string,
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     selectAlias: Alias2,
-    //     operator: string,
-    //     select: SelectStatement<Scope2, Selection2>
-    // ): JoinedFactory<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias | Alias2,
-    //     Extract<Selection2, Selection>
-    // > =>
-    //     JoinedFactory.__fromAll(
-    //         [
-    //             {
-    //                 code: this,
-    //                 alias: this.__props.alias,
-    //             },
-    //         ],
-    //         [],
-    //         {
-    //             code: select,
-    //             alias: selectAlias,
-    //             operator,
-    //         }
-    //     );
-
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public commaJoinCompound = <
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     compoundAlias: Alias2,
-    //     compound: Compound<Selection2, Selection2>
-    // ): Joined<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias | Alias2
-    // > =>
-    //     Joined.__fromCommaJoin([
-    //         {
-    //             code: this,
-    //             alias: this.__props.alias,
-    //         },
-    //         {
-    //             code: compound,
-    //             alias: compoundAlias,
-    //         },
-    //     ]);
-
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public joinCompound = <Selection2 extends string, Alias2 extends string>(
-    //     compoundAlias: Alias2,
-    //     operator: string,
-    //     compound: Compound<Selection2, Selection2>
-    // ): JoinedFactory<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias | Alias2,
-    //     Extract<Selection2, Selection>
-    // > =>
-    //     JoinedFactory.__fromAll(
-    //         [
-    //             {
-    //                 code: this,
-    //                 alias: this.__props.alias,
-    //             },
-    //         ],
-    //         [],
-    //         {
-    //             code: compound,
-    //             alias: compoundAlias,
-    //             operator,
-    //         }
-    //     );
-
+    public join = <
+        Selection2 extends string = never,
+        Alias2 extends string = never,
+        Scope2 extends ScopeShape = never
+    >(
+        operator: string,
+        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+    ): JoinedFactory<
+        {
+            [key in Alias]: Selection;
+        } & {
+            [key in Alias2]: Selection2;
+        },
+        Extract<Selection, Selection2>
+    > =>
+        JoinedFactory.__fromAll(
+            [this],
+            [],
+            {
+                code: _ as any,
+                operator,
+            },
+            {
+                [String(this.__props.alias)]: void 0,
+                ...(_ as any).__props.scope,
+            }
+        );
     /**
      * @since 1.1.1
      */

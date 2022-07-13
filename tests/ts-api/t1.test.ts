@@ -265,9 +265,12 @@ it("join on 2 queries", () => {
         )
         .join(
             "LEFT",
-            t.select((f) => ({ name: f.name }))
+            t.select((f) => ({ name: f.name }), "a2")
         )
-        .on((f) => [dsql`${f.q1.def} = ${f.name}`])
+        .on((f) => [
+            dsql`${f.q1.def} = ${f.name}`,
+            dsql`${f.q1.def} = ${f.a2.name}`,
+        ])
         .select((f) => ({ abc: f.def }))
         .stringify();
 
@@ -282,6 +285,60 @@ it("join on 2 queries", () => {
             FROM
               \`users\`
           ) AS \`q1\`
-          LEFT JOIN \`users\` ON \`q1\`.\`def\` = \`name\`"
+          LEFT JOIN (
+            SELECT
+              \`name\` AS \`name\`
+            FROM
+              \`users\`
+          ) AS \`a2\` ON \`q1\`.\`def\` = \`name\`
+          AND \`q1\`.\`def\` = \`a2\`.\`name\`"
+    `);
+});
+
+it("join on 2 tables", () => {
+    const t2 = Table.define(["id", "name"], "users2");
+    const query1 = t
+
+        .join("LEFT", t2)
+        .on((f) => [
+            dsql`${f.users.id} = ${f.users2.id}`,
+            dsql`${f.id} = ${f.name}`,
+        ])
+        .select((f) => ({ abc: f.users.id }))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          \`users\`.\`id\` AS \`abc\`
+        FROM
+          \`users\`
+          LEFT JOIN \`users2\` ON \`users\`.\`id\` = \`users2\`.\`id\`
+          AND \`id\` = \`name\`"
+    `);
+});
+
+it("join on 3 tables", () => {
+    const t2 = Table.define(["id", "name"], "users2");
+    const t3 = Table.define(["id", "name"], "users3");
+    const query1 = t
+
+        .join("LEFT", t2)
+        .on((f) => [
+            dsql`${f.users.id} = ${f.users2.id}`,
+            dsql`${f.id} = ${f.name}`,
+        ])
+        .join("RIGHT", t3)
+        .on((f) => [dsql`${f.users3.id} = ${f.users2.name}`])
+        .select((f) => ({ abc: f.users.id }))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          \`users\`.\`id\` AS \`abc\`
+        FROM
+          \`users\`
+          LEFT JOIN \`users2\` ON \`users\`.\`id\` = \`users2\`.\`id\`
+          AND \`id\` = \`name\`
+          RIGHT JOIN \`users3\` ON \`users3\`.\`id\` = \`users2\`.\`name\`"
     `);
 });

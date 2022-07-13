@@ -203,7 +203,6 @@ export const printSelectStatementInternal = (
                   .join(" AND ")}`
             : "";
 
-    console.error("handle alias here, remove it from table");
     const from =
         selectStatement.__props.from != null
             ? `FROM ${printInternal(selectStatement.__props.from, true)}`

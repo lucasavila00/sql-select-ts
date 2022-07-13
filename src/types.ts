@@ -95,3 +95,8 @@ export type SelectionWrapperTypes = ReadonlyArray<
 >;
 
 export type ScopeStorage = Record<string, void>;
+export type ValidAliasInSelection<T, Alias2 extends string = never> = [
+    Alias2
+] extends [never]
+    ? CompileError<["use alias"]>
+    : T;

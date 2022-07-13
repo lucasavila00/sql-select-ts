@@ -57,6 +57,5 @@ export const consumeArrayCallback = (
     scope: ScopeStorage
 ): ReadonlyArray<SafeString> | SafeString => {
     const result: any = (f as any)(upperProxy(scope));
-    console.error(result);
     return result;
 };
