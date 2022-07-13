@@ -42,7 +42,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     private constructor(
         /* @internal */
         public __props: {
-            readonly from: TableOrSubquery<any, any, any, any> | null;
+            readonly from: TableOrSubquery<any, any, any> | null;
             readonly selection: SelectionWrapperTypes<Selection>;
             readonly replace: ReplaceT<Selection>;
             readonly orderBy: ReadonlyArray<SafeString>;
@@ -59,7 +59,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
 
     /* @internal */
     public static __fromTableOrSubquery = (
-        it: TableOrSubquery<any, any, any, any>,
+        it: TableOrSubquery<any, any, any>,
         selection: SelectionWrapperTypes<any>
     ): SelectStatement<any, any> =>
         new SelectStatement(
@@ -380,8 +380,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -413,7 +412,6 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -448,8 +446,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -480,8 +477,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -513,7 +509,6 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -551,7 +546,6 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -586,8 +580,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -619,7 +612,6 @@ export class SelectStatement<Scope extends string, Selection extends string> {
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -640,7 +632,7 @@ export class SelectStatement<Scope extends string, Selection extends string> {
     /**
      * @since 1.1.1
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 

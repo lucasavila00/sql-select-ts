@@ -99,7 +99,7 @@ const printConstraint = (c: JoinConstraint): { on: string; using: string } => {
 };
 
 const printAliasedCode = (
-    code: TableOrSubquery<any, any, any, any>,
+    code: TableOrSubquery<any, any, any>,
     alias: string
 ): string => {
     const str = printInternal(code, true);
@@ -111,10 +111,9 @@ const printAliasedCode = (
 const printJoinedInternal = <
     Selection extends string,
     Scope extends string,
-    Aliases extends string,
-    Ambiguous extends string
+    Aliases extends string
 >(
-    joined: Joined<Selection, Scope, Aliases, Ambiguous>
+    joined: Joined<Selection, Scope, Aliases>
 ): PrintInternalRet => {
     const head = joined.__props.commaJoins
         .map((it) => printAliasedCode(it.code, it.alias))
@@ -266,7 +265,7 @@ export const printSelectStatementInternal = <
 };
 
 const printInternal = (
-    it: TableOrSubquery<any, any, any, any>,
+    it: TableOrSubquery<any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
     if (it instanceof SelectStatement) {

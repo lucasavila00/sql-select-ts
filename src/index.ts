@@ -292,7 +292,6 @@ export const select = <
     FromAlias extends string = never,
     FromSelection extends string = never,
     FromScope extends string = never,
-    FromAmbigous extends string = never,
     SubSelection extends FromSelection = never
 >(
     f:
@@ -301,7 +300,7 @@ export const select = <
               f: Record<FromSelection | FromScope, SafeString> &
                   NoSelectFieldsCompileError
           ) => Record<NewSelection, SafeString>),
-    from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
+    from: TableOrSubquery<FromAlias, FromScope, FromSelection>
 ): SelectStatement<FromSelection, NewSelection | SubSelection> =>
     //@ts-expect-error
     from.select(f);
@@ -316,8 +315,7 @@ export const select = <
 export const selectStar = <
     FromAlias extends string = never,
     FromSelection extends string = never,
-    FromScope extends string = never,
-    FromAmbigous extends string = never
+    FromScope extends string = never
 >(
-    from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
+    from: TableOrSubquery<FromAlias, FromScope, FromSelection>
 ): SelectStatement<FromSelection, FromSelection> => from.selectStar();

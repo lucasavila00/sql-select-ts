@@ -111,8 +111,7 @@ export class Table<
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
-        Extract<Selection2, Selection>
+        Alias | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -142,7 +141,6 @@ export class Table<
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -175,8 +173,7 @@ export class Table<
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
-        Extract<Selection2, Selection>
+        Alias | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -205,8 +202,7 @@ export class Table<
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
-        Extract<Selection2, Selection>
+        Alias | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -236,7 +232,6 @@ export class Table<
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -272,7 +267,6 @@ export class Table<
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -305,8 +299,7 @@ export class Table<
         | Exclude<Selection2, Selection>
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias | Alias2,
-        Extract<Selection2, Selection>
+        Alias | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -333,7 +326,6 @@ export class Table<
         | `${Alias}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -354,7 +346,7 @@ export class Table<
     /**
      * @since 1.1.1
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 }

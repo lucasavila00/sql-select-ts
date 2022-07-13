@@ -31,9 +31,7 @@ export class Compound<Scope extends string, Selection extends string> {
     private constructor(
         /* @internal */
         public __props: {
-            readonly content: ReadonlyArray<
-                TableOrSubquery<any, any, any, any>
-            >;
+            readonly content: ReadonlyArray<TableOrSubquery<any, any, any>>;
             readonly qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
             readonly orderBy: ReadonlyArray<SafeString>;
             readonly limit: SafeString | number | null;
@@ -202,7 +200,6 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -236,8 +233,7 @@ export class Compound<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -269,7 +265,6 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -306,7 +301,6 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -341,8 +335,7 @@ export class Compound<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -370,8 +363,7 @@ export class Compound<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -401,7 +393,6 @@ export class Compound<Scope extends string, Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -437,8 +428,7 @@ export class Compound<Scope extends string, Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -459,7 +449,7 @@ export class Compound<Scope extends string, Selection extends string> {
     /**
      * @since 1.1.1
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 }

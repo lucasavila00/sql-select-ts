@@ -110,8 +110,7 @@ export class CommonTableExpressionFactory<
             [K in Aliases]: TableOrSubquery<
                 K,
                 Scope,
-                FilterStarting<Scope, K> | `${K}.${FilterStarting<Scope, K>}`,
-                any
+                FilterStarting<Scope, K> | `${K}.${FilterStarting<Scope, K>}`
             >;
         }) => SelectStatement<A, B>
     ): SelectStatement<A, B> => {

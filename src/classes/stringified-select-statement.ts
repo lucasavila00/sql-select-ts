@@ -77,8 +77,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         | Exclude<Selection, Selection2>
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -110,7 +109,6 @@ export class StringifiedSelectStatement<Selection extends string> {
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -145,8 +143,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -177,8 +174,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -210,7 +206,6 @@ export class StringifiedSelectStatement<Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -248,7 +243,6 @@ export class StringifiedSelectStatement<Selection extends string> {
         | `${Alias2}.${Selection2}`
         | `${Alias1}.${Selection}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -283,8 +277,7 @@ export class StringifiedSelectStatement<Selection extends string> {
         | Exclude<Selection2, Selection>
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
-        Alias1 | Alias2,
-        Extract<Selection2, Selection>
+        Alias1 | Alias2
     > =>
         Joined.__fromCommaJoin([
             {
@@ -316,7 +309,6 @@ export class StringifiedSelectStatement<Selection extends string> {
         | `${Alias1}.${Selection}`
         | `${Alias2}.${Selection2}`,
         Alias1 | Alias2,
-        Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -337,7 +329,7 @@ export class StringifiedSelectStatement<Selection extends string> {
     /**
      * @since 1.1.1
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 

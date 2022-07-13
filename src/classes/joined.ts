@@ -19,12 +19,12 @@ import { StringifiedSelectStatement } from "./stringified-select-statement";
 import { Table } from "./table";
 
 type CommaJoin = ReadonlyArray<{
-    readonly code: TableOrSubquery<any, any, any, any>;
+    readonly code: TableOrSubquery<any, any, any>;
     readonly alias: string;
 }>;
 
 type ProperJoinItem = {
-    readonly code: TableOrSubquery<any, any, any, any>;
+    readonly code: TableOrSubquery<any, any, any>;
     readonly alias: string;
     readonly operator: string;
     readonly constraint: JoinConstraint;
@@ -48,7 +48,6 @@ export class JoinedFactory<
     Selection extends string,
     Scope extends string,
     Aliases extends string,
-    Ambiguous extends string,
     UsingPossibleKeys extends string
 > {
     /* @internal */
@@ -66,13 +65,13 @@ export class JoinedFactory<
         commaJoins: CommaJoin,
         properJoins: ProperJoin,
         newProperJoin: Omit<ProperJoinItem, "constraint">
-    ): JoinedFactory<any, any, any, any, any> =>
+    ): JoinedFactory<any, any, any, any> =>
         new JoinedFactory({ commaJoins, properJoins, newProperJoin });
 
     /**
      * @since 0.0.0
      */
-    public noConstraint = (): Joined<Selection, Scope, Aliases, Ambiguous> =>
+    public noConstraint = (): Joined<Selection, Scope, Aliases> =>
         Joined.__fromAll(this.__props.commaJoins, [
             ...this.__props.properJoins,
             {
@@ -88,7 +87,7 @@ export class JoinedFactory<
         on: (
             fields: Record<Scope, SafeString>
         ) => SafeString | ReadonlyArray<SafeString>
-    ): Joined<Selection, Scope, Aliases, Ambiguous> =>
+    ): Joined<Selection, Scope, Aliases> =>
         Joined.__fromAll(this.__props.commaJoins, [
             ...this.__props.properJoins,
             {
@@ -105,7 +104,7 @@ export class JoinedFactory<
      */
     public using = (
         keys: ReadonlyArray<UsingPossibleKeys>
-    ): Joined<Selection, Scope, Aliases, Ambiguous> =>
+    ): Joined<Selection, Scope, Aliases> =>
         Joined.__fromAll(this.__props.commaJoins, [
             ...this.__props.properJoins,
             {
@@ -125,8 +124,7 @@ export class JoinedFactory<
 export class Joined<
     Selection extends string,
     Scope extends string,
-    Aliases extends string,
-    Ambiguous extends string
+    Aliases extends string
 > {
     private constructor(
         /* @internal */
@@ -139,14 +137,13 @@ export class Joined<
     /* @internal */
     public static __fromCommaJoin = (
         commaJoins: CommaJoin
-    ): Joined<any, any, any, any> =>
-        new Joined({ commaJoins, properJoins: [] });
+    ): Joined<any, any, any> => new Joined({ commaJoins, properJoins: [] });
 
     /* @internal */
     public static __fromAll = (
         commaJoins: CommaJoin,
         properJoins: ProperJoin
-    ): Joined<any, any, any, any> => new Joined({ commaJoins, properJoins });
+    ): Joined<any, any, any> => new Joined({ commaJoins, properJoins });
 
     /**
      * @since 0.0.0
@@ -198,11 +195,9 @@ export class Joined<
         Selection,
         | Scope
         | Exclude<Selection, Selection2>
-        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
-        | Exclude<Selection2, Ambiguous>
+        | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
-        Aliases | Alias2,
-        Ambiguous | Extract<Selection2, Selection>
+        Aliases | Alias2
     > =>
         Joined.__fromAll(
             [
@@ -229,11 +224,10 @@ export class Joined<
         Selection,
         | Scope
         | Exclude<Selection, Selection2>
-        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2,
-        Extract<Selection, Selection2>,
-        Ambiguous | Extract<Selection2, Selection>
+        Extract<Selection, Selection2>
     > =>
         JoinedFactory.__fromAll(
             //
@@ -258,10 +252,9 @@ export class Joined<
         Selection,
         | Scope
         | Exclude<Selection, Selection2>
-        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
-        Aliases | Alias2,
-        Ambiguous | Extract<Selection2, Selection>
+        Aliases | Alias2
     > =>
         Joined.__fromAll(
             [
@@ -288,10 +281,9 @@ export class Joined<
         Selection,
         | Scope
         | Exclude<Selection, Selection2>
-        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
-        Aliases | Alias2,
-        Ambiguous | Extract<Selection2, Selection>
+        Aliases | Alias2
     > =>
         Joined.__fromAll(
             [
@@ -318,10 +310,9 @@ export class Joined<
         Selection,
         | Scope
         | Exclude<Selection, Selection2>
-        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2,
-        Ambiguous | Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -349,10 +340,9 @@ export class Joined<
         Selection,
         | Scope
         | Exclude<Selection, Selection2>
-        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2,
-        Ambiguous | Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -379,10 +369,9 @@ export class Joined<
         Selection,
         | Scope
         | Exclude<Selection, Selection2>
-        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
-        Aliases | Alias2,
-        Ambiguous | Extract<Selection2, Selection>
+        Aliases | Alias2
     > =>
         Joined.__fromAll(
             [
@@ -410,10 +399,9 @@ export class Joined<
         Selection,
         | Scope
         | Exclude<Selection, Selection2>
-        | Exclude<Exclude<Selection2, Selection>, Ambiguous>
+        | Exclude<Selection2, Selection>
         | `${Alias2}.${Selection2}`,
         Aliases | Alias2,
-        Ambiguous | Extract<Selection2, Selection>,
         Extract<Selection2, Selection>
     > =>
         JoinedFactory.__fromAll(
@@ -429,7 +417,7 @@ export class Joined<
     /**
      * @since 1.1.1
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 }

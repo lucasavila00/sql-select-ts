@@ -13,13 +13,12 @@ import { SafeString } from "./safe-string";
 export type TableOrSubquery<
     Alias extends string,
     Scope extends string,
-    Selection extends string,
-    Ambiguous extends string
+    Selection extends string
 > =
     | SelectStatement<Scope, Selection>
     | StringifiedSelectStatement<Selection>
     | Table<Scope, Selection, Alias>
-    | Joined<Selection, Scope, Alias, Ambiguous>
+    | Joined<Selection, Scope, Alias>
     | Compound<Scope, Selection>;
 
 export type NoSelectFieldsCompileError = {
