@@ -30,10 +30,11 @@ import {
 # From Raw String (Stringified Select Statement)
 
 ```ts
-const q = fromStringifiedSelectStatement<"a">(sql`SELECT 1 AS a`);
-
+const q = fromStringifiedSelectStatement<"a">(
+  /* content: */ sql`SELECT 1 AS a`
+);
 q.selectStar()
-  .orderBy((f) => f.a)
+  .orderBy(/* f: */ (f) => f.a)
   .stringify();
 ```
 
@@ -54,9 +55,7 @@ ORDER BY
 ## Select
 
 ```ts
-fromNothing({
-  abc: sql`123 + 456`,
-}).stringify();
+fromNothing(/* it: */ { abc: sql`123 + 456` }).stringify();
 ```
 
 ```sql
@@ -67,12 +66,8 @@ SELECT
 ## Append Select
 
 ```ts
-fromNothing({
-  abc: sql(123),
-})
-  .appendSelect((f) => ({
-    def: sql`${f.abc} + 456`,
-  }))
+fromNothing(/* it: */ { abc: sql(/* it: */ 123) })
+  .appendSelect(/* f: */ (f) => ({ def: sql`${f.abc} + 456` }))
   .stringify();
 ```
 
@@ -85,20 +80,16 @@ SELECT
 ## Select from Select
 
 ```ts
-const initialData = fromNothing({
-  it: sql(0),
-});
+const initialData = fromNothing(/* it: */ { it: sql(/* it: */ 0) });
 ```
 
 Starting at query top
 
 ```ts
 selectStar(
-  select(
-    ["it"],
-    //
-    initialData
-  ).where((f) => sql`${f.it} = 1`)
+  /* from: */ select(/* f: */ ["it"], /* from: */ initialData).where(
+    /* f: */ (f) => sql`${f.it} = 1`
+  )
 ).stringify();
 ```
 
@@ -123,8 +114,8 @@ Starting at query root
 
 ```ts
 initialData
-  .select(["it"])
-  .where((f) => sql`${f.it} = 1`)
+  .select(/* f: */ ["it"])
+  .where(/* f: */ (f) => sql`${f.it} = 1`)
   .selectStar()
   .stringify();
 ```
@@ -160,13 +151,12 @@ Which are defined in typescript as
 ```ts
 const users = table(
   /* columns: */ ["id", "age", "name", "country"],
-  /* db-name & alias: */ "users"
+  /* alias: */ "users"
 );
-
 const admins = table(
   /* columns: */ ["id", "age", "name", "country"],
   /* alias: */ "adm",
-  /* db-name: */ "admins"
+  /* name: */ "admins"
 );
 ```
 
@@ -196,8 +186,8 @@ From top
 ```ts
 select(
   //
-  (f) => ({ maxAge: MAX(f.age) }),
-  users
+  /* f: */ (f) => ({ maxAge: MAX(/* it: */ f.age) }),
+  /* from: */ users
 ).stringify();
 ```
 
@@ -211,7 +201,7 @@ FROM
 From root
 
 ```ts
-users.select((f) => ({ maxAge: MAX(f.age) })).stringify();
+users.select(/* f: */ (f) => ({ maxAge: MAX(/* it: */ f.age) })).stringify();
 ```
 
 ```sql
@@ -224,7 +214,7 @@ FROM
 ## Select distinct
 
 ```ts
-admins.select(["name"]).distinct().stringify();
+admins.select(/* f: */ ["name"]).distinct().stringify();
 ```
 
 ```sql
@@ -239,9 +229,7 @@ FROM
 ```ts
 users
   .selectStar()
-  .appendSelect((f) => ({
-    otherAlias: f.name,
-  }))
+  .appendSelect(/* f: */ (f) => ({ otherAlias: f.name }))
   .stringify();
 ```
 
@@ -257,9 +245,7 @@ FROM
 
 ```ts
 admins
-  .select((f) => ({
-    otherAlias: f["adm.name"],
-  }))
+  .select(/* f: */ (f) => ({ otherAlias: f["adm.name"] }))
   .appendSelectStar()
   .stringify();
 ```
@@ -275,7 +261,10 @@ FROM
 ## Select star of aliases
 
 ```ts
-admins.commaJoinTable(users).selectStarOfAliases(["users"]).stringify();
+admins
+  .commaJoinTable(/* table: */ users)
+  .selectStarOfAliases(/* aliases: */ ["users"])
+  .stringify();
 ```
 
 ```sql
@@ -289,7 +278,7 @@ FROM
 ## Select from sub-select
 
 ```ts
-users.selectStar().select(["age"]).selectStar().stringify();
+users.selectStar().select(/* f: */ ["age"]).selectStar().stringify();
 ```
 
 ```sql
@@ -312,7 +301,9 @@ FROM
 ## Select from union
 
 ```ts
-unionAll([users.selectStar(), admins.selectStar()]).select(["age"]).stringify();
+unionAll(/* content: */ [users.selectStar(), admins.selectStar()])
+  .select(/* f: */ ["age"])
+  .stringify();
 ```
 
 ```sql
@@ -336,9 +327,9 @@ FROM
 
 ```ts
 users
-  .joinTable("LEFT", admins)
-  .using(["id"])
-  .select(["users.name", "adm.name"])
+  .joinTable(/* operator: */ "LEFT", /* table: */ admins)
+  .using(/* keys: */ ["id"])
+  .select(/* f: */ ["users.name", "adm.name"])
   .stringify();
 ```
 
@@ -348,7 +339,7 @@ SELECT
   `adm`.`name` AS `adm.name`
 FROM
   `users`
-  LEFT JOIN `admins` AS `adm` USING(`id`)
+  LEFT JOIN `admins` AS `adm` USING (`id`)
 ```
 
 # Don't select the fields object directly
@@ -356,9 +347,8 @@ FROM
 This is not valid. The typescript compiler will prevent this.
 
 ```ts
-users
-  // @ts-expect-error
-  .select((f) => f);
+users // @ts-expect-error
+  .select(/* f: */ (f) => f);
 ```
 
 # Control order of selection
@@ -366,12 +356,7 @@ users
 Although it works on most cases, order of selection is not guaranteed.
 
 ```ts
-users
-  .select((f) => ({
-    abc: f.name,
-    def: f.id,
-  }))
-  .stringify();
+users.select(/* f: */ (f) => ({ abc: f.name, def: f.id })).stringify();
 ```
 
 ```sql
@@ -384,11 +369,7 @@ FROM
 
 ```ts
 users
-  .select((f) => ({
-    ["123"]: f.age,
-    name: f.name,
-    ["456"]: f.id,
-  }))
+  .select(/* f: */ (f) => ({ ["123"]: f.age, name: f.name, ["456"]: f.id }))
   .stringify();
 ```
 
@@ -405,13 +386,9 @@ To achieve control of the selection order, append each item individually.
 
 ```ts
 users
-  .select((f) => ({
-    ["123"]: f.age,
-  }))
-  .appendSelect(["name"])
-  .appendSelect((f) => ({
-    ["456"]: f.id,
-  }))
+  .select(/* f: */ (f) => ({ ["123"]: f.age }))
+  .appendSelect(/* f: */ ["name"])
+  .appendSelect(/* f: */ (f) => ({ ["456"]: f.id }))
   .stringify();
 ```
 
@@ -423,3 +400,7 @@ SELECT
 FROM
   `users`
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

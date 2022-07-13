@@ -27,16 +27,13 @@ CREATE TABLE users(id int, age int, name string);
 Which is defined in typescript as
 
 ```ts
-const users = table(
-  /* columns: */ ["id", "age", "name"],
-  /* db-name & alias: */ "users"
-);
+const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
 ```
 
 # Limiting to a number
 
 ```ts
-users.selectStar().limit(5).stringify();
+users.selectStar().limit(/* limit: */ 5).stringify();
 ```
 
 ```sql
@@ -53,7 +50,7 @@ LIMIT
 ```ts
 users
   .selectStar()
-  .limit(sql`1 OFFSET 10`)
+  .limit(/* limit: */ sql`1 OFFSET 10`)
   .stringify();
 ```
 
@@ -67,3 +64,7 @@ LIMIT
 OFFSET
   10
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

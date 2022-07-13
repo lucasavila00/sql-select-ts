@@ -30,15 +30,11 @@ CREATE TABLE admins(id int, age int, name string);
 Which are defined in typescript as
 
 ```ts
-const users = table(
-  /* columns: */ ["id", "age", "name"],
-  /* db-name & alias: */ "users"
-);
-
+const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
 const admins = table(
   /* columns: */ ["id", "age", "name"],
   /* alias: */ "adm",
-  /* db-name: */ "admins"
+  /* name: */ "admins"
 );
 ```
 
@@ -47,7 +43,7 @@ const admins = table(
 ## Union
 
 ```ts
-union([admins.selectStar(), users.selectStar()]).stringify();
+union(/* content: */ [admins.selectStar(), users.selectStar()]).stringify();
 ```
 
 ```sql
@@ -65,7 +61,7 @@ FROM
 ## Union All
 
 ```ts
-unionAll([admins.selectStar(), users.selectStar()]).stringify();
+unionAll(/* content: */ [admins.selectStar(), users.selectStar()]).stringify();
 ```
 
 ```sql
@@ -83,7 +79,7 @@ FROM
 ## Except
 
 ```ts
-except([admins.selectStar(), users.selectStar()]).stringify();
+except(/* content: */ [admins.selectStar(), users.selectStar()]).stringify();
 ```
 
 ```sql
@@ -101,7 +97,7 @@ FROM
 ## Intersect
 
 ```ts
-intersect([admins.selectStar(), users.selectStar()]).stringify();
+intersect(/* content: */ [admins.selectStar(), users.selectStar()]).stringify();
 ```
 
 ```sql
@@ -126,17 +122,16 @@ As shown above, an array literal works fine, but a mapped array needs special ca
 
 ```ts
 interface ReadOnlyNonEmptyArray<A> extends ReadonlyArray<A> {
-  0: A;
+    0: A;
 }
 ```
 
 ```ts
 const array2 = pipe(
-  [admins.selectStar(), users.selectStar()],
-  RNEA.map((it) => it.selectStar())
+  /* a: */ [admins.selectStar(), users.selectStar()],
+  RNEA.map(/* f: */ (it) => it.selectStar())
 );
-
-intersect(array2).stringify();
+intersect(/* content: */ array2).stringify();
 ```
 
 ```sql
@@ -160,3 +155,7 @@ FROM
       `users`
   )
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

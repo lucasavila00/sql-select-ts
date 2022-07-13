@@ -23,10 +23,7 @@ import { table, dsql as sql, SafeString } from "sql-select-ts";
 Construct a table instance
 
 ```ts
-const users = table(
-  /* columns: */ ["id", "age", "name"],
-  /* db-name & alias: */ "users"
-);
+const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
 ```
 
 Create a query
@@ -52,7 +49,9 @@ FROM
 ## String interpolation
 
 ```ts
-const q2 = users.select(["age"]).where((fields) => sql`${fields.id}=1`);
+const q2 = users
+  .select(/* f: */ ["age"])
+  .where(/* f: */ (fields) => sql`${fields.id}=1`);
 ```
 
 ```ts
@@ -75,13 +74,10 @@ const eq = (
   a: SafeString | string | number,
   b: SafeString | string | number
 ): SafeString => sql`${a}=${b}`;
-
 const MAX = (it: SafeString): SafeString => sql`MAX(${it})`;
-
 const q3 = users
-  .select((fields) => ({ age: MAX(fields.age) }))
-  .where((fields) => eq(fields.id, 1));
-
+  .select(/* f: */ (fields) => ({ age: MAX(/* it: */ fields.age) }))
+  .where(/* f: */ (fields) => eq(/* a: */ fields.id, /* b: */ 1));
 q3.stringify();
 ```
 
@@ -97,7 +93,11 @@ WHERE
 ## Composition
 
 ```ts
-q.commaJoinSelect(/*left alias*/ "q", /*right alias*/ "q3", /*right select*/ q3)
+q.commaJoinSelect(
+  /* thisSelectAlias: */ "q",
+  /* selectAlias: */ "q3",
+  /* select: */ q3
+)
   .selectStar()
   .stringify();
 ```
@@ -121,3 +121,7 @@ FROM
       `id` = 1
   ) AS `q3`
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

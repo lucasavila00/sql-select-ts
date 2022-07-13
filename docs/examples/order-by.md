@@ -27,10 +27,7 @@ CREATE TABLE users(id int, age int, name string);
 Which is defined in typescript as
 
 ```ts
-const users = table(
-  /* columns: */ ["id", "age", "name"],
-  /* db-name & alias: */ "users"
-);
+const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
 ```
 
 # One Clause
@@ -38,7 +35,7 @@ const users = table(
 ```ts
 users
   .selectStar()
-  .orderBy((f) => f.age)
+  .orderBy(/* f: */ (f) => f.age)
   .stringify();
 ```
 
@@ -58,7 +55,7 @@ ORDER BY
 ```ts
 users
   .selectStar()
-  .orderBy((f) => [sql`${f.age} DESC`, f.id])
+  .orderBy(/* f: */ (f) => [sql`${f.age} DESC`, f.id])
   .stringify();
 ```
 
@@ -77,8 +74,8 @@ ORDER BY
 ```ts
 users
   .selectStar()
-  .orderBy((f) => f.age)
-  .orderBy((f) => f.id)
+  .orderBy(/* f: */ (f) => f.age)
+  .orderBy(/* f: */ (f) => f.id)
   .stringify();
 ```
 
@@ -93,7 +90,7 @@ ORDER BY
 ```
 
 ```ts
-users.selectStar().orderBy(["age", "id"]).stringify();
+users.selectStar().orderBy(/* f: */ ["age", "id"]).stringify();
 ```
 
 ```sql
@@ -105,3 +102,7 @@ ORDER BY
   `age`,
   `id`
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

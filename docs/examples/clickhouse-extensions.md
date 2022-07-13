@@ -1,6 +1,6 @@
 ---
 title: Clickhouse Extensions
-nav_order: 29
+nav_order: 70
 parent: Examples
 layout: default
 ---
@@ -25,7 +25,10 @@ import {
 # Final Table
 
 ```ts
-const chTableRegular = table(["col1", "col2"], "tableName");
+const chTableRegular = table(
+  /* columns: */ ["col1", "col2"],
+  /* alias: */ "tableName"
+);
 chTableRegular.selectStar().stringify();
 ```
 
@@ -49,7 +52,11 @@ FROM
 ```
 
 ```ts
-table(["col1", "col2"], "alias", "tableName")
+table(
+  /* columns: */ ["col1", "col2"],
+  /* alias: */ "alias",
+  /* name: */ "tableName"
+)
   .clickhouse.final()
   .selectStar()
   .stringify();
@@ -69,8 +76,8 @@ The API is like WHERE's.
 ```ts
 chTableFinal
   .selectStar()
-  .where((f) => f.col2)
-  .clickhouse.prewhere((f) => f.col1)
+  .where(/* f: */ (f) => f.col2)
+  .clickhouse.prewhere(/* f: */ (f) => f.col1)
   .stringify();
 ```
 
@@ -86,9 +93,9 @@ WHERE
 ```ts
 chTableFinal
   .selectStar()
-  .clickhouse.prewhere((f) => f.col1)
-  .clickhouse.prewhere((f) => f.col2)
-  .where((f) => f.col2)
+  .clickhouse.prewhere(/* f: */ (f) => f.col1)
+  .clickhouse.prewhere(/* f: */ (f) => f.col2)
+  .where(/* f: */ (f) => f.col2)
   .stringify();
 ```
 
@@ -107,7 +114,7 @@ WHERE
 ```ts
 chTableRegular
   .selectStar()
-  .clickhouse.replace((f) => [["col1", sql`${f.col1}+1`]])
+  .clickhouse.replace(/* f: */ (f) => [["col1", sql`${f.col1}+1`]])
   .stringify();
 ```
 
@@ -124,13 +131,13 @@ Alongside Common Table Expressions, Clickhouse's syntax extension of WITH is als
 
 ```ts
 chTableRegular
-  .select((f) => ({
-    res1: f.col1,
-  }))
-  .clickhouse.with_({
-    abc: chTableFinal.select((_f) => ({ count: sql`COUNT()` })),
-  })
-  .appendSelect((f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
+  .select(/* f: */ (f) => ({ res1: f.col1 }))
+  .clickhouse.with_(
+    /* it: */ {
+      abc: chTableFinal.select(/* f: */ (_f) => ({ count: sql`COUNT()` })),
+    }
+  )
+  .appendSelect(/* f: */ (f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
   .stringify();
 ```
 
@@ -151,13 +158,11 @@ FROM
 
 ```ts
 chTableRegular
-  .select((f) => ({
-    res1: f.col1,
-  }))
-  .clickhouse.with_({
-    abc: fromStringifiedSelectStatement(sql`20`),
-  })
-  .appendSelect((f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
+  .select(/* f: */ (f) => ({ res1: f.col1 }))
+  .clickhouse.with_(
+    /* it: */ { abc: fromStringifiedSelectStatement(/* content: */ sql`20`) }
+  )
+  .appendSelect(/* f: */ (f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
   .stringify();
 ```
 
@@ -170,3 +175,7 @@ SELECT
 FROM
   `tableName`
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

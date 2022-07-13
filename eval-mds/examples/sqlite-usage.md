@@ -1,22 +1,11 @@
----
-title: SQLite Usage
-nav_order: 50
-parent: Examples
-layout: default
----
+```ts eval --out=md --hide
+import { exampleHeader } from "./ts-utils";
+exampleHeader("SQLite Usage", 50);
+```
 
-<details open markdown="block">
-  <summary>
-    Table of contents
-  </summary>
-  {: .text-delta }
-1. TOC
-{:toc}
-</details>
-
-```ts eval --replacePrintedInput=../src,sql-select-ts
+```ts eval
 import sqlite from "sqlite3";
-import { table, AnyStringifyable, RowsArray } from "../src";
+import { table, AnyStringifyable, RowsArray } from "../../src";
 ```
 
 With a DB connector
@@ -40,7 +29,7 @@ const run = <T extends AnyStringifyable>(it: T): Promise<RowsArray<T>> =>
 
 Then, with some tables
 
-```ts eval
+```ts eval --out=hide
 const t1 = table(["a", "b", "c"], "t1");
 await runS(`CREATE TABLE t1(a,b,c);`);
 await runS(`INSERT INTO t1 VALUES(1,2,3);`);
@@ -48,18 +37,18 @@ await runS(`INSERT INTO t1 VALUES(1,2,3);`);
 
 We can run queries
 
-```ts eval --yield=json
+```ts eval
 const value = await run(t1.selectStar());
-yield value;
+value;
 ```
 
 Typescript knows the identifiers
 
-```ts eval --yield=json
-yield value.map((it) => it.a);
+```ts eval --out=hide
+value.map((it) => it.a);
 ```
 
-```ts eval
+```ts eval --out=hide
 //@ts-expect-error
 value.map((it) => it.u);
 ```

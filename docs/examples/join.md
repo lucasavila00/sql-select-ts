@@ -36,20 +36,15 @@ CREATE TABLE analytics(id int, clicks int);
 Which are defined in typescript as
 
 ```ts
-const users = table(
-  /* columns: */ ["id", "age", "name"],
-  /* db-name & alias: */ "users"
-);
-
+const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
 const admins = table(
   /* columns: */ ["id", "age", "name"],
   /* alias: */ "adm",
-  /* db-name: */ "admins"
+  /* name: */ "admins"
 );
-
 const analytics = table(
   /* columns: */ ["id", "clicks"],
-  /* db-name & alias: */ "analytics"
+  /* alias: */ "analytics"
 );
 ```
 
@@ -68,8 +63,8 @@ const equals = (
 
 ```ts
 users
-  .joinTable("LEFT", admins)
-  .on((f) => equals(f["adm.id"], f["users.id"]))
+  .joinTable(/* operator: */ "LEFT", /* table: */ admins)
+  .on(/* on: */ (f) => equals(/* a: */ f["adm.id"], /* b: */ f["users.id"]))
   .selectStar()
   .stringify();
 ```
@@ -86,8 +81,12 @@ FROM
 
 ```ts
 admins
-  .joinSelect("u", "LEFT", users.selectStar())
-  .on((f) => equals(f["u.id"], f["adm.id"]))
+  .joinSelect(
+    /* selectAlias: */ "u",
+    /* operator: */ "LEFT",
+    /* select: */ users.selectStar()
+  )
+  .on(/* on: */ (f) => equals(/* a: */ f["u.id"], /* b: */ f["adm.id"]))
   .selectStar()
   .stringify();
 ```
@@ -109,14 +108,16 @@ FROM
 
 ```ts
 const aQueryThatIsAString = users.selectStar().stringify();
-
 const usersStringifiedQuery = fromStringifiedSelectStatement<
   "id" | "age" | "name"
->(castSafe(aQueryThatIsAString));
-
+>(/* content: */ castSafe(/* content: */ aQueryThatIsAString));
 admins
-  .joinStringifiedSelect("u", "LEFT", usersStringifiedQuery)
-  .on((f) => equals(f["u.id"], f["adm.id"]))
+  .joinStringifiedSelect(
+    /* selectAlias: */ "u",
+    /* operator: */ "LEFT",
+    /* select: */ usersStringifiedQuery
+  )
+  .on(/* on: */ (f) => equals(/* a: */ f["u.id"], /* b: */ f["adm.id"]))
   .selectStar()
   .stringify();
 ```
@@ -139,14 +140,16 @@ FROM
 ```ts
 admins
   .joinCompound(
-    "u",
-    "LEFT",
-    unionAll([
-      users.selectStar().where((f) => sql`${f.id} = 1`),
-      users.selectStar().where((f) => sql`${f.id} = 2`),
-    ])
+    /* compoundAlias: */ "u",
+    /* operator: */ "LEFT",
+    /* compound: */ unionAll(
+      /* content: */ [
+        users.selectStar().where(/* f: */ (f) => sql`${f.id} = 1`),
+        users.selectStar().where(/* f: */ (f) => sql`${f.id} = 2`),
+      ]
+    )
   )
-  .on((f) => equals(f["u.id"], f["adm.id"]))
+  .on(/* on: */ (f) => equals(/* a: */ f["u.id"], /* b: */ f["adm.id"]))
   .selectStar()
   .stringify();
 ```
@@ -177,10 +180,12 @@ FROM
 
 ```ts
 users
-  .joinTable("LEFT", admins)
-  .on((f) => equals(f["adm.id"], f["users.id"]))
-  .joinTable("LEFT", analytics)
-  .on((f) => equals(f["analytics.id"], f["users.id"]))
+  .joinTable(/* operator: */ "LEFT", /* table: */ admins)
+  .on(/* on: */ (f) => equals(/* a: */ f["adm.id"], /* b: */ f["users.id"]))
+  .joinTable(/* operator: */ "LEFT", /* table: */ analytics)
+  .on(
+    /* on: */ (f) => equals(/* a: */ f["analytics.id"], /* b: */ f["users.id"])
+  )
   .selectStar()
   .stringify();
 ```
@@ -199,13 +204,22 @@ FROM
 ```ts
 const userAndAdmin = users
   .selectStar()
-  .joinSelect("users", "LEFT", "admins", admins.selectStar())
-  .on((f) => equals(f["admins.id"], f["users.id"]));
-
+  .joinSelect(
+    /* thisSelectAlias: */ "users",
+    /* operator: */ "LEFT",
+    /* selectAlias: */ "admins",
+    /* select: */ admins.selectStar()
+  )
+  .on(/* on: */ (f) => equals(/* a: */ f["admins.id"], /* b: */ f["users.id"]));
 const userAdminAnalytics = userAndAdmin
-  .joinSelect("LEFT", "analytics", analytics.selectStar())
-  .on((f) => equals(f["analytics.id"], f["users.id"]));
-
+  .joinSelect(
+    /* operator: */ "LEFT",
+    /* alias: */ "analytics",
+    /* table: */ analytics.selectStar()
+  )
+  .on(
+    /* on: */ (f) => equals(/* a: */ f["analytics.id"], /* b: */ f["users.id"])
+  );
 userAdminAnalytics.selectStar().stringify();
 ```
 
@@ -238,7 +252,11 @@ FROM
 ## Join Table
 
 ```ts
-users.joinTable("LEFT", admins).using(["id"]).selectStar().stringify();
+users
+  .joinTable(/* operator: */ "LEFT", /* table: */ admins)
+  .using(/* keys: */ ["id"])
+  .selectStar()
+  .stringify();
 ```
 
 ```sql
@@ -246,15 +264,19 @@ SELECT
   *
 FROM
   `users`
-  LEFT JOIN `admins` AS `adm` USING(`id`)
+  LEFT JOIN `admins` AS `adm` USING (`id`)
 ```
 
 ## Join Select
 
 ```ts
 admins
-  .joinSelect("u", "LEFT", users.selectStar())
-  .using(["id"])
+  .joinSelect(
+    /* selectAlias: */ "u",
+    /* operator: */ "LEFT",
+    /* select: */ users.selectStar()
+  )
+  .using(/* keys: */ ["id"])
   .selectStar()
   .stringify();
 ```
@@ -269,7 +291,7 @@ FROM
       *
     FROM
       `users`
-  ) AS `u` USING(`id`)
+  ) AS `u` USING (`id`)
 ```
 
 # No Constraint
@@ -277,7 +299,11 @@ FROM
 ## Join Table
 
 ```ts
-users.joinTable("NATURAL", admins).noConstraint().selectStar().stringify();
+users
+  .joinTable(/* operator: */ "NATURAL", /* table: */ admins)
+  .noConstraint()
+  .selectStar()
+  .stringify();
 ```
 
 ```sql
@@ -292,7 +318,11 @@ FROM
 
 ```ts
 admins
-  .joinSelect("u", "NATURAL", users.selectStar())
+  .joinSelect(
+    /* selectAlias: */ "u",
+    /* operator: */ "NATURAL",
+    /* select: */ users.selectStar()
+  )
   .noConstraint()
   .selectStar()
   .stringify();
@@ -316,7 +346,7 @@ FROM
 ## Join Table
 
 ```ts
-users.commaJoinTable(admins).selectStar().stringify();
+users.commaJoinTable(/* table: */ admins).selectStar().stringify();
 ```
 
 ```sql
@@ -330,7 +360,10 @@ FROM
 ## Join Select
 
 ```ts
-admins.commaJoinSelect("u", users.selectStar()).selectStar().stringify();
+admins
+  .commaJoinSelect(/* selectAlias: */ "u", /* select: */ users.selectStar())
+  .selectStar()
+  .stringify();
 ```
 
 ```sql
@@ -351,11 +384,13 @@ FROM
 ```ts
 admins
   .commaJoinCompound(
-    "u",
-    unionAll([
-      users.selectStar().where((f) => sql`${f.id} = 1`),
-      users.selectStar().where((f) => sql`${f.id} = 2`),
-    ])
+    /* compoundAlias: */ "u",
+    /* compound: */ unionAll(
+      /* content: */ [
+        users.selectStar().where(/* f: */ (f) => sql`${f.id} = 1`),
+        users.selectStar().where(/* f: */ (f) => sql`${f.id} = 2`),
+      ]
+    )
   )
   .selectStar()
   .stringify();
@@ -386,7 +421,11 @@ FROM
 ## Join 3 Tables
 
 ```ts
-users.commaJoinTable(admins).commaJoinTable(analytics).selectStar().stringify();
+users
+  .commaJoinTable(/* table: */ admins)
+  .commaJoinTable(/* table: */ analytics)
+  .selectStar()
+  .stringify();
 ```
 
 ```sql
@@ -403,13 +442,15 @@ FROM
 ```ts
 const userAndAdmin2 = users
   .selectStar()
-  .commaJoinSelect("users", "admins", admins.selectStar());
-
+  .commaJoinSelect(
+    /* thisSelectAlias: */ "users",
+    /* selectAlias: */ "admins",
+    /* select: */ admins.selectStar()
+  );
 const userAdminAnalytics2 = userAndAdmin2.commaJoinSelect(
-  "analyitcs",
-  analytics.selectStar()
+  /* alias: */ "analyitcs",
+  /* select: */ analytics.selectStar()
 );
-
 userAdminAnalytics2.selectStar().stringify();
 ```
 
@@ -436,3 +477,7 @@ FROM
       `analytics`
   ) AS `analyitcs`
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

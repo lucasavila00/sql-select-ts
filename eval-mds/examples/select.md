@@ -1,20 +1,9 @@
----
-title: Select
-nav_order: 7
-parent: Examples
-layout: default
----
+```ts eval --out=md --hide
+import { exampleHeader } from "./ts-utils";
+exampleHeader("Select", 7);
+```
 
-<details open markdown="block">
-  <summary>
-    Table of contents
-  </summary>
-  {: .text-delta }
-1. TOC
-{:toc}
-</details>
-
-```ts eval --replacePrintedInput=../src,sql-select-ts
+```ts eval
 import {
     fromNothing,
     dsql as sql,
@@ -24,16 +13,15 @@ import {
     selectStar,
     select,
     SafeString,
-} from "../src";
+} from "../../src";
 ```
 
 # From Raw String (Stringified Select Statement)
 
-```ts eval --yield=sql
+```ts eval --out=sql
 const q = fromStringifiedSelectStatement<"a">(sql`SELECT 1 AS a`);
 
-yield q
-    .selectStar()
+q.selectStar()
     .orderBy((f) => f.a)
     .stringify();
 ```
@@ -42,16 +30,16 @@ yield q
 
 ## Select
 
-```ts eval --yield=sql
-yield fromNothing({
+```ts eval --out=sql
+fromNothing({
     abc: sql`123 + 456`,
 }).stringify();
 ```
 
 ## Append Select
 
-```ts eval --yield=sql
-yield fromNothing({
+```ts eval --out=sql
+fromNothing({
     abc: sql(123),
 })
     .appendSelect((f) => ({
@@ -70,20 +58,16 @@ const initialData = fromNothing({
 
 Starting at query top
 
-```ts eval --yield=sql
-yield selectStar(
-    select(
-        ["it"],
-        //
-        initialData
-    ).where((f) => sql`${f.it} = 1`)
+```ts eval --out=sql
+selectStar(
+    select(["it"], initialData).where((f) => sql`${f.it} = 1`)
 ).stringify();
 ```
 
 Starting at query root
 
-```ts eval --yield=sql
-yield initialData
+```ts eval --out=sql
+initialData
     .select(["it"])
     .where((f) => sql`${f.it} = 1`)
     .selectStar()
@@ -102,16 +86,9 @@ CREATE TABLE admins(id int, age int, name string);
 Which are defined in typescript as
 
 ```ts eval
-const users = table(
-    /* columns: */ ["id", "age", "name", "country"],
-    /* db-name & alias: */ "users"
-);
+const users = table(["id", "age", "name", "country"], "users");
 
-const admins = table(
-    /* columns: */ ["id", "age", "name", "country"],
-    /* alias: */ "adm",
-    /* db-name: */ "admins"
-);
+const admins = table(["id", "age", "name", "country"], "adm", "admins");
 ```
 
 And a helper function
@@ -122,16 +99,16 @@ const MAX = (it: SafeString): SafeString => sql`MAX(${it})`;
 
 ## Select star
 
-```ts eval --yield=sql
-yield users.selectStar().stringify();
+```ts eval --out=sql
+users.selectStar().stringify();
 ```
 
 ## Select a field
 
 From top
 
-```ts eval --yield=sql
-yield select(
+```ts eval --out=sql
+select(
     //
     (f) => ({ maxAge: MAX(f.age) }),
     users
@@ -140,20 +117,20 @@ yield select(
 
 From root
 
-```ts eval --yield=sql
-yield users.select((f) => ({ maxAge: MAX(f.age) })).stringify();
+```ts eval --out=sql
+users.select((f) => ({ maxAge: MAX(f.age) })).stringify();
 ```
 
 ## Select distinct
 
-```ts eval --yield=sql
-yield admins.select(["name"]).distinct().stringify();
+```ts eval --out=sql
+admins.select(["name"]).distinct().stringify();
 ```
 
 ## Select star and a field
 
-```ts eval --yield=sql
-yield users
+```ts eval --out=sql
+users
     .selectStar()
     .appendSelect((f) => ({
         otherAlias: f.name,
@@ -163,8 +140,8 @@ yield users
 
 ## Select a field and star
 
-```ts eval --yield=sql
-yield admins
+```ts eval --out=sql
+admins
     .select((f) => ({
         otherAlias: f["adm.name"],
     }))
@@ -174,28 +151,26 @@ yield admins
 
 ## Select star of aliases
 
-```ts eval --yield=sql
-yield admins.commaJoinTable(users).selectStarOfAliases(["users"]).stringify();
+```ts eval --out=sql
+admins.commaJoinTable(users).selectStarOfAliases(["users"]).stringify();
 ```
 
 ## Select from sub-select
 
-```ts eval --yield=sql
-yield users.selectStar().select(["age"]).selectStar().stringify();
+```ts eval --out=sql
+users.selectStar().select(["age"]).selectStar().stringify();
 ```
 
 ## Select from union
 
-```ts eval --yield=sql
-yield unionAll([users.selectStar(), admins.selectStar()])
-    .select(["age"])
-    .stringify();
+```ts eval --out=sql
+unionAll([users.selectStar(), admins.selectStar()]).select(["age"]).stringify();
 ```
 
 ## Select from join
 
-```ts eval --yield=sql
-yield users
+```ts eval --out=sql
+users
     .joinTable("LEFT", admins)
     .using(["id"])
     .select(["users.name", "adm.name"])
@@ -206,7 +181,7 @@ yield users
 
 This is not valid. The typescript compiler will prevent this.
 
-```ts eval
+```ts eval --out=hide
 users
     // @ts-expect-error
     .select((f) => f);
@@ -216,8 +191,8 @@ users
 
 Although it works on most cases, order of selection is not guaranteed.
 
-```ts eval --yield=sql
-yield users
+```ts eval --out=sql
+users
     .select((f) => ({
         abc: f.name,
         def: f.id,
@@ -225,8 +200,8 @@ yield users
     .stringify();
 ```
 
-```ts eval --yield=sql
-yield users
+```ts eval --out=sql
+users
     .select((f) => ({
         ["123"]: f.age,
         name: f.name,
@@ -237,8 +212,8 @@ yield users
 
 To achieve control of the selection order, append each item individually.
 
-```ts eval --yield=sql
-yield users
+```ts eval --out=sql
+users
     .select((f) => ({
         ["123"]: f.age,
     }))

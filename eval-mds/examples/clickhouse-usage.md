@@ -1,22 +1,11 @@
----
-title: Clickhouse Usage
-nav_order: 60
-parent: Examples
-layout: default
----
+```ts eval --out=md --hide
+import { exampleHeader } from "./ts-utils";
+exampleHeader("Clickhouse Usage", 80);
+```
 
-<details open markdown="block">
-  <summary>
-    Table of contents
-  </summary>
-  {: .text-delta }
-1. TOC
-{:toc}
-</details>
-
-```ts eval --replacePrintedInput=../src,sql-select-ts
+```ts eval
 const ClickHouse = require("@apla/clickhouse");
-import { table, AnyStringifyable, RowsArray } from "../src";
+import { table, AnyStringifyable, RowsArray } from "../../src";
 ```
 
 With a DB connector
@@ -43,7 +32,7 @@ const run = <T extends AnyStringifyable>(it: T): Promise<RowsArray<T>> =>
 
 Then, with some tables
 
-```ts eval
+```ts eval --out=hide
 const t1 = table(["x", "y"], "t1");
 await runS(`DROP TABLE IF EXISTS t1`);
 await runS(`CREATE TABLE IF NOT EXISTS t1(x Int64, y Int64) ENGINE = Memory`);
@@ -52,18 +41,18 @@ await runS(`INSERT INTO t1 VALUES(1,2)`);
 
 We can run queries
 
-```ts eval --yield=json
+```ts eval
 const value = await run(t1.selectStar());
-yield value;
+value;
 ```
 
 Typescript knows the identifiers
 
-```ts eval --yield=json
-yield value.map((it) => it.x);
+```ts eval --out=hide
+value.map((it) => it.x);
 ```
 
-```ts eval
+```ts eval --out=hide
 //@ts-expect-error
 value.map((it) => it.u);
 ```

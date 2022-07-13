@@ -27,11 +27,7 @@ CREATE TABLE users(id int, age int, name string);
 Which is defined in typescript as
 
 ```ts
-const users = table(
-  /* columns: */ ["id", "age", "name"],
-  /* db-name & alias: */ "users"
-);
-
+const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
 const lowercase = (it: SafeString): SafeString => sql`lowerCase(${it})`;
 ```
 
@@ -40,7 +36,7 @@ const lowercase = (it: SafeString): SafeString => sql`lowerCase(${it})`;
 ```ts
 users
   .selectStar()
-  .groupBy((f) => lowercase(f.name))
+  .groupBy(/* f: */ (f) => lowercase(/* it: */ f.name))
   .stringify();
 ```
 
@@ -54,7 +50,7 @@ GROUP BY
 ```
 
 ```ts
-users.selectStar().groupBy(["name"]).stringify();
+users.selectStar().groupBy(/* f: */ ["name"]).stringify();
 ```
 
 ```sql
@@ -73,7 +69,7 @@ GROUP BY
 ```ts
 users
   .selectStar()
-  .groupBy((f) => [f.name, f.id])
+  .groupBy(/* f: */ (f) => [f.name, f.id])
   .stringify();
 ```
 
@@ -88,7 +84,7 @@ GROUP BY
 ```
 
 ```ts
-users.selectStar().groupBy(["name", "id"]).stringify();
+users.selectStar().groupBy(/* f: */ ["name", "id"]).stringify();
 ```
 
 ```sql
@@ -106,8 +102,8 @@ GROUP BY
 ```ts
 users
   .selectStar()
-  .groupBy((f) => f.name)
-  .groupBy((f) => f.id)
+  .groupBy(/* f: */ (f) => f.name)
+  .groupBy(/* f: */ (f) => f.id)
   .stringify();
 ```
 
@@ -122,7 +118,11 @@ GROUP BY
 ```
 
 ```ts
-users.selectStar().groupBy(["name"]).groupBy(["id"]).stringify();
+users
+  .selectStar()
+  .groupBy(/* f: */ ["name"])
+  .groupBy(/* f: */ ["id"])
+  .stringify();
 ```
 
 ```sql
@@ -134,3 +134,7 @@ GROUP BY
   `name`,
   `id`
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

@@ -27,15 +27,15 @@ CREATE TABLE t0(x INTEGER, y INTEGER)
 Which is defined in typescript as
 
 ```ts
-const t0 = table(["x", "y"], "t0");
+const t0 = table(/* columns: */ ["x", "y"], /* alias: */ "t0");
 ```
 
 # One Clause
 
 ```ts
 t0.selectStar()
-  .groupBy((f) => f.x)
-  .having((f) => f.x)
+  .groupBy(/* f: */ (f) => f.x)
+  .having(/* f: */ (f) => f.x)
   .stringify();
 ```
 
@@ -53,9 +53,9 @@ HAVING
 ## From Select
 
 ```ts
-t0.select((f) => ({ it: f.x }))
-  .groupBy((f) => f.y)
-  .having((f) => f.y)
+t0.select(/* f: */ (f) => ({ it: f.x }))
+  .groupBy(/* f: */ (f) => f.y)
+  .having(/* f: */ (f) => f.y)
   .stringify();
 ```
 
@@ -76,10 +76,10 @@ HAVING
 
 ```ts
 t0.selectStar()
-  .groupBy((f) => f.x)
-  .having((f) => f.x)
-  .groupBy((f) => f.y)
-  .having((f) => f.y)
+  .groupBy(/* f: */ (f) => f.x)
+  .having(/* f: */ (f) => f.x)
+  .groupBy(/* f: */ (f) => f.y)
+  .having(/* f: */ (f) => f.y)
   .stringify();
 ```
 
@@ -98,10 +98,10 @@ HAVING
 
 ```ts
 t0.selectStar()
-  .groupBy(["x"])
-  .having(["x"])
-  .groupBy(["y"])
-  .having(["y"])
+  .groupBy(/* f: */ ["x"])
+  .having(/* f: */ ["x"])
+  .groupBy(/* f: */ ["y"])
+  .having(/* f: */ ["y"])
   .stringify();
 ```
 
@@ -122,8 +122,8 @@ HAVING
 
 ```ts
 t0.selectStar()
-  .groupBy((f) => [f.x, f.y])
-  .having((f) => [f.x, f.y])
+  .groupBy(/* f: */ (f) => [f.x, f.y])
+  .having(/* f: */ (f) => [f.x, f.y])
   .stringify();
 ```
 
@@ -141,7 +141,10 @@ HAVING
 ```
 
 ```ts
-t0.selectStar().groupBy(["x", "y"]).having(["x", "y"]).stringify();
+t0.selectStar()
+  .groupBy(/* f: */ ["x", "y"])
+  .having(/* f: */ ["x", "y"])
+  .stringify();
 ```
 
 ```sql
@@ -156,3 +159,7 @@ HAVING
   `x`
   AND `y`
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

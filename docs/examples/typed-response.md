@@ -26,7 +26,7 @@ import {
 ```
 
 ```ts
-const t = table(["a", "b"], "t");
+const t = table(/* columns: */ ["a", "b"], /* alias: */ "t");
 const q = t.selectStar();
 ```
 
@@ -34,7 +34,6 @@ const q = t.selectStar();
 
 ```ts
 type K = SelectionOf<typeof q>; // typeof K = 'a' | 'b'
-
 // @ts-expect-error
 const k2: K = "c";
 ```
@@ -44,6 +43,9 @@ const k2: K = "c";
 ```ts
 type R1 = RowOf<typeof q>; // typeof Ret = {a: string | number | null | undefined, b: string | number | null | undefined, }
 const ret1: R1 = { a: 1, b: null };
+```
+
+```ts
 //@ts-expect-error
 ret1.c;
 ```
@@ -53,6 +55,9 @@ ret1.c;
 ```ts
 type R2 = RowsArray<typeof q>; // typeof Ret = {a: string | number | null | undefined, b: string | number | null | undefined, }[]
 const ret2: R2 = [] as any;
+```
+
+```ts
 //@ts-expect-error
 ret2?.[0]?.abc;
 ```
@@ -74,19 +79,24 @@ const ioTsResponse = <
 ```
 
 ```ts
-const response = await ioTsResponse(t.selectStar(), {
-  a: io.string,
-  b: io.number,
-});
+const response = await ioTsResponse(
+  /* _it: */ t.selectStar(),
+  /* _codec: */ { a: io.string, b: io.number }
+);
+response[0]?.a.charAt(/* pos: */ 0);
+response[0]?.b.toPrecision(/* precision: */ 2);
+```
 
-response[0]?.a.charAt(0);
-response[0]?.b.toPrecision(2);
-
+```ts
 //@ts-expect-error
 response[0]?.c;
 ```
 
 ```ts
 // @ts-expect-error
-ioTsResponse(t.selectStar(), { a: io.string });
+ioTsResponse(/* _it: */ t.selectStar(), /* _codec: */ { a: io.string });
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)
