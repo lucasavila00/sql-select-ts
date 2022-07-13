@@ -1,6 +1,6 @@
 ---
 title: With
-nav_order: 29
+nav_order: 20
 parent: Examples
 layout: default
 ---
@@ -28,40 +28,54 @@ import {
 ```
 
 ```ts
-const orders = table(["region", "amount", "product", "quantity"], "orders");
-
+const orders = table(
+  /* columns: */ ["region", "amount", "product", "quantity"],
+  /* alias: */ "orders"
+);
 const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 ```
 
 ```ts
 with_(
-  "regional_sales",
-  select(
-    (f) => ({ region: f.region, total_sales: SUM(f.amount) }),
-    orders
-  ).groupBy(["region"])
+  /* alias: */ "regional_sales",
+  /* select: */ select(
+    /* f: */ (f) => ({
+      region: f.region,
+      total_sales: SUM(/* it: */ f.amount),
+    }),
+    /* from: */ orders
+  ).groupBy(/* f: */ ["region"])
 )
-  .with_("top_regions", (acc) =>
-    select(["region"], acc.regional_sales).where(
-      (f) =>
-        sql`${f.total_sales} > ${select(
-          (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
-          acc.regional_sales
-        )}`
-    )
+  .with_(
+    /* alias: */ "top_regions",
+    /* select: */ (acc) =>
+      select(/* f: */ ["region"], /* from: */ acc.regional_sales).where(
+        /* f: */ (f) =>
+          sql`${f.total_sales} > ${select(
+            /* f: */ (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+            /* from: */ acc.regional_sales
+          )}`
+      )
   )
-  .do((acc) =>
-    select(
-      (f) => ({
-        region: f.region,
-        product: f.product,
-        product_units: SUM(f.quantity),
-        product_sales: SUM(f.amount),
-      }),
-      orders
-    )
-      .where((f) => sql`${f.region} IN ${select(["region"], acc.top_regions)}`)
-      .groupBy(["region", "product"])
+  .do(
+    /* f: */ (acc) =>
+      select(
+        /* f: */ (f) => ({
+          region: f.region,
+          product: f.product,
+          product_units: SUM(/* it: */ f.quantity),
+          product_sales: SUM(/* it: */ f.amount),
+        }),
+        /* from: */ orders
+      )
+        .where(
+          /* f: */ (f) =>
+            sql`${f.region} IN ${select(
+              /* f: */ ["region"],
+              /* from: */ acc.top_regions
+            )}`
+        )
+        .groupBy(/* f: */ ["region", "product"])
   )
   .stringify();
 ```
@@ -113,41 +127,54 @@ GROUP BY
 
 ```ts
 withR(
-  "regional_sales",
-  ["region2", "total_sales2"],
-  select(
-    (f) => ({ region: f.region, total_sales: SUM(f.amount) }),
-    orders
-  ).groupBy(["region"])
+  /* alias: */ "regional_sales",
+  /* columns: */ ["region2", "total_sales2"],
+  /* select: */ select(
+    /* f: */ (f) => ({
+      region: f.region,
+      total_sales: SUM(/* it: */ f.amount),
+    }),
+    /* from: */ orders
+  ).groupBy(/* f: */ ["region"])
 )
-  .withR("top_regions", ["region3"], (acc) =>
-    select(["region2"], acc.regional_sales).where(
-      (f) =>
-        sql`${f.total_sales2} > ${select(
-          (f) => ({ it: sql`SUM(${f.total_sales2})/10` }),
-          acc.regional_sales
-        )}`
-    )
+  .withR(
+    /* alias: */ "top_regions",
+    /* columns: */ ["region3"],
+    /* select: */ (acc) =>
+      select(/* f: */ ["region2"], /* from: */ acc.regional_sales).where(
+        /* f: */ (f) =>
+          sql`${f.total_sales2} > ${select(
+            /* f: */ (f) => ({ it: sql`SUM(${f.total_sales2})/10` }),
+            /* from: */ acc.regional_sales
+          )}`
+      )
   )
-  .do((acc) =>
-    select(
-      (f) => ({
-        region: f.region,
-        product: f.product,
-        product_units: SUM(f.quantity),
-        product_sales: SUM(f.amount),
-      }),
-      orders
-    )
-      .where((f) => sql`${f.region} IN ${select(["region3"], acc.top_regions)}`)
-      .groupBy(["region", "product"])
+  .do(
+    /* f: */ (acc) =>
+      select(
+        /* f: */ (f) => ({
+          region: f.region,
+          product: f.product,
+          product_units: SUM(/* it: */ f.quantity),
+          product_sales: SUM(/* it: */ f.amount),
+        }),
+        /* from: */ orders
+      )
+        .where(
+          /* f: */ (f) =>
+            sql`${f.region} IN ${select(
+              /* f: */ ["region3"],
+              /* from: */ acc.top_regions
+            )}`
+        )
+        .groupBy(/* f: */ ["region", "product"])
   )
   .stringify();
 ```
 
 ```sql
 WITH
-  `regional_sales`(`region2`, `total_sales2`) AS (
+  `regional_sales` (`region2`, `total_sales2`) AS (
     SELECT
       `region` AS `region`,
       SUM(`amount`) AS `total_sales`
@@ -156,7 +183,7 @@ WITH
     GROUP BY
       `region`
   ),
-  `top_regions`(`region3`) AS (
+  `top_regions` (`region3`) AS (
     SELECT
       `region2` AS `region2`
     FROM
@@ -187,3 +214,7 @@ GROUP BY
   `region`,
   `product`
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

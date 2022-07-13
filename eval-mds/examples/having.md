@@ -1,21 +1,10 @@
----
-title: Having
-nav_order: 20
-parent: Examples
-layout: default
----
+```ts eval --out=md --hide
+import { exampleHeader } from "./ts-utils";
+exampleHeader("Having", 20);
+```
 
-<details open markdown="block">
-  <summary>
-    Table of contents
-  </summary>
-  {: .text-delta }
-1. TOC
-{:toc}
-</details>
-
-```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table } from "../src";
+```ts eval
+import { table } from "../../src";
 ```
 
 We will use this table
@@ -32,9 +21,8 @@ const t0 = table(["x", "y"], "t0");
 
 # One Clause
 
-```ts eval --yield=sql
-yield t0
-    .selectStar()
+```ts eval --out=sql
+t0.selectStar()
     .groupBy((f) => f.x)
     .having((f) => f.x)
     .stringify();
@@ -42,9 +30,8 @@ yield t0
 
 ## From Select
 
-```ts eval --yield=sql
-yield t0
-    .select((f) => ({ it: f.x }))
+```ts eval --out=sql
+t0.select((f) => ({ it: f.x }))
     .groupBy((f) => f.y)
     .having((f) => f.y)
     .stringify();
@@ -54,9 +41,8 @@ yield t0
 
 ## In two calls
 
-```ts eval --yield=sql
-yield t0
-    .selectStar()
+```ts eval --out=sql
+t0.selectStar()
     .groupBy((f) => f.x)
     .having((f) => f.x)
     .groupBy((f) => f.y)
@@ -64,9 +50,8 @@ yield t0
     .stringify();
 ```
 
-```ts eval --yield=sql
-yield t0
-    .selectStar()
+```ts eval --out=sql
+t0.selectStar()
     .groupBy(["x"])
     .having(["x"])
     .groupBy(["y"])
@@ -76,14 +61,13 @@ yield t0
 
 ## In one call
 
-```ts eval --yield=sql
-yield t0
-    .selectStar()
+```ts eval --out=sql
+t0.selectStar()
     .groupBy((f) => [f.x, f.y])
     .having((f) => [f.x, f.y])
     .stringify();
 ```
 
-```ts eval --yield=sql
-yield t0.selectStar().groupBy(["x", "y"]).having(["x", "y"]).stringify();
+```ts eval --out=sql
+t0.selectStar().groupBy(["x", "y"]).having(["x", "y"]).stringify();
 ```

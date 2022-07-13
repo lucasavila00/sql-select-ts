@@ -1,20 +1,9 @@
----
-title: Join
-nav_order: 8
-parent: Examples
-layout: default
----
+```ts eval --out=md --hide
+import { exampleHeader } from "./ts-utils";
+exampleHeader("Join", 8);
+```
 
-<details open markdown="block">
-  <summary>
-    Table of contents
-  </summary>
-  {: .text-delta }
-1. TOC
-{:toc}
-</details>
-
-```ts eval --replacePrintedInput=../src,sql-select-ts
+```ts eval
 import {
     table,
     SafeString,
@@ -22,7 +11,7 @@ import {
     unionAll,
     fromStringifiedSelectStatement,
     castSafe,
-} from "../src";
+} from "../../src";
 ```
 
 We will use these tables
@@ -36,21 +25,11 @@ CREATE TABLE analytics(id int, clicks int);
 Which are defined in typescript as
 
 ```ts eval
-const users = table(
-    /* columns: */ ["id", "age", "name"],
-    /* db-name & alias: */ "users"
-);
+const users = table(["id", "age", "name"], "users");
 
-const admins = table(
-    /* columns: */ ["id", "age", "name"],
-    /* alias: */ "adm",
-    /* db-name: */ "admins"
-);
+const admins = table(["id", "age", "name"], "adm", "admins");
 
-const analytics = table(
-    /* columns: */ ["id", "clicks"],
-    /* db-name & alias: */ "analytics"
-);
+const analytics = table(["id", "clicks"], "analytics");
 ```
 
 We also need a helper function that constructs SafeStrings
@@ -66,8 +45,8 @@ const equals = (
 
 ## Join Table
 
-```ts eval --yield=sql
-yield users
+```ts eval --out=sql
+users
     .joinTable("LEFT", admins)
     .on((f) => equals(f["adm.id"], f["users.id"]))
     .selectStar()
@@ -76,8 +55,8 @@ yield users
 
 ## Join Select
 
-```ts eval --yield=sql
-yield admins
+```ts eval --out=sql
+admins
     .joinSelect("u", "LEFT", users.selectStar())
     .on((f) => equals(f["u.id"], f["adm.id"]))
     .selectStar()
@@ -86,14 +65,14 @@ yield admins
 
 ## Join Stringified Select
 
-```ts eval --yield=sql
+```ts eval --out=sql
 const aQueryThatIsAString = users.selectStar().stringify();
 
 const usersStringifiedQuery = fromStringifiedSelectStatement<
     "id" | "age" | "name"
 >(castSafe(aQueryThatIsAString));
 
-yield admins
+admins
     .joinStringifiedSelect("u", "LEFT", usersStringifiedQuery)
     .on((f) => equals(f["u.id"], f["adm.id"]))
     .selectStar()
@@ -102,8 +81,8 @@ yield admins
 
 ## Join Compound
 
-```ts eval --yield=sql
-yield admins
+```ts eval --out=sql
+admins
     .joinCompound(
         "u",
         "LEFT",
@@ -119,8 +98,8 @@ yield admins
 
 ## Join 3 Tables
 
-```ts eval --yield=sql
-yield users
+```ts eval --out=sql
+users
     .joinTable("LEFT", admins)
     .on((f) => equals(f["adm.id"], f["users.id"]))
     .joinTable("LEFT", analytics)
@@ -131,7 +110,7 @@ yield users
 
 ## Join 3 Selects
 
-```ts eval --yield=sql
+```ts eval --out=sql
 const userAndAdmin = users
     .selectStar()
     .joinSelect("users", "LEFT", "admins", admins.selectStar())
@@ -141,21 +120,21 @@ const userAdminAnalytics = userAndAdmin
     .joinSelect("LEFT", "analytics", analytics.selectStar())
     .on((f) => equals(f["analytics.id"], f["users.id"]));
 
-yield userAdminAnalytics.selectStar().stringify();
+userAdminAnalytics.selectStar().stringify();
 ```
 
 # USING
 
 ## Join Table
 
-```ts eval --yield=sql
-yield users.joinTable("LEFT", admins).using(["id"]).selectStar().stringify();
+```ts eval --out=sql
+users.joinTable("LEFT", admins).using(["id"]).selectStar().stringify();
 ```
 
 ## Join Select
 
-```ts eval --yield=sql
-yield admins
+```ts eval --out=sql
+admins
     .joinSelect("u", "LEFT", users.selectStar())
     .using(["id"])
     .selectStar()
@@ -166,18 +145,14 @@ yield admins
 
 ## Join Table
 
-```ts eval --yield=sql
-yield users
-    .joinTable("NATURAL", admins)
-    .noConstraint()
-    .selectStar()
-    .stringify();
+```ts eval --out=sql
+users.joinTable("NATURAL", admins).noConstraint().selectStar().stringify();
 ```
 
 ## Join Select
 
-```ts eval --yield=sql
-yield admins
+```ts eval --out=sql
+admins
     .joinSelect("u", "NATURAL", users.selectStar())
     .noConstraint()
     .selectStar()
@@ -188,20 +163,20 @@ yield admins
 
 ## Join Table
 
-```ts eval --yield=sql
-yield users.commaJoinTable(admins).selectStar().stringify();
+```ts eval --out=sql
+users.commaJoinTable(admins).selectStar().stringify();
 ```
 
 ## Join Select
 
-```ts eval --yield=sql
-yield admins.commaJoinSelect("u", users.selectStar()).selectStar().stringify();
+```ts eval --out=sql
+admins.commaJoinSelect("u", users.selectStar()).selectStar().stringify();
 ```
 
 ## Join Compound
 
-```ts eval --yield=sql
-yield admins
+```ts eval --out=sql
+admins
     .commaJoinCompound(
         "u",
         unionAll([
@@ -215,17 +190,13 @@ yield admins
 
 ## Join 3 Tables
 
-```ts eval --yield=sql
-yield users
-    .commaJoinTable(admins)
-    .commaJoinTable(analytics)
-    .selectStar()
-    .stringify();
+```ts eval --out=sql
+users.commaJoinTable(admins).commaJoinTable(analytics).selectStar().stringify();
 ```
 
 ## Join 3 Selects
 
-```ts eval --yield=sql
+```ts eval --out=sql
 const userAndAdmin2 = users
     .selectStar()
     .commaJoinSelect("users", "admins", admins.selectStar());
@@ -235,5 +206,5 @@ const userAdminAnalytics2 = userAndAdmin2.commaJoinSelect(
     analytics.selectStar()
 );
 
-yield userAdminAnalytics2.selectStar().stringify();
+userAdminAnalytics2.selectStar().stringify();
 ```

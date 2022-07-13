@@ -1,22 +1,17 @@
----
-title: Typed response
-nav_order: 23
-parent: Examples
-layout: default
----
+```ts eval --out=md --hide
+import { exampleHeader } from "./ts-utils";
+exampleHeader("Typed response", 23);
+```
 
-<details open markdown="block">
-  <summary>
-    Table of contents
-  </summary>
-  {: .text-delta }
-1. TOC
-{:toc}
-</details>
-
-```ts eval --replacePrintedInput=../src,sql-select-ts
+```ts eval
 import * as io from "io-ts";
-import { AnyStringifyable, SelectionOf, table, RowOf, RowsArray } from "../src";
+import {
+    AnyStringifyable,
+    SelectionOf,
+    table,
+    RowOf,
+    RowsArray,
+} from "../../src";
 ```
 
 ```ts eval
@@ -35,18 +30,24 @@ const k2: K = "c";
 
 # Response Object
 
-```ts eval
+```ts eval --out=hide
 type R1 = RowOf<typeof q>; // typeof Ret = {a: string | number | null | undefined, b: string | number | null | undefined, }
 const ret1: R1 = { a: 1, b: null };
+```
+
+```ts eval --out=hide
 //@ts-expect-error
 ret1.c;
 ```
 
 # Response Array
 
-```ts eval
+```ts eval --out=hide
 type R2 = RowsArray<typeof q>; // typeof Ret = {a: string | number | null | undefined, b: string | number | null | undefined, }[]
 const ret2: R2 = [] as any;
+```
+
+```ts eval --out=hide
 //@ts-expect-error
 ret2?.[0]?.abc;
 ```
@@ -67,7 +68,7 @@ const ioTsResponse = <
 };
 ```
 
-```ts eval
+```ts eval --out=hide
 const response = await ioTsResponse(t.selectStar(), {
     a: io.string,
     b: io.number,
@@ -75,12 +76,14 @@ const response = await ioTsResponse(t.selectStar(), {
 
 response[0]?.a.charAt(0);
 response[0]?.b.toPrecision(2);
+```
 
+```ts eval --out=hide
 //@ts-expect-error
 response[0]?.c;
 ```
 
-```ts eval
+```ts eval --out=hide
 // @ts-expect-error
 ioTsResponse(t.selectStar(), { a: io.string });
 ```

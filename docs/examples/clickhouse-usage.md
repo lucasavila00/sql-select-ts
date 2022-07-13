@@ -1,6 +1,6 @@
 ---
 title: Clickhouse Usage
-nav_order: 60
+nav_order: 80
 parent: Examples
 layout: default
 ---
@@ -15,7 +15,6 @@ layout: default
 </details>
 
 ```ts
-const ClickHouse = require("@apla/clickhouse");
 import { table, AnyStringifyable, RowsArray } from "sql-select-ts";
 ```
 
@@ -29,7 +28,6 @@ const db = new ClickHouse({
   password: "",
   dataObjects: true,
 });
-
 const runS = async (q: string): Promise<any[]> =>
   db.querying(q).then((it: any) => it.data);
 ```
@@ -38,22 +36,28 @@ We can implement a version that is aware of the types
 
 ```ts
 const run = <T extends AnyStringifyable>(it: T): Promise<RowsArray<T>> =>
-  runS(it.stringify());
+  runS(/* q: */ it.stringify());
 ```
 
 Then, with some tables
 
 ```ts
-const t1 = table(["x", "y"], "t1");
-await runS(`DROP TABLE IF EXISTS t1`);
-await runS(`CREATE TABLE IF NOT EXISTS t1(x Int64, y Int64) ENGINE = Memory`);
-await runS(`INSERT INTO t1 VALUES(1,2)`);
+const t1 = table(/* columns: */ ["x", "y"], /* alias: */ "t1");
+await runS(/* q: */ `DROP TABLE IF EXISTS t1`);
+await runS(
+  /* q: */ `CREATE TABLE IF NOT EXISTS t1(x Int64, y Int64) ENGINE = Memory`
+);
+await runS(/* q: */ `INSERT INTO t1 VALUES(1,2)`);
+```
+
+```json
+undefined
 ```
 
 We can run queries
 
 ```ts
-const value = await run(t1.selectStar());
+const value = await run(/* it: */ t1.selectStar());
 value;
 ```
 
@@ -64,7 +68,7 @@ value;
 Typescript knows the identifiers
 
 ```ts
-value.map((it) => it.x);
+value.map(/* callbackfn: */ (it) => it.x);
 ```
 
 ```json
@@ -73,5 +77,13 @@ value.map((it) => it.x);
 
 ```ts
 //@ts-expect-error
-value.map((it) => it.u);
+value.map(/* callbackfn: */ (it) => it.u);
 ```
+
+```json
+[null]
+```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)

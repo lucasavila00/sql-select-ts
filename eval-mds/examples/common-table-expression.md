@@ -1,23 +1,19 @@
----
-title: With
-nav_order: 29
-parent: Examples
-layout: default
----
-
-<details open markdown="block">
-  <summary>
-    Table of contents
-  </summary>
-  {: .text-delta }
-1. TOC
-{:toc}
-</details>
+```ts eval --out=md --hide
+import { exampleHeader } from "./ts-utils";
+exampleHeader("With", 20);
+```
 
 # With - Common Table Expressions
 
-```ts eval --replacePrintedInput=../src,sql-select-ts
-import { table, dsql as sql, with_, SafeString, select, withR } from "../src";
+```ts eval
+import {
+    table,
+    dsql as sql,
+    with_,
+    SafeString,
+    select,
+    withR,
+} from "../../src";
 ```
 
 ```ts eval
@@ -26,8 +22,8 @@ const orders = table(["region", "amount", "product", "quantity"], "orders");
 const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 ```
 
-```ts eval --yield=sql
-yield with_(
+```ts eval --out=sql
+with_(
     "regional_sales",
     select(
         (f) => ({ region: f.region, total_sales: SUM(f.amount) }),
@@ -64,8 +60,8 @@ yield with_(
 
 ## Replacing column names
 
-```ts eval --yield=sql
-yield withR(
+```ts eval --out=sql
+withR(
     "regional_sales",
     ["region2", "total_sales2"],
     select(

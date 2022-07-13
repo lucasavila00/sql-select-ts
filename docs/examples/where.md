@@ -28,8 +28,8 @@ Which is defined in typescript as
 
 ```ts
 const users = table(
-  /* columns: */ ["id", "age", "name"],
-  /* db-name & alias: */ "users"
+  /* columns: */ /* columns: */ ["id", "age", "name"],
+  /* db-name & alias: */ /* alias: */ "users"
 );
 ```
 
@@ -39,7 +39,7 @@ const users = table(
 const name = "Lucas";
 users
   .selectStar()
-  .where((f) => sql`${f.name} = ${name}`)
+  .where(/* f: */ (f) => sql`${f.name} = ${name}`)
   .stringify();
 ```
 
@@ -60,7 +60,7 @@ WHERE
 const name2 = "Lucas";
 users
   .selectStar()
-  .where((f) => [sql`${f.name} = ${name2}`, sql`${f.id} = 5`])
+  .where(/* f: */ (f) => [sql`${f.name} = ${name2}`, sql`${f.id} = 5`])
   .stringify();
 ```
 
@@ -80,8 +80,8 @@ WHERE
 const id = 5;
 users
   .selectStar()
-  .where((f) => sql`${f.name} = 'Lucas'`)
-  .where((f) => sql`${f.id} = ${id}`)
+  .where(/* f: */ (f) => sql`${f.name} = 'Lucas'`)
+  .where(/* f: */ (f) => sql`${f.id} = ${id}`)
   .stringify();
 ```
 
@@ -99,12 +99,17 @@ WHERE
 
 ```ts
 const OR = (...cases: SafeString[]): SafeString => {
-  const j = cases.map((it) => it.content).join(" OR ");
-  return castSafe(`(${j})`);
+  const j = cases
+    .map(/* callbackfn: */ (it) => it.content)
+    .join(/* separator: */ " OR ");
+  return castSafe(/* content: */ `(${j})`);
 };
 users
   .selectStar()
-  .where((f) => OR(sql`${f.name} = 'Lucas'`, sql`${f.id} = ${id}`))
+  .where(
+    /* f: */ (f) =>
+      OR(/* cases: */ sql`${f.name} = 'Lucas'`, sql`${f.id} = ${id}`)
+  )
   .stringify();
 ```
 
@@ -119,3 +124,7 @@ WHERE
     OR `id` = 5
   )
 ```
+
+---
+
+This document used [eval-md](https://lucasavila00.github.io/eval-md/)
