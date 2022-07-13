@@ -15,6 +15,8 @@ import {
     ScopeStorage,
     ScopeOfSelectStatement,
     ScopeShape,
+    RecordOfSelection,
+    SelectionOfScope,
 } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
@@ -25,7 +27,7 @@ import { Table } from "./table";
 /**
  * Represents https://www.sqlite.org/syntax/compound-select-stmt.html
  *
- * This class is not meant to be used directly, but rather through the `union`, `union`, `insersect`, `except` functions.
+ * This class is not meant to be used directly, but rather through the `union`, `union`, `intersect`, `except` functions.
  *
  * @since 0.0.0
  */
@@ -59,7 +61,7 @@ export class Compound<
     ): Compound<
         SelectionOfSelectStatement<C>,
         never,
-        ScopeOfSelectStatement<C> | ScopeOfSelectStatement<CS[number]>
+        ScopeOfSelectStatement<C> & ScopeOfSelectStatement<CS[number]>
     > =>
         new Compound({
             content,
@@ -75,8 +77,8 @@ export class Compound<
      * @internal
      */
     public static unionAll = <
-        C extends SelectStatement<any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any>>
+        C extends SelectStatement<any, any, any>,
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>
     >(
         content: CS & {
             0: C;
@@ -84,7 +86,7 @@ export class Compound<
     ): Compound<
         SelectionOfSelectStatement<C>,
         never,
-        ScopeOfSelectStatement<C> | ScopeOfSelectStatement<CS[number]>
+        ScopeOfSelectStatement<C> & ScopeOfSelectStatement<CS[number]>
     > =>
         new Compound({
             content,
@@ -100,8 +102,8 @@ export class Compound<
      * @internal
      */
     public static intersect = <
-        C extends SelectStatement<any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any>>
+        C extends SelectStatement<any, any, any>,
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>
     >(
         content: CS & {
             0: C;
@@ -109,7 +111,7 @@ export class Compound<
     ): Compound<
         SelectionOfSelectStatement<C>,
         never,
-        ScopeOfSelectStatement<C> | ScopeOfSelectStatement<CS[number]>
+        ScopeOfSelectStatement<C> & ScopeOfSelectStatement<CS[number]>
     > =>
         new Compound({
             content,
@@ -125,8 +127,8 @@ export class Compound<
      * @internal
      */
     public static except = <
-        C extends SelectStatement<any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any>>
+        C extends SelectStatement<any, any, any>,
+        CS extends ReadonlyArray<SelectStatement<any, any, any>>
     >(
         content: CS & {
             0: C;
@@ -134,7 +136,7 @@ export class Compound<
     ): Compound<
         SelectionOfSelectStatement<C>,
         never,
-        ScopeOfSelectStatement<C> | ScopeOfSelectStatement<CS[number]>
+        ScopeOfSelectStatement<C> & ScopeOfSelectStatement<CS[number]>
     > =>
         new Compound({
             content,
@@ -187,23 +189,29 @@ export class Compound<
         limit: SafeString | number
     ): Compound<Selection, Alias, Scope> => this.copy().setLimit(limit);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public select = <
-    //     NewSelection extends string = never,
-    //     SubSelection extends Selection = never
-    // >(
-    //     f:
-    //         | ReadonlyArray<SubSelection>
-    //         | ((
-    //               fields: Record<Selection, SafeString> &
-    //                   NoSelectFieldsCompileError
-    //           ) => Record<NewSelection, SafeString>)
-    // ): SelectStatement<Selection, NewSelection | SubSelection> =>
-    //     SelectStatement.__fromTableOrSubquery(this, [
-    //         AliasedRows(consumeRecordCallback(f)),
-    //     ]);
+    /**
+     * @since 0.0.0
+     */
+    public select = <
+        NewSelection extends string = never,
+        SubSelection extends Selection = never,
+        NewAlias extends string = never
+    >(
+        _:
+            | ReadonlyArray<SubSelection>
+            | ((
+                  fields: RecordOfSelection<Scope[keyof Scope]> &
+                      SelectionOfScope<Scope> &
+                      NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>),
+        as?: NewAlias
+    ): SelectStatement<NewSelection | SubSelection, NewAlias, Scope> =>
+        SelectStatement.__fromTableOrSubquery(
+            this,
+            _ as any,
+            this.__props.scope as any,
+            as
+        );
 
     // /**
     //  * @since 0.0.0

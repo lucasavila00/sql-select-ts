@@ -1,6 +1,6 @@
 import { Table } from "../../src/classes/table";
 import { format } from "sql-formatter";
-import { dsql } from "../../src";
+import { dsql, unionAll } from "../../src";
 
 const t = Table.define(["id", "name"], "users");
 it("select star", () => {
@@ -416,5 +416,43 @@ it("join on 3 tables", () => {
           LEFT JOIN \`users2\` ON \`users\`.\`id\` = \`users2\`.\`id\`
           AND \`id\` = \`name\`
           RIGHT JOIN \`users3\` ON \`users3\`.\`id\` = \`users2\`.\`name\`"
+    `);
+});
+
+it("union", () => {
+    const t2 = Table.define(["id", "name"], "users2").selectStar();
+    const t3 = Table.define(["id", "name"], "users3").selectStar();
+    const query1 = unionAll([t2, t3]);
+
+    expect(format(query1.stringify())).toMatchInlineSnapshot(`
+        "SELECT
+          *
+        FROM
+          \`users2\`
+        UNION ALL
+        SELECT
+          *
+        FROM
+          \`users3\`"
+    `);
+});
+
+it("union and select", () => {
+    const t2 = Table.define(["id", "name"], "users2").selectStar();
+    const t3 = Table.define(["id", "name"], "users3").selectStar();
+    const query1 = unionAll([t2, t3])
+        .select((f) => ({}))
+        .stringify();
+
+    expect(format(query1)).toMatchInlineSnapshot(`
+        "SELECT
+          *
+        FROM
+          \`users2\`
+        UNION ALL
+        SELECT
+          *
+        FROM
+          \`users3\`"
     `);
 });
