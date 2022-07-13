@@ -50,10 +50,6 @@ await runS(/* q: */ `CREATE TABLE t1(a,b,c);`);
 await runS(/* q: */ `INSERT INTO t1 VALUES(1,2,3);`);
 ```
 
-```json
-[]
-```
-
 We can run queries
 
 ```ts
@@ -71,17 +67,9 @@ Typescript knows the identifiers
 value.map(/* callbackfn: */ (it) => it.a);
 ```
 
-```json
-[1]
-```
-
 ```ts
 //@ts-expect-error
 value.map(/* callbackfn: */ (it) => it.u);
-```
-
-```json
-[null]
 ```
 
 ---

@@ -181,7 +181,7 @@ users
 
 This is not valid. The typescript compiler will prevent this.
 
-```ts eval
+```ts eval --out=hide
 users
     // @ts-expect-error
     .select((f) => f);

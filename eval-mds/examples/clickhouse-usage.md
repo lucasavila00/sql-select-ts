@@ -32,7 +32,7 @@ const run = <T extends AnyStringifyable>(it: T): Promise<RowsArray<T>> =>
 
 Then, with some tables
 
-```ts eval
+```ts eval --out=hide
 const t1 = table(["x", "y"], "t1");
 await runS(`DROP TABLE IF EXISTS t1`);
 await runS(`CREATE TABLE IF NOT EXISTS t1(x Int64, y Int64) ENGINE = Memory`);
@@ -48,11 +48,11 @@ value;
 
 Typescript knows the identifiers
 
-```ts eval
+```ts eval --out=hide
 value.map((it) => it.x);
 ```
 
-```ts eval
+```ts eval --out=hide
 //@ts-expect-error
 value.map((it) => it.u);
 ```

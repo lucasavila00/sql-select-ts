@@ -351,44 +351,6 @@ users // @ts-expect-error
   .select(/* f: */ (f) => f);
 ```
 
-```json
-{
-  "__props": {
-    "from": {
-      "__props": {
-        "columns": ["id", "age", "name", "country"],
-        "alias": "users",
-        "name": "users",
-        "final": false
-      },
-      "clickhouse": {}
-    },
-    "selection": [
-      {
-        "_tag": "AliasedRows",
-        "content": {
-          "SQL_PROXY_TARGET": {
-            "_tag": "SafeString",
-            "content": "`SQL_PROXY_TARGET`"
-          }
-        }
-      }
-    ],
-    "replace": [],
-    "orderBy": [],
-    "groupBy": [],
-    "limit": null,
-    "where": [],
-    "prewhere": [],
-    "having": [],
-    "distinct": false,
-    "clickhouseWith": [],
-    "ctes": []
-  },
-  "clickhouse": {}
-}
-```
-
 # Control order of selection
 
 Although it works on most cases, order of selection is not guaranteed.

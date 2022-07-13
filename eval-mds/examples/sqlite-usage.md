@@ -29,7 +29,7 @@ const run = <T extends AnyStringifyable>(it: T): Promise<RowsArray<T>> =>
 
 Then, with some tables
 
-```ts eval
+```ts eval --out=hide
 const t1 = table(["a", "b", "c"], "t1");
 await runS(`CREATE TABLE t1(a,b,c);`);
 await runS(`INSERT INTO t1 VALUES(1,2,3);`);
@@ -44,11 +44,11 @@ value;
 
 Typescript knows the identifiers
 
-```ts eval
+```ts eval --out=hide
 value.map((it) => it.a);
 ```
 
-```ts eval
+```ts eval --out=hide
 //@ts-expect-error
 value.map((it) => it.u);
 ```
