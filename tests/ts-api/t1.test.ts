@@ -98,11 +98,7 @@ it("query alias", () => {
     `);
     const r2 = r1.select((f) => ({ col1: f.abc, col2: f.alias2.def }));
 
-    expect(r2.__props.scope).toMatchInlineSnapshot(`
-        Object {
-          "alias2": undefined,
-        }
-    `);
+    expect(r2.__props.scope).toMatchInlineSnapshot(`Object {}`);
     expect(r2.__props.selection).toMatchInlineSnapshot(`
         Array [
           Object {

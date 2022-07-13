@@ -17,9 +17,9 @@ export type Joinable<
     Scope extends ScopeShape = never
 > =
     | SelectStatement<Selection, Alias, Scope>
-    // | StringifiedSelectStatement<Alias, Scope, Selection>
-    | Table<Selection, Alias, Scope>;
-// | Compound<Alias, Scope, Selection>;
+    | StringifiedSelectStatement<Selection, Alias, Scope>
+    | Table<Selection, Alias, Scope>
+    | Compound<Selection, Alias, Scope>;
 
 export type TableOrSubquery<
     Selection extends string = never,
@@ -27,10 +27,10 @@ export type TableOrSubquery<
     Scope extends ScopeShape = never
 > =
     | SelectStatement<Selection, Alias, Scope>
-    // | StringifiedSelectStatement<Alias, Scope, Selection>
+    | StringifiedSelectStatement<Selection, Alias, Scope>
     | Table<Selection, Alias, Scope>
-    | Joined<Selection, Alias, Scope>;
-// | Compound<Alias, Scope, Selection>;
+    | Joined<Selection, Alias, Scope>
+    | Compound<Selection, Alias, Scope>;
 
 export type NoSelectFieldsCompileError = {
     ["✕"]: CompileError<["'.select(f => f)' is invalid"]>;

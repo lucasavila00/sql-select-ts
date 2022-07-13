@@ -1,14 +1,15 @@
-import { absurd } from "fp-ts/lib/function";
-import { proxy } from "./proxy";
 import { castSafe, SafeString } from "./safe-string";
 import {
     ScopeStorage,
     SelectionArrayCallbackShape,
     SelectionRecordCallbackShape,
 } from "./types";
-import { hole } from "./utils";
 import { wrapAlias } from "./wrap-alias";
 import { AliasedRows } from "./data-wrappers";
+
+export const isTheProxyObject = (it: any): boolean => {
+    return it?.SQL_PROXY_TARGET != null;
+};
 
 const prefixedProxy = (base: string) =>
     new Proxy(

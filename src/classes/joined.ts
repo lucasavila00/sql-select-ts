@@ -250,10 +250,10 @@ export class Joined<
     //             this.__props.properJoins
     //         );
 
-    //     /**
-    //      * @since 1.1.1
-    //      */
-    //     public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
-    //         fn: (it: this) => Ret
-    //     ): Ret => fn(this);
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
 }

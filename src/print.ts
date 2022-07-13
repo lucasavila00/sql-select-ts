@@ -3,12 +3,12 @@ import { Joined } from "./classes/joined";
 import { SelectStatement } from "./classes/select-statement";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
 import { Table } from "./classes/table";
+import { isTheProxyObject } from "./consume-fields";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
-import { isTheProxyObject } from "./proxy";
 import type { SafeString } from "./safe-string";
 import { ClickhouseWith, CTE, JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
-import { wrapAlias, wrapAliasSplitDots } from "./wrap-alias";
+import { wrapAlias } from "./wrap-alias";
 
 // re-define to avoid circular dependency
 /* istanbul ignore next */
@@ -60,13 +60,7 @@ const printStringifiedSelectInternal = <Selection extends string>(
     it: StringifiedSelectStatement<Selection>
 ): PrintInternalRet => `(${it.__props.content.content})`;
 
-const printTableInternal = <
-    Scope extends string,
-    Selection extends string,
-    Alias extends string
->(
-    table: Table<Scope, Selection, Alias>
-): PrintInternalRet => {
+const printTableInternal = (table: Table<any, any, any>): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
         return wrapAlias(table.__props.name) + final;
@@ -128,7 +122,7 @@ const printCtes = (ctes: ReadonlyArray<CTE>): string =>
         .map((cte) => {
             const cols =
                 cte.columns.length > 0
-                    ? `(${cte.columns.map(wrapAliasSplitDots).join(", ")})`
+                    ? `(${cte.columns.map(wrapAlias).join(", ")})`
                     : ``;
             const content = printInternal(cte.select, false);
             return `${wrapAlias(cte.alias)}${cols} AS (${content})`;

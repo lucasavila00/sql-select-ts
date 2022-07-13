@@ -7,7 +7,6 @@
 import { consumeArrayCallback, consumeRecordCallback } from "../consume-fields";
 import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
 import { printSelectStatement } from "../print";
-import { proxy } from "../proxy";
 import { SafeString } from "../safe-string";
 import {
     TableOrSubquery,
@@ -290,7 +289,7 @@ export class SelectStatement<
         SelectStatement.__fromTableOrSubquery(
             this,
             _ as any,
-            this.__props.scope,
+            as ? { [as]: void 0 } : {},
             as
         );
 
