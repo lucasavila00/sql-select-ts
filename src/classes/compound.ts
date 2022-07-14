@@ -185,20 +185,20 @@ export class Compound<
         return this;
     };
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public orderBy = (
-    //     f:
-    //         | ReadonlyArray<Scope | Selection>
-    //         | ((
-    //               fields: Record<Scope | Selection, SafeString>
-    //           ) => SafeString[] | SafeString)
-    // ): Compound<Scope, Selection> =>
-    //     this.copy().setOrderBy([
-    //         ...this.__props.orderBy,
-    //         ...makeArray(consumeArrayCallback(f)),
-    //     ]);
+    /**
+     * @since 0.0.0
+     */
+    public orderBy = (
+        f:
+            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ((
+                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
+    ): Compound<Selection, Alias, Scope> =>
+        this.copy().setOrderBy([
+            ...this.__props.orderBy,
+            ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
+        ]);
 
     /**
      * @since 0.0.0

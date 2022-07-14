@@ -156,134 +156,136 @@ export class SelectStatement<
         return this;
     };
 
-    // private setReplace = (replace: ReplaceT<Selection>): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         replace,
-    //     };
-    //     return this;
-    // };
+    private setReplace = (replace: ReplaceT<Selection>): this => {
+        this.__props = {
+            ...this.__props,
+            replace,
+        };
+        return this;
+    };
 
-    // private setWhere = (where: ReadonlyArray<SafeString>): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         where,
-    //     };
-    //     return this;
-    // };
+    private setWhere = (where: ReadonlyArray<SafeString>): this => {
+        this.__props = {
+            ...this.__props,
+            where,
+        };
+        return this;
+    };
 
-    // private setOrderBy = (orderBy: ReadonlyArray<SafeString>): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         orderBy,
-    //     };
-    //     return this;
-    // };
-    // private setGroupBy = (groupBy: ReadonlyArray<SafeString>): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         groupBy,
-    //     };
-    //     return this;
-    // };
-    // private setLimit = (limit: SafeString | number | null): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         limit,
-    //     };
-    //     return this;
-    // };
-    // private setDistinct = (distinct: boolean): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         distinct,
-    //     };
-    //     return this;
-    // };
-    // private setClickhouseWith = (
-    //     clickhouseWith: ReadonlyArray<ClickhouseWith>
-    // ): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         clickhouseWith,
-    //     };
-    //     return this;
-    // };
-    // private setCtes = (ctes: ReadonlyArray<CTE>): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         ctes,
-    //     };
-    //     return this;
-    // };
-    // /**
-    //  * @internal
-    //  */
-    // public __setCtes = this.setCtes;
-    // private setPrewhere = (prewhere: ReadonlyArray<SafeString>): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         prewhere,
-    //     };
-    //     return this;
-    // };
-    // private setHaving = (having: ReadonlyArray<SafeString>): this => {
-    //     this.__props = {
-    //         ...this.__props,
-    //         having,
-    //     };
-    //     return this;
-    // };
-    // /**
-    //  *
-    //  * Clickhouse specific syntax extensions.
-    //  *
-    //  * @since 0.0.0
-    //  */
-    // public clickhouse = {
-    //     /**
-    //      * @since 0.0.0
-    //      */
-    //     with_: <NewSelection extends string>(
-    //         it: Record<
-    //             NewSelection,
-    //             SelectStatement<any, any, any> | StringifiedSelectStatement<any>
-    //         >
-    //     ): SelectStatement<Alias, Scope | NewSelection, Selection> =>
-    //         this.copy().setClickhouseWith([
-    //             ...this.__props.clickhouseWith,
-    //             it,
-    //         ]) as any,
+    private setOrderBy = (orderBy: ReadonlyArray<SafeString>): this => {
+        this.__props = {
+            ...this.__props,
+            orderBy,
+        };
+        return this;
+    };
+    private setGroupBy = (groupBy: ReadonlyArray<SafeString>): this => {
+        this.__props = {
+            ...this.__props,
+            groupBy,
+        };
+        return this;
+    };
+    private setLimit = (limit: SafeString | number | null): this => {
+        this.__props = {
+            ...this.__props,
+            limit,
+        };
+        return this;
+    };
+    private setDistinct = (distinct: boolean): this => {
+        this.__props = {
+            ...this.__props,
+            distinct,
+        };
+        return this;
+    };
+    private setClickhouseWith = (
+        clickhouseWith: ReadonlyArray<ClickhouseWith>
+    ): this => {
+        this.__props = {
+            ...this.__props,
+            clickhouseWith,
+        };
+        return this;
+    };
+    private setCtes = (ctes: ReadonlyArray<CTE>): this => {
+        this.__props = {
+            ...this.__props,
+            ctes,
+        };
+        return this;
+    };
+    /**
+     * @internal
+     */
+    public __setCtes = this.setCtes;
+    private setPrewhere = (prewhere: ReadonlyArray<SafeString>): this => {
+        this.__props = {
+            ...this.__props,
+            prewhere,
+        };
+        return this;
+    };
+    private setHaving = (having: ReadonlyArray<SafeString>): this => {
+        this.__props = {
+            ...this.__props,
+            having,
+        };
+        return this;
+    };
+    /**
+     *
+     * Clickhouse specific syntax extensions.
+     *
+     * @since 0.0.0
+     */
+    public clickhouse = {
+        //     /**
+        //      * @since 0.0.0
+        //      */
+        //     with_: <NewSelection extends string>(
+        //         it: Record<
+        //             NewSelection,
+        //             SelectStatement<any, any, any> | StringifiedSelectStatement<any>
+        //         >
+        //     ): SelectStatement<Alias, Scope | NewSelection, Selection> =>
+        //         this.copy().setClickhouseWith([
+        //             ...this.__props.clickhouseWith,
+        //             it,
+        //         ]) as any,
 
-    //     /**
-    //      * @since 0.0.0
-    //      */
-    //     prewhere: (
-    //         f:
-    //             | ReadonlyArray<Scope | Selection>
-    //             | ((
-    //                   fields: Record<Scope | Selection, SafeString>
-    //               ) => ReadonlyArray<SafeString> | SafeString)
-    //     ): SelectStatement<Alias, Scope, Selection> =>
-    //         this.copy().setPrewhere([
-    //             ...this.__props.prewhere,
-    //             ...makeArray(consumeArrayCallback(f)),
-    //         ]),
+        /**
+         * @since 0.0.0
+         */
+        prewhere: (
+            f:
+                | ReadonlyArray<Selection | Scope[keyof Scope]>
+                | ((
+                      fields: Record<Selection | Scope[keyof Scope], SafeString>
+                  ) => ReadonlyArray<SafeString> | SafeString)
+        ): SelectStatement<Selection, Alias, Scope> =>
+            this.copy().setPrewhere([
+                ...this.__props.prewhere,
+                ...makeArray(
+                    consumeArrayCallback(f as any, this.__props.scope)
+                ),
+            ]),
 
-    //     /**
-    //      * @since 0.0.0
-    //      */
-    //     replace: <NewSelection extends string>(
-    //         f: (
-    //             f: Record<Selection | Scope, SafeString> &
-    //                 NoSelectFieldsCompileError
-    //         ) => ReplaceT<Selection>
-    //     ): SelectStatement<Alias, Scope, Selection | NewSelection> =>
-    //         this.copy().setReplace([
-    //             ...this.__props.replace,
-    //             ...f(proxy),
-    //         ]) as any,
-    // };
+        //     /**
+        //      * @since 0.0.0
+        //      */
+        //     replace: <NewSelection extends string>(
+        //         f: (
+        //             f: Record<Selection | Scope, SafeString> &
+        //                 NoSelectFieldsCompileError
+        //         ) => ReplaceT<Selection>
+        //     ): SelectStatement<Alias, Scope, Selection | NewSelection> =>
+        //         this.copy().setReplace([
+        //             ...this.__props.replace,
+        //             ...f(proxy),
+        //         ]) as any,
+    };
 
     /**
      * @since 0.0.0
@@ -356,78 +358,78 @@ export class SelectStatement<
             consumeRecordCallback(_ as any, this.__props.scope),
         ]) as any;
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public where = (
-    //     f:
-    //         | ReadonlyArray<Scope | Selection>
-    //         | ((
-    //               fields: Record<Scope | Selection, SafeString>
-    //           ) => ReadonlyArray<SafeString> | SafeString)
-    // ): SelectStatement<Alias, Scope, Selection> =>
-    //     this.copy().setWhere([
-    //         ...this.__props.where,
-    //         ...makeArray(consumeArrayCallback(f)),
-    //     ]);
+    /**
+     * @since 0.0.0
+     */
+    public where = (
+        f:
+            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ((
+                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
+    ): SelectStatement<Selection, Alias, Scope> =>
+        this.copy().setWhere([
+            ...this.__props.where,
+            ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
+        ]);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public having = (
-    //     f:
-    //         | ReadonlyArray<Scope | Selection>
-    //         | ((
-    //               fields: Record<Scope | Selection, SafeString>
-    //           ) => ReadonlyArray<SafeString> | SafeString)
-    // ): SelectStatement<Alias, Scope, Selection> =>
-    //     this.copy().setHaving([
-    //         ...this.__props.having,
-    //         ...makeArray(consumeArrayCallback(f)),
-    //     ]);
+    /**
+     * @since 0.0.0
+     */
+    public having = (
+        f:
+            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ((
+                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
+    ): SelectStatement<Selection, Alias, Scope> =>
+        this.copy().setHaving([
+            ...this.__props.having,
+            ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
+        ]);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public distinct = (): SelectStatement<Alias, Scope, Selection> =>
-    //     this.copy().setDistinct(true);
+    /**
+     * @since 0.0.0
+     */
+    public distinct = (): SelectStatement<Selection, Alias, Scope> =>
+        this.copy().setDistinct(true);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public orderBy = (
-    //     f:
-    //         | ReadonlyArray<Scope | Selection>
-    //         | ((
-    //               fields: Record<Scope | Selection, SafeString>
-    //           ) => ReadonlyArray<SafeString> | SafeString)
-    // ): SelectStatement<Alias, Scope, Selection> =>
-    //     this.copy().setOrderBy([
-    //         ...this.__props.orderBy,
-    //         ...makeArray(consumeArrayCallback(f)),
-    //     ]);
+    /**
+     * @since 0.0.0
+     */
+    public orderBy = (
+        f:
+            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ((
+                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
+    ): SelectStatement<Selection, Alias, Scope> =>
+        this.copy().setOrderBy([
+            ...this.__props.orderBy,
+            ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
+        ]);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public groupBy = (
-    //     f:
-    //         | ReadonlyArray<Scope | Selection>
-    //         | ((
-    //               fields: Record<Scope | Selection, SafeString>
-    //           ) => ReadonlyArray<SafeString> | SafeString)
-    // ): SelectStatement<Alias, Scope, Selection> =>
-    //     this.copy().setGroupBy([
-    //         ...this.__props.groupBy,
-    //         ...makeArray(consumeArrayCallback(f)),
-    //     ]);
+    /**
+     * @since 0.0.0
+     */
+    public groupBy = (
+        f:
+            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ((
+                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+              ) => ReadonlyArray<SafeString> | SafeString)
+    ): SelectStatement<Selection, Alias, Scope> =>
+        this.copy().setGroupBy([
+            ...this.__props.groupBy,
+            ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
+        ]);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public limit = (
-    //     limit: SafeString | number
-    // ): SelectStatement<Alias, Scope, Selection> => this.copy().setLimit(limit);
+    /**
+     * @since 0.0.0
+     */
+    public limit = (
+        limit: SafeString | number
+    ): SelectStatement<Selection, Alias, Scope> => this.copy().setLimit(limit);
 
     // /**
     //  * @since 0.0.0

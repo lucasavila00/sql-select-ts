@@ -94,9 +94,11 @@ export type SelectionRecordCallbackShape =
               NoSelectFieldsCompileError
       ) => Record<string, SafeString>);
 
-export type SelectionArrayCallbackShape = (
-    fields: SelectionOfScope<ScopeShape>
-) => SafeString | ReadonlyArray<SafeString>;
+export type SelectionArrayCallbackShape =
+    | ReadonlyArray<string>
+    | ((
+          fields: SelectionOfScope<ScopeShape>
+      ) => SafeString | ReadonlyArray<SafeString>);
 
 export type SelectionWrapperTypes = ReadonlyArray<
     AliasedRows<any> | StarSymbol | StarOfAliasSymbol

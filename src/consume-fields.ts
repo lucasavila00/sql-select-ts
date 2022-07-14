@@ -57,6 +57,9 @@ export const consumeArrayCallback = (
     f: SelectionArrayCallbackShape,
     scope: ScopeStorage
 ): ReadonlyArray<SafeString> | SafeString => {
+    if (Array.isArray(f)) {
+        return f.map((it) => castSafe(wrapAlias(it)));
+    }
     const result: any = (f as any)(upperProxy(scope));
     return result;
 };
