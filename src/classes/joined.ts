@@ -160,8 +160,7 @@ export class Joined<
      */
     public select = <
         NewSelection extends string = never,
-        SubSelection extends Selection = never,
-        NewAlias extends string = never
+        SubSelection extends Selection = never
     >(
         _:
             | ReadonlyArray<SubSelection>
@@ -169,27 +168,24 @@ export class Joined<
                   fields: RecordOfSelection<Scope[keyof Scope]> &
                       SelectionOfScope<Scope> &
                       NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>),
-        as?: NewAlias
-    ): SelectStatement<NewSelection | SubSelection, NewAlias, Scope> =>
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<NewSelection | SubSelection, never, Scope> =>
         SelectStatement.__fromTableOrSubquery(
             this,
             _ as any,
             this.__props.scope as any,
-            as
+            undefined
         );
 
     /**
      * @since 0.0.0
      */
-    public selectStar = <NewAlias extends string = never>(
-        as?: NewAlias
-    ): SelectStatement<Scope[keyof Scope], NewAlias, Scope> =>
+    public selectStar = (): SelectStatement<Scope[keyof Scope], never, Scope> =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
-            as ? { [as]: void 0 } : {},
-            as
+            {},
+            undefined
         );
 
     //     /**
@@ -215,7 +211,7 @@ export class Joined<
         Scope & {
             [key in Alias2]: Selection2;
         },
-        Extract<Selection, Selection2>
+        Extract<Selection | Scope[keyof Scope], Selection2>
     > =>
         JoinedFactory.__fromAll(
             this.__props.commaJoins,

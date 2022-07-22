@@ -9,7 +9,9 @@ import { SelectStatement } from "./classes/select-statement";
 /**
  * @since 0.0.1
  */
-export type AnyStringifyable = SelectStatement<any, any> | Compound<any, any>;
+export type AnyStringifyable =
+    | SelectStatement<any, any, any>
+    | Compound<any, any, any>;
 
 /**
  * Given a stringifyable object, returns the union of the selection keys.

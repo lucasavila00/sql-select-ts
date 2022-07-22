@@ -11,13 +11,13 @@ addSimpleStringSerializer();
 
 const equals = (a: SafeString, b: SafeString) => dsql`${a} = ${b}`;
 
-describe("joinTable", () => {
+describe("join", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
-    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str2 = fromStringifiedSelectStatement<"a" | "b" | "c">(
         castSafe(t1.selectStar().stringify())
-    );
+    ).as("q1");
     /*
     CREATE TABLE t1(a,b,c);
     INSERT INTO t1 VALUES(1,2,3);
@@ -35,7 +35,7 @@ describe("joinTable", () => {
 
     it("table -> table", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -46,9 +46,9 @@ describe("joinTable", () => {
 
     it("table -> table -- select", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
+            .select((f) => ({ x: f.a, y: f.d, z: f.t1.c }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM \`t1\` NATURAL JOIN \`t2\``
@@ -57,7 +57,7 @@ describe("joinTable", () => {
 
     it("table -> table -- ON", async () => {
         const q = t1
-            .joinTable("LEFT", t2)
+            .join("LEFT", t2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
             .stringify();
@@ -68,8 +68,8 @@ describe("joinTable", () => {
 
     it("table -> table -- ON QUALIFIED", async () => {
         const q = t1
-            .joinTable("LEFT", t2)
-            .on((f) => equals(f["t1.a"], f["t2.d"]))
+            .join("LEFT", t2)
+            .on((f) => equals(f.t1.a, f.t2.d))
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -78,22 +78,14 @@ describe("joinTable", () => {
     });
 
     it("table -> table -- USING", async () => {
-        const q = t1
-            .joinTable("LEFT", t2)
-            .using(["b"])
-            .selectStar()
-            .stringify();
+        const q = t1.join("LEFT", t2).using(["b"]).selectStar().stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`t1\` LEFT JOIN \`t2\` USING(\`b\`)`
         );
     });
 
     it("table -> table -- NO CONSTRAINT", async () => {
-        const q = t1
-            .joinTable("LEFT", t2)
-            .noConstraint()
-            .selectStar()
-            .stringify();
+        const q = t1.join("LEFT", t2).noConstraint().selectStar().stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`t1\` LEFT JOIN \`t2\``
         );
@@ -102,7 +94,8 @@ describe("joinTable", () => {
     it("select -> table", async () => {
         const q = t1
             .selectStar()
-            .joinTable("q1", "NATURAL", t2)
+            .as("q1")
+            .join("NATURAL", t2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -114,9 +107,10 @@ describe("joinTable", () => {
     it("select -> table -- select", async () => {
         const q = t1
             .selectStar()
-            .joinTable("q1", "NATURAL", t2)
+            .as("q1")
+            .join("NATURAL", t2)
             .noConstraint()
-            .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
+            .select((f) => ({ x: f.a, y: f.d, z: f.q1.c }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN \`t2\``
@@ -126,7 +120,8 @@ describe("joinTable", () => {
     it("select -> table -- ON", async () => {
         const q = t1
             .selectStar()
-            .joinTable("q1", "LEFT", t2)
+            .as("q1")
+            .join("LEFT", t2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
             .stringify();
@@ -138,8 +133,9 @@ describe("joinTable", () => {
     it("select -> table -- ON QUALIFIED", async () => {
         const q = t1
             .selectStar()
-            .joinTable("q1", "LEFT", t2)
-            .on((f) => equals(f["q1.a"], f["t2.d"]))
+            .as("q1")
+            .join("LEFT", t2)
+            .on((f) => equals(f.q1.a, f.t2.d))
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -150,7 +146,8 @@ describe("joinTable", () => {
     it("select -> table -- USING", async () => {
         const q = t1
             .selectStar()
-            .joinTable("q1", "LEFT", t2)
+            .as("q1")
+            .join("LEFT", t2)
             .using(["b"])
             .selectStar()
             .stringify();
@@ -162,7 +159,8 @@ describe("joinTable", () => {
     it("select -> table -- NO CONSTRAIN", async () => {
         const q = t1
             .selectStar()
-            .joinTable("q1", "LEFT", t2)
+            .as("q1")
+            .join("LEFT", t2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -171,9 +169,9 @@ describe("joinTable", () => {
         );
     });
 
-    it("stringigied select -> table", async () => {
-        const q = str1
-            .joinTable("q1", "NATURAL", t2)
+    it("stringified select -> table", async () => {
+        const q = str2
+            .join("NATURAL", t2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -183,10 +181,10 @@ describe("joinTable", () => {
     });
 
     it("stringified select -> table -- select", async () => {
-        const q = str1
-            .joinTable("q1", "NATURAL", t2)
+        const q = str2
+            .join("NATURAL", t2)
             .noConstraint()
-            .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
+            .select((f) => ({ x: f.a, y: f.d, z: f.q1.c }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN \`t2\``
@@ -194,8 +192,8 @@ describe("joinTable", () => {
     });
 
     it("stringified select -> table -- ON", async () => {
-        const q = str1
-            .joinTable("q1", "LEFT", t2)
+        const q = str2
+            .join("LEFT", t2)
             .on((f) => equals(f.a, f.d))
             .selectStar()
             .stringify();
@@ -205,9 +203,9 @@ describe("joinTable", () => {
     });
 
     it("stringified select -> table -- ON QUALIFIED", async () => {
-        const q = str1
-            .joinTable("q1", "LEFT", t2)
-            .on((f) => equals(f["q1.a"], f["t2.d"]))
+        const q = str2
+            .join("LEFT", t2)
+            .on((f) => equals(f.q1.a, f.t2.d))
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -216,22 +214,14 @@ describe("joinTable", () => {
     });
 
     it("stringified select -> table -- USING", async () => {
-        const q = str1
-            .joinTable("q1", "LEFT", t2)
-            .using(["b"])
-            .selectStar()
-            .stringify();
+        const q = str2.join("LEFT", t2).using(["b"]).selectStar().stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\` USING(\`b\`)`
         );
     });
 
     it("stringified select -> table -- NO CONSTRAIN", async () => {
-        const q = str1
-            .joinTable("q1", "LEFT", t2)
-            .noConstraint()
-            .selectStar()
-            .stringify();
+        const q = str2.join("LEFT", t2).noConstraint().selectStar().stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM (SELECT * FROM \`t1\`) AS \`q1\` LEFT JOIN \`t2\``
         );
@@ -239,9 +229,9 @@ describe("joinTable", () => {
 
     it("joined -> table", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .joinTable("NATURAL", t1)
+            .join("NATURAL", t1)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -252,11 +242,11 @@ describe("joinTable", () => {
 
     it("joined -> table -- select", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .joinTable("NATURAL", t3)
+            .join("NATURAL", t3)
             .noConstraint()
-            .select((f) => ({ x: f.a, y: f.e, d: f["t2.d"], d2: f["t3.d"] }))
+            .select((f) => ({ x: f.a, y: f.e, d: f.t2.d, d2: f.t3.d }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`e\` AS \`y\`, \`t2\`.\`d\` AS \`d\`, \`t3\`.\`d\` AS \`d2\` FROM \`t1\` NATURAL JOIN \`t2\` NATURAL JOIN \`t3\``
@@ -264,9 +254,9 @@ describe("joinTable", () => {
     });
     it("joined -> table -- ON", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .joinTable("LEFT", t3)
+            .join("LEFT", t3)
             .on((f) => equals(f.a, f.e))
             .selectStar()
             .stringify();
@@ -277,10 +267,10 @@ describe("joinTable", () => {
     });
     it("joined -> table -- ON QUALIFIED", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .joinTable("LEFT", t3)
-            .on((f) => equals(f["t1.a"], f["t3.e"]))
+            .join("LEFT", t3)
+            .on((f) => equals(f.t1.a, f.t3.e))
             .selectStar()
             .stringify();
 
@@ -290,9 +280,9 @@ describe("joinTable", () => {
     });
     it("joined -> table -- NO CONSTRAINT", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .joinTable("LEFT", t3)
+            .join("LEFT", t3)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -304,7 +294,8 @@ describe("joinTable", () => {
 
     it("compound -> table", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
-            .joinTable("q1", "NATURAL", t2)
+            .as("q1")
+            .join("NATURAL", t2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -316,9 +307,9 @@ describe("joinTable", () => {
     it("compound -> table -- select", async () => {
         const a = t1.selectStar();
         const b = t3.selectStar();
-        const u = unionAll([a, b]);
+        const u = unionAll([a, b]).as("q1");
         const q = u
-            .joinTable("q1", "NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
             .select((f) => ({ x: f.a, e: f.d }))
             .stringify();
@@ -330,8 +321,9 @@ describe("joinTable", () => {
 
     it("compound -> table -- ON", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
-            .joinTable("q1", "LEFT", t2)
-            .on((f) => equals(f.a, f["q1.b"]))
+            .as("q1")
+            .join("LEFT", t2)
+            .on((f) => equals(f.a, f.q1.b))
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -341,8 +333,9 @@ describe("joinTable", () => {
 
     it("compound -> table -- ON QUALIFIED", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
-            .joinTable("q1", "LEFT", t2)
-            .on((f) => equals(f["q1.a"], f["q1.b"]))
+            .as("q1")
+            .join("LEFT", t2)
+            .on((f) => equals(f.q1.a, f.q1.b))
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -352,7 +345,8 @@ describe("joinTable", () => {
 
     it("compound -> table -- USING", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
-            .joinTable("q1", "LEFT", t2)
+            .as("q1")
+            .join("LEFT", t2)
             .using(["b"])
             .selectStar()
             .stringify();
@@ -363,7 +357,8 @@ describe("joinTable", () => {
 
     it("compound -> table -- NO CONSTRAINT", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
-            .joinTable("q1", "LEFT", t2)
+            .as("q1")
+            .join("LEFT", t2)
             .noConstraint()
             .selectStar()
             .stringify();

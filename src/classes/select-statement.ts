@@ -118,13 +118,9 @@ export class SelectStatement<
     /**
      * @internal
      */
-    public static fromNothing = <
-        NewSelection extends string = never,
-        NewAlias extends string = never
-    >(
-        it: Record<NewSelection, SafeString>,
-        as?: NewAlias
-    ): SelectStatement<NewSelection, NewAlias, never> =>
+    public static fromNothing = <NewSelection extends string = never>(
+        it: Record<NewSelection, SafeString>
+    ): SelectStatement<NewSelection, never, never> =>
         new SelectStatement(
             //
             {
@@ -141,7 +137,7 @@ export class SelectStatement<
                 clickhouseWith: [],
                 ctes: [],
                 scope: {},
-                alias: as,
+                alias: undefined,
             }
         );
 
@@ -234,6 +230,18 @@ export class SelectStatement<
         };
         return this;
     };
+    private setAlias = (alias: string): this => {
+        this.__props = {
+            ...this.__props,
+            alias,
+            scope: {
+                ...this.__props.scope,
+                [alias]: void 0,
+            },
+        };
+        return this;
+    };
+
     /**
      *
      * Clickhouse specific syntax extensions.
@@ -292,8 +300,7 @@ export class SelectStatement<
      */
     public select = <
         NewSelection extends string = never,
-        SubSelection extends Selection = never,
-        NewAlias extends string = never
+        SubSelection extends Selection = never
     >(
         _:
             | ReadonlyArray<SubSelection>
@@ -303,33 +310,28 @@ export class SelectStatement<
                           [key in Alias]: Selection;
                       }> &
                       NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>),
-        as?: NewAlias
+              ) => Record<NewSelection, SafeString>)
     ): SelectStatement<
         NewSelection | SubSelection,
-        NewAlias,
+        never,
         {
             [key in Alias]: Selection;
         }
-    > =>
-        SelectStatement.__fromTableOrSubquery(
-            this,
-            _ as any,
-            as ? { [as]: void 0 } : {},
-            as
-        );
+    > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
 
     /**
      * @since 0.0.0
      */
-    public selectStar = <NewAlias extends string = never>(
-        as?: NewAlias
-    ): SelectStatement<Selection, NewAlias, { [key in Alias]: Selection }> =>
+    public selectStar = (): SelectStatement<
+        Selection,
+        never,
+        { [key in Alias]: Selection }
+    > =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
-            as ? { [as]: void 0 } : {},
-            as
+            {},
+            undefined
         );
 
     // /**
@@ -460,6 +462,9 @@ export class SelectStatement<
     //         },
     //     ]);
 
+    /**
+     * @since 0.0.0
+     */
     public join = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -499,4 +504,9 @@ export class SelectStatement<
      * @since 0.0.0
      */
     public stringify = (): string => printSelectStatement(this);
+
+    public as = <NewAlias extends string = never>(
+        as: NewAlias
+    ): SelectStatement<Selection, NewAlias, Scope> =>
+        this.copy().setAlias(as) as any;
 }

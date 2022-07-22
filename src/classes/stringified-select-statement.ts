@@ -43,33 +43,45 @@ export class StringifiedSelectStatement<
         }
     ) {}
 
-    public static fromSafeString = <
-        NewSelection extends string = never,
-        NewAlias extends string = never
-    >(
-        content: SafeString,
-        as?: NewAlias
-    ): StringifiedSelectStatement<NewSelection, NewAlias, never> =>
+    public static fromSafeString = <NewSelection extends string = never>(
+        content: SafeString
+    ): StringifiedSelectStatement<NewSelection, never, never> =>
         new StringifiedSelectStatement(
             //
             {
                 content,
                 scope: {},
-                alias: as,
             }
         );
+
+    private copy = (): StringifiedSelectStatement<Selection, Alias, Scope> =>
+        new StringifiedSelectStatement({ ...this.__props });
+
+    private setAlias = (alias: string): this => {
+        this.__props = {
+            ...this.__props,
+            alias,
+            scope: {
+                ...this.__props.scope,
+                [alias]: void 0,
+            },
+        };
+        return this;
+    };
 
     /**
      * @since 0.0.3
      */
-    public selectStar = <NewAlias extends string = never>(
-        as?: NewAlias
-    ): SelectStatement<Selection, NewAlias, { [key in Alias]: Selection }> =>
+    public selectStar = (): SelectStatement<
+        Selection,
+        never,
+        { [key in Alias]: Selection }
+    > =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
-            as ? { [as]: void 0 } : {},
-            as
+            {},
+            undefined
         );
 
     /**
@@ -77,8 +89,7 @@ export class StringifiedSelectStatement<
      */
     public select = <
         NewSelection extends string = never,
-        SubSelection extends Selection = never,
-        NewAlias extends string = never
+        SubSelection extends Selection = never
     >(
         _:
             | ReadonlyArray<SubSelection>
@@ -88,21 +99,14 @@ export class StringifiedSelectStatement<
                           [key in Alias]: Selection;
                       }> &
                       NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>),
-        as?: NewAlias
+              ) => Record<NewSelection, SafeString>)
     ): SelectStatement<
         NewSelection | SubSelection,
-        NewAlias,
+        never,
         {
             [key in Alias]: Selection;
         }
-    > =>
-        SelectStatement.__fromTableOrSubquery(
-            this,
-            _ as any,
-            as ? { [as]: void 0 } : {},
-            as
-        );
+    > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
     /**
      * @since 0.0.3
      */
@@ -168,6 +172,11 @@ export class StringifiedSelectStatement<
     public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
+
+    public as = <NewAlias extends string = never>(
+        as: NewAlias
+    ): StringifiedSelectStatement<Selection, NewAlias, Scope> =>
+        this.copy().setAlias(as) as any;
 
     /**
      * @since 0.0.3

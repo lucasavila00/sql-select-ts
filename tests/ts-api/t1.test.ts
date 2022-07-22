@@ -18,7 +18,8 @@ it("select star", () => {
 
     expect(
         t
-            .selectStar("t1a")
+            .selectStar()
+            .as("t1a")
             .select((f) => ({ abc: f.t1a.name }))
             .stringify()
     ).toMatchInlineSnapshot(
@@ -28,8 +29,10 @@ it("select star", () => {
     expect(
         format(
             t
-                .selectStar("t1a")
-                .selectStar("t2a")
+                .selectStar()
+                .as("t1a")
+                .selectStar()
+                .as("t2a")
                 .select((f) => ({ abc: f.t2a.name }))
                 .stringify()
         )
@@ -124,13 +127,12 @@ it("append select", () => {
 });
 
 it("query alias", () => {
-    const r1 = t.select(
-        (f) => ({
+    const r1 = t
+        .select((f) => ({
             abc: f.id,
             def: f.users.id,
-        }),
-        "alias2"
-    );
+        }))
+        .as("alias2");
     expect(r1.__props.scope).toMatchInlineSnapshot(`
         Object {
           "alias2": undefined,
@@ -196,13 +198,11 @@ it("query alias type checks", () => {
 
 it("join using", () => {
     const query1 = t
-        .select(
-            (f) => ({
-                id: f.id,
-                def: f.users.id,
-            }),
-            "q1"
-        )
+        .select((f) => ({
+            id: f.id,
+            def: f.users.id,
+        }))
+        .as("q1")
         .join("LEFT", t)
         .using(["id"])
         .select((f) => ({ abc: f.q1.def, x2: f.users.name }))
@@ -226,13 +226,11 @@ it("join using", () => {
 
 it("join then select", () => {
     const query1 = t
-        .select(
-            (f) => ({
-                id: f.id,
-                def: f.users.id,
-            }),
-            "q1"
-        )
+        .select((f) => ({
+            id: f.id,
+            def: f.users.id,
+        }))
+        .as("q1")
         .join("LEFT", t)
         .using(["id"])
         .select((f) => ({ abc: f.q1.def, x2: f.name }))
@@ -255,13 +253,11 @@ it("join then select", () => {
 });
 
 it("join using type checks", () => {
-    t.select(
-        (f) => ({
-            id: f.id,
-            def: f.users.id,
-        }),
-        "q1"
-    )
+    t.select((f) => ({
+        id: f.id,
+        def: f.users.id,
+    }))
+        .as("q1")
         .join("LEFT", t)
         //@ts-expect-error
         .using(["name"]);
@@ -270,13 +266,11 @@ it("join using type checks", () => {
 });
 it("join on", () => {
     const query1 = t
-        .select(
-            (f) => ({
-                id: f.id,
-                def: f.users.id,
-            }),
-            "q1"
-        )
+        .select((f) => ({
+            id: f.id,
+            def: f.users.id,
+        }))
+        .as("q1")
         .join("LEFT", t)
         .on((f) => [dsql`${f.q1.def} = ${f.name}`])
         .select((f) => ({ abc: f.def }))
@@ -299,17 +293,12 @@ it("join on", () => {
 
 it("join on 2 queries", () => {
     const query1 = t
-        .select(
-            (f) => ({
-                id: f.id,
-                def: f.users.id,
-            }),
-            "q1"
-        )
-        .join(
-            "LEFT",
-            t.select((f) => ({ name: f.name }), "a2")
-        )
+        .select((f) => ({
+            id: f.id,
+            def: f.users.id,
+        }))
+        .as("q1")
+        .join("LEFT", t.select((f) => ({ name: f.name })).as("a2"))
         .on((f) => [
             dsql`${f.q1.def} = ${f.name}`,
             dsql`${f.q1.def} = ${f.a2.name}`,

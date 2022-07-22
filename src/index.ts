@@ -30,7 +30,7 @@ export const fromStringifiedSelectStatement =
 
 /**
  *
- * Create a table definition. Optinionally, you can provide an alias for the table, which can differ from it's name.
+ * Create a table definition. Optionally, you can provide an alias for the table, which can differ from it's name.
  *
  * @example
  *
@@ -57,7 +57,7 @@ export const with_ = CommonTableExpressionFactory.define;
 
 /**
  *
- * Create a common table expression, renaming the selecion.
+ * Create a common table expression, renaming the selection.
  *
  * @category starter
  * @since 1.0.0

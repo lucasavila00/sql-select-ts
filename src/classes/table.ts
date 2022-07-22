@@ -63,11 +63,22 @@ export class Table<
             scope: alias ? { [alias]: void 0 } : {},
         });
 
-    private copy = (): Table<never, never, never> =>
+    private copy = (): Table<Selection, Alias, Scope> =>
         new Table({ ...this.__props });
 
     private setFinal = (final: boolean): this => {
         this.__props = { ...this.__props, final };
+        return this;
+    };
+    private setAlias = (alias: string): this => {
+        this.__props = {
+            ...this.__props,
+            alias,
+            scope: {
+                ...this.__props.scope,
+                [alias]: void 0,
+            },
+        };
         return this;
     };
 
@@ -78,7 +89,7 @@ export class Table<
         /**
          * @since 0.0.0
          */
-        final: (): Table<never, never, never> => this.copy().setFinal(true),
+        final: (): Table<Selection, Alias, Scope> => this.copy().setFinal(true),
     };
 
     /**
@@ -86,8 +97,7 @@ export class Table<
      */
     public select = <
         NewSelection extends string = never,
-        SubSelection extends Selection = never,
-        NewAlias extends string = never
+        SubSelection extends Selection = never
     >(
         _:
             | ReadonlyArray<SubSelection>
@@ -95,27 +105,19 @@ export class Table<
                   fields: RecordOfSelection<Selection> &
                       SelectionOfScope<Scope> &
                       NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>),
-        as?: NewAlias
-    ): SelectStatement<NewSelection | SubSelection, NewAlias, Scope> =>
-        SelectStatement.__fromTableOrSubquery(
-            this,
-            _ as any,
-            as ? { [as]: void 0 } : {},
-            as
-        );
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<NewSelection | SubSelection, never, Scope> =>
+        SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
 
     /**
      * @since 0.0.0
      */
-    public selectStar = <NewAlias extends string = never>(
-        as?: NewAlias
-    ): SelectStatement<Selection, NewAlias, Scope> =>
+    public selectStar = (): SelectStatement<Selection, never, Scope> =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
-            as ? { [as]: void 0 } : {},
-            as
+            {},
+            undefined
         );
 
     // /**
@@ -179,4 +181,8 @@ export class Table<
     public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
+
+    public as = <NewAlias extends string = never>(
+        as: NewAlias
+    ): Table<Selection, NewAlias, Scope> => this.copy().setAlias(as) as any;
 }

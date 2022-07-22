@@ -33,7 +33,6 @@ export const printCompoundInternal = (
     compound: Compound<any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
-    console.error("handle alias");
     const sel = compound.__props.content
         .map((it) => printInternal(it, false))
         .join(` ${compound.__props.qualifier} `);
@@ -46,8 +45,13 @@ export const printCompoundInternal = (
         .filter((it) => it.length > 0)
         .join(" ");
 
+    const alias =
+        compound.__props.alias != null
+            ? ` AS ${wrapAlias(compound.__props.alias)}`
+            : "";
+
     if (parenthesis) {
-        return `(${q})`;
+        return `(${q})${alias}`;
     }
     return q;
 };
@@ -57,8 +61,10 @@ type PrintInternalRet = string;
 const printStringifiedSelectInternal = <Selection extends string>(
     it: StringifiedSelectStatement<Selection>
 ): PrintInternalRet => {
-    console.error("handle alias");
-    return `(${it.__props.content.content})`;
+    const alias =
+        it.__props.alias != null ? ` AS ${wrapAlias(it.__props.alias)}` : "";
+
+    return `(${it.__props.content.content})${alias}`;
 };
 
 const printTableInternal = (table: Table<any, any, any>): PrintInternalRet => {
