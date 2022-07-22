@@ -24,10 +24,10 @@ import { SelectStatement } from "./select-statement";
 import { StringifiedSelectStatement } from "./stringified-select-statement";
 import { Table } from "./table";
 
-type CommaJoin = ReadonlyArray<Joinable<any, any, any>>;
+type CommaJoin = ReadonlyArray<Joinable<any, any, any, any>>;
 
 type ProperJoinItem = {
-    readonly code: Joinable<any, any, any>;
+    readonly code: Joinable<any, any, any, any>;
     readonly operator: string;
     readonly constraint: JoinConstraint;
 };
@@ -160,7 +160,7 @@ export class Joined<
      */
     public select = <
         NewSelection extends string = never,
-        SubSelection extends Selection = never
+        SubSelection extends Selection | FlatScope = never
     >(
         _:
             | ReadonlyArray<SubSelection>
@@ -209,10 +209,14 @@ export class Joined<
     public join = <
         Selection2 extends string = never,
         Alias2 extends string = never,
-        Scope2 extends ScopeShape = never
+        Scope2 extends ScopeShape = never,
+        FlatScope2 extends string = never
     >(
         operator: string,
-        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+        _: ValidAliasInSelection<
+            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
+            Alias2
+        >
     ): JoinedFactory<
         Scope & {
             [key in Alias2]: Selection2;
@@ -235,9 +239,13 @@ export class Joined<
     public commaJoin = <
         Selection2 extends string = never,
         Alias2 extends string = never,
-        Scope2 extends ScopeShape = never
+        Scope2 extends ScopeShape = never,
+        FlatScope2 extends string = never
     >(
-        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+        _: ValidAliasInSelection<
+            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
+            Alias2
+        >
     ): Joined<
         never,
         never,
@@ -257,7 +265,7 @@ export class Joined<
     /**
      * @since 1.1.1
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 }

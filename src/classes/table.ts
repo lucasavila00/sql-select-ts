@@ -32,10 +32,14 @@ import { SelectStatement } from "./select-statement";
  * @since 0.0.0
  */
 export class Table<
-    Selection extends string = never,
-    Alias extends string = never,
-    Scope extends ScopeShape = never,
-    FlatScope extends string = never
+    // Selection extends string = never,
+    // Alias extends string = never,
+    // Scope extends ScopeShape = never,
+    // FlatScope extends string = never
+    Selection extends string,
+    Alias extends string,
+    Scope extends ScopeShape,
+    FlatScope extends string
 > {
     /* @internal */
     private constructor(
@@ -138,9 +142,13 @@ export class Table<
     public commaJoin = <
         Selection2 extends string = never,
         Alias2 extends string = never,
-        Scope2 extends ScopeShape = never
+        Scope2 extends ScopeShape = never,
+        FlatScope2 extends string = never
     >(
-        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+        _: ValidAliasInSelection<
+            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
+            Alias2
+        >
     ): Joined<
         never,
         never,
@@ -159,10 +167,14 @@ export class Table<
     public join = <
         Selection2 extends string = never,
         Alias2 extends string = never,
-        Scope2 extends ScopeShape = never
+        Scope2 extends ScopeShape = never,
+        FlatScope2 extends string = never
     >(
         operator: string,
-        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+        _: ValidAliasInSelection<
+            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
+            Alias2
+        >
     ): JoinedFactory<
         {
             [key in Alias]: Selection;

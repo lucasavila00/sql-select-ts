@@ -10,8 +10,8 @@ import { SelectStatement } from "./classes/select-statement";
  * @since 0.0.1
  */
 export type AnyStringifyable =
-    | SelectStatement<any, any, any>
-    | Compound<any, any, any>;
+    | SelectStatement<any, any, any, any>
+    | Compound<any, any, any, any>;
 
 /**
  * Given a stringifyable object, returns the union of the selection keys.
@@ -31,10 +31,12 @@ export type AnyStringifyable =
  */
 export type SelectionOf<T extends AnyStringifyable> = T extends SelectStatement<
     any,
-    infer S
+    infer S,
+    any,
+    any
 >
     ? S
-    : T extends Compound<any, infer S2>
+    : T extends Compound<any, infer S2, any, any>
     ? S2
     : never;
 
