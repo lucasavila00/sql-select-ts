@@ -11,7 +11,7 @@ export const isTheProxyObject = (it: any): boolean => {
     return it?.SQL_PROXY_TARGET != null;
 };
 
-const prefixedProxy = (base: string) =>
+export const prefixedProxy = (base: string) =>
     new Proxy(
         {
             SQL_PROXY_TARGET: true,

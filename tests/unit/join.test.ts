@@ -5,11 +5,6 @@ describe("table", () => {
     it("columns readonly", () => {
         const q = table(cols, "t").select((_f) => ({ a: dsql(1) }));
 
-        q.joinSelect("m", "LEFT", "q2", q).on((f) => [
-            //@ts-expect-error
-            f.a,
-        ]);
-
         q.joinSelect("m", "LEFT", "q2", q)
             .using(["a"])
             .selectStar()

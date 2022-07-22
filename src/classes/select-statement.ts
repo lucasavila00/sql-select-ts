@@ -323,14 +323,14 @@ export class SelectStatement<
             undefined
         );
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public appendSelectStar = (): SelectStatement<
-    //     Alias,
-    //     Selection,
-    //     Selection
-    // > => this.copy().setSelection([...this.__props.selection, StarSymbol()]);
+    /**
+     * @since 0.0.0
+     */
+    public appendSelectStar = (): SelectStatement<
+        Selection,
+        Alias,
+        Scope & { [key in Alias]: Selection }
+    > => this.copy().setSelection([...this.__props.selection, StarSymbol()]);
 
     /**
      * @since 0.0.0
@@ -340,6 +340,7 @@ export class SelectStatement<
             | ReadonlyArray<Selection>
             | ((
                   fields: RecordOfSelection<Selection> &
+                      RecordOfSelection<Scope[keyof Scope]> &
                       SelectionOfScope<Scope> &
                       NoSelectFieldsCompileError
               ) => Record<NewSelection, SafeString>)
@@ -392,7 +393,8 @@ export class SelectStatement<
         f:
             | ReadonlyArray<Selection | Scope[keyof Scope]>
             | ((
-                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+                  fields: Record<Selection | Scope[keyof Scope], SafeString> &
+                      SelectionOfScope<Scope>
               ) => ReadonlyArray<SafeString> | SafeString)
     ): SelectStatement<Selection, Alias, Scope> =>
         this.copy().setOrderBy([

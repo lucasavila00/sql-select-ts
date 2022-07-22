@@ -3,8 +3,11 @@
  *
  * @since 0.0.0
  */
-import { Compound } from "./classes/compound";
-import { SelectStatement } from "./classes/select-statement";
+import { AliasedCompound, Compound } from "./classes/compound";
+import {
+    AliasedSelectStatement,
+    SelectStatement,
+} from "./classes/select-statement";
 import { printCompoundInternal, printSelectStatementInternal } from "./print";
 
 /**
@@ -156,8 +159,10 @@ type SqlSupportedTypes =
     | number
     | null
     | undefined
-    | SelectStatement<any, any>
-    | Compound<any, any>;
+    | SelectStatement<any, any, any>
+    | AliasedSelectStatement<any, any, any>
+    | Compound<any, any, any>
+    | AliasedCompound<any, any, any>;
 
 type TemplateLiteralSql = [
     ReadonlyArray<string>,

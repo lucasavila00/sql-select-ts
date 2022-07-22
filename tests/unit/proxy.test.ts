@@ -1,5 +1,5 @@
-import { isTheProxyObject, proxy } from "../../src/proxy";
-
+import { isTheProxyObject, prefixedProxy } from "../../src/consume-fields";
+const proxy = prefixedProxy("abc");
 describe("isTheProxyObject", () => {
     it("works", () => {
         expect(isTheProxyObject(false)).toBe(false);
