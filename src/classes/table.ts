@@ -6,8 +6,7 @@
  *
  * @since 0.0.0
  */
-import { consumeRecordCallback } from "../consume-fields";
-import { AliasedRows, StarSymbol } from "../data-wrappers";
+import { StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
 import {
     Joinable,
@@ -19,7 +18,7 @@ import {
     TableOrSubquery,
     ValidAliasInSelection,
 } from "../types";
-import { JoinedFactory } from "./joined";
+import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
 
 /**
@@ -120,33 +119,25 @@ export class Table<
             undefined
         );
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public commaJoinTable = <
-    //     Scope2 extends string,
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     table: Table<Scope2, Selection2, Alias2>
-    // ): Joined<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias | Alias2
-    // > =>
-    //     Joined.__fromCommaJoin([
-    //         {
-    //             code: this,
-    //             alias: this.__props.alias,
-    //         },
-    //         {
-    //             code: table,
-    //             alias: table.__props.alias,
-    //         },
-    //     ]);
+    public commaJoin = <
+        Selection2 extends string = never,
+        Alias2 extends string = never,
+        Scope2 extends ScopeShape = never
+    >(
+        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+    ): Joined<
+        never,
+        never,
+        {
+            [key in Alias]: Selection;
+        } & {
+            [key in Alias2]: Selection2;
+        }
+    > =>
+        Joined.__fromAll([this, _ as any], [], {
+            [String(this.__props.alias)]: void 0,
+            ...(_ as any).__props.scope,
+        });
 
     public join = <
         Selection2 extends string = never,

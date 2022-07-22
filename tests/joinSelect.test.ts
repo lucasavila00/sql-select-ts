@@ -58,7 +58,6 @@ describe("joinSelect", () => {
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM \`t1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
-
     it("table -> select -- ON", async () => {
         const q = t1
             .join("LEFT", q2)
@@ -116,6 +115,20 @@ describe("joinSelect", () => {
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
         );
     });
+
+    it("select -> select -- select2", async () => {
+        const q = t1
+            .selectStar()
+            .as("t1")
+            .join("NATURAL", q2)
+            .noConstraint()
+            .select((f) => ({ x: f.a, y: f.d, z: f.t1.c }))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
+        );
+    });
+
     it("select -> select -- ON", async () => {
         const q = q1
             .join("LEFT", q2)

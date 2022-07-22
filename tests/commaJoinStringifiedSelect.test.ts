@@ -7,7 +7,7 @@ import {
 import { addSimpleStringSerializer } from "./utils";
 addSimpleStringSerializer();
 
-describe("commaJoinStringifiedSelect", () => {
+describe("commaJoin", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
@@ -16,13 +16,13 @@ describe("commaJoinStringifiedSelect", () => {
 
     const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
         castSafe(t1.selectStar().stringify())
-    );
+    ).as("t1");
     const str2 = fromStringifiedSelectStatement<"b" | "c" | "d">(
         castSafe(q2.stringify())
-    );
+    ).as("t2");
     const str3 = fromStringifiedSelectStatement<"c" | "d" | "e">(
         castSafe(q3.stringify())
-    );
+    ).as("t3");
     /*
     CREATE TABLE t1(a,b,c);
     INSERT INTO t1 VALUES(1,2,3);
@@ -39,10 +39,7 @@ describe("commaJoinStringifiedSelect", () => {
     */
 
     it("table -> select", async () => {
-        const q = t1
-            .commaJoinStringifiedSelect("t2", str2)
-            .selectStar()
-            .stringify();
+        const q = t1.commaJoin(str2).selectStar().stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`t1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
@@ -50,8 +47,8 @@ describe("commaJoinStringifiedSelect", () => {
 
     it("table -> select -- select", async () => {
         const q = t1
-            .commaJoinStringifiedSelect("t2", str2)
-            .select((f) => ({ x: f.a, y: f.d, z: f["t1.c"] }))
+            .commaJoin(str2)
+            .select((f) => ({ x: f.a, y: f.d, z: f.t1.c }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`t1\`.\`c\` AS \`z\` FROM \`t1\`, (SELECT * FROM \`t2\`) AS \`t2\``
@@ -61,7 +58,8 @@ describe("commaJoinStringifiedSelect", () => {
     it("select -> select", async () => {
         const q = t1
             .selectStar()
-            .commaJoinStringifiedSelect("t1", "t2", str2)
+            .as("t1")
+            .commaJoin(str2)
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -72,9 +70,9 @@ describe("commaJoinStringifiedSelect", () => {
     it("select -> select -- select", async () => {
         const q = t1
             .selectStar()
-            .commaJoinStringifiedSelect("q1", "t2", str2)
-
-            .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
+            .as("q1")
+            .commaJoin(str2)
+            .select((f) => ({ x: f.a, y: f.d, z: f.q1.c }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\`) AS \`t2\``
@@ -82,10 +80,7 @@ describe("commaJoinStringifiedSelect", () => {
     });
 
     it("stringified select -> select", async () => {
-        const q = str1
-            .commaJoinStringifiedSelect("t1", "t2", str2)
-            .selectStar()
-            .stringify();
+        const q = str1.commaJoin(str2).selectStar().stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM (SELECT * FROM \`t1\`) AS \`t1\`, (SELECT * FROM \`t2\`) AS \`t2\``
         );
@@ -93,8 +88,9 @@ describe("commaJoinStringifiedSelect", () => {
 
     it("stringified select -> select -- select", async () => {
         const q = str1
-            .commaJoinStringifiedSelect("q1", "t2", str2)
-            .select((f) => ({ x: f.a, y: f.d, z: f["q1.c"] }))
+            .as("q1")
+            .commaJoin(str2)
+            .select((f) => ({ x: f.a, y: f.d, z: f.q1.c }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\`, (SELECT * FROM \`t2\`) AS \`t2\``
@@ -103,9 +99,9 @@ describe("commaJoinStringifiedSelect", () => {
 
     it("joined -> select", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .commaJoinStringifiedSelect("q3", str3)
+            .commaJoin(str3.as("q3"))
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -115,10 +111,10 @@ describe("commaJoinStringifiedSelect", () => {
 
     it("joined -> select -- select", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .commaJoinStringifiedSelect("t3", str3)
-            .select((f) => ({ x: f.a, y: f.e, d: f["t2.d"], d2: f["t3.d"] }))
+            .commaJoin(str3)
+            .select((f) => ({ x: f.a, y: f.e, d: f.t2.d, d2: f.t3.d }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`e\` AS \`y\`, \`t2\`.\`d\` AS \`d\`, \`t3\`.\`d\` AS \`d2\` FROM \`t1\`, (SELECT * FROM \`t3\`) AS \`t3\` NATURAL JOIN \`t2\``
@@ -127,7 +123,8 @@ describe("commaJoinStringifiedSelect", () => {
 
     it("compound -> select", async () => {
         const q = unionAll([t1.selectStar(), t3.selectStar()])
-            .commaJoinStringifiedSelect("q1", "t3", str3)
+            .as("q1")
+            .commaJoin(str3)
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -140,7 +137,8 @@ describe("commaJoinStringifiedSelect", () => {
         const b = t3.selectStar();
         const u = unionAll([a, b]);
         const q = u
-            .commaJoinStringifiedSelect("q1", "t3", str3)
+            .as("q1")
+            .commaJoin(str3)
             .select((f) => ({ x: f.a, e: f.d }))
             .stringify();
 

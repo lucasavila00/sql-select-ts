@@ -3,10 +3,16 @@
  *
  * @since 0.0.0
  */
-import { Compound } from "./classes/compound";
+import { AliasedCompound, Compound } from "./classes/compound";
 import { Joined } from "./classes/joined";
-import { SelectStatement } from "./classes/select-statement";
-import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
+import {
+    AliasedSelectStatement,
+    SelectStatement,
+} from "./classes/select-statement";
+import {
+    AliasedStringifiedSelectStatement,
+    StringifiedSelectStatement,
+} from "./classes/stringified-select-statement";
 import { Table } from "./classes/table";
 import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "./data-wrappers";
 import { SafeString } from "./safe-string";
@@ -17,9 +23,12 @@ export type Joinable<
     Scope extends ScopeShape = never
 > =
     | SelectStatement<Selection, Alias, Scope>
+    | AliasedSelectStatement<Selection, Alias, Scope>
     | StringifiedSelectStatement<Selection, Alias, Scope>
+    | AliasedStringifiedSelectStatement<Selection, Alias, Scope>
     | Table<Selection, Alias, Scope>
-    | Compound<Selection, Alias, Scope>;
+    | Compound<Selection, Alias, Scope>
+    | AliasedCompound<Selection, Alias, Scope>;
 
 export type TableOrSubquery<
     Selection extends string = never,
@@ -110,6 +119,7 @@ export type ValidAliasInSelection<T, Alias2 extends string = never> = [
 ] extends [never]
     ? CompileError<["use alias"]>
     : T;
+
 export type UnionToIntersection<T> = (
     T extends any ? (x: T) => any : never
 ) extends (x: infer R) => any

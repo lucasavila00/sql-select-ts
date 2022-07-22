@@ -144,10 +144,7 @@ export class Joined<
             readonly scope: ScopeStorage;
         }
     ) {}
-    //     /* @internal */
-    //     public static __fromCommaJoin = (
-    //         commaJoins: CommaJoin
-    //     ): Joined<any, any, any> => new Joined({ commaJoins, properJoins: [] });
+
     /* @internal */
     public static __fromAll = (
         commaJoins: CommaJoin,
@@ -226,33 +223,27 @@ export class Joined<
             }
         );
 
-    //     /**
-    //      * @since 0.0.0
-    //      */
-    //     public commaJoinTable = <
-    //         Scope2 extends string,
-    //         Selection2 extends string,
-    //         Alias2 extends string
-    //     >(
-    //         table: Table<Scope2, Selection2, Alias2>
-    //     ): Joined<
-    //         Selection,
-    //         | Scope
-    //         | Exclude<Selection, Selection2>
-    //         | Exclude<Selection2, Selection>
-    //         | `${Alias2}.${Selection2}`,
-    //         Aliases | Alias2
-    //     > =>
-    //         Joined.__fromAll(
-    //             [
-    //                 ...this.__props.commaJoins,
-    //                 {
-    //                     code: table,
-    //                     alias: table.__props.alias,
-    //                 },
-    //             ],
-    //             this.__props.properJoins
-    //         );
+    public commaJoin = <
+        Selection2 extends string = never,
+        Alias2 extends string = never,
+        Scope2 extends ScopeShape = never
+    >(
+        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+    ): Joined<
+        never,
+        never,
+        Scope & {
+            [key in Alias2]: Selection2;
+        }
+    > =>
+        Joined.__fromAll(
+            [...this.__props.commaJoins, _ as any],
+            this.__props.properJoins,
+            {
+                ...(_ as any).__props.scope,
+                ...this.__props.scope,
+            }
+        );
 
     /**
      * @since 1.1.1

@@ -4,28 +4,26 @@
  *
  * @since 0.0.0
  */
-import { consumeArrayCallback, consumeRecordCallback } from "../consume-fields";
-import { AliasedRows, StarSymbol } from "../data-wrappers";
+import { consumeArrayCallback } from "../consume-fields";
+import { StarSymbol } from "../data-wrappers";
 import { printCompound } from "../print";
 import { SafeString } from "../safe-string";
 import {
-    TableOrSubquery,
+    Joinable,
     NoSelectFieldsCompileError,
-    SelectionOfSelectStatement,
-    ScopeStorage,
+    RecordOfSelection,
     ScopeOfSelectStatement,
     ScopeShape,
-    RecordOfSelection,
+    ScopeStorage,
     SelectionOfScope,
+    SelectionOfSelectStatement,
+    TableOrSubquery,
     UnionToIntersection,
     ValidAliasInSelection,
-    Joinable,
 } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
-import { SelectStatement } from "./select-statement";
-import { StringifiedSelectStatement } from "./stringified-select-statement";
-import { Table } from "./table";
+import { AliasedSelectStatement, SelectStatement } from "./select-statement";
 
 /**
  * Represents https://www.sqlite.org/syntax/compound-select-stmt.html
@@ -40,7 +38,7 @@ export class Compound<
     Scope extends ScopeShape = never
 > {
     /* @internal */
-    private constructor(
+    protected constructor(
         /* @internal */
         public __props: {
             readonly content: ReadonlyArray<TableOrSubquery<any, any, any>>;
@@ -56,8 +54,13 @@ export class Compound<
      * @internal
      */
     public static union = <
-        C extends SelectStatement<any, any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+        C extends
+            | SelectStatement<any, any, any>
+            | AliasedSelectStatement<any, any, any>,
+        CS extends ReadonlyArray<
+            | SelectStatement<any, any, any>
+            | AliasedSelectStatement<any, any, any>
+        >
     >(
         content: CS & {
             0: C;
@@ -82,8 +85,13 @@ export class Compound<
      * @internal
      */
     public static unionAll = <
-        C extends SelectStatement<any, any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+        C extends
+            | SelectStatement<any, any, any>
+            | AliasedSelectStatement<any, any, any>,
+        CS extends ReadonlyArray<
+            | SelectStatement<any, any, any>
+            | AliasedSelectStatement<any, any, any>
+        >
     >(
         content: CS & {
             0: C;
@@ -108,8 +116,13 @@ export class Compound<
      * @internal
      */
     public static intersect = <
-        C extends SelectStatement<any, any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+        C extends
+            | SelectStatement<any, any, any>
+            | AliasedSelectStatement<any, any, any>,
+        CS extends ReadonlyArray<
+            | SelectStatement<any, any, any>
+            | AliasedSelectStatement<any, any, any>
+        >
     >(
         content: CS & {
             0: C;
@@ -134,8 +147,13 @@ export class Compound<
      * @internal
      */
     public static except = <
-        C extends SelectStatement<any, any, any>,
-        CS extends ReadonlyArray<SelectStatement<any, any, any>>
+        C extends
+            | SelectStatement<any, any, any>
+            | AliasedSelectStatement<any, any, any>,
+        CS extends ReadonlyArray<
+            | SelectStatement<any, any, any>
+            | AliasedSelectStatement<any, any, any>
+        >
     >(
         content: CS & {
             0: C;
@@ -157,18 +175,6 @@ export class Compound<
         });
     private copy = (): Compound<Selection, Alias, Scope> =>
         new Compound({ ...this.__props });
-
-    private setAlias = (alias: string): this => {
-        this.__props = {
-            ...this.__props,
-            alias,
-            scope: {
-                ...this.__props.scope,
-                [alias]: void 0,
-            },
-        };
-        return this;
-    };
 
     private setOrderBy = (orderBy: SafeString[]): this => {
         this.__props = {
@@ -248,6 +254,43 @@ export class Compound<
     /**
      * @since 0.0.0
      */
+    public stringify = (): string => printCompound(this);
+
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
+
+    public as = <NewAlias extends string = never>(
+        as: NewAlias
+    ): AliasedCompound<Selection, NewAlias, Scope> =>
+        new AliasedCompound(this.__props).__setAlias(as) as any;
+}
+export class AliasedCompound<
+    Selection extends string = never,
+    Alias extends string = never,
+    Scope extends ScopeShape = never
+> extends Compound<Selection, Alias, Scope> {
+    private __copy = (): AliasedCompound<Selection, Alias, Scope> =>
+        new AliasedCompound({ ...this.__props });
+
+    public __setAlias = (alias: string): this => {
+        this.__props = {
+            ...this.__props,
+            alias,
+            scope: {
+                ...this.__props.scope,
+                [alias]: void 0,
+            },
+        };
+        return this;
+    };
+
+    /**
+     * @since 0.0.0
+     */
     public join = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -275,40 +318,26 @@ export class Compound<
                 ...(_ as any).__props.scope,
             }
         );
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public commaJoinTable = <
-    //     Alias1 extends string,
-    //     Scope2 extends string,
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     thisSelectAlias: Alias1,
-    //     table: Table<Scope2, Selection2, Alias2>
-    // ): Joined<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias1}.${Selection}`
-    //     | `${Alias2}.${Selection2}`,
-    //     Alias1 | Alias2
-    // > =>
-    //     Joined.__fromCommaJoin([
-    //         {
-    //             code: this,
-    //             alias: thisSelectAlias,
-    //         },
-    //         {
-    //             code: table,
-    //             alias: table.__props.alias,
-    //         },
-    //     ]);
 
-    /**
-     * @since 0.0.0
-     */
-    public stringify = (): string => printCompound(this);
+    public commaJoin = <
+        Selection2 extends string = never,
+        Alias2 extends string = never,
+        Scope2 extends ScopeShape = never
+    >(
+        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+    ): Joined<
+        never,
+        never,
+        {
+            [key in Alias]: Selection;
+        } & {
+            [key in Alias2]: Selection2;
+        }
+    > =>
+        Joined.__fromAll([this, _ as any], [], {
+            [String(this.__props.alias)]: void 0,
+            ...(_ as any).__props.scope,
+        });
 
     /**
      * @since 1.1.1
@@ -319,5 +348,6 @@ export class Compound<
 
     public as = <NewAlias extends string = never>(
         as: NewAlias
-    ): Compound<Selection, NewAlias, Scope> => this.copy().setAlias(as) as any;
+    ): AliasedCompound<Selection, NewAlias, Scope> =>
+        this.__copy().__setAlias(as) as any;
 }

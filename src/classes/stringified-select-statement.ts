@@ -4,6 +4,7 @@
  *
  * @since 0.0.3
  */
+import { StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
 import {
     Joinable,
@@ -15,12 +16,8 @@ import {
     TableOrSubquery,
     ValidAliasInSelection,
 } from "../types";
-import { Compound } from "./compound";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
-import { Table } from "./table";
-import { AliasedRows, StarSymbol } from "../data-wrappers";
-import { consumeRecordCallback } from "../consume-fields";
 
 /**
  *
@@ -34,7 +31,7 @@ export class StringifiedSelectStatement<
     Scope extends ScopeShape = never
 > {
     /* @internal */
-    private constructor(
+    protected constructor(
         /* @internal */
         public __props: {
             readonly content: SafeString;
@@ -53,21 +50,6 @@ export class StringifiedSelectStatement<
                 scope: {},
             }
         );
-
-    private copy = (): StringifiedSelectStatement<Selection, Alias, Scope> =>
-        new StringifiedSelectStatement({ ...this.__props });
-
-    private setAlias = (alias: string): this => {
-        this.__props = {
-            ...this.__props,
-            alias,
-            scope: {
-                ...this.__props.scope,
-                [alias]: void 0,
-            },
-        };
-        return this;
-    };
 
     /**
      * @since 0.0.3
@@ -107,6 +89,49 @@ export class StringifiedSelectStatement<
             [key in Alias]: Selection;
         }
     > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
+
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
+
+    public as = <NewAlias extends string = never>(
+        as: NewAlias
+    ): AliasedStringifiedSelectStatement<Selection, NewAlias, Scope> =>
+        new AliasedStringifiedSelectStatement(this.__props).__setAlias(
+            as
+        ) as any;
+
+    /**
+     * @since 0.0.3
+     */
+    public stringify = (): string => this.__props.content.content;
+}
+
+export class AliasedStringifiedSelectStatement<
+    Selection extends string = never,
+    Alias extends string = never,
+    Scope extends ScopeShape = never
+> extends StringifiedSelectStatement<Selection, Alias, Scope> {
+    private __copy = (): AliasedStringifiedSelectStatement<
+        Selection,
+        Alias,
+        Scope
+    > => new AliasedStringifiedSelectStatement({ ...this.__props });
+
+    public __setAlias = (alias: string): this => {
+        this.__props = {
+            ...this.__props,
+            alias,
+            scope: {
+                ...this.__props.scope,
+                [alias]: void 0,
+            },
+        };
+        return this;
+    };
     /**
      * @since 0.0.3
      */
@@ -137,34 +162,26 @@ export class StringifiedSelectStatement<
                 ...(_ as any).__props.scope,
             }
         );
-    //     /**
-    //      * @since 0.0.3
-    //      */
-    //     public commaJoinTable = <
-    //         Alias1 extends string,
-    //         Scope2 extends string,
-    //         Selection2 extends string,
-    //         Alias2 extends string
-    //     >(
-    //         thisQueryAlias: Alias1,
-    //         table: Table<Scope2, Selection2, Alias2>
-    //     ): Joined<
-    //         Selection,
-    //         | Exclude<Selection, Selection2>
-    //         | Exclude<Selection2, Selection>
-    //         | `${Alias1}.${Selection}`,
-    //         Alias1 | Alias2
-    //     > =>
-    //         Joined.__fromCommaJoin([
-    //             {
-    //                 code: this,
-    //                 alias: thisQueryAlias,
-    //             },
-    //             {
-    //                 code: table,
-    //                 alias: table.__props.alias,
-    //             },
-    //         ]);
+
+    public commaJoin = <
+        Selection2 extends string = never,
+        Alias2 extends string = never,
+        Scope2 extends ScopeShape = never
+    >(
+        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+    ): Joined<
+        never,
+        never,
+        {
+            [key in Alias]: Selection;
+        } & {
+            [key in Alias2]: Selection2;
+        }
+    > =>
+        Joined.__fromAll([this, _ as any], [], {
+            [String(this.__props.alias)]: void 0,
+            ...(_ as any).__props.scope,
+        });
 
     /**
      * @since 1.1.1
@@ -175,11 +192,6 @@ export class StringifiedSelectStatement<
 
     public as = <NewAlias extends string = never>(
         as: NewAlias
-    ): StringifiedSelectStatement<Selection, NewAlias, Scope> =>
-        this.copy().setAlias(as) as any;
-
-    /**
-     * @since 0.0.3
-     */
-    public stringify = (): string => this.__props.content.content;
+    ): AliasedStringifiedSelectStatement<Selection, NewAlias, Scope> =>
+        this.__copy().__setAlias(as) as any;
 }

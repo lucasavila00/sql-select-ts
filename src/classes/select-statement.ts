@@ -47,7 +47,7 @@ export class SelectStatement<
     Scope extends ScopeShape = never
 > {
     /* @internal */
-    private constructor(
+    protected constructor(
         /* @internal */
         public __props: {
             readonly from: TableOrSubquery<any, any, any> | null;
@@ -227,17 +227,6 @@ export class SelectStatement<
         this.__props = {
             ...this.__props,
             having,
-        };
-        return this;
-    };
-    private setAlias = (alias: string): this => {
-        this.__props = {
-            ...this.__props,
-            alias,
-            scope: {
-                ...this.__props.scope,
-                [alias]: void 0,
-            },
         };
         return this;
     };
@@ -433,34 +422,63 @@ export class SelectStatement<
         limit: SafeString | number
     ): SelectStatement<Selection, Alias, Scope> => this.copy().setLimit(limit);
 
-    // /**
-    //  * @since 0.0.0
-    //  */
-    // public commaJoinTable = <
-    //     Alias1 extends string,
-    //     Scope2 extends string,
-    //     Selection2 extends string,
-    //     Alias2 extends string
-    // >(
-    //     thisQueryAlias: Alias1,
-    //     table: Table<Scope2, Selection2, Alias2>
-    // ): Joined<
-    //     Selection,
-    //     | Exclude<Selection, Selection2>
-    //     | Exclude<Selection2, Selection>
-    //     | `${Alias1}.${Selection}`,
-    //     Alias1 | Alias2
-    // > =>
-    //     Joined.__fromCommaJoin([
-    //         {
-    //             code: this,
-    //             alias: thisQueryAlias,
-    //         },
-    //         {
-    //             code: table,
-    //             alias: table.__props.alias,
-    //         },
-    //     ]);
+    /**
+     * @since 1.1.1
+     */
+    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
+        fn: (it: this) => Ret
+    ): Ret => fn(this);
+
+    /**
+     * @since 0.0.0
+     */
+    public stringify = (): string => printSelectStatement(this);
+
+    public as = <NewAlias extends string = never>(
+        as: NewAlias
+    ): AliasedSelectStatement<Selection, NewAlias, Scope> =>
+        new AliasedSelectStatement(this.__props).__setAlias(as) as any;
+}
+
+export class AliasedSelectStatement<
+    Selection extends string = never,
+    Alias extends string = never,
+    Scope extends ScopeShape = never
+> extends SelectStatement<Selection, Alias, Scope> {
+    private __copy = (): AliasedSelectStatement<Selection, Alias, Scope> =>
+        new AliasedSelectStatement({ ...this.__props });
+
+    public __setAlias = (alias: string): this => {
+        this.__props = {
+            ...this.__props,
+            alias,
+            scope: {
+                ...this.__props.scope,
+                [alias]: void 0,
+            },
+        };
+        return this;
+    };
+
+    public commaJoin = <
+        Selection2 extends string = never,
+        Alias2 extends string = never,
+        Scope2 extends ScopeShape = never
+    >(
+        _: ValidAliasInSelection<Joinable<Selection2, Alias2, Scope2>, Alias2>
+    ): Joined<
+        never,
+        never,
+        {
+            [key in Alias]: Selection;
+        } & {
+            [key in Alias2]: Selection2;
+        }
+    > =>
+        Joined.__fromAll([this, _ as any], [], {
+            [String(this.__props.alias)]: void 0,
+            ...(_ as any).__props.scope,
+        });
 
     /**
      * @since 0.0.0
@@ -507,6 +525,6 @@ export class SelectStatement<
 
     public as = <NewAlias extends string = never>(
         as: NewAlias
-    ): SelectStatement<Selection, NewAlias, Scope> =>
-        this.copy().setAlias(as) as any;
+    ): AliasedSelectStatement<Selection, NewAlias, Scope> =>
+        this.__copy().__setAlias(as) as any;
 }
