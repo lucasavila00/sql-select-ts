@@ -34,7 +34,8 @@ import { SelectStatement } from "./select-statement";
 export class Table<
     Selection extends string = never,
     Alias extends string = never,
-    Scope extends ScopeShape = never
+    Scope extends ScopeShape = never,
+    FlatScope extends string = never
 > {
     /* @internal */
     private constructor(
@@ -53,7 +54,7 @@ export class Table<
         columns: ReadonlyArray<Selection>,
         alias: Alias,
         name: string = alias
-    ): Table<Selection, Alias, { [key in Alias]: Selection }> =>
+    ): Table<Selection, Alias, { [key in Alias]: Selection }, Selection> =>
         new Table({
             columns,
             alias,
@@ -62,7 +63,7 @@ export class Table<
             scope: alias ? { [alias]: void 0 } : {},
         });
 
-    private copy = (): Table<Selection, Alias, Scope> =>
+    private copy = (): Table<Selection, Alias, Scope, FlatScope> =>
         new Table({ ...this.__props });
 
     private setFinal = (final: boolean): this => {
@@ -88,7 +89,8 @@ export class Table<
         /**
          * @since 0.0.0
          */
-        final: (): Table<Selection, Alias, Scope> => this.copy().setFinal(true),
+        final: (): Table<Selection, Alias, Scope, FlatScope> =>
+            this.copy().setFinal(true),
     };
 
     /**
@@ -105,17 +107,31 @@ export class Table<
                       SelectionOfScope<Scope> &
                       NoSelectFieldsCompileError
               ) => Record<NewSelection, SafeString>)
-    ): SelectStatement<NewSelection | SubSelection, never, Scope> =>
-        SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
+    ): SelectStatement<NewSelection | SubSelection, never, Scope, FlatScope> =>
+        SelectStatement.__fromTableOrSubquery(
+            this,
+            _ as any,
+            {
+                [this.__props.alias]: void 0,
+            },
+            undefined
+        );
 
     /**
      * @since 0.0.0
      */
-    public selectStar = (): SelectStatement<Selection, never, Scope> =>
+    public selectStar = (): SelectStatement<
+        Selection,
+        never,
+        Scope,
+        FlatScope
+    > =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
-            {},
+            {
+                [this.__props.alias]: void 0,
+            },
             undefined
         );
 
@@ -132,7 +148,8 @@ export class Table<
             [key in Alias]: Selection;
         } & {
             [key in Alias2]: Selection2;
-        }
+        },
+        Selection | Selection2
     > =>
         Joined.__fromAll([this, _ as any], [], {
             [String(this.__props.alias)]: void 0,
@@ -169,11 +186,12 @@ export class Table<
     /**
      * @since 1.1.1
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
     public as = <NewAlias extends string = never>(
         as: NewAlias
-    ): Table<Selection, NewAlias, Scope> => this.copy().setAlias(as) as any;
+    ): Table<Selection, NewAlias, Scope, FlatScope> =>
+        this.copy().setAlias(as) as any;
 }

@@ -1,6 +1,16 @@
 import { Table } from "../../src/classes/table";
 import { format } from "sql-formatter";
-import { dsql, unionAll } from "../../src";
+import { dsql, unionAll, table } from "../../src";
+
+it("basic", () => {
+    const test1 = table(["f1", "f2"], "test1");
+
+    const subquery = test1
+        .select((f) => ({ f1: f.f1 }))
+        .select(() => ({ it: dsql(3) }))
+        .where((f) => dsql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
+    expect(subquery.stringify()).toMatchInlineSnapshot();
+});
 
 const t = Table.define(["id", "name"], "users");
 it("select star", () => {

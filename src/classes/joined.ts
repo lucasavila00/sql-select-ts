@@ -68,7 +68,7 @@ export class JoinedFactory<
     /**
      * @since 0.0.0
      */
-    public noConstraint = (): Joined<never, never, Scope> =>
+    public noConstraint = (): Joined<never, never, Scope, Scope[keyof Scope]> =>
         Joined.__fromAll(
             this.__props.commaJoins,
             [
@@ -89,7 +89,7 @@ export class JoinedFactory<
             fields: RecordOfSelection<Scope[keyof Scope]> &
                 SelectionOfScope<Scope>
         ) => SafeString | ReadonlyArray<SafeString>
-    ): Joined<never, never, Scope> =>
+    ): Joined<never, never, Scope, Scope[keyof Scope]> =>
         Joined.__fromAll(
             this.__props.commaJoins,
             [
@@ -110,7 +110,9 @@ export class JoinedFactory<
     /**
      * @since 0.0.0
      */
-    public using = (keys: ReadonlyArray<Using>): Joined<never, never, Scope> =>
+    public using = (
+        keys: ReadonlyArray<Using>
+    ): Joined<never, never, Scope, Scope[keyof Scope]> =>
         Joined.__fromAll(
             this.__props.commaJoins,
             [
@@ -134,7 +136,8 @@ export class JoinedFactory<
 export class Joined<
     Selection extends string = never,
     Alias extends string = never,
-    Scope extends ScopeShape = never
+    Scope extends ScopeShape = never,
+    FlatScope extends string = never
 > {
     private constructor(
         /* @internal */
@@ -166,7 +169,7 @@ export class Joined<
                       SelectionOfScope<Scope> &
                       NoSelectFieldsCompileError
               ) => Record<NewSelection, SafeString>)
-    ): SelectStatement<NewSelection | SubSelection, never, Scope> =>
+    ): SelectStatement<NewSelection | SubSelection, never, Scope, FlatScope> =>
         SelectStatement.__fromTableOrSubquery(
             this,
             _ as any,
@@ -177,7 +180,12 @@ export class Joined<
     /**
      * @since 0.0.0
      */
-    public selectStar = (): SelectStatement<Scope[keyof Scope], never, Scope> =>
+    public selectStar = (): SelectStatement<
+        Scope[keyof Scope],
+        never,
+        Scope,
+        FlatScope
+    > =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
@@ -185,18 +193,19 @@ export class Joined<
             undefined
         );
 
-    //     /**
-    //      * @since 0.0.0
-    //      */
-    //     public selectStarOfAliases = <TheAliases extends Aliases>(
-    //         aliases: ReadonlyArray<TheAliases>
-    //     ): SelectStatement<
-    //         Selection | Scope,
-    //         RemoveAliasFromSelection<TheAliases, Selection | Scope>
-    //     > =>
-    //         SelectStatement.__fromTableOrSubquery(this, [
-    //             StarOfAliasesSymbol(aliases),
-    //         ]);
+    /**
+     * @since 0.0.0
+     */
+    public selectStarOfAliases = <TheAliases extends keyof Scope>(
+        aliases: ReadonlyArray<TheAliases>
+    ): SelectStatement<Scope[TheAliases], never, Scope, FlatScope> =>
+        SelectStatement.__fromTableOrSubqueryAndSelectionArray(
+            this,
+            [StarOfAliasesSymbol(aliases as any)],
+            {},
+            undefined
+        ) as any;
+
     public join = <
         Selection2 extends string = never,
         Alias2 extends string = never,

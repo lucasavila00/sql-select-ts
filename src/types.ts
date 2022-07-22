@@ -20,26 +20,28 @@ import { SafeString } from "./safe-string";
 export type Joinable<
     Selection extends string = never,
     Alias extends string = never,
-    Scope extends ScopeShape = never
+    Scope extends ScopeShape = never,
+    FlatScope extends string = never
 > =
-    | SelectStatement<Selection, Alias, Scope>
-    | AliasedSelectStatement<Selection, Alias, Scope>
-    | StringifiedSelectStatement<Selection, Alias, Scope>
-    | AliasedStringifiedSelectStatement<Selection, Alias, Scope>
-    | Table<Selection, Alias, Scope>
-    | Compound<Selection, Alias, Scope>
-    | AliasedCompound<Selection, Alias, Scope>;
+    | SelectStatement<Selection, Alias, Scope, FlatScope>
+    | AliasedSelectStatement<Selection, Alias, Scope, FlatScope>
+    | StringifiedSelectStatement<Selection, Alias, Scope, FlatScope>
+    | AliasedStringifiedSelectStatement<Selection, Alias, Scope, FlatScope>
+    | Table<Selection, Alias, Scope, FlatScope>
+    | Compound<Selection, Alias, Scope, FlatScope>
+    | AliasedCompound<Selection, Alias, Scope, FlatScope>;
 
 export type TableOrSubquery<
     Selection extends string = never,
     Alias extends string = never,
-    Scope extends ScopeShape = never
+    Scope extends ScopeShape = never,
+    FlatScope extends string = never
 > =
-    | SelectStatement<Selection, Alias, Scope>
-    | StringifiedSelectStatement<Selection, Alias, Scope>
-    | Table<Selection, Alias, Scope>
-    | Joined<Selection, Alias, Scope>
-    | Compound<Selection, Alias, Scope>;
+    | SelectStatement<Selection, Alias, Scope, FlatScope>
+    | StringifiedSelectStatement<Selection, Alias, Scope, FlatScope>
+    | Table<Selection, Alias, Scope, FlatScope>
+    | Joined<Selection, Alias, Scope, FlatScope>
+    | Compound<Selection, Alias, Scope, FlatScope>;
 
 export type NoSelectFieldsCompileError = {
     ["✕"]: CompileError<["'.select(f => f)' is invalid"]>;

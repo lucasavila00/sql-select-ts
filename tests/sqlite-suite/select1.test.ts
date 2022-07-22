@@ -1226,7 +1226,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoin("it", subquery)
+            .commaJoin(subquery.as("it"))
             .selectStarOfAliases(["test1"])
             .stringify();
 
@@ -1250,7 +1250,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoin("it", subquery)
+            .commaJoin(subquery.as("it"))
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1278,7 +1278,7 @@ describe("sqlite select1", () => {
         }));
 
         test1
-            .commaJoin("it", subquery)
+            .commaJoin(subquery.as("it"))
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1298,7 +1298,8 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .commaJoin("it", test1)
+            .as("it")
+            .commaJoin(test1)
             .selectStarOfAliases(["test1"])
             .stringify();
 
@@ -1322,7 +1323,8 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .commaJoin("it", test1)
+            .as("it")
+            .commaJoin(test1)
             .selectStarOfAliases(["it"])
             .stringify();
 
@@ -1339,14 +1341,14 @@ describe("sqlite select1", () => {
         `);
     });
 
-    it("select1-11.13 -- other selection inversed", async () => {
+    it("select1-11.13 -- other selection inverse", async () => {
         const subquery = test2.select((f) => ({
             r2: max(f.r2),
             r1: max(f.r1),
         }));
 
         const q = test1
-            .commaJoin("it", subquery)
+            .commaJoin(subquery.as("it"))
             .selectStarOfAliases(["it"])
             .stringify();
 
@@ -1369,7 +1371,8 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .commaJoin("it", test1)
+            .as("it")
+            .commaJoin(test1)
             .selectStarOfAliases(["it", "test1"])
             .stringify();
 
@@ -1395,7 +1398,8 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .commaJoin("it", test1)
+            .as("it")
+            .commaJoin(test1)
             .selectStarOfAliases(["it", "test1"])
             .distinct()
             .stringify();
@@ -1422,7 +1426,7 @@ describe("sqlite select1", () => {
             .orderBy((f) => f.r2)
             .limit(4);
 
-        const q = test1.commaJoin("it", subquery).selectStar().stringify();
+        const q = test1.commaJoin(subquery.as("it")).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test2\` WHERE \`r2\` = 2 ORDER BY \`r1\`, \`r2\` LIMIT 4) AS \`it\``
@@ -1555,9 +1559,10 @@ describe("sqlite select1", () => {
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
             .orderBy((f) => f.f2)
-            .limit(1);
+            .limit(1)
+            .as("u");
 
-        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+        const q = test1.commaJoin(u).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
@@ -1580,9 +1585,10 @@ describe("sqlite select1", () => {
         const u = except([q1, q2])
             .orderBy((f) => f.f1)
             .orderBy((f) => f.f2)
-            .limit(1);
+            .limit(1)
+            .as("u");
 
-        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+        const q = test1.commaJoin(u).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` EXCEPT SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
@@ -1605,9 +1611,10 @@ describe("sqlite select1", () => {
         const u = intersect([q1, q2])
             .orderBy((f) => f.f1)
             .orderBy((f) => f.f2)
-            .limit(1);
+            .limit(1)
+            .as("u");
 
-        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+        const q = test1.commaJoin(u).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` INTERSECT SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
@@ -1627,7 +1634,8 @@ describe("sqlite select1", () => {
 
         const q = test1
             .selectStar()
-            .commaJoinCompound("t1", "u", u)
+            .as("t1")
+            .commaJoin(u.as("u"))
             .selectStar()
             .stringify();
 
@@ -1654,7 +1662,7 @@ describe("sqlite select1", () => {
             .orderBy((f) => f.f2)
             .limit(dsql`1 OFFSET 10`);
 
-        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+        const q = test1.commaJoin(u.as("u")).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1 OFFSET 10) AS \`u\``
@@ -1712,30 +1720,6 @@ describe("sqlite select1", () => {
             ]
         `);
     });
-    it("select1-12.9 -- correct types", async () => {
-        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
-
-        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
-
-        const u = unionAll([q1, q2])
-            .orderBy((f) => f.f1)
-            .orderBy((f) => f.f2)
-            .limit(1);
-
-        const q = u
-            .select((f) => ({ it: f.f1 }))
-            // @ts-expect-error
-            .orderBy((f) => f.test1.f2)
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`f1\` AS \`it\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) ORDER BY \`test1\`.\`f2\``
-        );
-        expect(await fail(q)).toMatchInlineSnapshot(
-            `Error: SQLITE_ERROR: no such column: test1.f2`
-        );
-    });
-
     it("select1-12.10", async () => {
         const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 

@@ -44,7 +44,8 @@ type ReplaceT<Selection extends string> = ReadonlyArray<
 export class SelectStatement<
     Selection extends string = never,
     Alias extends string = never,
-    Scope extends ScopeShape = never
+    Scope extends ScopeShape = never,
+    FlatScope extends string = never
 > {
     /* @internal */
     protected constructor(
@@ -141,7 +142,7 @@ export class SelectStatement<
             }
         );
 
-    private copy = (): SelectStatement<Selection, Alias, Scope> =>
+    private copy = (): SelectStatement<Selection, Alias, Scope, FlatScope> =>
         new SelectStatement({ ...this.__props });
 
     private setSelection = (selection: SelectionWrapperTypes): this => {
@@ -257,11 +258,11 @@ export class SelectStatement<
          */
         prewhere: (
             f:
-                | ReadonlyArray<Selection | Scope[keyof Scope]>
+                | ReadonlyArray<Selection | FlatScope>
                 | ((
-                      fields: Record<Selection | Scope[keyof Scope], SafeString>
+                      fields: Record<Selection | FlatScope, SafeString>
                   ) => ReadonlyArray<SafeString> | SafeString)
-        ): SelectStatement<Selection, Alias, Scope> =>
+        ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
             this.copy().setPrewhere([
                 ...this.__props.prewhere,
                 ...makeArray(
@@ -305,7 +306,8 @@ export class SelectStatement<
         never,
         {
             [key in Alias]: Selection;
-        }
+        },
+        Selection
     > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
 
     /**
@@ -340,7 +342,7 @@ export class SelectStatement<
             | ReadonlyArray<Selection>
             | ((
                   fields: RecordOfSelection<Selection> &
-                      RecordOfSelection<Scope[keyof Scope]> &
+                      RecordOfSelection<FlatScope> &
                       SelectionOfScope<Scope> &
                       NoSelectFieldsCompileError
               ) => Record<NewSelection, SafeString>)
@@ -355,11 +357,11 @@ export class SelectStatement<
      */
     public where = (
         f:
-            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ReadonlyArray<Selection | FlatScope>
             | ((
-                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+                  fields: Record<Selection | FlatScope, SafeString>
               ) => ReadonlyArray<SafeString> | SafeString)
-    ): SelectStatement<Selection, Alias, Scope> =>
+    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
         this.copy().setWhere([
             ...this.__props.where,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -370,11 +372,11 @@ export class SelectStatement<
      */
     public having = (
         f:
-            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ReadonlyArray<Selection | FlatScope>
             | ((
-                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+                  fields: Record<Selection | FlatScope, SafeString>
               ) => ReadonlyArray<SafeString> | SafeString)
-    ): SelectStatement<Selection, Alias, Scope> =>
+    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
         this.copy().setHaving([
             ...this.__props.having,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -383,7 +385,7 @@ export class SelectStatement<
     /**
      * @since 0.0.0
      */
-    public distinct = (): SelectStatement<Selection, Alias, Scope> =>
+    public distinct = (): SelectStatement<Selection, Alias, Scope, FlatScope> =>
         this.copy().setDistinct(true);
 
     /**
@@ -391,12 +393,12 @@ export class SelectStatement<
      */
     public orderBy = (
         f:
-            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ReadonlyArray<Selection | FlatScope>
             | ((
-                  fields: Record<Selection | Scope[keyof Scope], SafeString> &
+                  fields: Record<Selection | FlatScope, SafeString> &
                       SelectionOfScope<Scope>
               ) => ReadonlyArray<SafeString> | SafeString)
-    ): SelectStatement<Selection, Alias, Scope> =>
+    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
         this.copy().setOrderBy([
             ...this.__props.orderBy,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -407,11 +409,11 @@ export class SelectStatement<
      */
     public groupBy = (
         f:
-            | ReadonlyArray<Selection | Scope[keyof Scope]>
+            | ReadonlyArray<Selection | FlatScope>
             | ((
-                  fields: Record<Selection | Scope[keyof Scope], SafeString>
+                  fields: Record<Selection | FlatScope, SafeString>
               ) => ReadonlyArray<SafeString> | SafeString)
-    ): SelectStatement<Selection, Alias, Scope> =>
+    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
         this.copy().setGroupBy([
             ...this.__props.groupBy,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -422,7 +424,8 @@ export class SelectStatement<
      */
     public limit = (
         limit: SafeString | number
-    ): SelectStatement<Selection, Alias, Scope> => this.copy().setLimit(limit);
+    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+        this.copy().setLimit(limit);
 
     /**
      * @since 1.1.1
@@ -445,10 +448,15 @@ export class SelectStatement<
 export class AliasedSelectStatement<
     Selection extends string = never,
     Alias extends string = never,
-    Scope extends ScopeShape = never
-> extends SelectStatement<Selection, Alias, Scope> {
-    private __copy = (): AliasedSelectStatement<Selection, Alias, Scope> =>
-        new AliasedSelectStatement({ ...this.__props });
+    Scope extends ScopeShape = never,
+    FlatScope extends string = never
+> extends SelectStatement<Selection, Alias, Scope, FlatScope> {
+    private __copy = (): AliasedSelectStatement<
+        Selection,
+        Alias,
+        Scope,
+        FlatScope
+    > => new AliasedSelectStatement({ ...this.__props });
 
     public __setAlias = (alias: string): this => {
         this.__props = {
@@ -475,7 +483,8 @@ export class AliasedSelectStatement<
             [key in Alias]: Selection;
         } & {
             [key in Alias2]: Selection2;
-        }
+        },
+        Selection | Selection2
     > =>
         Joined.__fromAll([this, _ as any], [], {
             [String(this.__props.alias)]: void 0,

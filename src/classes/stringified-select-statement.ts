@@ -28,7 +28,8 @@ import { SelectStatement } from "./select-statement";
 export class StringifiedSelectStatement<
     Selection extends string = never,
     Alias extends string = never,
-    Scope extends ScopeShape = never
+    Scope extends ScopeShape = never,
+    FlatScope extends string = never
 > {
     /* @internal */
     protected constructor(
@@ -113,7 +114,8 @@ export class StringifiedSelectStatement<
 export class AliasedStringifiedSelectStatement<
     Selection extends string = never,
     Alias extends string = never,
-    Scope extends ScopeShape = never
+    Scope extends ScopeShape = never,
+    FlatScope extends string = never
 > extends StringifiedSelectStatement<Selection, Alias, Scope> {
     private __copy = (): AliasedStringifiedSelectStatement<
         Selection,
@@ -176,7 +178,8 @@ export class AliasedStringifiedSelectStatement<
             [key in Alias]: Selection;
         } & {
             [key in Alias2]: Selection2;
-        }
+        },
+        Selection | Selection2
     > =>
         Joined.__fromAll([this, _ as any], [], {
             [String(this.__props.alias)]: void 0,
