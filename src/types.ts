@@ -126,7 +126,9 @@ export type SelectionArrayCallbackShape =
       ) => SafeString | ReadonlyArray<SafeString>);
 
 export type SelectionReplaceCallbackShape = (
-    f: Record<string, SafeString> & NoSelectFieldsCompileError
+    f: Record<string, SafeString> &
+        SelectionOfScope<ScopeShape> &
+        NoSelectFieldsCompileError
 ) => ReadonlyArray<readonly [string, SafeString | number]>;
 
 export type SelectionWrapperTypes = ReadonlyArray<

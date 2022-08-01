@@ -303,12 +303,16 @@ export class SelectStatement<
         replace: (
             _: (
                 f: Record<Selection | FlatScope, SafeString> &
+                    SelectionOfScope<Scope> &
                     NoSelectFieldsCompileError
             ) => ReplaceT<Selection>
         ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
             this.copy().setReplace([
                 ...this.__props.replace,
-                ...(consumeReplaceCallback(_, this.__props.scope) as any),
+                ...(consumeReplaceCallback(
+                    _ as any,
+                    this.__props.scope
+                ) as any),
             ]),
     };
 
