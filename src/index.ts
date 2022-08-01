@@ -17,7 +17,6 @@ import {
     SelectionOfScope,
     TableOrSubquery,
 } from "./types";
-import { hole } from "./utils";
 
 /**
  *
@@ -248,7 +247,7 @@ export type {
      */
     RowsArray,
     /**
-     * Given a stringifyable object, returns the union of the selection keys.
+     * Given a printable object, returns the union of the selection keys.
      *
      * @example
      *
