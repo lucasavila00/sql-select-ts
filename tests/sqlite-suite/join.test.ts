@@ -351,29 +351,12 @@ describe("sqlite join", () => {
             `Error: SQLITE_ERROR: cannot join using column d - column not present in both tables`
         );
     });
-    it("join-1.4.1 -- prevents ambiguous", async () => {
-        const q = t2
-            .join("INNER", t1)
-            .on((f) => [
-                // @ts-expect-error
-                equals(f.b, f["t2.b"]),
-                equals(f.t1.c, f.t2.c),
-            ])
-            .selectStar()
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t2\` INNER JOIN \`t1\` ON \`b\` = \`t2\`.\`b\` AND \`t1\`.\`c\` = \`t2\`.\`c\``
-        );
-        expect(await fail(q)).toMatchInlineSnapshot(
-            `Error: SQLITE_ERROR: ambiguous column name: b`
-        );
-    });
     it("join-1.4.1 -- prevents unknown", async () => {
         const q = t2
             .join("INNER", t1)
             .on((f) => [
                 // @ts-expect-error
-                equals(f.aaaaaaaaaaa, f["t2.b"]),
+                equals(f.aaaaaaaaaaa, f.t2.b),
                 equals(f.t1.c, f.t2.c),
             ])
             .selectStar()

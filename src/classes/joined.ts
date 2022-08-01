@@ -186,7 +186,7 @@ export class Joined<
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
-            {},
+            this.__props.scope as any,
             undefined
         );
 

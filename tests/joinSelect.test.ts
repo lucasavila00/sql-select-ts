@@ -119,10 +119,10 @@ describe("joinSelect", () => {
     it("select -> select -- select2", async () => {
         const q = t1
             .selectStar()
-            .as("t1")
+            .as("q1")
             .join("NATURAL", q2)
             .noConstraint()
-            .select((f) => ({ x: f.a, y: f.d, z: f.t1.c }))
+            .select((f) => ({ x: f.a, y: f.d, z: f.q1.c }))
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT \`a\` AS \`x\`, \`d\` AS \`y\`, \`q1\`.\`c\` AS \`z\` FROM (SELECT * FROM \`t1\`) AS \`q1\` NATURAL JOIN (SELECT * FROM \`t2\`) AS \`q2\``
