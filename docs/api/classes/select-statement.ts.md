@@ -229,8 +229,11 @@ clickhouse: {
       | readonly (Selection | FlatScope)[]
       | ((fields: Record<Selection | FlatScope, SafeString>) => ReadonlyArray<SafeString> | SafeString)
   ) => SelectStatement<Selection, Alias, Scope, FlatScope>
-  replace: (_: (f: Record<Selection | FlatScope, SafeString> & NoSelectFieldsCompileError) => ReplaceT<Selection>) =>
-    SelectStatement<Selection, Alias, Scope, FlatScope>
+  replace: (
+    _: (
+      f: Record<Selection | FlatScope, SafeString> & SelectionOfScope<Scope> & NoSelectFieldsCompileError
+    ) => ReplaceT<Selection>
+  ) => SelectStatement<Selection, Alias, Scope, FlatScope>
 }
 ```
 
