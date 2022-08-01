@@ -1,14 +1,17 @@
 import { Compound } from "./classes/compound";
 import { Joined } from "./classes/joined";
-import { SelectStatement } from "./classes/select-statement";
+import {
+    AliasedSelectStatement,
+    SelectStatement,
+} from "./classes/select-statement";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
 import { Table } from "./classes/table";
+import { isTheProxyObject } from "./consume-fields";
 import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
-import { isTheProxyObject } from "./proxy";
 import type { SafeString } from "./safe-string";
 import { ClickhouseWith, CTE, JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
-import { wrapAlias, wrapAliasSplitDots } from "./wrap-alias";
+import { wrapAlias } from "./wrap-alias";
 
 // re-define to avoid circular dependency
 /* istanbul ignore next */
@@ -29,11 +32,8 @@ const printLimit = (limit: number | SafeString | null): string =>
         ? `LIMIT ${limit}`
         : `LIMIT ${limit.content}`;
 
-export const printCompoundInternal = <
-    Scope extends string,
-    Selection extends string
->(
-    compound: Compound<Scope, Selection>,
+export const printCompoundInternal = (
+    compound: Compound<any, any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
     const sel = compound.__props.content
@@ -48,30 +48,36 @@ export const printCompoundInternal = <
         .filter((it) => it.length > 0)
         .join(" ");
 
+    const alias =
+        compound.__props.alias != null
+            ? ` AS ${wrapAlias(compound.__props.alias)}`
+            : "";
+
     if (parenthesis) {
-        return `(${q})`;
+        return `(${q})${alias}`;
     }
     return q;
 };
 
 type PrintInternalRet = string;
 
-const printStringifiedSelectInternal = <Selection extends string>(
-    it: StringifiedSelectStatement<Selection>
-): PrintInternalRet => `(${it.__props.content.content})`;
+const printStringifiedSelectInternal = (
+    it: StringifiedSelectStatement<any, any, any, any>
+): PrintInternalRet => {
+    const alias =
+        it.__props.alias != null ? ` AS ${wrapAlias(it.__props.alias)}` : "";
 
-const printTableInternal = <
-    Scope extends string,
-    Selection extends string,
-    Alias extends string
->(
-    table: Table<Scope, Selection, Alias>
+    return `(${it.__props.content.content})${alias}`;
+};
+
+const printTableInternal = (
+    table: Table<any, any, any, any>
 ): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
-        return wrapAliasSplitDots(table.__props.name) + final;
+        return wrapAlias(table.__props.name) + final;
     }
-    return `${wrapAliasSplitDots(table.__props.name)} AS ${wrapAlias(
+    return `${wrapAlias(table.__props.name)} AS ${wrapAlias(
         table.__props.alias
     )}${final}`;
 };
@@ -98,26 +104,11 @@ const printConstraint = (c: JoinConstraint): { on: string; using: string } => {
     }
 };
 
-const printAliasedCode = (
-    code: TableOrSubquery<any, any, any, any>,
-    alias: string
-): string => {
-    const str = printInternal(code, true);
-    if (code instanceof Table) {
-        return str;
-    }
-    return `${str} AS ${wrapAlias(alias)}`;
-};
-const printJoinedInternal = <
-    Selection extends string,
-    Scope extends string,
-    Aliases extends string,
-    Ambiguous extends string
->(
-    joined: Joined<Selection, Scope, Aliases, Ambiguous>
+const printJoinedInternal = (
+    joined: Joined<any, any, any>
 ): PrintInternalRet => {
     const head = joined.__props.commaJoins
-        .map((it) => printAliasedCode(it.code, it.alias))
+        .map((it) => printInternal(it, true))
         .join(", ");
 
     const tail = joined.__props.properJoins
@@ -126,7 +117,7 @@ const printJoinedInternal = <
             return [
                 it.operator,
                 "JOIN",
-                printAliasedCode(it.code, it.alias),
+                printInternal(it.code, true),
                 on,
                 using,
             ]
@@ -143,10 +134,12 @@ const printCtes = (ctes: ReadonlyArray<CTE>): string =>
         .map((cte) => {
             const cols =
                 cte.columns.length > 0
-                    ? `(${cte.columns.map(wrapAliasSplitDots).join(", ")})`
+                    ? `(${cte.columns.map(wrapAlias).join(", ")})`
                     : ``;
             const content = printInternal(cte.select, false);
-            return `${wrapAlias(cte.alias)}${cols} AS (${content})`;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const alias = cte.select.__props.alias!;
+            return `${wrapAlias(alias)}${cols} AS (${content})`;
         })
         .join(", ");
 
@@ -161,11 +154,8 @@ const printClickhouseWith = (withes: ReadonlyArray<ClickhouseWith>): string =>
         .reduce((p, c) => [...p, ...c], [])
         .join(", ");
 
-export const printSelectStatementInternal = <
-    Scope extends string,
-    Selection extends string
->(
-    selectStatement: SelectStatement<Scope, Selection>,
+export const printSelectStatementInternal = (
+    selectStatement: SelectStatement<any, any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
     const selection = selectStatement.__props.selection
@@ -191,7 +181,7 @@ export const printSelectStatementInternal = <
 
     const replaceInner = selectStatement.__props.replace
         .map(([k, v]) => {
-            const vContent = isSafeString(v) ? v.content : v;
+            const vContent: string | number = isSafeString(v) ? v.content : v;
             return `${vContent} AS ${wrapAlias(k)}`;
         })
         .join(", ");
@@ -220,6 +210,7 @@ export const printSelectStatementInternal = <
                   .map((it) => it.content)
                   .join(" AND ")}`
             : "";
+
     const from =
         selectStatement.__props.from != null
             ? `FROM ${printInternal(selectStatement.__props.from, true)}`
@@ -259,8 +250,13 @@ export const printSelectStatementInternal = <
         .filter((it) => it.length > 0)
         .join(" ");
 
+    const alias =
+        selectStatement.__props.alias != null
+            ? ` AS ${wrapAlias(selectStatement.__props.alias)}`
+            : "";
+
     const content = parenthesis
-        ? `(${contentNoParenthesis})`
+        ? `(${contentNoParenthesis})${alias}`
         : contentNoParenthesis;
     return content;
 };
@@ -288,13 +284,13 @@ const printInternal = (
     return absurd(it);
 };
 
-export const printSelectStatement = <
-    Scope extends string,
-    Selection extends string
->(
-    it: SelectStatement<Scope, Selection>
+export const printSelectStatement = (
+    it: SelectStatement<any, any, any, any>
 ): string => printSelectStatementInternal(it, false);
 
-export const printCompound = <Scope extends string, Selection extends string>(
-    it: Compound<Scope, Selection>
-): string => printCompoundInternal(it, false);
+export const printAliasedSelectStatement = (
+    it: AliasedSelectStatement<any, any, any, any>
+): string => printSelectStatementInternal(it, false);
+
+export const printCompound = (it: Compound<any, any, any, any>): string =>
+    printCompoundInternal(it, false);

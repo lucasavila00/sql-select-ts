@@ -18,11 +18,7 @@ describe("clickhouse cte", () => {
     });
 
     it("type checks", async () => {
-        with_(
-            //
-            "t0_alias",
-            t0.selectStar()
-        )
+        with_(t0.selectStar().as("t0_alias"))
             .do((acc) =>
                 select(
                     (f) => ({
@@ -34,25 +30,15 @@ describe("clickhouse cte", () => {
             )
             .stringify();
         try {
-            with_(
-                //
-                "t0_alias",
-                t0.selectStar()
-            )
+            with_(t0.selectStar().as("t0_alias"))
                 //@ts-expect-error
                 .do((acc) => select((_f) => ({ it: sql(10) }), acc.t5_alias))
                 .stringify();
 
-            with_(
-                //
-                "t0_alias",
-                t0.selectStar()
-            )
+            with_(t0.selectStar().as("t0_alias"))
                 .with_(
-                    //
                     //@ts-expect-error
-                    (acc) => acc.abc.selectStar(),
-                    "t1_alias"
+                    (acc) => acc.abc.selectStar().as("t1_alias")
                 )
                 .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
                 .stringify();
@@ -63,11 +49,7 @@ describe("clickhouse cte", () => {
     });
 
     it("basic", async () => {
-        const q = with_(
-            //
-            "t0_alias",
-            t0.selectStar()
-        )
+        const q = with_(t0.selectStar().as("t0_alias"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
 
@@ -78,14 +60,10 @@ describe("clickhouse cte", () => {
     });
 
     it("1 with call", async () => {
-        const q = with_(
-            //
-            "t0_alias",
-            t0.selectStar()
-        )
+        const q = with_(t0.selectStar().as("t0_alias"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
 
-            .appendSelect((f) => ({ it2: f["t0_alias.x"] }))
+            .appendSelect((f) => ({ it2: f.t0_alias.x }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -95,19 +73,10 @@ describe("clickhouse cte", () => {
     });
 
     it("2 with calls", async () => {
-        const q = with_(
-            //
-            "t0_alias",
-            t0.selectStar()
-        )
-            .with_(
-                //
-                "t1_alias",
-                () => t0.selectStar()
-            )
+        const q = with_(t0.selectStar().as("t0_alias"))
+            .with_(() => t0.selectStar().as("t1_alias"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
-
-            .appendSelect((f) => ({ it2: f["t1_alias.y"] }))
+            .appendSelect((f) => ({ it2: f.t1_alias.y }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -117,11 +86,7 @@ describe("clickhouse cte", () => {
     });
 
     it("with1-1.0", async () => {
-        const q = with_(
-            //
-            "x",
-            t0.selectStar()
-        )
+        const q = with_(t0.selectStar().as("x"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -130,11 +95,7 @@ describe("clickhouse cte", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with1-1.0 -- no columns2", async () => {
-        const q = with_(
-            //
-            "x",
-            t0.selectStar()
-        )
+        const q = with_(t0.selectStar().as("x"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
 
@@ -145,11 +106,7 @@ describe("clickhouse cte", () => {
     });
 
     it("with1-1.0 -- use alias", async () => {
-        const q = with_(
-            //
-            "x",
-            t0.selectStar()
-        )
+        const q = with_(t0.selectStar().as("x"))
             .do((acc) => select((f) => ({ it: f.y }), acc.x))
             .stringify();
 
@@ -159,12 +116,8 @@ describe("clickhouse cte", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with1-1.0 -- use alias2", async () => {
-        const q = with_(
-            //
-            "x",
-            t0.selectStar()
-        )
-            .do((acc) => select((f) => ({ it: f["x.x"] }), acc.x))
+        const q = with_(t0.selectStar().as("x"))
+            .do((acc) => select((f) => ({ it: f.x.x }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -174,11 +127,7 @@ describe("clickhouse cte", () => {
     });
 
     it("with1-1.1", async () => {
-        const q = with_(
-            //
-            "x",
-            t0.selectStar()
-        )
+        const q = with_(t0.selectStar().as("x"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .selectStar()
             .stringify();

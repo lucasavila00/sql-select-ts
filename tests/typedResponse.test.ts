@@ -1,8 +1,8 @@
 import * as io from "io-ts";
-import { AnyStringifyable, SelectionOf, table } from "../src";
+import { AnyPrintable, SelectionOf, table } from "../src";
 
 const ioTsResponse = <
-    T extends AnyStringifyable,
+    T extends AnyPrintable,
     C extends { [key in SelectionOf<T>]: io.Mixed }
 >(
     _it: T,

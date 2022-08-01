@@ -24,20 +24,20 @@ const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 
 ```ts eval --out=sql
 with_(
-    "regional_sales",
-    select(
-        (f) => ({ region: f.region, total_sales: SUM(f.amount) }),
-        orders
-    ).groupBy(["region"])
+    select((f) => ({ region: f.region, total_sales: SUM(f.amount) }), orders)
+        .groupBy(["region"])
+        .as("regional_sales")
 )
-    .with_("top_regions", (acc) =>
-        select(["region"], acc.regional_sales).where(
-            (f) =>
-                sql`${f.total_sales} > ${select(
-                    (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
-                    acc.regional_sales
-                )}`
-        )
+    .with_((acc) =>
+        select(["region"], acc.regional_sales)
+            .where(
+                (f) =>
+                    sql`${f.total_sales} > ${select(
+                        (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+                        acc.regional_sales
+                    )}`
+            )
+            .as("top_regions")
     )
     .do((acc) =>
         select(
@@ -62,21 +62,23 @@ with_(
 
 ```ts eval --out=sql
 withR(
-    "regional_sales",
-    ["region2", "total_sales2"],
-    select(
-        (f) => ({ region: f.region, total_sales: SUM(f.amount) }),
-        orders
-    ).groupBy(["region"])
+    select((f) => ({ region: f.region, total_sales: SUM(f.amount) }), orders)
+        .groupBy(["region"])
+        .as("regional_sales"),
+    ["region2", "total_sales2"]
 )
-    .withR("top_regions", ["region3"], (acc) =>
-        select(["region2"], acc.regional_sales).where(
-            (f) =>
-                sql`${f.total_sales2} > ${select(
-                    (f) => ({ it: sql`SUM(${f.total_sales2})/10` }),
-                    acc.regional_sales
-                )}`
-        )
+    .withR(
+        (acc) =>
+            select(["region2"], acc.regional_sales)
+                .where(
+                    (f) =>
+                        sql`${f.total_sales2} > ${select(
+                            (f) => ({ it: sql`SUM(${f.total_sales2})/10` }),
+                            acc.regional_sales
+                        )}`
+                )
+                .as("top_regions"),
+        ["region3"]
     )
     .do((acc) =>
         select(

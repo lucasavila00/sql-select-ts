@@ -16,26 +16,24 @@ layout: default
 
 ```ts
 import {
-  fromNothing,
-  dsql as sql,
-  unionAll,
-  SafeString,
-  castSafe,
-  buildSerializer,
-  buildSql,
-} from "sql-select-ts";
+    fromNothing,
+    dsql as sql,
+    unionAll,
+    SafeString,
+    castSafe,
+    buildSerializer,
+    buildSql,
+} from "../../src";
 ```
 
 # sql - As Function
 
 ```ts
-fromNothing(
-  /* it: */ {
-    string: sql(/* it: */ "abc"),
-    number: sql(/* it: */ 123),
-    null: sql(/* it: */ null),
-  }
-).stringify();
+fromNothing({
+    string: sql("abc"),
+    number: sql(123),
+    null: sql(null),
+}).stringify();
 ```
 
 ```sql
@@ -50,7 +48,9 @@ SELECT
 ## String Literal
 
 ```ts
-fromNothing(/* it: */ { it: sql`system.tables` }).stringify();
+fromNothing({
+    it: sql`system.tables`,
+}).stringify();
 ```
 
 ```sql
@@ -62,7 +62,9 @@ SELECT
 
 ```ts
 const name = "Lucas";
-fromNothing(/* it: */ { it: sql`'a' = ${name}` }).stringify();
+fromNothing({
+    it: sql`'a' = ${name}`,
+}).stringify();
 ```
 
 ```sql
@@ -74,7 +76,9 @@ SELECT
 
 ```ts
 const n = 456;
-fromNothing(/* it: */ { it: sql`123 = ${n}` }).stringify();
+fromNothing({
+    it: sql`123 = ${n}`,
+}).stringify();
 ```
 
 ```sql
@@ -86,7 +90,10 @@ SELECT
 
 ```ts
 const nums = [1, 2, 3];
-fromNothing(/* it: */ { it: sql`1 IN (${nums})` }).stringify();
+
+fromNothing({
+    it: sql`1 IN (${nums})`,
+}).stringify();
 ```
 
 ```sql
@@ -97,8 +104,12 @@ SELECT
 ## Select Interpolation
 
 ```ts
-const q0 = fromNothing(/* it: */ { it: sql`123 = 456` });
-fromNothing(/* it: */ { isIn: sql`something IN ${q0}` }).stringify();
+const q0 = fromNothing({
+    it: sql`123 = 456`,
+});
+fromNothing({
+    isIn: sql`something IN ${q0}`,
+}).stringify();
 ```
 
 ```sql
@@ -112,10 +123,16 @@ SELECT
 ## Compound Interpolation
 
 ```ts
-const q1 = fromNothing(/* it: */ { it: sql`123 = 456` });
-const q2 = fromNothing(/* it: */ { it: sql`1 > 0` });
-const u = unionAll(/* content: */ [q1, q2]);
-fromNothing(/* it: */ { isIn: sql`something IN ${u}` }).stringify();
+const q1 = fromNothing({
+    it: sql`123 = 456`,
+});
+const q2 = fromNothing({
+    it: sql`1 > 0`,
+});
+const u = unionAll([q1, q2]);
+fromNothing({
+    isIn: sql`something IN ${u}`,
+}).stringify();
 ```
 
 ```sql
@@ -133,15 +150,13 @@ SELECT
 
 ```ts
 const square = (it: SafeString): SafeString => sql`((${it}) * (${it}))`;
-const four = square(/* it: */ sql(/* it: */ 2));
-fromNothing(
-  /* it: */ {
+
+const four = square(sql(2));
+
+fromNothing({
     four,
-    it: square(
-      /* it: */ square(/* it: */ square(/* it: */ sql`system.tables + ${four}`))
-    ),
-  }
-).stringify();
+    it: square(square(square(sql`system.tables + ${four}`))),
+}).stringify();
 ```
 
 ```sql
@@ -180,8 +195,8 @@ SELECT
 
 ```ts
 const str = `aFunction(123)`;
-const filter = castSafe(/* content: */ str);
-fromNothing(/* it: */ { it: filter }).stringify();
+const filter = castSafe(str);
+fromNothing({ it: filter }).stringify();
 ```
 
 ```sql
@@ -192,7 +207,7 @@ SELECT
 ```ts
 const str2 = `aFunction(123)`;
 const filter2 = sql`${str2}`;
-fromNothing(/* it: */ { it: filter2 }).stringify();
+fromNothing({ it: filter2 }).stringify();
 ```
 
 ```sql
@@ -218,10 +233,11 @@ a = 'b'
 
 ```ts
 const equals = (
-  a: SafeString | number | string,
-  b: SafeString | number | string
+    a: SafeString | number | string,
+    b: SafeString | number | string
 ): SafeString => sql`${a} = ${b}`;
-equals(/* a: */ 1, /* b: */ 2);
+
+equals(1, 2);
 ```
 
 ```json
@@ -232,16 +248,10 @@ equals(/* a: */ 1, /* b: */ 2);
 
 ```ts
 const OR = (...cases: SafeString[]): SafeString => {
-  const j = cases
-    .map(/* callbackfn: */ (it) => it.content)
-    .join(/* separator: */ " OR ");
-  return castSafe(/* content: */ `(${j})`);
+    const j = cases.map((it) => it.content).join(" OR ");
+    return castSafe(`(${j})`);
 };
-OR(
-  /* cases: */ equals(/* a: */ 1, /* b: */ 2),
-  equals(/* a: */ 3, /* b: */ 4),
-  equals(/* a: */ "a", /* b: */ "b")
-);
+OR(equals(1, 2), equals(3, 4), equals("a", "b"));
 ```
 
 ```json
@@ -251,17 +261,16 @@ OR(
 # Extending
 
 ```ts
-const boolSerializer = buildSerializer(
-  /* args: */ {
+const boolSerializer = buildSerializer({
     check: (it: unknown): it is boolean => typeof it == "boolean",
     serialize: (it: boolean): string => (it ? "1" : "0"),
-  }
-);
-const sql2 = buildSql(/* serializers: */ [boolSerializer]);
+});
+
+const sql2 = buildSql([boolSerializer]);
 ```
 
 ```ts
-sql2(/* it: */ true);
+sql2(true);
 ```
 
 ```json
@@ -269,7 +278,7 @@ sql2(/* it: */ true);
 ```
 
 ```ts
-sql2(/* it: */ false);
+sql2(false);
 ```
 
 ```json

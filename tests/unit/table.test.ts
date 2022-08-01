@@ -10,7 +10,7 @@ describe("table", () => {
     it("dot in name", () => {
         const q = table(cols, "system.tables").selectStar();
         expect(q.stringify()).toMatchInlineSnapshot(
-            `"SELECT * FROM \`system\`.\`tables\`"`
+            `"SELECT * FROM \`system.tables\`"`
         );
     });
 
@@ -18,6 +18,15 @@ describe("table", () => {
         const q = table(cols, "a").apply((it) => it.select(["a"]));
         expect(q.stringify()).toMatchInlineSnapshot(
             `"SELECT \`a\` AS \`a\` FROM \`a\`"`
+        );
+    });
+
+    it("apply + alias", () => {
+        const q = table(cols, "a")
+            .as("b")
+            .apply((it) => it.select(["a"]));
+        expect(q.stringify()).toMatchInlineSnapshot(
+            `"SELECT \`a\` AS \`a\` FROM \`a\` AS \`b\`"`
         );
     });
 

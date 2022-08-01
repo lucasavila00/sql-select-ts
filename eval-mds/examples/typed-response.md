@@ -5,13 +5,7 @@ exampleHeader("Typed response", 23);
 
 ```ts eval
 import * as io from "io-ts";
-import {
-    AnyStringifyable,
-    SelectionOf,
-    table,
-    RowOf,
-    RowsArray,
-} from "../../src";
+import { AnyPrintable, SelectionOf, table, RowOf, RowsArray } from "../../src";
 ```
 
 ```ts eval
@@ -56,7 +50,7 @@ ret2?.[0]?.abc;
 
 ```ts eval
 const ioTsResponse = <
-    T extends AnyStringifyable,
+    T extends AnyPrintable,
     C extends { [key in SelectionOf<T>]: io.Mixed }
 >(
     _it: T,

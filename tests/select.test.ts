@@ -37,14 +37,14 @@ describe("select", () => {
         expect(1).toBe(1);
     });
     it("join - no identity function", async () => {
-        t1.joinTable("NATURAL", t2)
+        t1.join("NATURAL", t2)
             .noConstraint()
             .select(
                 // @ts-expect-error
                 (f) => f
             );
 
-        t1.joinTable("NATURAL", t2)
+        t1.join("NATURAL", t2)
             .noConstraint()
             .select((f) => ({ a: f.a }));
         expect(1).toBe(1);

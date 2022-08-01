@@ -58,5 +58,5 @@ q3.stringify();
 ## Composition
 
 ```ts eval --out=sql
-q.commaJoinSelect("q", "q3", q3).selectStar().stringify();
+q.as("q").commaJoin(q3.as("q3")).selectStar().stringify();
 ```

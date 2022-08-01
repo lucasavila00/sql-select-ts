@@ -10,7 +10,7 @@ grand_parent: Api
 
 Represents a select statement that was built from a raw string.
 
-Added in v0.0.3
+Added in v2.0.0
 
 <details open markdown="block">
   <summary>
@@ -23,278 +23,66 @@ Added in v0.0.3
 
 # utils
 
-## StringifiedSelectStatement (class)
-
-Represents a select statement that was built from a raw string.
+## AliasedStringifiedSelectStatement (class)
 
 **Signature**
 
 ```ts
-export declare class StringifiedSelectStatement<Selection> {
-  private constructor(
-    /* @internal */
-    public __props: {
-      readonly content: SafeString;
-    }
-  );
-}
+export declare class AliasedStringifiedSelectStatement<Selection, Alias, Scope, FlatScope>
 ```
 
-Added in v0.0.3
+Added in v2.0.0
 
-### selectStar (property)
-
-**Signature**
-
-```ts
-selectStar: () => SelectStatement<Selection, Selection>;
-```
-
-Added in v0.0.3
-
-### select (property)
+### join (property)
 
 **Signature**
 
 ```ts
-select: <
-  NewSelection extends string = never,
-  SubSelection extends Selection = never
+join: <
+  Selection2 extends string = never,
+  Alias2 extends string = never,
+  Scope2 extends ScopeShape = never,
+  FlatScope2 extends string = never
 >(
-  f:
-    | readonly SubSelection[]
-    | ((
-        f: Record<Selection, SafeString> & NoSelectFieldsCompileError
-      ) => Record<NewSelection, SafeString>)
-) => SelectStatement<Selection, NewSelection | SubSelection>;
-```
-
-Added in v0.0.3
-
-### commaJoinTable (property)
-
-**Signature**
-
-```ts
-commaJoinTable: <
-  Alias1 extends string,
-  Scope2 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  thisQueryAlias: Alias1,
-  table: Table<Scope2, Selection2, Alias2>
-) =>
-  Joined<
-    Selection,
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias1}.${Selection}`,
-    Alias1 | Alias2,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.3
-
-### joinTable (property)
-
-**Signature**
-
-```ts
-joinTable: <
-  Alias1 extends string,
-  Scope2 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  thisQueryAlias: Alias1,
   operator: string,
-  table: Table<Scope2, Selection2, Alias2>
+  _: ValidAliasInSelection<
+    Joinable<Selection2, Alias2, Scope2, FlatScope2>,
+    Alias2
+  >
 ) =>
   JoinedFactory<
-    Selection,
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias1}.${Selection}`
-    | `${Alias2}.${Selection2}`,
-    Alias1 | Alias2,
-    Extract<Selection2, Selection>,
-    Extract<Selection2, Selection>
+    { [key in Alias]: Selection } & { [key in Alias2]: Selection2 },
+    Extract<Selection, Selection2>
   >;
 ```
 
-Added in v0.0.3
+Added in v2.0.0
 
-### commaJoinStringifiedSelect (property)
+### commaJoin (property)
 
 **Signature**
 
 ```ts
-commaJoinStringifiedSelect: <
-  Alias1 extends string,
-  Selection2 extends string,
-  Alias2 extends string
+commaJoin: <
+  Selection2 extends string = never,
+  Alias2 extends string = never,
+  Scope2 extends ScopeShape = never,
+  FlatScope2 extends string = never
 >(
-  thisSelectAlias: Alias1,
-  selectAlias: Alias2,
-  select: StringifiedSelectStatement<Selection2>
+  _: ValidAliasInSelection<
+    Joinable<Selection2, Alias2, Scope2, FlatScope2>,
+    Alias2
+  >
 ) =>
   Joined<
-    Selection,
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`
-    | `${Alias1}.${Selection}`,
-    Alias1 | Alias2,
-    Extract<Selection2, Selection>
+    never,
+    never,
+    { [key in Alias]: Selection } & { [key in Alias2]: Selection2 },
+    Selection | Selection2
   >;
 ```
 
-Added in v0.0.3
-
-### commaJoinSelect (property)
-
-**Signature**
-
-```ts
-commaJoinSelect: <
-  Alias1 extends string,
-  Scope2 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  thisSelectAlias: Alias1,
-  selectAlias: Alias2,
-  select: SelectStatement<Scope2, Selection2>
-) =>
-  Joined<
-    Selection,
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`
-    | `${Alias1}.${Selection}`,
-    Alias1 | Alias2,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.3
-
-### joinStringifiedSelect (property)
-
-**Signature**
-
-```ts
-joinStringifiedSelect: <
-  Alias1 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  thisSelectAlias: Alias1,
-  operator: string,
-  selectAlias: Alias2,
-  select: StringifiedSelectStatement<Selection2>
-) =>
-  JoinedFactory<
-    Selection,
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`
-    | `${Alias1}.${Selection}`,
-    Alias1 | Alias2,
-    Extract<Selection2, Selection>,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.3
-
-### joinSelect (property)
-
-**Signature**
-
-```ts
-joinSelect: <
-  Alias1 extends string,
-  Scope2 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  thisSelectAlias: Alias1,
-  operator: string,
-  selectAlias: Alias2,
-  select: SelectStatement<Scope2, Selection2>
-) =>
-  JoinedFactory<
-    Selection,
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`
-    | `${Alias1}.${Selection}`,
-    Alias1 | Alias2,
-    Extract<Selection2, Selection>,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.3
-
-### commaJoinCompound (property)
-
-**Signature**
-
-```ts
-commaJoinCompound: <
-  Alias1 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  thisSelectAlias: Alias1,
-  compoundAlias: Alias2,
-  compound: Compound<Selection2, Selection2>
-) =>
-  Joined<
-    Selection,
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias1}.${Selection}`
-    | `${Alias2}.${Selection2}`,
-    Alias1 | Alias2,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.3
-
-### joinCompound (property)
-
-**Signature**
-
-```ts
-joinCompound: <
-  Alias1 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  thisSelectAlias: Alias1,
-  operator: string,
-  compoundAlias: Alias2,
-  compound: Compound<Selection2, Selection2>
-) =>
-  JoinedFactory<
-    Selection,
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias1}.${Selection}`
-    | `${Alias2}.${Selection2}`,
-    Alias1 | Alias2,
-    Extract<Selection2, Selection>,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.3
+Added in v2.0.0
 
 ### apply (property)
 
@@ -306,7 +94,105 @@ apply: <Ret extends TableOrSubquery<any, any, any, any> = never>(
 ) => Ret;
 ```
 
-Added in v1.1.1
+Added in v2.0.0
+
+### as (property)
+
+**Signature**
+
+```ts
+as: <NewAlias extends string = never>(as: NewAlias) =>
+  AliasedStringifiedSelectStatement<Selection, NewAlias, Scope, FlatScope>;
+```
+
+Added in v2.0.0
+
+## StringifiedSelectStatement (class)
+
+Represents a select statement that was built from a raw string.
+
+**Signature**
+
+```ts
+export declare class StringifiedSelectStatement<
+  Selection,
+  Alias,
+  Scope,
+  FlatScope
+> {
+  protected constructor(
+    /* @internal */
+    public __props: {
+      readonly content: SafeString;
+      readonly scope: ScopeStorage;
+      readonly alias?: string;
+    }
+  );
+}
+```
+
+Added in v2.0.0
+
+### selectStar (property)
+
+**Signature**
+
+```ts
+selectStar: () =>
+  SelectStatement<Selection, never, { [key in Alias]: Selection }, Selection>;
+```
+
+Added in v2.0.0
+
+### select (property)
+
+**Signature**
+
+```ts
+select: <
+  NewSelection extends string = never,
+  SubSelection extends Selection = never
+>(
+  _:
+    | readonly SubSelection[]
+    | ((
+        fields: Record<Selection, SafeString> &
+          SelectionOfScope<{ [key in Alias]: Selection }> &
+          NoSelectFieldsCompileError
+      ) => Record<NewSelection, SafeString>)
+) =>
+  SelectStatement<
+    NewSelection | SubSelection,
+    never,
+    { [key in Alias]: Selection },
+    Selection
+  >;
+```
+
+Added in v2.0.0
+
+### apply (property)
+
+**Signature**
+
+```ts
+apply: <Ret extends TableOrSubquery<any, any, any, any> = never>(
+  fn: (it: this) => Ret
+) => Ret;
+```
+
+Added in v2.0.0
+
+### as (property)
+
+**Signature**
+
+```ts
+as: <NewAlias extends string = never>(as: NewAlias) =>
+  AliasedStringifiedSelectStatement<Selection, NewAlias, Scope, FlatScope>;
+```
+
+Added in v2.0.0
 
 ### stringify (property)
 
@@ -316,4 +202,4 @@ Added in v1.1.1
 stringify: () => string;
 ```
 
-Added in v0.0.3
+Added in v2.0.0

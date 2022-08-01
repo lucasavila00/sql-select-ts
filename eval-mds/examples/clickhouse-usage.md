@@ -5,7 +5,7 @@ exampleHeader("Clickhouse Usage", 80);
 
 ```ts eval
 const ClickHouse = require("@apla/clickhouse");
-import { table, AnyStringifyable, RowsArray } from "../../src";
+import { table, AnyPrintable, RowsArray } from "../../src";
 ```
 
 With a DB connector
@@ -26,7 +26,7 @@ const runS = async (q: string): Promise<any[]> =>
 We can implement a version that is aware of the types
 
 ```ts eval
-const run = <T extends AnyStringifyable>(it: T): Promise<RowsArray<T>> =>
+const run = <T extends AnyPrintable>(it: T): Promise<RowsArray<T>> =>
     runS(it.stringify());
 ```
 

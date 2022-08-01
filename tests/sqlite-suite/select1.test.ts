@@ -23,7 +23,7 @@ describe("sqlite select1", () => {
     const test2 = table(["r1", "r2"], "test2");
     const t6 = table(["a", "b"], "t6");
 
-    const fromTest1And2 = test1.commaJoinTable(test2);
+    const fromTest1And2 = test1.commaJoin(test2);
     const { run, fail } = configureSqlite();
 
     beforeAll(async () => {
@@ -129,7 +129,7 @@ describe("sqlite select1", () => {
     });
 
     it("select1-1.4 -- select from alias", async () => {
-        const q = test1.select((f) => ({ f1: f["test1.f1"] })).stringify();
+        const q = test1.select((f) => ({ f1: f.test1.f1 })).stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT \`test1\`.\`f1\` AS \`f1\` FROM \`test1\``
@@ -145,8 +145,8 @@ describe("sqlite select1", () => {
 
     it("select1-1.4 -- append from alias", async () => {
         const q = test1
-            .select((f) => ({ f1: f["test1.f1"] }))
-            .appendSelect((f) => ({ f2: f["test1.f2"] }))
+            .select((f) => ({ f1: f.test1.f1 }))
+            .appendSelect((f) => ({ f2: f.test1.f2 }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -265,6 +265,29 @@ describe("sqlite select1", () => {
               Object {
                 f1: 11,
                 f2: 22,
+              },
+            ]
+        `);
+    });
+
+    it("select1-1.8.1 + alias", async () => {
+        const q = test1
+            .selectStar()
+            .as("alias1")
+            .appendSelectStar()
+            .selectStar()
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT *, * FROM \`test1\`) AS \`alias1\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                f1: 11,
+                f1:1: 11,
+                f2: 22,
+                f2:1: 22,
               },
             ]
         `);
@@ -402,10 +425,10 @@ describe("sqlite select1", () => {
 
     it("select1-1.10 -- collision fixed", async () => {
         const q = test1
-            .commaJoinTable(test1_dup)
+            .commaJoin(test1_dup)
             .select((f) => ({
-                f1: f["test1.f1"],
-                f2: f["test1_dup.f2"],
+                f1: f.test1.f1,
+                f2: f.test1_dup.f2,
             }))
             .stringify();
 
@@ -423,11 +446,11 @@ describe("sqlite select1", () => {
     });
     it("select1-1.10 -- collision fixed2", async () => {
         const q = test1
-            .commaJoinTable(test1_dup)
-            .commaJoinTable(test2)
+            .commaJoin(test1_dup)
+            .commaJoin(test2)
             .select((f) => ({
-                f1: f["test1.f1"],
-                f2: f["test1_dup.f2"],
+                f1: f.test1.f1,
+                f2: f.test1_dup.f2,
             }))
             .stringify();
 
@@ -447,8 +470,8 @@ describe("sqlite select1", () => {
     it("select1-1.10", async () => {
         const q = fromTest1And2
             .select((f) => ({
-                f1: f["test1.f1"],
-                r1: f["test2.r1"],
+                f1: f.test1.f1,
+                r1: f.test2.r1,
             }))
             .stringify();
 
@@ -481,7 +504,7 @@ describe("sqlite select1", () => {
     });
     it("select1-1.11.2", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinTable(table(["f1", "f2"], "b", "test1"))
+            .commaJoin(table(["f1", "f2"], "b", "test1"))
             .selectStar()
             .stringify();
 
@@ -499,10 +522,10 @@ describe("sqlite select1", () => {
     });
     it("select1-1.11.2 -- select alias", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinTable(table(["f1", "f2"], "b", "test1"))
+            .commaJoin(table(["f1", "f2"], "b", "test1"))
             .select((f) => ({
-                f1: f["a.f1"],
-                f2: f["b.f2"],
+                f1: f.a.f1,
+                f2: f.b.f2,
             }))
             .stringify();
 
@@ -521,8 +544,8 @@ describe("sqlite select1", () => {
     it("select1-1.12", async () => {
         const q = fromTest1And2
             .select((f) => ({
-                max: max(f["test1.f1"], f["test2.r1"]),
-                min: min(f["test1.f2"], f["test2.r2"]),
+                max: max(f.test1.f1, f.test2.r1),
+                min: min(f.test1.f2, f.test2.r2),
             }))
             .stringify();
 
@@ -767,7 +790,7 @@ describe("sqlite select1", () => {
 
     it("select1-6.5", async () => {
         const q = test1
-            .select((f) => ({ it: dsql`${f["test1.f1"]} + ${f.f2}` }))
+            .select((f) => ({ it: dsql`${f.test1.f1} + ${f.f2}` }))
             .orderBy((f) => f.f2)
             .stringify();
 
@@ -785,7 +808,7 @@ describe("sqlite select1", () => {
 
     it("select1-6.6", async () => {
         const q = fromTest1And2
-            .select((f) => ({ it: dsql`${f["test1.f1"]} + ${f.f2}`, r2: f.r2 }))
+            .select((f) => ({ it: dsql`${f.test1.f1} + ${f.f2}`, r2: f.r2 }))
             .orderBy((f) => f.f2)
             .stringify();
 
@@ -804,8 +827,8 @@ describe("sqlite select1", () => {
 
     it("select1-6.7", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinTable(table(["r1", "r2"], "test2"))
-            .select((f) => ({ it: f["a.f1"], r2: f.r2 }))
+            .commaJoin(table(["r1", "r2"], "test2"))
+            .select((f) => ({ it: f.a.f1, r2: f.r2 }))
             .orderBy((f) => f.f2)
             .stringify();
 
@@ -824,10 +847,10 @@ describe("sqlite select1", () => {
 
     it("select1-6.9.1", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinTable(table(["r1", "r2"], "b", "test2"))
-            .select((f) => ({ it: f["a.f1"], r2: f["b.r2"] }))
-            .orderBy((f) => f["a.f1"])
-            .orderBy((f) => f["b.r2"])
+            .commaJoin(table(["r1", "r2"], "b", "test2"))
+            .select((f) => ({ it: f.a.f1, r2: f.b.r2 }))
+            .orderBy((f) => f.a.f1)
+            .orderBy((f) => f.b.r2)
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -845,7 +868,7 @@ describe("sqlite select1", () => {
 
     it("select1-6.9.6", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinTable(table(["r1", "r2"], "b", "test3"))
+            .commaJoin(table(["r1", "r2"], "b", "test3"))
             .selectStar()
             .limit(1)
             .stringify();
@@ -866,12 +889,11 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.7", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinSelect(
-                "it",
+            .commaJoin(
                 fromNothing({
                     "5": dsql(5),
                     "6": dsql(6),
-                })
+                }).as("it")
             )
             .selectStar()
             .limit(1)
@@ -896,7 +918,8 @@ describe("sqlite select1", () => {
             "5": dsql(5),
             "6": dsql(6),
         })
-            .commaJoinTable("it", table(["f1", "f2"], "a", "test1"))
+            .as("it")
+            .commaJoin(table(["f1", "f2"], "a", "test1"))
             .selectStar()
             .limit(1)
             .stringify();
@@ -920,13 +943,12 @@ describe("sqlite select1", () => {
             "5": dsql(5),
             "6": dsql(6),
         })
-            .commaJoinSelect(
-                "it",
-                "it2",
+            .as("it")
+            .commaJoin(
                 fromNothing({
                     "5": dsql(5),
                     "6": dsql(6),
-                })
+                }).as("it2")
             )
             .selectStar()
             .stringify();
@@ -945,12 +967,11 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.8", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinSelect(
-                "b",
+            .commaJoin(
                 fromNothing({
                     x: dsql(5),
                     y: dsql(6),
-                })
+                }).as("b")
             )
             .selectStar()
             .limit(1)
@@ -972,17 +993,16 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.8 -- use alias", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinSelect(
-                "b",
+            .commaJoin(
                 fromNothing({
                     x: dsql(5),
                     y: dsql(6),
-                })
+                }).as("b")
             )
             .select((f) => ({
-                a: f["a.f1"],
+                a: f.a.f1,
                 b: f.x,
-                b2: f["b.y"],
+                b2: f.b.y,
             }))
             .limit(1)
             .stringify();
@@ -1002,10 +1022,10 @@ describe("sqlite select1", () => {
     });
     it("select1-6.9.9", async () => {
         const q = table(["f1", "f2"], "a", "test1")
-            .commaJoinTable(table(["f1", "f2"], "b", "test1"))
+            .commaJoin(table(["f1", "f2"], "b", "test1"))
             .select((f) => ({
-                f1: f["a.f1"],
-                f2: f["b.f2"],
+                f1: f.a.f1,
+                f2: f.b.f2,
             }))
             .limit(1)
             .stringify();
@@ -1211,7 +1231,7 @@ describe("sqlite select1", () => {
             .where(() => dsql`${subquery}`);
 
         const q = test1
-            .commaJoinTable(test2)
+            .commaJoin(test2)
             .select(() => ({ "1": dsql(1) }))
             .where(() => dsql`${subquery2}`)
             .stringify();
@@ -1229,7 +1249,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoinSelect("it", subquery)
+            .commaJoin(subquery.as("it"))
             .selectStarOfAliases(["test1"])
             .stringify();
 
@@ -1253,7 +1273,7 @@ describe("sqlite select1", () => {
         }));
 
         const q = test1
-            .commaJoinSelect("it", subquery)
+            .commaJoin(subquery.as("it"))
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1281,7 +1301,7 @@ describe("sqlite select1", () => {
         }));
 
         test1
-            .commaJoinSelect("it", subquery)
+            .commaJoin(subquery.as("it"))
             .selectStarOfAliases(["test1"])
             .select((f) => ({
                 a: f.f1,
@@ -1301,7 +1321,8 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .commaJoinTable("it", test1)
+            .as("it")
+            .commaJoin(test1)
             .selectStarOfAliases(["test1"])
             .stringify();
 
@@ -1325,7 +1346,8 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .commaJoinTable("it", test1)
+            .as("it")
+            .commaJoin(test1)
             .selectStarOfAliases(["it"])
             .stringify();
 
@@ -1342,14 +1364,14 @@ describe("sqlite select1", () => {
         `);
     });
 
-    it("select1-11.13 -- other selection inversed", async () => {
+    it("select1-11.13 -- other selection inverse", async () => {
         const subquery = test2.select((f) => ({
             r2: max(f.r2),
             r1: max(f.r1),
         }));
 
         const q = test1
-            .commaJoinSelect("it", subquery)
+            .commaJoin(subquery.as("it"))
             .selectStarOfAliases(["it"])
             .stringify();
 
@@ -1372,7 +1394,8 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .commaJoinTable("it", test1)
+            .as("it")
+            .commaJoin(test1)
             .selectStarOfAliases(["it", "test1"])
             .stringify();
 
@@ -1398,7 +1421,8 @@ describe("sqlite select1", () => {
         }));
 
         const q = subquery
-            .commaJoinTable("it", test1)
+            .as("it")
+            .commaJoin(test1)
             .selectStarOfAliases(["it", "test1"])
             .distinct()
             .stringify();
@@ -1425,10 +1449,7 @@ describe("sqlite select1", () => {
             .orderBy((f) => f.r2)
             .limit(4);
 
-        const q = test1
-            .commaJoinSelect("it", subquery)
-            .selectStar()
-            .stringify();
+        const q = test1.commaJoin(subquery.as("it")).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test2\` WHERE \`r2\` = 2 ORDER BY \`r1\`, \`r2\` LIMIT 4) AS \`it\``
@@ -1561,9 +1582,10 @@ describe("sqlite select1", () => {
         const u = unionAll([q1, q2])
             .orderBy((f) => f.f1)
             .orderBy((f) => f.f2)
-            .limit(1);
+            .limit(1)
+            .as("u");
 
-        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+        const q = test1.commaJoin(u).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
@@ -1586,9 +1608,10 @@ describe("sqlite select1", () => {
         const u = except([q1, q2])
             .orderBy((f) => f.f1)
             .orderBy((f) => f.f2)
-            .limit(1);
+            .limit(1)
+            .as("u");
 
-        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+        const q = test1.commaJoin(u).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` EXCEPT SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
@@ -1611,9 +1634,10 @@ describe("sqlite select1", () => {
         const u = intersect([q1, q2])
             .orderBy((f) => f.f1)
             .orderBy((f) => f.f2)
-            .limit(1);
+            .limit(1)
+            .as("u");
 
-        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+        const q = test1.commaJoin(u).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` INTERSECT SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) AS \`u\``
@@ -1633,7 +1657,8 @@ describe("sqlite select1", () => {
 
         const q = test1
             .selectStar()
-            .commaJoinCompound("t1", "u", u)
+            .as("t1")
+            .commaJoin(u.as("u"))
             .selectStar()
             .stringify();
 
@@ -1660,7 +1685,7 @@ describe("sqlite select1", () => {
             .orderBy((f) => f.f2)
             .limit(dsql`1 OFFSET 10`);
 
-        const q = test1.commaJoinCompound("u", u).selectStar().stringify();
+        const q = test1.commaJoin(u.as("u")).selectStar().stringify();
 
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`test1\`, (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1 OFFSET 10) AS \`u\``
@@ -1718,30 +1743,6 @@ describe("sqlite select1", () => {
             ]
         `);
     });
-    it("select1-12.9 -- correct types", async () => {
-        const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
-
-        const q2 = test1.selectStar().where((f) => dsql`${f.f1} > ${f.f2}`);
-
-        const u = unionAll([q1, q2])
-            .orderBy((f) => f.f1)
-            .orderBy((f) => f.f2)
-            .limit(1);
-
-        const q = u
-            .select((f) => ({ it: f.f1 }))
-            // @ts-expect-error
-            .orderBy((f) => f["test1.f2"])
-            .stringify();
-
-        expect(q).toMatchInlineSnapshot(
-            `SELECT \`f1\` AS \`it\` FROM (SELECT * FROM \`test1\` WHERE \`f1\` < \`f2\` UNION ALL SELECT * FROM \`test1\` WHERE \`f1\` > \`f2\` ORDER BY \`f1\`, \`f2\` LIMIT 1) ORDER BY \`test1\`.\`f2\``
-        );
-        expect(await fail(q)).toMatchInlineSnapshot(
-            `Error: SQLITE_ERROR: no such column: test1.f2`
-        );
-    });
-
     it("select1-12.10", async () => {
         const q1 = test1.selectStar().where((f) => dsql`${f.f1} < ${f.f2}`);
 
@@ -1818,7 +1819,7 @@ describe("sqlite select1", () => {
     });
     it("select1-12.10 -- main alias", async () => {
         const q = test1
-            .select((f) => ({ f1: f["test1.f1"], f2: f["test1.f2"] }))
+            .select((f) => ({ f1: f.test1.f1, f2: f.test1.f2 }))
             .where((f) => dsql`${f.f1} < ${f.f2}`)
             .select((f) => ({ f1: f["f1"] }))
             .stringify();
@@ -1837,7 +1838,7 @@ describe("sqlite select1", () => {
     it("select1-12.10 -- main alias append", async () => {
         const q = test1
             .selectStar()
-            .appendSelect((f) => ({ f1: f["test1.f1"] }))
+            .appendSelect((f) => ({ f1: f.test1.f1 }))
             .where((f) => dsql`${f.f1} < ${f.f2}`)
             .select((f) => ({ f1: f["f1"] }))
             .stringify();
@@ -1857,7 +1858,7 @@ describe("sqlite select1", () => {
     it("select1-12.10 -- main alias append 2", async () => {
         const q = test1
             .selectStar()
-            .appendSelect((f) => ({ f1: f["test1.f1"] }))
+            .appendSelect((f) => ({ f1: f.test1.f1 }))
             .where((f) => dsql`${f.f1} < ${f.f2}`)
             .select((f) => ({ f1: f["f1"] }))
             .appendSelect((f) => ({ f2: f["f2"] }))

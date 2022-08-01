@@ -9,7 +9,7 @@ layout: default
 
 Typescript helpers.
 
-Added in v0.0.0
+Added in v2.0.0
 
 <details open markdown="block">
   <summary>
@@ -22,15 +22,19 @@ Added in v0.0.0
 
 # utils
 
-## AnyStringifyable (type alias)
+## AnyPrintable (type alias)
 
 **Signature**
 
 ```ts
-export type AnyStringifyable = SelectStatement<any, any> | Compound<any, any>;
+export type AnyPrintable =
+  | SelectStatement<any, any, any, any>
+  | AliasedSelectStatement<any, any, any, any>
+  | Compound<any, any, any, any>
+  | AliasedCompound<any, any, any, any>;
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## RowOf (type alias)
 
@@ -39,7 +43,7 @@ Return a objects, where the keys are the columns of the selection.
 **Signature**
 
 ```ts
-export type RowOf<T extends AnyStringifyable> = RowOfSel<SelectionOf<T>>;
+export type RowOf<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>;
 ```
 
 **Example**
@@ -56,7 +60,7 @@ console.log(ret.name);
 console.log(ret.abc);
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## RowsArray (type alias)
 
@@ -65,7 +69,7 @@ Return an array of objects, where the object keys are the columns of the selecti
 **Signature**
 
 ```ts
-export type RowsArray<T extends AnyStringifyable> = RowOfSel<SelectionOf<T>>[];
+export type RowsArray<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>[];
 ```
 
 **Example**
@@ -82,23 +86,25 @@ console.log(ret?.[0]?.name);
 console.log(ret?.[0]?.abc);
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## SelectionOf (type alias)
 
-Given a stringifyable object, returns the union of the selection keys.
+Given a printable object, returns the union of the selection keys.
 
 **Signature**
 
 ```ts
-export type SelectionOf<T extends AnyStringifyable> = T extends SelectStatement<
-  any,
-  infer S
->
-  ? S
-  : T extends Compound<any, infer S2>
-  ? S2
-  : never;
+export type SelectionOf<T extends AnyPrintable> =
+  T extends AliasedSelectStatement<infer S, infer _S1, infer _S2, infer _S3>
+    ? S
+    : T extends AliasedCompound<infer S, infer _S1, infer _S2, infer _S3>
+    ? S
+    : T extends Compound<infer S, infer _S1, infer _S2, infer _S3>
+    ? S
+    : T extends SelectStatement<infer S, infer _S1, infer _S2, infer _S3>
+    ? S
+    : never;
 ```
 
 **Example**
@@ -114,4 +120,4 @@ assert.strictEqual(k, "id");
 const k2: Key = "abc";
 ```
 
-Added in v0.0.1
+Added in v2.0.0

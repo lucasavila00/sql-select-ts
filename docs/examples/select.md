@@ -16,26 +16,25 @@ layout: default
 
 ```ts
 import {
-  fromNothing,
-  dsql as sql,
-  table,
-  unionAll,
-  fromStringifiedSelectStatement,
-  selectStar,
-  select,
-  SafeString,
-} from "sql-select-ts";
+    fromNothing,
+    dsql as sql,
+    table,
+    unionAll,
+    fromStringifiedSelectStatement,
+    selectStar,
+    select,
+    SafeString,
+} from "../../src";
 ```
 
 # From Raw String (Stringified Select Statement)
 
 ```ts
-const q = fromStringifiedSelectStatement<"a">(
-  /* content: */ sql`SELECT 1 AS a`
-);
+const q = fromStringifiedSelectStatement<"a">(sql`SELECT 1 AS a`);
+
 q.selectStar()
-  .orderBy(/* f: */ (f) => f.a)
-  .stringify();
+    .orderBy((f) => f.a)
+    .stringify();
 ```
 
 ```sql
@@ -55,7 +54,9 @@ ORDER BY
 ## Select
 
 ```ts
-fromNothing(/* it: */ { abc: sql`123 + 456` }).stringify();
+fromNothing({
+    abc: sql`123 + 456`,
+}).stringify();
 ```
 
 ```sql
@@ -66,9 +67,13 @@ SELECT
 ## Append Select
 
 ```ts
-fromNothing(/* it: */ { abc: sql(/* it: */ 123) })
-  .appendSelect(/* f: */ (f) => ({ def: sql`${f.abc} + 456` }))
-  .stringify();
+fromNothing({
+    abc: sql(123),
+})
+    .appendSelect((f) => ({
+        def: sql`${f.abc} + 456`,
+    }))
+    .stringify();
 ```
 
 ```sql
@@ -80,16 +85,16 @@ SELECT
 ## Select from Select
 
 ```ts
-const initialData = fromNothing(/* it: */ { it: sql(/* it: */ 0) });
+const initialData = fromNothing({
+    it: sql(0),
+});
 ```
 
 Starting at query top
 
 ```ts
 selectStar(
-  /* from: */ select(/* f: */ ["it"], /* from: */ initialData).where(
-    /* f: */ (f) => sql`${f.it} = 1`
-  )
+    select(["it"], initialData).where((f) => sql`${f.it} = 1`)
 ).stringify();
 ```
 
@@ -114,10 +119,10 @@ Starting at query root
 
 ```ts
 initialData
-  .select(/* f: */ ["it"])
-  .where(/* f: */ (f) => sql`${f.it} = 1`)
-  .selectStar()
-  .stringify();
+    .select(["it"])
+    .where((f) => sql`${f.it} = 1`)
+    .selectStar()
+    .stringify();
 ```
 
 ```sql
@@ -149,15 +154,9 @@ CREATE TABLE admins(id int, age int, name string);
 Which are defined in typescript as
 
 ```ts
-const users = table(
-  /* columns: */ ["id", "age", "name", "country"],
-  /* alias: */ "users"
-);
-const admins = table(
-  /* columns: */ ["id", "age", "name", "country"],
-  /* alias: */ "adm",
-  /* name: */ "admins"
-);
+const users = table(["id", "age", "name", "country"], "users");
+
+const admins = table(["id", "age", "name", "country"], "adm", "admins");
 ```
 
 And a helper function
@@ -185,9 +184,9 @@ From top
 
 ```ts
 select(
-  //
-  /* f: */ (f) => ({ maxAge: MAX(/* it: */ f.age) }),
-  /* from: */ users
+    //
+    (f) => ({ maxAge: MAX(f.age) }),
+    users
 ).stringify();
 ```
 
@@ -201,7 +200,7 @@ FROM
 From root
 
 ```ts
-users.select(/* f: */ (f) => ({ maxAge: MAX(/* it: */ f.age) })).stringify();
+users.select((f) => ({ maxAge: MAX(f.age) })).stringify();
 ```
 
 ```sql
@@ -214,7 +213,7 @@ FROM
 ## Select distinct
 
 ```ts
-admins.select(/* f: */ ["name"]).distinct().stringify();
+admins.select(["name"]).distinct().stringify();
 ```
 
 ```sql
@@ -228,9 +227,11 @@ FROM
 
 ```ts
 users
-  .selectStar()
-  .appendSelect(/* f: */ (f) => ({ otherAlias: f.name }))
-  .stringify();
+    .selectStar()
+    .appendSelect((f) => ({
+        otherAlias: f.name,
+    }))
+    .stringify();
 ```
 
 ```sql
@@ -245,9 +246,11 @@ FROM
 
 ```ts
 admins
-  .select(/* f: */ (f) => ({ otherAlias: f["adm.name"] }))
-  .appendSelectStar()
-  .stringify();
+    .select((f) => ({
+        otherAlias: f.adm.name,
+    }))
+    .appendSelectStar()
+    .stringify();
 ```
 
 ```sql
@@ -261,10 +264,7 @@ FROM
 ## Select star of aliases
 
 ```ts
-admins
-  .commaJoinTable(/* table: */ users)
-  .selectStarOfAliases(/* aliases: */ ["users"])
-  .stringify();
+admins.commaJoin(users).selectStarOfAliases(["users"]).stringify();
 ```
 
 ```sql
@@ -278,7 +278,7 @@ FROM
 ## Select from sub-select
 
 ```ts
-users.selectStar().select(/* f: */ ["age"]).selectStar().stringify();
+users.selectStar().select(["age"]).selectStar().stringify();
 ```
 
 ```sql
@@ -301,9 +301,7 @@ FROM
 ## Select from union
 
 ```ts
-unionAll(/* content: */ [users.selectStar(), admins.selectStar()])
-  .select(/* f: */ ["age"])
-  .stringify();
+unionAll([users.selectStar(), admins.selectStar()]).select(["age"]).stringify();
 ```
 
 ```sql
@@ -327,10 +325,10 @@ FROM
 
 ```ts
 users
-  .joinTable(/* operator: */ "LEFT", /* table: */ admins)
-  .using(/* keys: */ ["id"])
-  .select(/* f: */ ["users.name", "adm.name"])
-  .stringify();
+    .join("LEFT", admins)
+    .using(["id"])
+    .select((f) => ({ "users.name": f.users.name, "adm.name": f.adm.name }))
+    .stringify();
 ```
 
 ```sql
@@ -347,8 +345,9 @@ FROM
 This is not valid. The typescript compiler will prevent this.
 
 ```ts
-users // @ts-expect-error
-  .select(/* f: */ (f) => f);
+users
+    // @ts-expect-error
+    .select((f) => f);
 ```
 
 # Control order of selection
@@ -356,7 +355,12 @@ users // @ts-expect-error
 Although it works on most cases, order of selection is not guaranteed.
 
 ```ts
-users.select(/* f: */ (f) => ({ abc: f.name, def: f.id })).stringify();
+users
+    .select((f) => ({
+        abc: f.name,
+        def: f.id,
+    }))
+    .stringify();
 ```
 
 ```sql
@@ -369,8 +373,12 @@ FROM
 
 ```ts
 users
-  .select(/* f: */ (f) => ({ ["123"]: f.age, name: f.name, ["456"]: f.id }))
-  .stringify();
+    .select((f) => ({
+        ["123"]: f.age,
+        name: f.name,
+        ["456"]: f.id,
+    }))
+    .stringify();
 ```
 
 ```sql
@@ -386,10 +394,14 @@ To achieve control of the selection order, append each item individually.
 
 ```ts
 users
-  .select(/* f: */ (f) => ({ ["123"]: f.age }))
-  .appendSelect(/* f: */ ["name"])
-  .appendSelect(/* f: */ (f) => ({ ["456"]: f.id }))
-  .stringify();
+    .select((f) => ({
+        ["123"]: f.age,
+    }))
+    .appendSelect((f) => ({ name: f.name }))
+    .appendSelect((f) => ({
+        ["456"]: f.id,
+    }))
+    .stringify();
 ```
 
 ```sql

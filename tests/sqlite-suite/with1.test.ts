@@ -24,28 +24,26 @@ describe("sqlite with", () => {
         const SUM = (it: SafeString): SafeString => sql`SUM(${it})`;
 
         const q = with_(
-            "regional_sales",
             select(
                 (f) => ({
                     region: f.region,
                     total_sales: SUM(f.amount),
                 }),
                 orders
-            ).groupBy((f) => f.region)
+            )
+                .groupBy((f) => f.region)
+                .as("regional_sales")
         )
-            .with_("top_regions", (acc) =>
-                select(
-                    (f) => ({
-                        region: f.region,
-                    }),
-                    acc.regional_sales
-                ).where(
-                    (f) =>
-                        sql`${f.total_sales} > ${select(
-                            (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
-                            acc.regional_sales
-                        )}`
-                )
+            .with_((acc) =>
+                select(["region"], acc.regional_sales)
+                    .where(
+                        (f) =>
+                            sql`${f.total_sales} > ${select(
+                                (f) => ({ it: sql`SUM(${f.total_sales})/10` }),
+                                acc.regional_sales
+                            )}`
+                    )
+                    .as("top_regions")
             )
             .do((acc) =>
                 select(
@@ -113,11 +111,7 @@ describe("sqlite with", () => {
     });
 
     it("basic - no cols", async () => {
-        const q = with_(
-            //
-            "t0_alias",
-            t0.selectStar()
-        )
+        const q = with_(t0.selectStar().as("t0_alias"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
 
@@ -128,12 +122,7 @@ describe("sqlite with", () => {
     });
 
     it("basic", async () => {
-        const q = withR(
-            //
-            "t0_alias",
-            ["a", "b"],
-            t0.selectStar()
-        )
+        const q = withR(t0.selectStar().as("t0_alias"), ["a", "b"])
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
             .stringify();
 
@@ -144,14 +133,9 @@ describe("sqlite with", () => {
     });
 
     it("1 with call", async () => {
-        const q = withR(
-            //
-            "t0_alias",
-            ["a", "b"],
-            t0.selectStar()
-        )
+        const q = withR(t0.selectStar().as("t0_alias"), ["a", "b"])
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
-            .appendSelect((f) => ({ it2: f["t0_alias.a"] }))
+            .appendSelect((f) => ({ it2: f.t0_alias.a }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -161,20 +145,10 @@ describe("sqlite with", () => {
     });
 
     it("2 with calls", async () => {
-        const q = withR(
-            //
-            "t0_alias",
-            ["a", "b"],
-            t0.selectStar()
-        )
-            .withR(
-                //
-                "t1_alias",
-                ["d", "e"],
-                () => t0.selectStar()
-            )
+        const q = withR(t0.selectStar().as("t0_alias"), ["a", "b"])
+            .withR(() => t0.selectStar().as("t1_alias"), ["d", "e"])
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
-            .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
+            .appendSelect((f) => ({ it2: f.t1_alias.d }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -184,21 +158,13 @@ describe("sqlite with", () => {
     });
 
     it("2 with calls - using prev", async () => {
-        const q = withR(
-            //
-            "t0_alias",
-            ["a", "b"],
-            t0.selectStar()
-        )
+        const q = withR(t0.selectStar().as("t0_alias"), ["a", "b"])
             .withR(
-                //
-                "t1_alias",
-                ["d", "e"],
-                (acc) => acc.t0_alias.selectStar()
+                (acc) => acc.t0_alias.selectStar().as("t1_alias"),
+                ["d", "e"]
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
-
-            .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
+            .appendSelect((f) => ({ it2: f.t1_alias.d }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -208,21 +174,10 @@ describe("sqlite with", () => {
     });
 
     it("2 with calls - not using prev", async () => {
-        const q = withR(
-            //
-            "t0_alias",
-            ["a", "b"],
-            t0.selectStar()
-        )
-            .withR(
-                //
-                "t1_alias",
-                ["d", "e"],
-                (_acc) => t0.selectStar()
-            )
+        const q = withR(t0.selectStar().as("t0_alias"), ["a", "b"])
+            .withR((_acc) => t0.selectStar().as("t1_alias"), ["d", "e"])
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
-
-            .appendSelect((f) => ({ it2: f["t1_alias.d"] }))
+            .appendSelect((f) => ({ it2: f.t1_alias.d }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -232,19 +187,10 @@ describe("sqlite with", () => {
     });
 
     it("2 with calls - using prev - no cols", async () => {
-        const q = with_(
-            //
-            "t0_alias",
-            t0.selectStar()
-        )
-            .with_(
-                //
-                "t1_alias",
-                (acc) => acc.t0_alias.selectStar()
-            )
+        const q = with_(t0.selectStar().as("t0_alias"))
+            .with_((acc) => acc.t0_alias.selectStar().as("t1_alias"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
-
-            .appendSelect((f) => ({ it2: f["t1_alias.x"] }))
+            .appendSelect((f) => ({ it2: f.t1_alias.x }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -254,19 +200,10 @@ describe("sqlite with", () => {
     });
 
     it("2 with calls - not using prev - no cols", async () => {
-        const q = with_(
-            //
-            "t0_alias",
-            t0.selectStar()
-        )
-            .with_(
-                //
-                "t1_alias",
-                () => t0.selectStar()
-            )
+        const q = with_(t0.selectStar().as("t0_alias"))
+            .with_(() => t0.selectStar().as("t1_alias"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
-
-            .appendSelect((f) => ({ it2: f["t1_alias.x"] }))
+            .appendSelect((f) => ({ it2: f.t1_alias.x }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -275,27 +212,17 @@ describe("sqlite with", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("3 with calls - using prev", async () => {
-        const q = withR(
-            //
-            "t0_alias",
-            ["a", "b"],
-            t0.selectStar()
-        )
+        const q = withR(t0.selectStar().as("t0_alias"), ["a", "b"])
             .withR(
-                //
-                "t1_alias",
-                ["d", "e"],
-                (acc) => acc.t0_alias.selectStar()
+                (acc) => acc.t0_alias.selectStar().as("t1_alias"),
+                ["d", "e"]
             )
             .withR(
-                //
-                "t2_alias",
-                ["abc", "def"],
-                (acc) => acc.t1_alias.selectStar()
+                (acc) => acc.t1_alias.selectStar().as("t2_alias"),
+                ["abc", "def"]
             )
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t2_alias))
-
-            .appendSelect((f) => ({ it2: f["t2_alias.abc"] }))
+            .appendSelect((f) => ({ it2: f.t2_alias.abc }))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -304,12 +231,7 @@ describe("sqlite with", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with1-1.0", async () => {
-        const q = withR(
-            //
-            "x",
-            ["a", "b"],
-            t0.selectStar()
-        )
+        const q = withR(t0.selectStar().as("x"), ["a", "b"])
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -318,12 +240,7 @@ describe("sqlite with", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with1-1.0 -- no columns", async () => {
-        const q = withR(
-            //
-            "x",
-            [],
-            t0.selectStar()
-        )
+        const q = withR(t0.selectStar().as("x"), [])
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .stringify();
 
@@ -334,12 +251,7 @@ describe("sqlite with", () => {
     });
 
     it("with1-1.0 -- use alias", async () => {
-        const q = withR(
-            //
-            "x",
-            ["a", "b"],
-            t0.selectStar()
-        )
+        const q = withR(t0.selectStar().as("x"), ["a", "b"])
             .do((acc) => select((f) => ({ it: f.a }), acc.x))
 
             .stringify();
@@ -350,13 +262,8 @@ describe("sqlite with", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
     it("with1-1.0 -- use alias2", async () => {
-        const q = withR(
-            //
-            "x",
-            ["a", "b"],
-            t0.selectStar()
-        )
-            .do((acc) => select((f) => ({ it: f["x.a"] }), acc.x))
+        const q = withR(t0.selectStar().as("x"), ["a", "b"])
+            .do((acc) => select((f) => ({ it: f.x.a }), acc.x))
             .stringify();
 
         expect(q).toMatchInlineSnapshot(
@@ -366,12 +273,7 @@ describe("sqlite with", () => {
     });
 
     it("with1-1.1", async () => {
-        const q = withR(
-            //
-            "x",
-            ["a", "b"],
-            t0.selectStar()
-        )
+        const q = withR(t0.selectStar().as("x"), ["a", "b"])
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.x))
             .selectStar()
             .stringify();

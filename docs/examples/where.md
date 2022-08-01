@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, dsql as sql, SafeString, castSafe } from "sql-select-ts";
+import { table, dsql as sql, SafeString, castSafe } from "../../src";
 ```
 
 We will use this table
@@ -28,8 +28,8 @@ Which is defined in typescript as
 
 ```ts
 const users = table(
-  /* columns: */ /* columns: */ ["id", "age", "name"],
-  /* db-name & alias: */ /* alias: */ "users"
+    /* columns: */ ["id", "age", "name"],
+    /* db-name & alias: */ "users"
 );
 ```
 
@@ -38,9 +38,9 @@ const users = table(
 ```ts
 const name = "Lucas";
 users
-  .selectStar()
-  .where(/* f: */ (f) => sql`${f.name} = ${name}`)
-  .stringify();
+    .selectStar()
+    .where((f) => sql`${f.name} = ${name}`)
+    .stringify();
 ```
 
 ```sql
@@ -59,9 +59,9 @@ WHERE
 ```ts
 const name2 = "Lucas";
 users
-  .selectStar()
-  .where(/* f: */ (f) => [sql`${f.name} = ${name2}`, sql`${f.id} = 5`])
-  .stringify();
+    .selectStar()
+    .where((f) => [sql`${f.name} = ${name2}`, sql`${f.id} = 5`])
+    .stringify();
 ```
 
 ```sql
@@ -79,10 +79,10 @@ WHERE
 ```ts
 const id = 5;
 users
-  .selectStar()
-  .where(/* f: */ (f) => sql`${f.name} = 'Lucas'`)
-  .where(/* f: */ (f) => sql`${f.id} = ${id}`)
-  .stringify();
+    .selectStar()
+    .where((f) => sql`${f.name} = 'Lucas'`)
+    .where((f) => sql`${f.id} = ${id}`)
+    .stringify();
 ```
 
 ```sql
@@ -99,18 +99,13 @@ WHERE
 
 ```ts
 const OR = (...cases: SafeString[]): SafeString => {
-  const j = cases
-    .map(/* callbackfn: */ (it) => it.content)
-    .join(/* separator: */ " OR ");
-  return castSafe(/* content: */ `(${j})`);
+    const j = cases.map((it) => it.content).join(" OR ");
+    return castSafe(`(${j})`);
 };
 users
-  .selectStar()
-  .where(
-    /* f: */ (f) =>
-      OR(/* cases: */ sql`${f.name} = 'Lucas'`, sql`${f.id} = ${id}`)
-  )
-  .stringify();
+    .selectStar()
+    .where((f) => OR(sql`${f.name} = 'Lucas'`, sql`${f.id} = ${id}`))
+    .stringify();
 ```
 
 ```sql

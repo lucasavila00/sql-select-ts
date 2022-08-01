@@ -9,7 +9,7 @@ layout: default
 
 Entry points of the library.
 
-Added in v0.0.0
+Added in v2.0.0
 
 <details open markdown="block">
   <summary>
@@ -30,13 +30,21 @@ Creates a compound query using 'EXCEPT'
 
 ```ts
 export declare const except: <
-  C extends SelectStatement<any, any>,
-  CS extends readonly SelectStatement<any, any>[]
+  C extends
+    | SelectStatement<any, any, any, any>
+    | AliasedSelectStatement<any, any, any, any>,
+  CS extends readonly (
+    | SelectStatement<any, any, any, any>
+    | AliasedSelectStatement<any, any, any, any>
+  )[]
 >(
   content: CS & { 0: C }
 ) => Compound<
-  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-  SelectionOfSelectStatement<C>
+  SelectionOfSelectStatement<C>,
+  never,
+  ScopeOfSelectStatement<C> &
+    UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>
 >;
 ```
 
@@ -51,7 +59,7 @@ const u = except([q1, q2]);
 assert.strictEqual(u.stringify(), "SELECT 123 AS `a` EXCEPT SELECT 456 AS `a`");
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## intersect
 
@@ -61,13 +69,21 @@ Creates a compound query using 'INTERSECT'
 
 ```ts
 export declare const intersect: <
-  C extends SelectStatement<any, any>,
-  CS extends readonly SelectStatement<any, any>[]
+  C extends
+    | SelectStatement<any, any, any, any>
+    | AliasedSelectStatement<any, any, any, any>,
+  CS extends readonly (
+    | SelectStatement<any, any, any, any>
+    | AliasedSelectStatement<any, any, any, any>
+  )[]
 >(
   content: CS & { 0: C }
 ) => Compound<
-  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-  SelectionOfSelectStatement<C>
+  SelectionOfSelectStatement<C>,
+  never,
+  ScopeOfSelectStatement<C> &
+    UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>
 >;
 ```
 
@@ -85,7 +101,7 @@ assert.strictEqual(
 );
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## union
 
@@ -95,13 +111,21 @@ Creates a compound query using 'UNION'
 
 ```ts
 export declare const union: <
-  C extends SelectStatement<any, any>,
-  CS extends readonly SelectStatement<any, any>[]
+  C extends
+    | SelectStatement<any, any, any, any>
+    | AliasedSelectStatement<any, any, any, any>,
+  CS extends readonly (
+    | SelectStatement<any, any, any, any>
+    | AliasedSelectStatement<any, any, any, any>
+  )[]
 >(
   content: CS & { 0: C }
 ) => Compound<
-  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-  SelectionOfSelectStatement<C>
+  SelectionOfSelectStatement<C>,
+  never,
+  ScopeOfSelectStatement<C> &
+    UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>
 >;
 ```
 
@@ -116,7 +140,7 @@ const u = union([q1, q2]);
 assert.strictEqual(u.stringify(), "SELECT 123 AS `a` UNION SELECT 456 AS `a`");
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ## unionAll
 
@@ -126,13 +150,21 @@ Creates a compound query using 'UNION ALL'
 
 ```ts
 export declare const unionAll: <
-  C extends SelectStatement<any, any>,
-  CS extends readonly SelectStatement<any, any>[]
+  C extends
+    | SelectStatement<any, any, any, any>
+    | AliasedSelectStatement<any, any, any, any>,
+  CS extends readonly (
+    | SelectStatement<any, any, any, any>
+    | AliasedSelectStatement<any, any, any, any>
+  )[]
 >(
   content: CS & { 0: C }
 ) => Compound<
-  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-  SelectionOfSelectStatement<C>
+  SelectionOfSelectStatement<C>,
+  never,
+  ScopeOfSelectStatement<C> &
+    UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
+  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>
 >;
 ```
 
@@ -150,7 +182,7 @@ assert.strictEqual(
 );
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 # starter
 
@@ -161,9 +193,9 @@ Select data from no source.
 **Signature**
 
 ```ts
-export declare const fromNothing: <NewSelection extends string>(
+export declare const fromNothing: <NewSelection extends string = never>(
   it: Record<NewSelection, SafeString>
-) => SelectStatement<never, NewSelection>;
+) => SelectStatement<NewSelection, never, Record<string, never>, never>;
 ```
 
 **Example**
@@ -174,7 +206,7 @@ const q1 = fromNothing({ a: sql(123) });
 assert.strictEqual(q1.stringify(), "SELECT 123 AS `a`");
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ## fromStringifiedSelectStatement
 
@@ -184,10 +216,10 @@ Create a select statement from a raw string.
 
 ```ts
 export declare const fromStringifiedSelectStatement: <
-  NewSelection extends string
+  NewSelection extends string = never
 >(
   content: SafeString
-) => StringifiedSelectStatement<NewSelection>;
+) => StringifiedSelectStatement<NewSelection, never, never, never>;
 ```
 
 **Example**
@@ -201,7 +233,7 @@ assert.strictEqual(
 );
 ```
 
-Added in v0.0.3
+Added in v2.0.0
 
 ## select
 
@@ -211,24 +243,30 @@ Creates a query selecting from the second parameter.
 
 ```ts
 export declare const select: <
-  NewSelection extends string = never,
-  FromAlias extends string = never,
   FromSelection extends string = never,
-  FromScope extends string = never,
-  FromAmbigous extends string = never,
+  FromAlias extends string = never,
+  FromScope extends ScopeShape = never,
+  FromFlatScope extends string = never,
+  NewSelection extends string = never,
   SubSelection extends FromSelection = never
 >(
-  f:
+  _:
     | readonly SubSelection[]
     | ((
-        f: Record<FromSelection | FromScope, SafeString> &
+        fields: Record<FromSelection, SafeString> &
+          SelectionOfScope<FromScope> &
           NoSelectFieldsCompileError
       ) => Record<NewSelection, SafeString>),
-  from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-) => SelectStatement<FromSelection, NewSelection | SubSelection>;
+  from: TableOrSubquery<FromSelection, FromAlias, FromScope, FromFlatScope>
+) => SelectStatement<
+  NewSelection | SubSelection,
+  never,
+  FromScope,
+  FromFlatScope
+>;
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 ## selectStar
 
@@ -238,20 +276,20 @@ Creates a query selecting all from the second parameter.
 
 ```ts
 export declare const selectStar: <
-  FromAlias extends string = never,
   FromSelection extends string = never,
-  FromScope extends string = never,
-  FromAmbigous extends string = never
+  FromAlias extends string = never,
+  FromScope extends ScopeShape = never,
+  FromFlatScope extends string = never
 >(
-  from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-) => SelectStatement<FromSelection, FromSelection>;
+  from: TableOrSubquery<FromSelection, FromAlias, FromScope, FromFlatScope>
+) => SelectStatement<FromSelection, never, never, FromSelection>;
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 ## table
 
-Create a table definition. Optinionally, you can provide an alias for the table, which can differ from it's name.
+Create a table definition. Optionally, you can provide an alias for the table, which can differ from it's name.
 
 **Signature**
 
@@ -260,7 +298,7 @@ export declare const table: <Selection extends string, Alias extends string>(
   columns: readonly Selection[],
   alias: Alias,
   name?: string
-) => Table<`${Alias}.${Selection}`, Selection, Alias>;
+) => Table<Selection, Alias, { [key in Alias]: Selection }, Selection>;
 ```
 
 **Example**
@@ -277,23 +315,27 @@ assert.strictEqual(
 );
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ## withR
 
-Create a common table expression, renaming the selecion.
+Create a common table expression, renaming the selection.
 
 **Signature**
 
 ```ts
-export declare const withR: <Selection extends string, Alias extends string>(
-  alias: Alias,
-  columns: readonly Selection[],
-  select: SelectStatement<any, any>
-) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
+export declare const withR: <NSelection extends string, NAlias extends string>(
+  select: AliasedSelectStatement<any, NAlias, any, any>,
+  columns: readonly NSelection[]
+) => CommonTableExpressionFactory<
+  NSelection,
+  NAlias,
+  { [key in NAlias]: NSelection },
+  NSelection
+>;
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 ## with\_
 
@@ -302,13 +344,17 @@ Create a common table expression.
 **Signature**
 
 ```ts
-export declare const with_: <Selection extends string, Alias extends string>(
-  alias: Alias,
-  select: SelectStatement<any, Selection>
-) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
+export declare const with_: <NSelection extends string, NAlias extends string>(
+  select: AliasedSelectStatement<NSelection, NAlias, any, any>
+) => CommonTableExpressionFactory<
+  NSelection,
+  NAlias,
+  { [key in NAlias]: NSelection },
+  NSelection
+>;
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 # string-builder
 
@@ -322,7 +368,7 @@ A wrapper over a string, We assume that strings inside the wrapper are safe to w
 export declare const SafeString: SafeString;
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ## buildSerializer
 
@@ -335,7 +381,7 @@ export declare const buildSerializer: <T>(args: {
 }) => Serializer<T>;
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## buildSql
 
@@ -347,7 +393,7 @@ export declare const buildSql: <T extends Serializer<any>[]>(
 ) => SqlStringBuilder<T>;
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## castSafe
 
@@ -370,7 +416,7 @@ assert.strictEqual(castSafe(";'abc'").content, ";'abc'");
 assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ## dsql
 
@@ -402,7 +448,7 @@ const q = fromNothing({ it: sql(123) });
 assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 ## isSafeString
 
@@ -422,19 +468,19 @@ import { isSafeString, dsql as sql } from "sql-select-ts";
 assert.strictEqual(isSafeString(sql(123)), true);
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 # utils
 
-## AnyStringifyable
+## AnyPrintable
 
 **Signature**
 
 ```ts
-export declare const AnyStringifyable: AnyStringifyable;
+export declare const AnyPrintable: AnyPrintable;
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## RowOf
 
@@ -462,7 +508,7 @@ console.log(ret.name);
 console.log(ret.abc);
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## RowsArray
 
@@ -488,11 +534,11 @@ console.log(ret?.[0]?.name);
 console.log(ret?.[0]?.abc);
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## SelectionOf
 
-Given a stringifyable object, returns the union of the selection keys.
+Given a printable object, returns the union of the selection keys.
 
 **Signature**
 
@@ -513,4 +559,4 @@ assert.strictEqual(k, "id");
 const k2: Key = "abc";
 ```
 
-Added in v0.0.1
+Added in v2.0.0

@@ -12,7 +12,7 @@ Represents a table in the database.
 It stores type information of the table Alias and Selection.
 It also stores the table name and the alias.
 
-Added in v0.0.0
+Added in v2.0.0
 
 <details open markdown="block">
   <summary>
@@ -36,7 +36,7 @@ This class is not meant to be used directly, but rather through the `table` func
 **Signature**
 
 ```ts
-export declare class Table<Scope, Selection, Alias> {
+export declare class Table<Selection, Alias, Scope, FlatScope> {
   private constructor(
     /* @internal */
     public __props: {
@@ -44,12 +44,13 @@ export declare class Table<Scope, Selection, Alias> {
       readonly alias: string;
       readonly name: string;
       readonly final: boolean;
+      readonly scope: ScopeStorage;
     }
   );
 }
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ### clickhouse (property)
 
@@ -57,11 +58,11 @@ Added in v0.0.0
 
 ```ts
 clickhouse: {
-  final: () => Table<Scope, Selection, Alias>;
+  final: () => Table<Selection, Alias, Scope, FlatScope>;
 }
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ### select (property)
 
@@ -70,231 +71,80 @@ Added in v0.0.0
 ```ts
 select: <
   NewSelection extends string = never,
-  SubSelection extends Selection | `${Alias}.${Selection}` = never
+  SubSelection extends Selection = never
 >(
-  f:
+  _:
     | readonly SubSelection[]
     | ((
-        f: Record<Selection | `${Alias}.${Selection}`, SafeString> &
+        fields: RecordOfSelection<Selection> &
+          SelectionOfScope<Scope> &
           NoSelectFieldsCompileError
       ) => Record<NewSelection, SafeString>)
-) =>
-  SelectStatement<
-    Selection | `${Alias}.${Selection}`,
-    NewSelection | SubSelection
-  >;
+) => SelectStatement<NewSelection | SubSelection, never, Scope, FlatScope>;
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ### selectStar (property)
 
 **Signature**
 
 ```ts
-selectStar: () =>
-  SelectStatement<Selection | `${Alias}.${Selection}`, Selection>;
+selectStar: () => SelectStatement<Selection, never, Scope, FlatScope>;
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
-### commaJoinTable (property)
+### commaJoin (property)
 
 **Signature**
 
 ```ts
-commaJoinTable: <
-  Scope2 extends string,
-  Selection2 extends string,
-  Alias2 extends string
+commaJoin: <
+  Selection2 extends string = never,
+  Alias2 extends string = never,
+  Scope2 extends ScopeShape = never,
+  FlatScope2 extends string = never
 >(
-  table: Table<Scope2, Selection2, Alias2>
+  _: ValidAliasInSelection<
+    Joinable<Selection2, Alias2, Scope2, FlatScope2>,
+    Alias2
+  >
 ) =>
   Joined<
-    Selection,
-    | `${Alias}.${Selection}`
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`,
-    Alias | Alias2,
-    Extract<Selection2, Selection>
+    never,
+    never,
+    { [key in Alias]: Selection } & { [key in Alias2]: Selection2 },
+    Selection | Selection2
   >;
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
-### joinTable (property)
+### join (property)
 
 **Signature**
 
 ```ts
-joinTable: <
-  Scope2 extends string,
-  Selection2 extends string,
-  Alias2 extends string
+join: <
+  Selection2 extends string = never,
+  Alias2 extends string = never,
+  Scope2 extends ScopeShape = never,
+  FlatScope2 extends string = never
 >(
   operator: string,
-  table: Table<Scope2, Selection2, Alias2>
+  _: ValidAliasInSelection<
+    Joinable<Selection2, Alias2, Scope2, FlatScope2>,
+    Alias2
+  >
 ) =>
   JoinedFactory<
-    Selection,
-    | `${Alias}.${Selection}`
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`,
-    Alias | Alias2,
-    Extract<Selection2, Selection>,
-    Extract<Selection2, Selection>
+    { [key in Alias]: Selection } & { [key in Alias2]: Selection2 },
+    Extract<Selection, Selection2>
   >;
 ```
 
-Added in v0.0.0
-
-### commaJoinStringifiedSelect (property)
-
-**Signature**
-
-```ts
-commaJoinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
-  selectAlias: Alias2,
-  select: StringifiedSelectStatement<Selection2>
-) =>
-  Joined<
-    Selection,
-    | `${Alias}.${Selection}`
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`,
-    Alias | Alias2,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.3
-
-### commaJoinSelect (property)
-
-**Signature**
-
-```ts
-commaJoinSelect: <
-  Scope2 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  selectAlias: Alias2,
-  select: SelectStatement<Scope2, Selection2>
-) =>
-  Joined<
-    Selection,
-    | `${Alias}.${Selection}`
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`,
-    Alias | Alias2,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.0
-
-### joinStringifiedSelect (property)
-
-**Signature**
-
-```ts
-joinStringifiedSelect: <Selection2 extends string, Alias2 extends string>(
-  selectAlias: Alias2,
-  operator: string,
-  select: StringifiedSelectStatement<Selection2>
-) =>
-  JoinedFactory<
-    Selection,
-    | `${Alias}.${Selection}`
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`,
-    Alias | Alias2,
-    Extract<Selection2, Selection>,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.3
-
-### joinSelect (property)
-
-**Signature**
-
-```ts
-joinSelect: <
-  Scope2 extends string,
-  Selection2 extends string,
-  Alias2 extends string
->(
-  selectAlias: Alias2,
-  operator: string,
-  select: SelectStatement<Scope2, Selection2>
-) =>
-  JoinedFactory<
-    Selection,
-    | `${Alias}.${Selection}`
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`,
-    Alias | Alias2,
-    Extract<Selection2, Selection>,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.0
-
-### commaJoinCompound (property)
-
-**Signature**
-
-```ts
-commaJoinCompound: <Selection2 extends string, Alias2 extends string>(
-  compoundAlias: Alias2,
-  compound: Compound<Selection2, Selection2>
-) =>
-  Joined<
-    Selection,
-    | `${Alias}.${Selection}`
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`,
-    Alias | Alias2,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.0
-
-### joinCompound (property)
-
-**Signature**
-
-```ts
-joinCompound: <Selection2 extends string, Alias2 extends string>(
-  compoundAlias: Alias2,
-  operator: string,
-  compound: Compound<Selection2, Selection2>
-) =>
-  JoinedFactory<
-    Selection,
-    | `${Alias}.${Selection}`
-    | Exclude<Selection, Selection2>
-    | Exclude<Selection2, Selection>
-    | `${Alias2}.${Selection2}`,
-    Alias | Alias2,
-    Extract<Selection2, Selection>,
-    Extract<Selection2, Selection>
-  >;
-```
-
-Added in v0.0.0
+Added in v2.0.0
 
 ### apply (property)
 
@@ -306,4 +156,15 @@ apply: <Ret extends TableOrSubquery<any, any, any, any> = never>(
 ) => Ret;
 ```
 
-Added in v1.1.1
+Added in v2.0.0
+
+### as (property)
+
+**Signature**
+
+```ts
+as: <NewAlias extends string = never>(as: NewAlias) =>
+  Table<Selection, NewAlias, Scope, FlatScope>;
+```
+
+Added in v2.0.0

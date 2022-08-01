@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, union, unionAll, except, intersect } from "sql-select-ts";
+import { table, union, unionAll, except, intersect } from "../../src";
 import * as RNEA from "fp-ts/lib/ReadonlyNonEmptyArray";
 import { pipe } from "fp-ts/lib/function";
 ```
@@ -30,12 +30,9 @@ CREATE TABLE admins(id int, age int, name string);
 Which are defined in typescript as
 
 ```ts
-const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
-const admins = table(
-  /* columns: */ ["id", "age", "name"],
-  /* alias: */ "adm",
-  /* name: */ "admins"
-);
+const users = table(["id", "age", "name"], "users");
+
+const admins = table(["id", "age", "name"], "adm", "admins");
 ```
 
 # Supported types
@@ -43,7 +40,7 @@ const admins = table(
 ## Union
 
 ```ts
-union(/* content: */ [admins.selectStar(), users.selectStar()]).stringify();
+union([admins.selectStar(), users.selectStar()]).stringify();
 ```
 
 ```sql
@@ -61,7 +58,7 @@ FROM
 ## Union All
 
 ```ts
-unionAll(/* content: */ [admins.selectStar(), users.selectStar()]).stringify();
+unionAll([admins.selectStar(), users.selectStar()]).stringify();
 ```
 
 ```sql
@@ -79,7 +76,7 @@ FROM
 ## Except
 
 ```ts
-except(/* content: */ [admins.selectStar(), users.selectStar()]).stringify();
+except([admins.selectStar(), users.selectStar()]).stringify();
 ```
 
 ```sql
@@ -97,7 +94,7 @@ FROM
 ## Intersect
 
 ```ts
-intersect(/* content: */ [admins.selectStar(), users.selectStar()]).stringify();
+intersect([admins.selectStar(), users.selectStar()]).stringify();
 ```
 
 ```sql
@@ -128,10 +125,11 @@ interface ReadOnlyNonEmptyArray<A> extends ReadonlyArray<A> {
 
 ```ts
 const array2 = pipe(
-  /* a: */ [admins.selectStar(), users.selectStar()],
-  RNEA.map(/* f: */ (it) => it.selectStar())
+    [admins.selectStar(), users.selectStar()],
+    RNEA.map((it) => it.selectStar())
 );
-intersect(/* content: */ array2).stringify();
+
+intersect(array2).stringify();
 ```
 
 ```sql

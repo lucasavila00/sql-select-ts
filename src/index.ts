@@ -1,7 +1,7 @@
 /**
  * Entry points of the library.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 
 import { Compound } from "./classes/compound";
@@ -10,7 +10,13 @@ import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
 import { SafeString } from "./safe-string";
-import { NoSelectFieldsCompileError, TableOrSubquery } from "./types";
+import {
+    NoSelectFieldsCompileError,
+    RecordOfSelection,
+    ScopeShape,
+    SelectionOfScope,
+    TableOrSubquery,
+} from "./types";
 
 /**
  *
@@ -23,14 +29,14 @@ import { NoSelectFieldsCompileError, TableOrSubquery } from "./types";
  * assert.strictEqual(s1.selectStar().stringify(), "SELECT * FROM (SELECT * FROM `users`)");
  *
  * @category starter
- * @since 0.0.3
+ * @since 2.0.0
  */
 export const fromStringifiedSelectStatement =
     StringifiedSelectStatement.fromSafeString;
 
 /**
  *
- * Create a table definition. Optinionally, you can provide an alias for the table, which can differ from it's name.
+ * Create a table definition. Optionally, you can provide an alias for the table, which can differ from it's name.
  *
  * @example
  *
@@ -42,7 +48,7 @@ export const fromStringifiedSelectStatement =
  * assert.strictEqual(t2.selectStar().stringify(), "SELECT * FROM `users` AS `alias`");
  *
  * @category starter
- * @since 0.0.0
+ * @since 2.0.0
  */
 export const table = Table.define;
 
@@ -51,16 +57,16 @@ export const table = Table.define;
  * Create a common table expression.
  *
  * @category starter
- * @since 1.0.0
+ * @since 2.0.0
  */
 export const with_ = CommonTableExpressionFactory.define;
 
 /**
  *
- * Create a common table expression, renaming the selecion.
+ * Create a common table expression, renaming the selection.
  *
  * @category starter
- * @since 1.0.0
+ * @since 2.0.0
  */
 export const withR = CommonTableExpressionFactory.defineRenamed;
 
@@ -75,7 +81,7 @@ export const withR = CommonTableExpressionFactory.defineRenamed;
  * assert.strictEqual(q1.stringify(), "SELECT 123 AS `a`");
  *
  * @category starter
- * @since 0.0.0
+ * @since 2.0.0
  */
 export const fromNothing = SelectStatement.fromNothing;
 
@@ -91,9 +97,9 @@ export const fromNothing = SelectStatement.fromNothing;
  * assert.strictEqual(u.stringify(), "SELECT 123 AS `a` UNION SELECT 456 AS `a`");
  *
  * @category compound
- * @since 0.0.0
+ * @since 2.0.0
  */
-export const union = Compound.union;
+export const union = Compound.__fromQualifier("UNION");
 
 /**
  * Creates a compound query using 'UNION ALL'
@@ -107,9 +113,9 @@ export const union = Compound.union;
  * assert.strictEqual(u.stringify(), "SELECT 123 AS `a` UNION ALL SELECT 456 AS `a`");
  *
  * @category compound
- * @since 0.0.0
+ * @since 2.0.0
  */
-export const unionAll = Compound.unionAll;
+export const unionAll = Compound.__fromQualifier("UNION ALL");
 
 /**
  * Creates a compound query using 'INTERSECT'
@@ -123,9 +129,9 @@ export const unionAll = Compound.unionAll;
  * assert.strictEqual(u.stringify(), "SELECT 123 AS `a` INTERSECT SELECT 456 AS `a`");
  *
  * @category compound
- * @since 0.0.1
+ * @since 2.0.0
  */
-export const intersect = Compound.intersect;
+export const intersect = Compound.__fromQualifier("INTERSECT");
 
 /**
  * Creates a compound query using 'EXCEPT'
@@ -139,9 +145,9 @@ export const intersect = Compound.intersect;
  * assert.strictEqual(u.stringify(), "SELECT 123 AS `a` EXCEPT SELECT 456 AS `a`");
  *
  * @category compound
- * @since 0.0.1
+ * @since 2.0.0
  */
-export const except = Compound.except;
+export const except = Compound.__fromQualifier("EXCEPT");
 
 export {
     /**
@@ -154,7 +160,7 @@ export {
      * assert.strictEqual(isSafeString(sql(123)), true);
      *
      * @category string-builder
-     * @since 0.0.0
+     * @since 2.0.0
      */
     isSafeString,
     /**
@@ -171,7 +177,7 @@ export {
      * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
      *
      * @category string-builder
-     * @since 0.0.0
+     * @since 2.0.0
      */
     castSafe,
     /**
@@ -193,19 +199,19 @@ export {
      * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
      *
      * @category string-builder
-     * @since 1.0.0
+     * @since 2.0.0
      */
     dsql,
     /**
      *
      * @category string-builder
-     * @since 0.0.1
+     * @since 2.0.0
      */
     buildSerializer,
     /**
      *
      * @category string-builder
-     * @since 0.0.1
+     * @since 2.0.0
      */
     buildSql,
 } from "./safe-string";
@@ -216,7 +222,7 @@ export type {
      * A wrapper over a string, We assume that strings inside the wrapper are safe to write as plain SQL.
      *
      * @category string-builder
-     * @since 0.0.0
+     * @since 2.0.0
      */
     SafeString,
 } from "./safe-string";
@@ -237,11 +243,11 @@ export type {
      * //@ts-expect-error
      * console.log(ret?.[0]?.abc)
      *
-     * @since 0.0.1
+     * @since 2.0.0
      */
     RowsArray,
     /**
-     * Given a stringifyable object, returns the union of the selection keys.
+     * Given a printable object, returns the union of the selection keys.
      *
      * @example
      *
@@ -254,13 +260,13 @@ export type {
      * //@ts-expect-error
      * const k2: Key = 'abc';
      *
-     * @since 0.0.1
+     * @since 2.0.0
      */
     SelectionOf,
     /**
-     * @since 0.0.1
+     * @since 2.0.0
      */
-    AnyStringifyable,
+    AnyPrintable,
     /**
      * Return a objects, where the keys are the columns of the selection.
      *
@@ -276,7 +282,7 @@ export type {
      * //@ts-expect-error
      * console.log(ret.abc)
      *
-     * @since 0.0.1
+     * @since 2.0.0
      */
     RowOf,
 } from "./ts-helpers";
@@ -285,39 +291,47 @@ export type {
  * Creates a query selecting from the second parameter.
  *
  * @category starter
- * @since 1.0.0
+ * @since 2.0.0
  */
 export const select = <
-    NewSelection extends string = never,
-    FromAlias extends string = never,
     FromSelection extends string = never,
-    FromScope extends string = never,
-    FromAmbigous extends string = never,
+    FromAlias extends string = never,
+    FromScope extends ScopeShape = never,
+    FromFlatScope extends string = never,
+    NewSelection extends string = never,
     SubSelection extends FromSelection = never
 >(
-    f:
+    _:
         | ReadonlyArray<SubSelection>
         | ((
-              f: Record<FromSelection | FromScope, SafeString> &
+              fields: RecordOfSelection<FromSelection> &
+                  SelectionOfScope<FromScope> &
                   NoSelectFieldsCompileError
           ) => Record<NewSelection, SafeString>),
-    from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-): SelectStatement<FromSelection, NewSelection | SubSelection> =>
+    from: TableOrSubquery<FromSelection, FromAlias, FromScope, FromFlatScope>
+): SelectStatement<
+    NewSelection | SubSelection,
+    never,
+    FromScope,
+    FromFlatScope
+> =>
     //@ts-expect-error
-    from.select(f);
+    from.select(_);
 
 /**
  *
  * Creates a query selecting all from the second parameter.
  *
  * @category starter
- * @since 1.0.0
+ * @since 2.0.0
  */
 export const selectStar = <
-    FromAlias extends string = never,
     FromSelection extends string = never,
-    FromScope extends string = never,
-    FromAmbigous extends string = never
+    FromAlias extends string = never,
+    FromScope extends ScopeShape = never,
+    FromFlatScope extends string = never
 >(
-    from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
-): SelectStatement<FromSelection, FromSelection> => from.selectStar();
+    from: TableOrSubquery<FromSelection, FromAlias, FromScope, FromFlatScope>
+): SelectStatement<FromSelection, never, never, FromSelection> =>
+    //@ts-expect-error
+    from.selectStar();

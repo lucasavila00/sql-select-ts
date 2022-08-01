@@ -47,8 +47,8 @@ const equals = (
 
 ```ts eval --out=sql
 users
-    .joinTable("LEFT", admins)
-    .on((f) => equals(f["adm.id"], f["users.id"]))
+    .join("LEFT", admins)
+    .on((f) => equals(f.adm.id, f.users.id))
     .selectStar()
     .stringify();
 ```
@@ -57,8 +57,8 @@ users
 
 ```ts eval --out=sql
 admins
-    .joinSelect("u", "LEFT", users.selectStar())
-    .on((f) => equals(f["u.id"], f["adm.id"]))
+    .join("LEFT", users.selectStar().as("u"))
+    .on((f) => equals(f.u.id, f.adm.id))
     .selectStar()
     .stringify();
 ```
@@ -73,8 +73,8 @@ const usersStringifiedQuery = fromStringifiedSelectStatement<
 >(castSafe(aQueryThatIsAString));
 
 admins
-    .joinStringifiedSelect("u", "LEFT", usersStringifiedQuery)
-    .on((f) => equals(f["u.id"], f["adm.id"]))
+    .join("LEFT", usersStringifiedQuery.as("u"))
+    .on((f) => equals(f.u.id, f.adm.id))
     .selectStar()
     .stringify();
 ```
@@ -83,15 +83,14 @@ admins
 
 ```ts eval --out=sql
 admins
-    .joinCompound(
-        "u",
+    .join(
         "LEFT",
         unionAll([
             users.selectStar().where((f) => sql`${f.id} = 1`),
             users.selectStar().where((f) => sql`${f.id} = 2`),
-        ])
+        ]).as("u")
     )
-    .on((f) => equals(f["u.id"], f["adm.id"]))
+    .on((f) => equals(f.u.id, f.adm.id))
     .selectStar()
     .stringify();
 ```
@@ -100,10 +99,10 @@ admins
 
 ```ts eval --out=sql
 users
-    .joinTable("LEFT", admins)
-    .on((f) => equals(f["adm.id"], f["users.id"]))
-    .joinTable("LEFT", analytics)
-    .on((f) => equals(f["analytics.id"], f["users.id"]))
+    .join("LEFT", admins)
+    .on((f) => equals(f.adm.id, f.users.id))
+    .join("LEFT", analytics)
+    .on((f) => equals(f.analytics.id, f.users.id))
     .selectStar()
     .stringify();
 ```
@@ -113,12 +112,13 @@ users
 ```ts eval --out=sql
 const userAndAdmin = users
     .selectStar()
-    .joinSelect("users", "LEFT", "admins", admins.selectStar())
-    .on((f) => equals(f["admins.id"], f["users.id"]));
+    .as("users")
+    .join("LEFT", admins.selectStar().as("admins"))
+    .on((f) => equals(f.admins.id, f.users.id));
 
 const userAdminAnalytics = userAndAdmin
-    .joinSelect("LEFT", "analytics", analytics.selectStar())
-    .on((f) => equals(f["analytics.id"], f["users.id"]));
+    .join("LEFT", analytics.selectStar().as("analytics"))
+    .on((f) => equals(f.analytics.id, f.users.id));
 
 userAdminAnalytics.selectStar().stringify();
 ```
@@ -128,14 +128,14 @@ userAdminAnalytics.selectStar().stringify();
 ## Join Table
 
 ```ts eval --out=sql
-users.joinTable("LEFT", admins).using(["id"]).selectStar().stringify();
+users.join("LEFT", admins).using(["id"]).selectStar().stringify();
 ```
 
 ## Join Select
 
 ```ts eval --out=sql
 admins
-    .joinSelect("u", "LEFT", users.selectStar())
+    .join("LEFT", users.selectStar().as("u"))
     .using(["id"])
     .selectStar()
     .stringify();
@@ -146,14 +146,14 @@ admins
 ## Join Table
 
 ```ts eval --out=sql
-users.joinTable("NATURAL", admins).noConstraint().selectStar().stringify();
+users.join("NATURAL", admins).noConstraint().selectStar().stringify();
 ```
 
 ## Join Select
 
 ```ts eval --out=sql
 admins
-    .joinSelect("u", "NATURAL", users.selectStar())
+    .join("NATURAL", users.selectStar().as("u"))
     .noConstraint()
     .selectStar()
     .stringify();
@@ -164,25 +164,24 @@ admins
 ## Join Table
 
 ```ts eval --out=sql
-users.commaJoinTable(admins).selectStar().stringify();
+users.commaJoin(admins).selectStar().stringify();
 ```
 
 ## Join Select
 
 ```ts eval --out=sql
-admins.commaJoinSelect("u", users.selectStar()).selectStar().stringify();
+admins.commaJoin(users.selectStar().as("u")).selectStar().stringify();
 ```
 
 ## Join Compound
 
 ```ts eval --out=sql
 admins
-    .commaJoinCompound(
-        "u",
+    .commaJoin(
         unionAll([
             users.selectStar().where((f) => sql`${f.id} = 1`),
             users.selectStar().where((f) => sql`${f.id} = 2`),
-        ])
+        ]).as("u")
     )
     .selectStar()
     .stringify();
@@ -191,7 +190,7 @@ admins
 ## Join 3 Tables
 
 ```ts eval --out=sql
-users.commaJoinTable(admins).commaJoinTable(analytics).selectStar().stringify();
+users.commaJoin(admins).commaJoin(analytics).selectStar().stringify();
 ```
 
 ## Join 3 Selects
@@ -199,11 +198,11 @@ users.commaJoinTable(admins).commaJoinTable(analytics).selectStar().stringify();
 ```ts eval --out=sql
 const userAndAdmin2 = users
     .selectStar()
-    .commaJoinSelect("users", "admins", admins.selectStar());
+    .as("users")
+    .commaJoin(admins.selectStar().as("admins"));
 
-const userAdminAnalytics2 = userAndAdmin2.commaJoinSelect(
-    "analyitcs",
-    analytics.selectStar()
+const userAdminAnalytics2 = userAndAdmin2.commaJoin(
+    analytics.selectStar().as("analytics")
 );
 
 userAdminAnalytics2.selectStar().stringify();

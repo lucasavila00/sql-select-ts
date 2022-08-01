@@ -15,20 +15,13 @@ layout: default
 </details>
 
 ```ts
-import {
-  table,
-  dsql as sql,
-  fromStringifiedSelectStatement,
-} from "sql-select-ts";
+import { table, dsql as sql, fromStringifiedSelectStatement } from "../../src";
 ```
 
 # Final Table
 
 ```ts
-const chTableRegular = table(
-  /* columns: */ ["col1", "col2"],
-  /* alias: */ "tableName"
-);
+const chTableRegular = table(["col1", "col2"], "tableName");
 chTableRegular.selectStar().stringify();
 ```
 
@@ -52,14 +45,10 @@ FROM
 ```
 
 ```ts
-table(
-  /* columns: */ ["col1", "col2"],
-  /* alias: */ "alias",
-  /* name: */ "tableName"
-)
-  .clickhouse.final()
-  .selectStar()
-  .stringify();
+table(["col1", "col2"], "alias", "tableName")
+    .clickhouse.final()
+    .selectStar()
+    .stringify();
 ```
 
 ```sql
@@ -75,10 +64,10 @@ The API is like WHERE's.
 
 ```ts
 chTableFinal
-  .selectStar()
-  .where(/* f: */ (f) => f.col2)
-  .clickhouse.prewhere(/* f: */ (f) => f.col1)
-  .stringify();
+    .selectStar()
+    .where((f) => f.col2)
+    .clickhouse.prewhere((f) => f.col1)
+    .stringify();
 ```
 
 ```sql
@@ -92,11 +81,11 @@ WHERE
 
 ```ts
 chTableFinal
-  .selectStar()
-  .clickhouse.prewhere(/* f: */ (f) => f.col1)
-  .clickhouse.prewhere(/* f: */ (f) => f.col2)
-  .where(/* f: */ (f) => f.col2)
-  .stringify();
+    .selectStar()
+    .clickhouse.prewhere((f) => f.col1)
+    .clickhouse.prewhere((f) => f.col2)
+    .where((f) => f.col2)
+    .stringify();
 ```
 
 ```sql
@@ -113,9 +102,9 @@ WHERE
 
 ```ts
 chTableRegular
-  .selectStar()
-  .clickhouse.replace(/* f: */ (f) => [["col1", sql`${f.col1}+1`]])
-  .stringify();
+    .selectStar()
+    .clickhouse.replace((f) => [["col1", sql`${f.col1}+1`]])
+    .stringify();
 ```
 
 ```sql
@@ -131,14 +120,14 @@ Alongside Common Table Expressions, Clickhouse's syntax extension of WITH is als
 
 ```ts
 chTableRegular
-  .select(/* f: */ (f) => ({ res1: f.col1 }))
-  .clickhouse.with_(
-    /* it: */ {
-      abc: chTableFinal.select(/* f: */ (_f) => ({ count: sql`COUNT()` })),
-    }
-  )
-  .appendSelect(/* f: */ (f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
-  .stringify();
+    .select((f) => ({
+        res1: f.col1,
+    }))
+    .clickhouse.with_({
+        abc: chTableFinal.select((_f) => ({ count: sql`COUNT()` })),
+    })
+    .appendSelect((f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
+    .stringify();
 ```
 
 ```sql
@@ -158,12 +147,14 @@ FROM
 
 ```ts
 chTableRegular
-  .select(/* f: */ (f) => ({ res1: f.col1 }))
-  .clickhouse.with_(
-    /* it: */ { abc: fromStringifiedSelectStatement(/* content: */ sql`20`) }
-  )
-  .appendSelect(/* f: */ (f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
-  .stringify();
+    .select((f) => ({
+        res1: f.col1,
+    }))
+    .clickhouse.with_({
+        abc: fromStringifiedSelectStatement(sql`20`),
+    })
+    .appendSelect((f) => ({ res2: sql`${f.col2} + ${f.abc}` }))
+    .stringify();
 ```
 
 ```sql

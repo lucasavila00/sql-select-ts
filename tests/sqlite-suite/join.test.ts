@@ -26,7 +26,7 @@ describe("sqlite join", () => {
 
     it("join-1.3", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -53,9 +53,9 @@ describe("sqlite join", () => {
 
     it("join-1.3 -- with comma join select", async () => {
         const q = t1
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
-            .commaJoinSelect("t3", t2.selectStar())
+            .commaJoin(t2.selectStar().as("t3"))
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -81,7 +81,7 @@ describe("sqlite join", () => {
 
     it("join-1.3.2", async () => {
         const q = table(["a", "b", "c"], "x", "t1")
-            .joinTable("NATURAL", t2)
+            .join("NATURAL", t2)
             .noConstraint()
             .selectStar()
             .stringify();
@@ -108,7 +108,7 @@ describe("sqlite join", () => {
 
     it("join-1.3.3", async () => {
         const q = t1
-            .joinTable("NATURAL", table(["b", "c", "d"], "y", "t2"))
+            .join("NATURAL", table(["b", "c", "d"], "y", "t2"))
             .noConstraint()
             .selectStar()
             .stringify();
@@ -135,7 +135,7 @@ describe("sqlite join", () => {
 
     it("join-1.3.5", async () => {
         const q = t2
-            .joinTable("NATURAL", t1)
+            .join("NATURAL", t1)
             .noConstraint()
             .selectStarOfAliases(["t2"])
             .stringify();
@@ -159,7 +159,7 @@ describe("sqlite join", () => {
     });
     it("join-1.3.6", async () => {
         const q = table(["b", "c", "d"], "xyzzy", "t2")
-            .joinTable("NATURAL", t1)
+            .join("NATURAL", t1)
             .noConstraint()
             .selectStarOfAliases(["xyzzy"])
             .stringify();
@@ -184,7 +184,7 @@ describe("sqlite join", () => {
 
     it("join-1.3.7", async () => {
         const q = t2
-            .joinTable("NATURAL", t1)
+            .join("NATURAL", t1)
             .noConstraint()
             .selectStarOfAliases(["t1"])
             .stringify();
@@ -209,7 +209,7 @@ describe("sqlite join", () => {
 
     it("join-1.3.8", async () => {
         const q = t2
-            .joinTable("NATURAL", table(["a", "b", "c"], "xyzzy", "t1"))
+            .join("NATURAL", table(["a", "b", "c"], "xyzzy", "t1"))
             .noConstraint()
             .selectStarOfAliases(["xyzzy"])
             .stringify();
@@ -234,7 +234,7 @@ describe("sqlite join", () => {
 
     it("join-1.3.9", async () => {
         const q = table(["b", "c", "d"], "aaa", "t2")
-            .joinTable("NATURAL", table(["a", "b", "c"], "bbb", "t1"))
+            .join("NATURAL", table(["a", "b", "c"], "bbb", "t1"))
             .noConstraint()
             .selectStarOfAliases(["aaa", "bbb"])
             .stringify();
@@ -261,7 +261,7 @@ describe("sqlite join", () => {
 
     it("join-1.3.10", async () => {
         const q = t2
-            .joinTable("NATURAL", t1)
+            .join("NATURAL", t1)
             .noConstraint()
             .selectStarOfAliases(["t1", "t2"])
             .stringify();
@@ -287,11 +287,8 @@ describe("sqlite join", () => {
     });
     it("join-1.4.1", async () => {
         const q = t2
-            .joinTable("INNER", t1)
-            .on((f) => [
-                equals(f["t1.b"], f["t2.b"]),
-                equals(f["t1.c"], f["t2.c"]),
-            ])
+            .join("INNER", t1)
+            .on((f) => [equals(f.t1.b, f.t2.b), equals(f.t1.c, f.t2.c)])
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -316,7 +313,7 @@ describe("sqlite join", () => {
     });
     it("join-1.4.1 -- using", async () => {
         const q = t2
-            .joinTable("INNER", t1)
+            .join("INNER", t1)
             .using(["b", "c"])
             .selectStar()
             .stringify();
@@ -342,7 +339,7 @@ describe("sqlite join", () => {
     });
     it("join-1.4.1 -- using knows types", async () => {
         const q = t2
-            .joinTable("INNER", t1)
+            .join("INNER", t1)
             // @ts-expect-error
             .using(["b", "c", "d"])
             .selectStar()
@@ -354,30 +351,13 @@ describe("sqlite join", () => {
             `Error: SQLITE_ERROR: cannot join using column d - column not present in both tables`
         );
     });
-    it("join-1.4.1 -- prevents ambiguous", async () => {
-        const q = t2
-            .joinTable("INNER", t1)
-            .on((f) => [
-                // @ts-expect-error
-                equals(f.b, f["t2.b"]),
-                equals(f["t1.c"], f["t2.c"]),
-            ])
-            .selectStar()
-            .stringify();
-        expect(q).toMatchInlineSnapshot(
-            `SELECT * FROM \`t2\` INNER JOIN \`t1\` ON \`b\` = \`t2\`.\`b\` AND \`t1\`.\`c\` = \`t2\`.\`c\``
-        );
-        expect(await fail(q)).toMatchInlineSnapshot(
-            `Error: SQLITE_ERROR: ambiguous column name: b`
-        );
-    });
     it("join-1.4.1 -- prevents unknown", async () => {
         const q = t2
-            .joinTable("INNER", t1)
+            .join("INNER", t1)
             .on((f) => [
                 // @ts-expect-error
-                equals(f.aaaaaaaaaaa, f["t2.b"]),
-                equals(f["t1.c"], f["t2.c"]),
+                equals(f.aaaaaaaaaaa, f.t2.b),
+                equals(f.t1.c, f.t2.c),
             ])
             .selectStar()
             .stringify();
@@ -391,11 +371,8 @@ describe("sqlite join", () => {
 
     it("join-1.4.2", async () => {
         const q = t2
-            .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
-            .on((f) => [
-                equals(f["x.b"], f["t2.b"]),
-                equals(f["x.c"], f["t2.c"]),
-            ])
+            .join("INNER", table(["a", "b", "c"], "x", "t1"))
+            .on((f) => [equals(f.x.b, f.t2.b), equals(f.x.c, f.t2.c)])
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -421,7 +398,7 @@ describe("sqlite join", () => {
 
     it("join-1.4.2 -- using", async () => {
         const q = t2
-            .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
+            .join("INNER", table(["a", "b", "c"], "x", "t1"))
             .using(["b", "c"])
             .selectStar()
             .stringify();
@@ -447,11 +424,8 @@ describe("sqlite join", () => {
     });
     it("join-1.4.3", async () => {
         const q = table(["b", "c", "d"], "y", "t2")
-            .joinTable("INNER", t1)
-            .on((f) => [
-                equals(f["t1.b"], f["y.b"]),
-                equals(f["t1.c"], f["y.c"]),
-            ])
+            .join("INNER", t1)
+            .on((f) => [equals(f.t1.b, f.y.b), equals(f.t1.c, f.y.c)])
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -476,7 +450,7 @@ describe("sqlite join", () => {
     });
     it("join-1.4.3 -- using", async () => {
         const q = table(["b", "c", "d"], "y", "t2")
-            .joinTable("INNER", t1)
+            .join("INNER", t1)
             .using(["b", "c"])
             .selectStar()
             .stringify();
@@ -502,8 +476,8 @@ describe("sqlite join", () => {
     });
     it("join-1.4.4", async () => {
         const q = table(["b", "c", "d"], "y", "t2")
-            .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
-            .on((f) => [equals(f["x.b"], f["y.b"]), equals(f["x.c"], f["y.c"])])
+            .join("INNER", table(["a", "b", "c"], "x", "t1"))
+            .on((f) => [equals(f.x.b, f.y.b), equals(f.x.c, f.y.c)])
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -528,7 +502,7 @@ describe("sqlite join", () => {
     });
     it("join-1.4.4 -- using", async () => {
         const q = table(["b", "c", "d"], "y", "t2")
-            .joinTable("INNER", table(["a", "b", "c"], "x", "t1"))
+            .join("INNER", table(["a", "b", "c"], "x", "t1"))
             .using(["b", "c"])
             .selectStar()
             .stringify();
@@ -554,8 +528,8 @@ describe("sqlite join", () => {
     });
     it("join-2.4", async () => {
         const q = t2
-            .joinTable("LEFT", t1)
-            .on((f) => [equals(f["t1.a"], f["t2.d"])])
+            .join("LEFT", t1)
+            .on((f) => [equals(f.t1.a, f.t2.d)])
             .selectStar()
             .stringify();
         expect(q).toMatchInlineSnapshot(
@@ -586,10 +560,10 @@ describe("sqlite join", () => {
     });
     it("join-2.5", async () => {
         const q = t2
-            .joinTable("LEFT", t1)
-            .on((f) => [equals(f["t1.a"], f["t2.d"])])
+            .join("LEFT", t1)
+            .on((f) => [equals(f.t1.a, f.t2.d)])
             .selectStar()
-            .where((f) => dsql`${f["t1.a"]} > 1`)
+            .where((f) => dsql`${f.t1.a} > 1`)
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`t2\` LEFT JOIN \`t1\` ON \`t1\`.\`a\` = \`t2\`.\`d\` WHERE \`t1\`.\`a\` > 1`
@@ -607,10 +581,10 @@ describe("sqlite join", () => {
     });
     it("join-2.6", async () => {
         const q = t1
-            .joinTable("LEFT", t2)
-            .on((f) => [equals(f["t1.a"], f["t2.d"])])
+            .join("LEFT", t2)
+            .on((f) => [equals(f.t1.a, f.t2.d)])
             .selectStar()
-            .where((f) => dsql`${f["t1.b"]} IS NULL OR ${f["t1.b"]} > 1`)
+            .where((f) => dsql`${f.t1.b} IS NULL OR ${f.t1.b} > 1`)
             .stringify();
         expect(q).toMatchInlineSnapshot(
             `SELECT * FROM \`t1\` LEFT JOIN \`t2\` ON \`t1\`.\`a\` = \`t2\`.\`d\` WHERE \`t1\`.\`b\` IS NULL OR \`t1\`.\`b\` > 1`

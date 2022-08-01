@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, dsql as sql } from "sql-select-ts";
+import { table, dsql as sql } from "../../src";
 ```
 
 We will use this table
@@ -27,16 +27,16 @@ CREATE TABLE users(id int, age int, name string);
 Which is defined in typescript as
 
 ```ts
-const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
+const users = table(["id", "age", "name"], "users");
 ```
 
 # One Clause
 
 ```ts
 users
-  .selectStar()
-  .orderBy(/* f: */ (f) => f.age)
-  .stringify();
+    .selectStar()
+    .orderBy((f) => f.age)
+    .stringify();
 ```
 
 ```sql
@@ -54,9 +54,9 @@ ORDER BY
 
 ```ts
 users
-  .selectStar()
-  .orderBy(/* f: */ (f) => [sql`${f.age} DESC`, f.id])
-  .stringify();
+    .selectStar()
+    .orderBy((f) => [sql`${f.age} DESC`, f.id])
+    .stringify();
 ```
 
 ```sql
@@ -73,10 +73,10 @@ ORDER BY
 
 ```ts
 users
-  .selectStar()
-  .orderBy(/* f: */ (f) => f.age)
-  .orderBy(/* f: */ (f) => f.id)
-  .stringify();
+    .selectStar()
+    .orderBy((f) => f.age)
+    .orderBy((f) => f.id)
+    .stringify();
 ```
 
 ```sql
@@ -90,7 +90,7 @@ ORDER BY
 ```
 
 ```ts
-users.selectStar().orderBy(/* f: */ ["age", "id"]).stringify();
+users.selectStar().orderBy(["age", "id"]).stringify();
 ```
 
 ```sql
