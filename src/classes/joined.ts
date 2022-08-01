@@ -199,7 +199,7 @@ export class Joined<
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarOfAliasesSymbol(aliases as any)],
-            {},
+            this.__props.scope,
             undefined
         ) as any;
     /**
