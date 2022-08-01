@@ -4,7 +4,11 @@
  *
  * @since 0.0.0
  */
-import { consumeArrayCallback, consumeRecordCallback } from "../consume-fields";
+import {
+    consumeArrayCallback,
+    consumeRecordCallback,
+    consumeReplaceCallback,
+} from "../consume-fields";
 import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
 import { printSelectStatement } from "../print";
 import { SafeString } from "../safe-string";
@@ -274,19 +278,19 @@ export class SelectStatement<
                 ),
             ]),
 
-        // /**
-        //  * @since 0.0.0
-        //  */
-        // replace: <NewSelection extends string>(
-        //     f: (
-        //         f: Record<Selection | Scope, SafeString> &
-        //             NoSelectFieldsCompileError
-        //     ) => ReplaceT<Selection>
-        // ): SelectStatement<Alias, Scope, Selection | NewSelection> =>
-        //     this.copy().setReplace([
-        //         ...this.__props.replace,
-        //         ...f(proxy),
-        //     ]) as any,
+        /**
+         * @since 0.0.0
+         */
+        replace: (
+            _: (
+                f: Record<Selection | FlatScope, SafeString> &
+                    NoSelectFieldsCompileError
+            ) => ReplaceT<Selection>
+        ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+            this.copy().setReplace([
+                ...this.__props.replace,
+                ...(consumeReplaceCallback(_, this.__props.scope) as any),
+            ]),
     };
 
     /**

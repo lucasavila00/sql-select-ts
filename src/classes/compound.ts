@@ -60,130 +60,38 @@ export class Compound<
     /**
      * @internal
      */
-    public static union = <
-        C extends
-            | SelectStatement<any, any, any, any>
-            | AliasedSelectStatement<any, any, any, any>,
-        CS extends ReadonlyArray<
-            | SelectStatement<any, any, any, any>
-            | AliasedSelectStatement<any, any, any, any>
-        >
-    >(
-        content: CS & {
-            0: C;
-        }
-    ): Compound<
-        SelectionOfSelectStatement<C>,
-        never,
-        ScopeOfSelectStatement<C> &
-            UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
-        SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>
-    > =>
-        new Compound({
-            content,
-            qualifier: "UNION",
-            orderBy: [],
-            limit: null,
-            scope: Object.fromEntries(
-                content.map((it) => [it.__props.alias, void 0])
-            ),
-        });
+    public static __fromQualifier =
+        (qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT") =>
+        <
+            C extends
+                | SelectStatement<any, any, any, any>
+                | AliasedSelectStatement<any, any, any, any>,
+            CS extends ReadonlyArray<
+                | SelectStatement<any, any, any, any>
+                | AliasedSelectStatement<any, any, any, any>
+            >
+        >(
+            content: CS & {
+                0: C;
+            }
+        ): Compound<
+            SelectionOfSelectStatement<C>,
+            never,
+            ScopeOfSelectStatement<C> &
+                UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
+            | SelectionOfSelectStatement<C>
+            | SelectionOfSelectStatement<CS[number]>
+        > =>
+            new Compound({
+                content,
+                qualifier,
+                orderBy: [],
+                limit: null,
+                scope: Object.fromEntries(
+                    content.map((it) => [it.__props.alias, void 0])
+                ),
+            });
 
-    /**
-     * @internal
-     */
-    public static unionAll = <
-        C extends
-            | SelectStatement<any, any, any, any>
-            | AliasedSelectStatement<any, any, any, any>,
-        CS extends ReadonlyArray<
-            | SelectStatement<any, any, any, any>
-            | AliasedSelectStatement<any, any, any, any>
-        >
-    >(
-        content: CS & {
-            0: C;
-        }
-    ): Compound<
-        SelectionOfSelectStatement<C>,
-        never,
-        ScopeOfSelectStatement<C> &
-            UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
-        SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>
-    > =>
-        new Compound({
-            content,
-            qualifier: "UNION ALL",
-            orderBy: [],
-            limit: null,
-            scope: Object.fromEntries(
-                content.map((it) => [it.__props.alias, void 0])
-            ),
-        });
-
-    /**
-     * @internal
-     */
-    public static intersect = <
-        C extends
-            | SelectStatement<any, any, any, any>
-            | AliasedSelectStatement<any, any, any, any>,
-        CS extends ReadonlyArray<
-            | SelectStatement<any, any, any, any>
-            | AliasedSelectStatement<any, any, any, any>
-        >
-    >(
-        content: CS & {
-            0: C;
-        }
-    ): Compound<
-        SelectionOfSelectStatement<C>,
-        never,
-        ScopeOfSelectStatement<C> &
-            UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
-        SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>
-    > =>
-        new Compound({
-            content,
-            qualifier: "INTERSECT",
-            orderBy: [],
-            limit: null,
-            scope: Object.fromEntries(
-                content.map((it) => [it.__props.alias, void 0])
-            ),
-        });
-
-    /**
-     * @internal
-     */
-    public static except = <
-        C extends
-            | SelectStatement<any, any, any, any>
-            | AliasedSelectStatement<any, any, any, any>,
-        CS extends ReadonlyArray<
-            | SelectStatement<any, any, any, any>
-            | AliasedSelectStatement<any, any, any, any>
-        >
-    >(
-        content: CS & {
-            0: C;
-        }
-    ): Compound<
-        SelectionOfSelectStatement<C>,
-        never,
-        ScopeOfSelectStatement<C> &
-            UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
-        SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>
-    > =>
-        new Compound({
-            content,
-            qualifier: "EXCEPT",
-            orderBy: [],
-            limit: null,
-            scope: Object.fromEntries(
-                content.map((it) => [it.__props.alias, void 0])
-            ),
-        });
     private copy = (): Compound<Selection, Alias, Scope, FlatScope> =>
         new Compound({ ...this.__props });
 

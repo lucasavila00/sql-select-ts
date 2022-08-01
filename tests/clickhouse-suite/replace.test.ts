@@ -50,7 +50,7 @@ describe("clickhouse replace", () => {
     it("checks column names", async () => {
         t3.selectStar()
             //@ts-expect-error
-            .clickhouse.replace((f) => [["z", dsql`${f.y}+1`]]);
+            .clickhouse.replace((f) => [["z", dsql`${f.w}+1`]]);
         expect(1).toBe(1);
     });
 });

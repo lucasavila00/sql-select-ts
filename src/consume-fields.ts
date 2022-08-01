@@ -3,6 +3,7 @@ import {
     ScopeStorage,
     SelectionArrayCallbackShape,
     SelectionRecordCallbackShape,
+    SelectionReplaceCallbackShape,
 } from "./types";
 import { wrapAlias } from "./wrap-alias";
 import { AliasedRows } from "./data-wrappers";
@@ -60,6 +61,13 @@ export const consumeArrayCallback = (
     if (Array.isArray(f)) {
         return f.map((it) => castSafe(wrapAlias(it)));
     }
+    const result: any = (f as any)(upperProxy(scope));
+    return result;
+};
+export const consumeReplaceCallback = (
+    f: SelectionReplaceCallbackShape,
+    scope: ScopeStorage
+): ReadonlyArray<readonly [string, SafeString | number]> => {
     const result: any = (f as any)(upperProxy(scope));
     return result;
 };

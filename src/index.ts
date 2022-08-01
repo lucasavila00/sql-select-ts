@@ -10,7 +10,14 @@ import { SelectStatement } from "./classes/select-statement";
 import { Table } from "./classes/table";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
 import { SafeString } from "./safe-string";
-import { NoSelectFieldsCompileError, TableOrSubquery } from "./types";
+import {
+    NoSelectFieldsCompileError,
+    RecordOfSelection,
+    ScopeShape,
+    SelectionOfScope,
+    TableOrSubquery,
+} from "./types";
+import { hole } from "./utils";
 
 /**
  *
@@ -93,7 +100,7 @@ export const fromNothing = SelectStatement.fromNothing;
  * @category compound
  * @since 0.0.0
  */
-export const union = Compound.union;
+export const union = Compound.__fromQualifier("UNION");
 
 /**
  * Creates a compound query using 'UNION ALL'
@@ -109,7 +116,7 @@ export const union = Compound.union;
  * @category compound
  * @since 0.0.0
  */
-export const unionAll = Compound.unionAll;
+export const unionAll = Compound.__fromQualifier("UNION ALL");
 
 /**
  * Creates a compound query using 'INTERSECT'
@@ -125,7 +132,7 @@ export const unionAll = Compound.unionAll;
  * @category compound
  * @since 0.0.1
  */
-export const intersect = Compound.intersect;
+export const intersect = Compound.__fromQualifier("INTERSECT");
 
 /**
  * Creates a compound query using 'EXCEPT'
@@ -141,7 +148,7 @@ export const intersect = Compound.intersect;
  * @category compound
  * @since 0.0.1
  */
-export const except = Compound.except;
+export const except = Compound.__fromQualifier("EXCEPT");
 
 export {
     /**
@@ -288,22 +295,29 @@ export type {
  * @since 1.0.0
  */
 export const select = <
-    NewSelection extends string = never,
-    FromAlias extends string = never,
     FromSelection extends string = never,
-    FromScope extends string = never,
+    FromAlias extends string = never,
+    FromScope extends ScopeShape = never,
+    FromFlatScope extends string = never,
+    NewSelection extends string = never,
     SubSelection extends FromSelection = never
 >(
-    f:
+    _:
         | ReadonlyArray<SubSelection>
         | ((
-              f: Record<FromSelection | FromScope, SafeString> &
+              fields: RecordOfSelection<FromSelection> &
+                  SelectionOfScope<FromScope> &
                   NoSelectFieldsCompileError
           ) => Record<NewSelection, SafeString>),
-    from: TableOrSubquery<FromAlias, FromScope, FromSelection>
-): SelectStatement<FromSelection, NewSelection | SubSelection> =>
+    from: TableOrSubquery<FromSelection, FromAlias, FromScope, FromFlatScope>
+): SelectStatement<
+    NewSelection | SubSelection,
+    never,
+    FromScope,
+    FromFlatScope
+> =>
     //@ts-expect-error
-    from.select(f);
+    from.select(_);
 
 /**
  *
@@ -312,10 +326,10 @@ export const select = <
  * @category starter
  * @since 1.0.0
  */
-export const selectStar = <
-    FromAlias extends string = never,
-    FromSelection extends string = never,
-    FromScope extends string = never
->(
-    from: TableOrSubquery<FromAlias, FromScope, FromSelection>
-): SelectStatement<FromSelection, FromSelection> => from.selectStar();
+// export const selectStar = <
+//     FromAlias extends string = never,
+//     FromSelection extends string = never,
+//     FromScope extends string = never
+// >(
+//     from: TableOrSubquery<FromAlias, FromScope, FromSelection>
+// ): SelectStatement<FromSelection, FromSelection> => from.selectStar();

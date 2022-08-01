@@ -126,6 +126,10 @@ export type SelectionArrayCallbackShape =
           fields: SelectionOfScope<ScopeShape>
       ) => SafeString | ReadonlyArray<SafeString>);
 
+export type SelectionReplaceCallbackShape = (
+    f: Record<string, SafeString> & NoSelectFieldsCompileError
+) => ReadonlyArray<readonly [string, SafeString | number]>;
+
 export type SelectionWrapperTypes = ReadonlyArray<
     AliasedRows<any> | StarSymbol | StarOfAliasSymbol
 >;
