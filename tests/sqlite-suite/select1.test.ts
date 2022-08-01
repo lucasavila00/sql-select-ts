@@ -270,6 +270,29 @@ describe("sqlite select1", () => {
         `);
     });
 
+    it("select1-1.8.1 + alias", async () => {
+        const q = test1
+            .selectStar()
+            .as("alias1")
+            .appendSelectStar()
+            .selectStar()
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * FROM (SELECT *, * FROM \`test1\`) AS \`alias1\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Object {
+                f1: 11,
+                f1:1: 11,
+                f2: 22,
+                f2:1: 22,
+              },
+            ]
+        `);
+    });
+
     it("select1-1.8.2", async () => {
         const q = test1
             .selectStar()

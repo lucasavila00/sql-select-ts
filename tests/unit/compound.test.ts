@@ -50,4 +50,14 @@ describe("compound unit", () => {
             }));
         expect(1).toBe(1);
     });
+
+    it("apply + alias", () => {
+        const q1 = table(cols, "a").selectStar();
+        const u = unionAll([q1, q1, q1])
+            .as("alias1")
+            .apply((it) => it.select(["a"]));
+        expect(u.stringify()).toMatchInlineSnapshot(
+            `"SELECT \`a\` AS \`a\` FROM (SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\` UNION ALL SELECT * FROM \`a\`) AS \`alias1\`"`
+        );
+    });
 });

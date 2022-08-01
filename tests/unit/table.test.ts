@@ -21,6 +21,15 @@ describe("table", () => {
         );
     });
 
+    it("apply + alias", () => {
+        const q = table(cols, "a")
+            .as("b")
+            .apply((it) => it.select(["a"]));
+        expect(q.stringify()).toMatchInlineSnapshot(
+            `"SELECT \`a\` AS \`a\` FROM \`a\` AS \`b\`"`
+        );
+    });
+
     it("apply type checks", () => {
         table(cols, "a")
             .apply((it) => it.select(["a"]))

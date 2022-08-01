@@ -64,7 +64,7 @@ export class Table<
             alias,
             name,
             final: false,
-            scope: alias ? { [alias]: void 0 } : {},
+            scope: { [alias]: void 0 },
         });
 
     private copy = (): Table<Selection, Alias, Scope, FlatScope> =>
