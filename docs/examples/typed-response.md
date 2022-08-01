@@ -17,11 +17,11 @@ layout: default
 ```ts
 import * as io from "io-ts";
 import {
-  AnyStringifyable,
-  SelectionOf,
-  table,
-  RowOf,
-  RowsArray,
+    AnyPrintable,
+    SelectionOf,
+    table,
+    RowOf,
+    RowsArray,
 } from "sql-select-ts";
 ```
 
@@ -66,22 +66,22 @@ ret2?.[0]?.abc;
 
 ```ts
 const ioTsResponse = <
-  T extends AnyStringifyable,
-  C extends { [key in SelectionOf<T>]: io.Mixed }
+    T extends AnyPrintable,
+    C extends { [key in SelectionOf<T>]: io.Mixed }
 >(
-  _it: T,
-  _codec: C
+    _it: T,
+    _codec: C
 ): Promise<io.TypeOf<io.TypeC<C>>[]> => {
-  // Get the query string with it.stringify()
-  // and implement the DB comms.
-  return Promise.resolve([]);
+    // Get the query string with it.stringify()
+    // and implement the DB comms.
+    return Promise.resolve([]);
 };
 ```
 
 ```ts
 const response = await ioTsResponse(
-  /* _it: */ t.selectStar(),
-  /* _codec: */ { a: io.string, b: io.number }
+    /* _it: */ t.selectStar(),
+    /* _codec: */ { a: io.string, b: io.number }
 );
 response[0]?.a.charAt(/* pos: */ 0);
 response[0]?.b.toPrecision(/* precision: */ 2);

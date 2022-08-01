@@ -266,7 +266,7 @@ export type {
     /**
      * @since 0.0.1
      */
-    AnyStringifyable,
+    AnyPrintable,
     /**
      * Return a objects, where the keys are the columns of the selection.
      *

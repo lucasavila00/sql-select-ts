@@ -22,12 +22,12 @@ Added in v0.0.0
 
 # utils
 
-## AnyStringifyable (type alias)
+## AnyPrintable (type alias)
 
 **Signature**
 
 ```ts
-export type AnyStringifyable = SelectStatement<any, any> | Compound<any, any>;
+export type AnyPrintable = SelectStatement<any, any> | Compound<any, any>;
 ```
 
 Added in v0.0.1
@@ -39,7 +39,7 @@ Return a objects, where the keys are the columns of the selection.
 **Signature**
 
 ```ts
-export type RowOf<T extends AnyStringifyable> = RowOfSel<SelectionOf<T>>;
+export type RowOf<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>;
 ```
 
 **Example**
@@ -65,7 +65,7 @@ Return an array of objects, where the object keys are the columns of the selecti
 **Signature**
 
 ```ts
-export type RowsArray<T extends AnyStringifyable> = RowOfSel<SelectionOf<T>>[];
+export type RowsArray<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>[];
 ```
 
 **Example**
@@ -91,14 +91,14 @@ Given a stringifyable object, returns the union of the selection keys.
 **Signature**
 
 ```ts
-export type SelectionOf<T extends AnyStringifyable> = T extends SelectStatement<
-  any,
-  infer S
+export type SelectionOf<T extends AnyPrintable> = T extends SelectStatement<
+    any,
+    infer S
 >
-  ? S
-  : T extends Compound<any, infer S2>
-  ? S2
-  : never;
+    ? S
+    : T extends Compound<any, infer S2>
+    ? S2
+    : never;
 ```
 
 **Example**

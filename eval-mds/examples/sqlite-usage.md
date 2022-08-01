@@ -5,7 +5,7 @@ exampleHeader("SQLite Usage", 50);
 
 ```ts eval
 import sqlite from "sqlite3";
-import { table, AnyStringifyable, RowsArray } from "../../src";
+import { table, AnyPrintable, RowsArray } from "../../src";
 ```
 
 With a DB connector
@@ -23,7 +23,7 @@ const runS = (q: string) =>
 We can implement a version that is aware of the types
 
 ```ts eval
-const run = <T extends AnyStringifyable>(it: T): Promise<RowsArray<T>> =>
+const run = <T extends AnyPrintable>(it: T): Promise<RowsArray<T>> =>
     runS(it.stringify());
 ```
 

@@ -30,13 +30,13 @@ Creates a compound query using 'EXCEPT'
 
 ```ts
 export declare const except: <
-  C extends SelectStatement<any, any>,
-  CS extends readonly SelectStatement<any, any>[]
+    C extends SelectStatement<any, any>,
+    CS extends readonly SelectStatement<any, any>[]
 >(
-  content: CS & { 0: C }
+    content: CS & { 0: C }
 ) => Compound<
-  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-  SelectionOfSelectStatement<C>
+    SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+    SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -61,13 +61,13 @@ Creates a compound query using 'INTERSECT'
 
 ```ts
 export declare const intersect: <
-  C extends SelectStatement<any, any>,
-  CS extends readonly SelectStatement<any, any>[]
+    C extends SelectStatement<any, any>,
+    CS extends readonly SelectStatement<any, any>[]
 >(
-  content: CS & { 0: C }
+    content: CS & { 0: C }
 ) => Compound<
-  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-  SelectionOfSelectStatement<C>
+    SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+    SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -80,8 +80,8 @@ const q2 = fromNothing({ a: sql(456) });
 
 const u = intersect([q1, q2]);
 assert.strictEqual(
-  u.stringify(),
-  "SELECT 123 AS `a` INTERSECT SELECT 456 AS `a`"
+    u.stringify(),
+    "SELECT 123 AS `a` INTERSECT SELECT 456 AS `a`"
 );
 ```
 
@@ -95,13 +95,13 @@ Creates a compound query using 'UNION'
 
 ```ts
 export declare const union: <
-  C extends SelectStatement<any, any>,
-  CS extends readonly SelectStatement<any, any>[]
+    C extends SelectStatement<any, any>,
+    CS extends readonly SelectStatement<any, any>[]
 >(
-  content: CS & { 0: C }
+    content: CS & { 0: C }
 ) => Compound<
-  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-  SelectionOfSelectStatement<C>
+    SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+    SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -126,13 +126,13 @@ Creates a compound query using 'UNION ALL'
 
 ```ts
 export declare const unionAll: <
-  C extends SelectStatement<any, any>,
-  CS extends readonly SelectStatement<any, any>[]
+    C extends SelectStatement<any, any>,
+    CS extends readonly SelectStatement<any, any>[]
 >(
-  content: CS & { 0: C }
+    content: CS & { 0: C }
 ) => Compound<
-  SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
-  SelectionOfSelectStatement<C>
+    SelectionOfSelectStatement<C> | SelectionOfSelectStatement<CS[number]>,
+    SelectionOfSelectStatement<C>
 >;
 ```
 
@@ -145,8 +145,8 @@ const q2 = fromNothing({ a: sql(456) });
 
 const u = unionAll([q1, q2]);
 assert.strictEqual(
-  u.stringify(),
-  "SELECT 123 AS `a` UNION ALL SELECT 456 AS `a`"
+    u.stringify(),
+    "SELECT 123 AS `a` UNION ALL SELECT 456 AS `a`"
 );
 ```
 
@@ -162,7 +162,7 @@ Select data from no source.
 
 ```ts
 export declare const fromNothing: <NewSelection extends string>(
-  it: Record<NewSelection, SafeString>
+    it: Record<NewSelection, SafeString>
 ) => SelectStatement<never, NewSelection>;
 ```
 
@@ -184,9 +184,9 @@ Create a select statement from a raw string.
 
 ```ts
 export declare const fromStringifiedSelectStatement: <
-  NewSelection extends string
+    NewSelection extends string
 >(
-  content: SafeString
+    content: SafeString
 ) => StringifiedSelectStatement<NewSelection>;
 ```
 
@@ -196,8 +196,8 @@ export declare const fromStringifiedSelectStatement: <
 import { fromStringifiedSelectStatement, castSafe } from "sql-select-ts";
 const s1 = fromStringifiedSelectStatement(castSafe("SELECT * FROM `users`"));
 assert.strictEqual(
-  s1.selectStar().stringify(),
-  "SELECT * FROM (SELECT * FROM `users`)"
+    s1.selectStar().stringify(),
+    "SELECT * FROM (SELECT * FROM `users`)"
 );
 ```
 
@@ -211,20 +211,20 @@ Creates a query selecting from the second parameter.
 
 ```ts
 export declare const select: <
-  NewSelection extends string = never,
-  FromAlias extends string = never,
-  FromSelection extends string = never,
-  FromScope extends string = never,
-  FromAmbigous extends string = never,
-  SubSelection extends FromSelection = never
+    NewSelection extends string = never,
+    FromAlias extends string = never,
+    FromSelection extends string = never,
+    FromScope extends string = never,
+    FromAmbigous extends string = never,
+    SubSelection extends FromSelection = never
 >(
-  f:
-    | readonly SubSelection[]
-    | ((
-        f: Record<FromSelection | FromScope, SafeString> &
-          NoSelectFieldsCompileError
-      ) => Record<NewSelection, SafeString>),
-  from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
+    f:
+        | readonly SubSelection[]
+        | ((
+              f: Record<FromSelection | FromScope, SafeString> &
+                  NoSelectFieldsCompileError
+          ) => Record<NewSelection, SafeString>),
+    from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
 ) => SelectStatement<FromSelection, NewSelection | SubSelection>;
 ```
 
@@ -238,12 +238,12 @@ Creates a query selecting all from the second parameter.
 
 ```ts
 export declare const selectStar: <
-  FromAlias extends string = never,
-  FromSelection extends string = never,
-  FromScope extends string = never,
-  FromAmbigous extends string = never
+    FromAlias extends string = never,
+    FromSelection extends string = never,
+    FromScope extends string = never,
+    FromAmbigous extends string = never
 >(
-  from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
+    from: TableOrSubquery<FromAlias, FromScope, FromSelection, FromAmbigous>
 ) => SelectStatement<FromSelection, FromSelection>;
 ```
 
@@ -257,9 +257,9 @@ Create a table definition. Optinionally, you can provide an alias for the table,
 
 ```ts
 export declare const table: <Selection extends string, Alias extends string>(
-  columns: readonly Selection[],
-  alias: Alias,
-  name?: string
+    columns: readonly Selection[],
+    alias: Alias,
+    name?: string
 ) => Table<`${Alias}.${Selection}`, Selection, Alias>;
 ```
 
@@ -272,8 +272,8 @@ assert.strictEqual(t1.selectStar().stringify(), "SELECT * FROM `users`");
 
 const t2 = table(["id", "name"], "alias", "users");
 assert.strictEqual(
-  t2.selectStar().stringify(),
-  "SELECT * FROM `users` AS `alias`"
+    t2.selectStar().stringify(),
+    "SELECT * FROM `users` AS `alias`"
 );
 ```
 
@@ -287,9 +287,9 @@ Create a common table expression, renaming the selecion.
 
 ```ts
 export declare const withR: <Selection extends string, Alias extends string>(
-  alias: Alias,
-  columns: readonly Selection[],
-  select: SelectStatement<any, any>
+    alias: Alias,
+    columns: readonly Selection[],
+    select: SelectStatement<any, any>
 ) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
 ```
 
@@ -303,8 +303,8 @@ Create a common table expression.
 
 ```ts
 export declare const with_: <Selection extends string, Alias extends string>(
-  alias: Alias,
-  select: SelectStatement<any, Selection>
+    alias: Alias,
+    select: SelectStatement<any, Selection>
 ) => CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias>;
 ```
 
@@ -330,8 +330,8 @@ Added in v0.0.0
 
 ```ts
 export declare const buildSerializer: <T>(args: {
-  check: (it: unknown) => it is T;
-  serialize: (it: T) => string;
+    check: (it: unknown) => it is T;
+    serialize: (it: T) => string;
 }) => Serializer<T>;
 ```
 
@@ -343,7 +343,7 @@ Added in v0.0.1
 
 ```ts
 export declare const buildSql: <T extends Serializer<any>[]>(
-  serializers: T
+    serializers: T
 ) => SqlStringBuilder<T>;
 ```
 
@@ -395,8 +395,8 @@ assert.strictEqual(sql`${123} + 456`.content, "123 + 456");
 const name = "A";
 const names = ["A", "B", "C"];
 assert.strictEqual(
-  sql`${name} IN (${names})`.content,
-  "'A' IN ('A', 'B', 'C')"
+    sql`${name} IN (${names})`.content,
+    "'A' IN ('A', 'B', 'C')"
 );
 const q = fromNothing({ it: sql(123) });
 assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
@@ -426,12 +426,12 @@ Added in v0.0.0
 
 # utils
 
-## AnyStringifyable
+## AnyPrintable
 
 **Signature**
 
 ```ts
-export declare const AnyStringifyable: AnyStringifyable;
+export declare const AnyPrintable: AnyPrintable;
 ```
 
 Added in v0.0.1
@@ -444,7 +444,7 @@ Return a objects, where the keys are the columns of the selection.
 
 ```ts
 export declare const RowOf: {
-  [K in SelectionOf<T>]: string | number | null | undefined;
+    [K in SelectionOf<T>]: string | number | null | undefined;
 };
 ```
 

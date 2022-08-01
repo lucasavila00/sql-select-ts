@@ -9,7 +9,7 @@ import { SelectStatement } from "./classes/select-statement";
 /**
  * @since 0.0.1
  */
-export type AnyStringifyable =
+export type AnyPrintable =
     | SelectStatement<any, any, any, any>
     | Compound<any, any, any, any>;
 
@@ -29,7 +29,7 @@ export type AnyStringifyable =
  *
  * @since 0.0.1
  */
-export type SelectionOf<T extends AnyStringifyable> = T extends SelectStatement<
+export type SelectionOf<T extends AnyPrintable> = T extends SelectStatement<
     any,
     infer S,
     any,
@@ -61,7 +61,7 @@ type RowOfSel<T extends string> = {
  *
  * @since 0.0.1
  */
-export type RowOf<T extends AnyStringifyable> = RowOfSel<SelectionOf<T>>;
+export type RowOf<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>;
 
 /**
  * Return an array of objects, where the object keys are the columns of the selection.
@@ -80,4 +80,4 @@ export type RowOf<T extends AnyStringifyable> = RowOfSel<SelectionOf<T>>;
  *
  * @since 0.0.1
  */
-export type RowsArray<T extends AnyStringifyable> = RowOfSel<SelectionOf<T>>[];
+export type RowsArray<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>[];

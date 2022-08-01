@@ -16,7 +16,7 @@ layout: default
 
 ```ts
 import sqlite from "sqlite3";
-import { table, AnyStringifyable, RowsArray } from "sql-select-ts";
+import { table, AnyPrintable, RowsArray } from "sql-select-ts";
 ```
 
 With a DB connector
@@ -25,21 +25,21 @@ With a DB connector
 const it = sqlite.verbose();
 const db = new it.Database(":memory:");
 const runS = (q: string) =>
-  new Promise<any[]>(
-    /* executor: */ (rs, rj) =>
-      db.all(
-        /* sql: */ q,
-        /* callback: */ (e: any, r: any) =>
-          e ? rj(/* reason: */ e) : rs(/* value: */ r)
-      )
-  );
+    new Promise<any[]>(
+        /* executor: */ (rs, rj) =>
+            db.all(
+                /* sql: */ q,
+                /* callback: */ (e: any, r: any) =>
+                    e ? rj(/* reason: */ e) : rs(/* value: */ r)
+            )
+    );
 ```
 
 We can implement a version that is aware of the types
 
 ```ts
-const run = <T extends AnyStringifyable>(it: T): Promise<RowsArray<T>> =>
-  runS(/* q: */ it.stringify());
+const run = <T extends AnyPrintable>(it: T): Promise<RowsArray<T>> =>
+    runS(/* q: */ it.stringify());
 ```
 
 Then, with some tables
