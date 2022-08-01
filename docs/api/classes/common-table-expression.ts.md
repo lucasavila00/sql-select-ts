@@ -8,7 +8,7 @@ grand_parent: Api
 
 ## common-table-expression overview
 
-Added in v1.0.0
+Added in v2.0.0
 
 <details open markdown="block">
   <summary>
@@ -26,7 +26,12 @@ Added in v1.0.0
 **Signature**
 
 ```ts
-export declare class CommonTableExpressionFactory<Scope, Aliases> {
+export declare class CommonTableExpressionFactory<
+  Selection,
+  Alias,
+  Scope,
+  FlatScope
+> {
   private constructor(
     /* @internal */
     public __props: {
@@ -36,53 +41,65 @@ export declare class CommonTableExpressionFactory<Scope, Aliases> {
 }
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 ### with\_ (property)
 
 **Signature**
 
 ```ts
-with_: <Selection2 extends string, Alias2 extends string>(
-  alias: Alias2,
+with_: <NSelection extends string, NAlias extends string>(
   select: (acc: {
-    [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
-  }) => SelectStatement<any, Selection2>
+    [K in keyof Scope]: Table<
+      Scope[K],
+      never,
+      { [k in K]: Scope[K] },
+      Scope[K]
+    >;
+  }) => AliasedSelectStatement<NSelection, NAlias, any, any>
 ) =>
   CommonTableExpressionFactory<
-    Scope | `${Alias2}.${Selection2}`,
-    Aliases | Alias2
+    Selection,
+    Alias,
+    Scope & { [key in NAlias]: NSelection },
+    FlatScope | NSelection
   >;
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 ### withR (property)
 
 **Signature**
 
 ```ts
-withR: <Selection2 extends string, Alias2 extends string>(
-  alias: Alias2,
-  columns: readonly Selection2[],
+withR: <NSelection extends string, NAlias extends string>(
   select: (acc: {
-    [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
-  }) => SelectStatement<any, any>
+    [K in keyof Scope]: Table<
+      Scope[K],
+      never,
+      { [k in K]: Scope[K] },
+      Scope[K]
+    >;
+  }) => AliasedSelectStatement<any, NAlias, any, any>,
+  columns: readonly NSelection[]
 ) =>
   CommonTableExpressionFactory<
-    Scope | `${Alias2}.${Selection2}`,
-    Aliases | Alias2
+    Selection,
+    Alias,
+    Scope & { [key in NAlias]: NSelection },
+    FlatScope | NSelection
   >;
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 ### do (property)
 
 **Signature**
 
 ```ts
-do: <A extends string, B extends string>(f: (acc: { [K in Aliases]: TableOrSubquery<K, Scope, FilterStarting<Scope, K> | `${K}.${FilterStarting<Scope, K>}`, any>; }) => SelectStatement<A, B>) => SelectStatement<A, B>
+do: <NSelection extends string, NAlias extends string, NScope extends ScopeShape, NFlatScope extends string>(_: (acc: { [K in keyof Scope]: Table<Scope[K], never, { [k in K]: Scope[K]; }, Scope[K]>; }) => SelectStatement<NSelection, NAlias, NScope, NFlatScope>) => SelectStatement<NSelection, NAlias, NScope, NFlatScope>
 ```
 
-Added in v1.0.0
+Added in v2.0.0

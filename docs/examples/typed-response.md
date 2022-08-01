@@ -16,17 +16,11 @@ layout: default
 
 ```ts
 import * as io from "io-ts";
-import {
-    AnyPrintable,
-    SelectionOf,
-    table,
-    RowOf,
-    RowsArray,
-} from "sql-select-ts";
+import { AnyPrintable, SelectionOf, table, RowOf, RowsArray } from "../../src";
 ```
 
 ```ts
-const t = table(/* columns: */ ["a", "b"], /* alias: */ "t");
+const t = table(["a", "b"], "t");
 const q = t.selectStar();
 ```
 
@@ -34,6 +28,7 @@ const q = t.selectStar();
 
 ```ts
 type K = SelectionOf<typeof q>; // typeof K = 'a' | 'b'
+
 // @ts-expect-error
 const k2: K = "c";
 ```
@@ -79,12 +74,13 @@ const ioTsResponse = <
 ```
 
 ```ts
-const response = await ioTsResponse(
-    /* _it: */ t.selectStar(),
-    /* _codec: */ { a: io.string, b: io.number }
-);
-response[0]?.a.charAt(/* pos: */ 0);
-response[0]?.b.toPrecision(/* precision: */ 2);
+const response = await ioTsResponse(t.selectStar(), {
+    a: io.string,
+    b: io.number,
+});
+
+response[0]?.a.charAt(0);
+response[0]?.b.toPrecision(2);
 ```
 
 ```ts
@@ -94,7 +90,7 @@ response[0]?.c;
 
 ```ts
 // @ts-expect-error
-ioTsResponse(/* _it: */ t.selectStar(), /* _codec: */ { a: io.string });
+ioTsResponse(t.selectStar(), { a: io.string });
 ```
 
 ---

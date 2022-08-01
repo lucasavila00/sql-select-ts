@@ -9,7 +9,7 @@ layout: default
 
 Safe String and it's building mechanisms allows us to have painless, injection safe SQL string building.
 
-Added in v0.0.0
+Added in v2.0.0
 
 <details open markdown="block">
   <summary>
@@ -35,7 +35,7 @@ export declare const buildSerializer: <T>(args: {
 }) => Serializer<T>;
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## buildSql
 
@@ -50,7 +50,7 @@ export declare const buildSql: <T extends Serializer<any>[]>(
 ) => SqlStringBuilder<T>;
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## castSafe
 
@@ -73,7 +73,7 @@ assert.strictEqual(castSafe(";'abc'").content, ";'abc'");
 assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ## dsql
 
@@ -103,7 +103,7 @@ const q = fromNothing({ it: sql(123) });
 assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
 ```
 
-Added in v1.0.0
+Added in v2.0.0
 
 ## isSafeString
 
@@ -123,7 +123,7 @@ import { isSafeString, dsql as sql } from "sql-select-ts";
 assert.strictEqual(isSafeString(sql(123)), true);
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 # utils
 
@@ -140,7 +140,7 @@ export type SafeString = {
 };
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ## SafeStringURI
 
@@ -152,7 +152,7 @@ Tag used to discriminate a SafeString object.
 export declare const SafeStringURI: "SafeString";
 ```
 
-Added in v0.0.0
+Added in v2.0.0
 
 ## Serializer (type alias)
 
@@ -167,7 +167,7 @@ export type Serializer<T> = {
 };
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## SqlStringBuilder (type alias)
 
@@ -180,7 +180,7 @@ export type SqlStringBuilder<T extends Serializer<any>[]> =
   SqlStringBuilderOverloadedFn<ArgsOfSerializerList<T>>;
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## SqlStringBuilderOverloadedFn (interface)
 
@@ -198,4 +198,4 @@ export interface SqlStringBuilderOverloadedFn<T> {
 }
 ```
 
-Added in v0.0.1
+Added in v2.0.0

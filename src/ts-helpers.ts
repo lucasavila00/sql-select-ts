@@ -36,13 +36,13 @@ export type AnyPrintable =
  */
 
 export type SelectionOf<T extends AnyPrintable> =
-    T extends AliasedSelectStatement<infer S, any, any, any>
+    T extends AliasedSelectStatement<infer S, infer _S1, infer _S2, infer _S3>
         ? S
-        : T extends AliasedCompound<infer S, any, any, any>
+        : T extends AliasedCompound<infer S, infer _S1, infer _S2, infer _S3>
         ? S
-        : T extends Compound<infer S, any, any, any>
+        : T extends Compound<infer S, infer _S1, infer _S2, infer _S3>
         ? S
-        : T extends SelectStatement<infer S, any, any, any>
+        : T extends SelectStatement<infer S, infer _S1, infer _S2, infer _S3>
         ? S
         : never;
 

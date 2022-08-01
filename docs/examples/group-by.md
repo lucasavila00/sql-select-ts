@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, dsql as sql, SafeString } from "sql-select-ts";
+import { table, dsql as sql, SafeString } from "../../src";
 ```
 
 We will use this table
@@ -27,7 +27,8 @@ CREATE TABLE users(id int, age int, name string);
 Which is defined in typescript as
 
 ```ts
-const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
+const users = table(["id", "age", "name"], "users");
+
 const lowercase = (it: SafeString): SafeString => sql`lowerCase(${it})`;
 ```
 
@@ -35,9 +36,9 @@ const lowercase = (it: SafeString): SafeString => sql`lowerCase(${it})`;
 
 ```ts
 users
-  .selectStar()
-  .groupBy(/* f: */ (f) => lowercase(/* it: */ f.name))
-  .stringify();
+    .selectStar()
+    .groupBy((f) => lowercase(f.name))
+    .stringify();
 ```
 
 ```sql
@@ -50,7 +51,7 @@ GROUP BY
 ```
 
 ```ts
-users.selectStar().groupBy(/* f: */ ["name"]).stringify();
+users.selectStar().groupBy(["name"]).stringify();
 ```
 
 ```sql
@@ -68,9 +69,9 @@ GROUP BY
 
 ```ts
 users
-  .selectStar()
-  .groupBy(/* f: */ (f) => [f.name, f.id])
-  .stringify();
+    .selectStar()
+    .groupBy((f) => [f.name, f.id])
+    .stringify();
 ```
 
 ```sql
@@ -84,7 +85,7 @@ GROUP BY
 ```
 
 ```ts
-users.selectStar().groupBy(/* f: */ ["name", "id"]).stringify();
+users.selectStar().groupBy(["name", "id"]).stringify();
 ```
 
 ```sql
@@ -101,10 +102,10 @@ GROUP BY
 
 ```ts
 users
-  .selectStar()
-  .groupBy(/* f: */ (f) => f.name)
-  .groupBy(/* f: */ (f) => f.id)
-  .stringify();
+    .selectStar()
+    .groupBy((f) => f.name)
+    .groupBy((f) => f.id)
+    .stringify();
 ```
 
 ```sql
@@ -118,11 +119,7 @@ GROUP BY
 ```
 
 ```ts
-users
-  .selectStar()
-  .groupBy(/* f: */ ["name"])
-  .groupBy(/* f: */ ["id"])
-  .stringify();
+users.selectStar().groupBy(["name"]).groupBy(["id"]).stringify();
 ```
 
 ```sql

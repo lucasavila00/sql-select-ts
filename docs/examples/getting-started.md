@@ -17,13 +17,13 @@ layout: default
 # Getting started
 
 ```ts
-import { table, dsql as sql, SafeString } from "sql-select-ts";
+import { table, dsql as sql, SafeString } from "../../src";
 ```
 
 Construct a table instance
 
 ```ts
-const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
+const users = table(["id", "age", "name"], "users");
 ```
 
 Create a query
@@ -49,9 +49,7 @@ FROM
 ## String interpolation
 
 ```ts
-const q2 = users
-  .select(/* f: */ ["age"])
-  .where(/* f: */ (fields) => sql`${fields.id}=1`);
+const q2 = users.select(["age"]).where((fields) => sql`${fields.id}=1`);
 ```
 
 ```ts
@@ -71,13 +69,16 @@ WHERE
 
 ```ts
 const eq = (
-  a: SafeString | string | number,
-  b: SafeString | string | number
+    a: SafeString | string | number,
+    b: SafeString | string | number
 ): SafeString => sql`${a}=${b}`;
+
 const MAX = (it: SafeString): SafeString => sql`MAX(${it})`;
+
 const q3 = users
-  .select(/* f: */ (fields) => ({ age: MAX(/* it: */ fields.age) }))
-  .where(/* f: */ (fields) => eq(/* a: */ fields.id, /* b: */ 1));
+    .select((fields) => ({ age: MAX(fields.age) }))
+    .where((fields) => eq(fields.id, 1));
+
 q3.stringify();
 ```
 
@@ -93,13 +94,7 @@ WHERE
 ## Composition
 
 ```ts
-q.commaJoinSelect(
-  /* thisSelectAlias: */ "q",
-  /* selectAlias: */ "q3",
-  /* select: */ q3
-)
-  .selectStar()
-  .stringify();
+q.as("q").commaJoin(q3.as("q3")).selectStar().stringify();
 ```
 
 ```sql

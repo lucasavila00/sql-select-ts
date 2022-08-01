@@ -143,7 +143,7 @@ users
 ```ts eval --out=sql
 admins
     .select((f) => ({
-        otherAlias: f["adm.name"],
+        otherAlias: f.adm.name,
     }))
     .appendSelectStar()
     .stringify();
@@ -152,7 +152,7 @@ admins
 ## Select star of aliases
 
 ```ts eval --out=sql
-admins.commaJoinTable(users).selectStarOfAliases(["users"]).stringify();
+admins.commaJoin(users).selectStarOfAliases(["users"]).stringify();
 ```
 
 ## Select from sub-select
@@ -171,9 +171,9 @@ unionAll([users.selectStar(), admins.selectStar()]).select(["age"]).stringify();
 
 ```ts eval --out=sql
 users
-    .joinTable("LEFT", admins)
+    .join("LEFT", admins)
     .using(["id"])
-    .select(["users.name", "adm.name"])
+    .select((f) => ({ "users.name": f.users.name, "adm.name": f.adm.name }))
     .stringify();
 ```
 
@@ -217,7 +217,7 @@ users
     .select((f) => ({
         ["123"]: f.age,
     }))
-    .appendSelect(["name"])
+    .appendSelect((f) => ({ name: f.name }))
     .appendSelect((f) => ({
         ["456"]: f.id,
     }))

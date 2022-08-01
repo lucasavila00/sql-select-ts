@@ -9,7 +9,7 @@ layout: default
 
 Typescript helpers.
 
-Added in v0.0.0
+Added in v2.0.0
 
 <details open markdown="block">
   <summary>
@@ -27,10 +27,14 @@ Added in v0.0.0
 **Signature**
 
 ```ts
-export type AnyPrintable = SelectStatement<any, any> | Compound<any, any>;
+export type AnyPrintable =
+  | SelectStatement<any, any, any, any>
+  | AliasedSelectStatement<any, any, any, any>
+  | Compound<any, any, any, any>
+  | AliasedCompound<any, any, any, any>;
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## RowOf (type alias)
 
@@ -56,7 +60,7 @@ console.log(ret.name);
 console.log(ret.abc);
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## RowsArray (type alias)
 
@@ -82,22 +86,24 @@ console.log(ret?.[0]?.name);
 console.log(ret?.[0]?.abc);
 ```
 
-Added in v0.0.1
+Added in v2.0.0
 
 ## SelectionOf (type alias)
 
-Given a stringifyable object, returns the union of the selection keys.
+Given a printable object, returns the union of the selection keys.
 
 **Signature**
 
 ```ts
-export type SelectionOf<T extends AnyPrintable> = T extends SelectStatement<
-    any,
-    infer S
->
+export type SelectionOf<T extends AnyPrintable> =
+  T extends AliasedSelectStatement<infer S, infer _S1, infer _S2, infer _S3>
     ? S
-    : T extends Compound<any, infer S2>
-    ? S2
+    : T extends AliasedCompound<infer S, infer _S1, infer _S2, infer _S3>
+    ? S
+    : T extends Compound<infer S, infer _S1, infer _S2, infer _S3>
+    ? S
+    : T extends SelectStatement<infer S, infer _S1, infer _S2, infer _S3>
+    ? S
     : never;
 ```
 
@@ -114,4 +120,4 @@ assert.strictEqual(k, "id");
 const k2: Key = "abc";
 ```
 
-Added in v0.0.1
+Added in v2.0.0

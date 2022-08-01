@@ -1,6 +1,9 @@
 import { Compound } from "./classes/compound";
 import { Joined } from "./classes/joined";
-import { SelectStatement } from "./classes/select-statement";
+import {
+    AliasedSelectStatement,
+    SelectStatement,
+} from "./classes/select-statement";
 import { StringifiedSelectStatement } from "./classes/stringified-select-statement";
 import { Table } from "./classes/table";
 import { isTheProxyObject } from "./consume-fields";
@@ -283,6 +286,10 @@ const printInternal = (
 
 export const printSelectStatement = (
     it: SelectStatement<any, any, any, any>
+): string => printSelectStatementInternal(it, false);
+
+export const printAliasedSelectStatement = (
+    it: AliasedSelectStatement<any, any, any, any>
 ): string => printSelectStatementInternal(it, false);
 
 export const printCompound = (it: Compound<any, any, any, any>): string =>

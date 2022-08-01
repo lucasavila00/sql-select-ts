@@ -3,7 +3,7 @@
         "srcUrl": "https://github.com/lucasavila00/sql-select-ts/tree/main/",
         "docsUrl": "https://lucasavila00.github.io/sql-select-ts/"
     },
-    "typescript": { "inlayHints": true },
+    "typescript": { "inlayHints": false },
     "imports": {
         "../../src": "sql-select-ts"
     }

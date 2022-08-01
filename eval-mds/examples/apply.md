@@ -15,7 +15,7 @@ Allows to use a helper function but still keep method chaining.
 ```ts eval --out=sql
 // It expects a select statement that has selected a "sector" field,
 // which will be used as the "group by"
-const groupSortLimit = (query: SelectStatement<never, "sector">) =>
+const groupSortLimit = (query: SelectStatement<"sector", any, any, any>) =>
     query
         .groupBy((f) => f.sector)
         .orderBy((_f) => sql`count() DESC`)

@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table } from "sql-select-ts";
+import { table } from "../../src";
 ```
 
 We will use this table
@@ -27,16 +27,16 @@ CREATE TABLE t0(x INTEGER, y INTEGER)
 Which is defined in typescript as
 
 ```ts
-const t0 = table(/* columns: */ ["x", "y"], /* alias: */ "t0");
+const t0 = table(["x", "y"], "t0");
 ```
 
 # One Clause
 
 ```ts
 t0.selectStar()
-  .groupBy(/* f: */ (f) => f.x)
-  .having(/* f: */ (f) => f.x)
-  .stringify();
+    .groupBy((f) => f.x)
+    .having((f) => f.x)
+    .stringify();
 ```
 
 ```sql
@@ -53,10 +53,10 @@ HAVING
 ## From Select
 
 ```ts
-t0.select(/* f: */ (f) => ({ it: f.x }))
-  .groupBy(/* f: */ (f) => f.y)
-  .having(/* f: */ (f) => f.y)
-  .stringify();
+t0.select((f) => ({ it: f.x }))
+    .groupBy((f) => f.y)
+    .having((f) => f.y)
+    .stringify();
 ```
 
 ```sql
@@ -76,11 +76,11 @@ HAVING
 
 ```ts
 t0.selectStar()
-  .groupBy(/* f: */ (f) => f.x)
-  .having(/* f: */ (f) => f.x)
-  .groupBy(/* f: */ (f) => f.y)
-  .having(/* f: */ (f) => f.y)
-  .stringify();
+    .groupBy((f) => f.x)
+    .having((f) => f.x)
+    .groupBy((f) => f.y)
+    .having((f) => f.y)
+    .stringify();
 ```
 
 ```sql
@@ -98,11 +98,11 @@ HAVING
 
 ```ts
 t0.selectStar()
-  .groupBy(/* f: */ ["x"])
-  .having(/* f: */ ["x"])
-  .groupBy(/* f: */ ["y"])
-  .having(/* f: */ ["y"])
-  .stringify();
+    .groupBy(["x"])
+    .having(["x"])
+    .groupBy(["y"])
+    .having(["y"])
+    .stringify();
 ```
 
 ```sql
@@ -122,9 +122,9 @@ HAVING
 
 ```ts
 t0.selectStar()
-  .groupBy(/* f: */ (f) => [f.x, f.y])
-  .having(/* f: */ (f) => [f.x, f.y])
-  .stringify();
+    .groupBy((f) => [f.x, f.y])
+    .having((f) => [f.x, f.y])
+    .stringify();
 ```
 
 ```sql
@@ -141,10 +141,7 @@ HAVING
 ```
 
 ```ts
-t0.selectStar()
-  .groupBy(/* f: */ ["x", "y"])
-  .having(/* f: */ ["x", "y"])
-  .stringify();
+t0.selectStar().groupBy(["x", "y"]).having(["x", "y"]).stringify();
 ```
 
 ```sql

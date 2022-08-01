@@ -10,7 +10,7 @@ import {
     consumeReplaceCallback,
 } from "../consume-fields";
 import { AliasedRows, StarSymbol } from "../data-wrappers";
-import { printSelectStatement } from "../print";
+import { printAliasedSelectStatement, printSelectStatement } from "../print";
 import { SafeString } from "../safe-string";
 import {
     ClickhouseWith,
@@ -55,9 +55,13 @@ export class SelectStatement<
     Scope extends ScopeShape,
     FlatScope extends string
 > {
-    /* @internal */
+    /**
+     * @internal
+     */
     protected constructor(
-        /* @internal */
+        /**
+         * @internal
+         */
         public __props: {
             readonly from: TableOrSubquery<any, any, any, any> | null;
             readonly selection: SelectionWrapperTypes;
@@ -76,7 +80,9 @@ export class SelectStatement<
         }
     ) {}
 
-    /* @internal */
+    /**
+     * @internal
+     */
     public static __fromTableOrSubqueryAndSelectionArray = (
         it: TableOrSubquery<any, any, any, any>,
         selection: SelectionWrapperTypes,
@@ -100,7 +106,9 @@ export class SelectStatement<
             scope,
         });
 
-    /* @internal */
+    /**
+     * @internal
+     */
     public static __fromTableOrSubquery = (
         it: TableOrSubquery<any, any, any, any>,
         selection: SelectionRecordCallbackShape,
@@ -153,7 +161,10 @@ export class SelectStatement<
     private copy = (): SelectStatement<Selection, Alias, Scope, FlatScope> =>
         new SelectStatement({ ...this.__props });
 
-    private setSelection = (selection: SelectionWrapperTypes): this => {
+    /**
+     * @internal
+     */
+    protected setSelection = (selection: SelectionWrapperTypes): this => {
         this.__props = {
             ...this.__props,
             selection,
@@ -312,17 +323,12 @@ export class SelectStatement<
             | ReadonlyArray<SubSelection>
             | ((
                   fields: RecordOfSelection<Selection> &
-                      SelectionOfScope<{
-                          [key in Alias]: Selection;
-                      }> &
                       NoSelectFieldsCompileError
               ) => Record<NewSelection, SafeString>)
     ): SelectStatement<
         NewSelection | SubSelection,
         never,
-        {
-            [key in Alias]: Selection;
-        },
+        Record<string, never>,
         Selection
     > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
 
@@ -348,7 +354,7 @@ export class SelectStatement<
     public appendSelectStar = (): SelectStatement<
         Selection,
         Alias,
-        Scope & { [key in Alias]: Selection },
+        Scope,
         Selection
     > => this.copy().setSelection([...this.__props.selection, StarSymbol()]);
 
@@ -575,7 +581,58 @@ export class AliasedSelectStatement<
     /**
      * @since 2.0.0
      */
-    public stringify = (): string => printSelectStatement(this);
+    public stringify = (): string => printAliasedSelectStatement(this);
+
+    /**
+     * @since 2.0.0
+     */
+    public select = <
+        NewSelection extends string = never,
+        SubSelection extends Selection = never
+    >(
+        _:
+            | ReadonlyArray<SubSelection>
+            | ((
+                  fields: RecordOfSelection<Selection> &
+                      SelectionOfScope<{
+                          [key in Alias]: Selection;
+                      }> &
+                      NoSelectFieldsCompileError
+              ) => Record<NewSelection, SafeString>)
+    ): SelectStatement<
+        NewSelection | SubSelection,
+        never,
+        {
+            [key in Alias]: Selection;
+        },
+        Selection
+    > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
+
+    /**
+     * @since 2.0.0
+     */
+    public selectStar = (): SelectStatement<
+        Selection,
+        never,
+        { [key in Alias]: Selection },
+        Selection
+    > =>
+        SelectStatement.__fromTableOrSubqueryAndSelectionArray(
+            this,
+            [StarSymbol()],
+            {},
+            undefined
+        );
+
+    /**
+     * @since 2.0.0
+     */
+    public appendSelectStar = (): AliasedSelectStatement<
+        Selection,
+        Alias,
+        Scope & { [key in Alias]: Selection },
+        Selection
+    > => this.__copy().setSelection([...this.__props.selection, StarSymbol()]);
 
     /**
      * @since 2.0.0

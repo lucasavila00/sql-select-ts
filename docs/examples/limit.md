@@ -15,7 +15,7 @@ layout: default
 </details>
 
 ```ts
-import { table, dsql as sql } from "sql-select-ts";
+import { table, dsql as sql } from "../../src";
 ```
 
 We will use this table
@@ -27,13 +27,13 @@ CREATE TABLE users(id int, age int, name string);
 Which is defined in typescript as
 
 ```ts
-const users = table(/* columns: */ ["id", "age", "name"], /* alias: */ "users");
+const users = table(["id", "age", "name"], "users");
 ```
 
 # Limiting to a number
 
 ```ts
-users.selectStar().limit(/* limit: */ 5).stringify();
+users.selectStar().limit(5).stringify();
 ```
 
 ```sql
@@ -49,9 +49,9 @@ LIMIT
 
 ```ts
 users
-  .selectStar()
-  .limit(/* limit: */ sql`1 OFFSET 10`)
-  .stringify();
+    .selectStar()
+    .limit(sql`1 OFFSET 10`)
+    .stringify();
 ```
 
 ```sql
