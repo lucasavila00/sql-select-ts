@@ -9,7 +9,9 @@ it("basic", () => {
         .select((f) => ({ f1: f.f1 }))
         .select(() => ({ it: dsql(3) }))
         .where((f) => dsql`${f.f1} > ${f.it} OR ${f.f1} = ${f.it}`);
-    expect(subquery.stringify()).toMatchInlineSnapshot();
+    expect(subquery.stringify()).toMatchInlineSnapshot(
+        `"SELECT 3 AS \`it\` FROM (SELECT \`f1\` AS \`f1\` FROM \`test1\`) WHERE \`f1\` > \`it\` OR \`f1\` = \`it\`"`
+    );
 });
 
 const t = Table.define(["id", "name"], "users");
@@ -74,7 +76,11 @@ it("select qualified", () => {
         def: f.users.id,
     }));
 
-    expect(query1.__props.scope).toMatchInlineSnapshot(`Object {}`);
+    expect(query1.__props.scope).toMatchInlineSnapshot(`
+        Object {
+          "users": undefined,
+        }
+    `);
     expect(query1.__props.selection).toMatchInlineSnapshot(`
         Array [
           Object {
@@ -97,7 +103,11 @@ it("select qualified", () => {
     );
     const query2 = t.select(["id"]);
 
-    expect(query2.__props.scope).toMatchInlineSnapshot(`Object {}`);
+    expect(query2.__props.scope).toMatchInlineSnapshot(`
+        Object {
+          "users": undefined,
+        }
+    `);
     expect(query2.__props.selection).toMatchInlineSnapshot(`
         Array [
           Object {
@@ -146,6 +156,7 @@ it("query alias", () => {
     expect(r1.__props.scope).toMatchInlineSnapshot(`
         Object {
           "alias2": undefined,
+          "users": undefined,
         }
     `);
     expect(format(r1.stringify())).toMatchInlineSnapshot(`

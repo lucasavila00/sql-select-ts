@@ -76,7 +76,6 @@ describe("clickhouse cte", () => {
         const q = with_(t0.selectStar().as("t0_alias"))
             .with_(() => t0.selectStar().as("t1_alias"))
             .do((acc) => select((_f) => ({ it: sql(10) }), acc.t1_alias))
-
             .appendSelect((f) => ({ it2: f.t1_alias.y }))
             .stringify();
 

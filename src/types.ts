@@ -101,7 +101,7 @@ export type ScopeOfSelectStatement<T> = T extends SelectStatement<
 
 export type CTE = {
     readonly columns: ReadonlyArray<string>;
-    readonly select: SelectStatement<any, any, any, any>;
+    readonly select: AliasedSelectStatement<any, any, any, any>;
 };
 export type ScopeShape = { [key: string]: string };
 export type SelectionOfScope<Scope extends ScopeShape = never> = {

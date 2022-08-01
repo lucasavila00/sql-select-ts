@@ -16,19 +16,19 @@ describe("proxy", () => {
         expect(proxy["a"]).toMatchInlineSnapshot(`
             Object {
               "_tag": "SafeString",
-              "content": "\`a\`",
+              "content": "\`abc\`.\`a\`",
             }
         `);
         expect(proxy["123"]).toMatchInlineSnapshot(`
             Object {
               "_tag": "SafeString",
-              "content": "\`123\`",
+              "content": "\`abc\`.\`123\`",
             }
         `);
         expect(proxy["123-456"]).toMatchInlineSnapshot(`
             Object {
               "_tag": "SafeString",
-              "content": "\`123-456\`",
+              "content": "\`abc\`.\`123-456\`",
             }
         `);
     });

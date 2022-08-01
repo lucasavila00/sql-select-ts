@@ -1,8 +1,7 @@
 /**
  * @since 1.0.0
  */
-import { CTE, ScopeShape, TableOrSubquery } from "../types";
-import { hole } from "../utils";
+import { CTE, ScopeShape } from "../types";
 import { AliasedSelectStatement, SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
@@ -88,26 +87,23 @@ export class CommonTableExpressionFactory<
         Alias,
         Scope & { [key in NAlias]: NSelection },
         FlatScope | NSelection
-    > => hole();
-    // public with_ = <Selection2 extends string, Alias2 extends string>(
-    //     alias: Alias2,
-    //     select: (acc: {
-    //         [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
-    //     }) => SelectStatement<any, any, Selection2>
-    // ): CommonTableExpressionFactory<
-    //     `${Alias2}.${Selection2}` | Scope,
-    //     Aliases | Alias2
-    // > => {
-    //     const oldMap: any = {};
-    //     for (const cte of this.__props.ctes) {
-    //         oldMap[cte.alias] = Table.define([], cte.alias);
-    //     }
-    //     return this.copy().setCtes([
-    //         ...this.__props.ctes,
-    //         { columns: [], alias, select: select(oldMap) },
-    //     ]) as any;
-    // };
-
+    > => {
+        const oldMap: any = {};
+        for (const cte of this.__props.ctes) {
+            oldMap[
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                cte.select.__props.alias!
+            ] = Table.define(
+                [],
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                cte.select.__props.alias!
+            );
+        }
+        return this.copy().setCtes([
+            ...this.__props.ctes,
+            { columns: [], select: select(oldMap) },
+        ]) as any;
+    };
     /**
      * @since 1.0.0
      */
@@ -126,26 +122,23 @@ export class CommonTableExpressionFactory<
         Alias,
         Scope & { [key in NAlias]: NSelection },
         FlatScope | NSelection
-    > => hole();
-    // public withR = <Selection2 extends string, Alias2 extends string>(
-    //     alias: Alias2,
-    //     columns: ReadonlyArray<Selection2>,
-    //     select: (acc: {
-    //         [K in Aliases]: Table<never, FilterStarting<Scope, K>, K>;
-    //     }) => SelectStatement<any, any, any>
-    // ): CommonTableExpressionFactory<
-    //     `${Alias2}.${Selection2}` | Scope,
-    //     Aliases | Alias2
-    // > => {
-    //     const oldMap: any = {};
-    //     for (const cte of this.__props.ctes) {
-    //         oldMap[cte.alias] = Table.define([], cte.alias);
-    //     }
-    //     return this.copy().setCtes([
-    //         ...this.__props.ctes,
-    //         { columns, alias, select: select(oldMap) },
-    //     ]) as any;
-    // };
+    > => {
+        const oldMap: any = {};
+        for (const cte of this.__props.ctes) {
+            oldMap[
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                cte.select.__props.alias!
+            ] = Table.define(
+                [],
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                cte.select.__props.alias!
+            );
+        }
+        return this.copy().setCtes([
+            ...this.__props.ctes,
+            { columns, select: select(oldMap) },
+        ]) as any;
+    };
 
     /**
      * @since 1.0.0
@@ -156,7 +149,7 @@ export class CommonTableExpressionFactory<
         NScope extends ScopeShape,
         NFlatScope extends string
     >(
-        select: (acc: {
+        _: (acc: {
             [K in keyof Scope]: Table<
                 Scope[K],
                 never,
@@ -164,20 +157,16 @@ export class CommonTableExpressionFactory<
                 Scope[K]
             >;
         }) => SelectStatement<NSelection, NAlias, NScope, NFlatScope>
-    ): SelectStatement<NSelection, NAlias, NScope, NFlatScope> => hole();
-    // public do = <A extends string, B extends string>(
-    //     f: (acc: {
-    //         [K in Aliases]: TableOrSubquery<
-    //             K,
-    //             Scope,
-    //             FilterStarting<Scope, K> | `${K}.${FilterStarting<Scope, K>}`
-    //         >;
-    //     }) => SelectStatement<never, A, B>
-    // ): SelectStatement<never, A, B> => {
-    //     const oldMap: any = {};
-    //     for (const cte of this.__props.ctes) {
-    //         oldMap[cte.alias] = Table.define([], cte.alias);
-    //     }
-    //     return f(oldMap).__setCtes(this.__props.ctes);
-    // };
+    ): SelectStatement<NSelection, NAlias, NScope, NFlatScope> => {
+        const oldMap: any = {};
+        for (const cte of this.__props.ctes) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            oldMap[cte.select.__props.alias!] = Table.define(
+                [],
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                cte.select.__props.alias!
+            );
+        }
+        return _(oldMap).__setCtes(this.__props.ctes);
+    };
 }
