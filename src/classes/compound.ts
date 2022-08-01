@@ -2,7 +2,7 @@
  * Represents https://www.sqlite.org/syntax/compound-select-stmt.html
  *
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 import { consumeArrayCallback } from "../consume-fields";
 import { StarSymbol } from "../data-wrappers";
@@ -30,7 +30,7 @@ import { AliasedSelectStatement, SelectStatement } from "./select-statement";
  *
  * This class is not meant to be used directly, but rather through the `union`, `union`, `intersect`, `except` functions.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 export class Compound<
     // Selection extends string = never,
@@ -112,7 +112,7 @@ export class Compound<
     };
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public orderBy = (
         f:
@@ -127,7 +127,7 @@ export class Compound<
         ]);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public limit = (
         limit: SafeString | number
@@ -135,7 +135,7 @@ export class Compound<
         this.copy().setLimit(limit);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public select = <
         NewSelection extends string = never,
@@ -157,7 +157,7 @@ export class Compound<
         );
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public selectStar = (): SelectStatement<
         Selection,
@@ -173,22 +173,28 @@ export class Compound<
         );
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public stringify = (): string => printCompound(this);
 
     /**
-     * @since 1.1.1
+     * @since 2.0.0
      */
     public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
-
+    /**
+     * @since 2.0.0
+     */
     public as = <NewAlias extends string = never>(
         as: NewAlias
     ): AliasedCompound<Selection, NewAlias, Scope, FlatScope> =>
         new AliasedCompound(this.__props).__setAlias(as) as any;
 }
+
+/**
+ * @since 2.0.0
+ */
 export class AliasedCompound<
     // Selection extends string = never,
     // Alias extends string = never,
@@ -202,6 +208,9 @@ export class AliasedCompound<
     private __copy = (): AliasedCompound<Selection, Alias, Scope, FlatScope> =>
         new AliasedCompound({ ...this.__props });
 
+    /**
+     * @internal
+     */
     public __setAlias = (alias: string): this => {
         this.__props = {
             ...this.__props,
@@ -215,7 +224,7 @@ export class AliasedCompound<
     };
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public join = <
         Selection2 extends string = never,
@@ -249,6 +258,9 @@ export class AliasedCompound<
             }
         );
 
+    /**
+     * @since 2.0.0
+     */
     public commaJoin = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -275,12 +287,15 @@ export class AliasedCompound<
         });
 
     /**
-     * @since 1.1.1
+     * @since 2.0.0
      */
     public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
+    /**
+     * @since 2.0.0
+     */
     public as = <NewAlias extends string = never>(
         as: NewAlias
     ): AliasedCompound<Selection, NewAlias, Scope, FlatScope> =>

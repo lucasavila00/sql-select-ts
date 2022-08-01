@@ -2,7 +2,7 @@
  *
  * Represents a source of data composed of JOINed tables or sub-selects.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 import { consumeArrayCallback } from "../consume-fields";
 import { StarOfAliasesSymbol, StarSymbol } from "../data-wrappers";
@@ -36,7 +36,7 @@ type ProperJoin = ReadonlyArray<ProperJoinItem>;
  * Constructor for join queries.
  * Allows the selection of the constraint to be done in another method call.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 export class JoinedFactory<
     Scope extends ScopeShape = never,
@@ -63,7 +63,7 @@ export class JoinedFactory<
         new JoinedFactory({ commaJoins, properJoins, newProperJoin, scope });
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public noConstraint = (): Joined<never, never, Scope, Scope[keyof Scope]> =>
         Joined.__fromAll(
@@ -79,7 +79,7 @@ export class JoinedFactory<
         );
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public on = (
         _: (
@@ -105,7 +105,7 @@ export class JoinedFactory<
         );
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public using = (
         keys: ReadonlyArray<Using>
@@ -128,7 +128,7 @@ export class JoinedFactory<
  * Represents a source of data composed of JOINed tables or sub-selects.
  * This class is not meant to be used directly, but rather through methods in tables, or sub-selects.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 export class Joined<
     Selection extends string = never,
@@ -153,7 +153,7 @@ export class Joined<
     ): Joined<any, any, any> => new Joined({ commaJoins, properJoins, scope });
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public select = <
         NewSelection extends string = never,
@@ -175,7 +175,7 @@ export class Joined<
         );
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public selectStar = (): SelectStatement<
         Scope[keyof Scope],
@@ -191,7 +191,7 @@ export class Joined<
         );
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public selectStarOfAliases = <TheAliases extends keyof Scope>(
         aliases: ReadonlyArray<TheAliases>
@@ -202,7 +202,9 @@ export class Joined<
             {},
             undefined
         ) as any;
-
+    /**
+     * @since 2.0.0
+     */
     public join = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -232,7 +234,9 @@ export class Joined<
                 ...this.__props.scope,
             }
         );
-
+    /**
+     * @since 2.0.0
+     */
     public commaJoin = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -260,7 +264,7 @@ export class Joined<
         );
 
     /**
-     * @since 1.1.1
+     * @since 2.0.0
      */
     public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret

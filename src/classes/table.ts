@@ -4,7 +4,7 @@
  * It stores type information of the table Alias and Selection.
  * It also stores the table name and the alias.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 import { StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
@@ -29,7 +29,7 @@ import { SelectStatement } from "./select-statement";
  *
  * This class is not meant to be used directly, but rather through the `table` function.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 export class Table<
     // Selection extends string = never,
@@ -87,18 +87,18 @@ export class Table<
     };
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public clickhouse = {
         /**
-         * @since 0.0.0
+         * @since 2.0.0
          */
         final: (): Table<Selection, Alias, Scope, FlatScope> =>
             this.copy().setFinal(true),
     };
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public select = <
         NewSelection extends string = never,
@@ -122,7 +122,7 @@ export class Table<
         );
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public selectStar = (): SelectStatement<
         Selection,
@@ -139,6 +139,9 @@ export class Table<
             undefined
         );
 
+    /**
+     * @since 2.0.0
+     */
     public commaJoin = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -164,6 +167,9 @@ export class Table<
             ...(_ as any).__props.scope,
         });
 
+    /**
+     * @since 2.0.0
+     */
     public join = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -196,12 +202,15 @@ export class Table<
             }
         );
     /**
-     * @since 1.1.1
+     * @since 2.0.0
      */
     public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
+    /**
+     * @since 2.0.0
+     */
     public as = <NewAlias extends string = never>(
         as: NewAlias
     ): Table<Selection, NewAlias, Scope, FlatScope> =>

@@ -1,7 +1,7 @@
 /**
  * Common types used in the library.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 import { AliasedCompound, Compound } from "./classes/compound";
 import { Joined } from "./classes/joined";

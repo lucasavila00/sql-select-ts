@@ -2,7 +2,7 @@
  *
  * Represents https://www.sqlite.org/syntax/simple-select-stmt.html
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 import {
     consumeArrayCallback,
@@ -43,7 +43,7 @@ type ReplaceT<Selection extends string> = ReadonlyArray<
  *
  * This class is not meant to be used directly, but rather through the `fromNothing` function or from a table.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 export class SelectStatement<
     // Selection extends string = never,
@@ -244,11 +244,11 @@ export class SelectStatement<
      *
      * Clickhouse specific syntax extensions.
      *
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public clickhouse = {
         /**
-         * @since 0.0.0
+         * @since 2.0.0
          */
         with_: <NewSelection extends string>(
             it: Record<
@@ -270,7 +270,7 @@ export class SelectStatement<
             ]) as any,
 
         /**
-         * @since 0.0.0
+         * @since 2.0.0
          */
         prewhere: (
             f:
@@ -287,7 +287,7 @@ export class SelectStatement<
             ]),
 
         /**
-         * @since 0.0.0
+         * @since 2.0.0
          */
         replace: (
             _: (
@@ -302,7 +302,7 @@ export class SelectStatement<
     };
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public select = <
         NewSelection extends string = never,
@@ -327,7 +327,7 @@ export class SelectStatement<
     > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public selectStar = (): SelectStatement<
         Selection,
@@ -343,7 +343,7 @@ export class SelectStatement<
         );
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public appendSelectStar = (): SelectStatement<
         Selection,
@@ -353,7 +353,7 @@ export class SelectStatement<
     > => this.copy().setSelection([...this.__props.selection, StarSymbol()]);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public appendSelect = <NewSelection extends string = never>(
         _:
@@ -371,7 +371,7 @@ export class SelectStatement<
         ]) as any;
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public where = (
         f:
@@ -387,7 +387,7 @@ export class SelectStatement<
         ]);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public having = (
         f:
@@ -402,13 +402,13 @@ export class SelectStatement<
         ]);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public distinct = (): SelectStatement<Selection, Alias, Scope, FlatScope> =>
         this.copy().setDistinct(true);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public orderBy = (
         f:
@@ -424,7 +424,7 @@ export class SelectStatement<
         ]);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public groupBy = (
         f:
@@ -439,7 +439,7 @@ export class SelectStatement<
         ]);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public limit = (
         limit: SafeString | number
@@ -447,23 +447,29 @@ export class SelectStatement<
         this.copy().setLimit(limit);
 
     /**
-     * @since 1.1.1
+     * @since 2.0.0
      */
     public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public stringify = (): string => printSelectStatement(this);
 
+    /**
+     * @since 2.0.0
+     */
     public as = <NewAlias extends string = never>(
         as: NewAlias
     ): AliasedSelectStatement<Selection, NewAlias, Scope, FlatScope> =>
         new AliasedSelectStatement(this.__props).__setAlias(as) as any;
 }
 
+/**
+ * @since 2.0.0
+ */
 export class AliasedSelectStatement<
     // Selection extends string = never,
     // Alias extends string = never,
@@ -481,6 +487,9 @@ export class AliasedSelectStatement<
         FlatScope
     > => new AliasedSelectStatement({ ...this.__props });
 
+    /**
+     * @internal
+     */
     public __setAlias = (alias: string): this => {
         this.__props = {
             ...this.__props,
@@ -493,6 +502,9 @@ export class AliasedSelectStatement<
         return this;
     };
 
+    /**
+     * @since 2.0.0
+     */
     public commaJoin = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -519,7 +531,7 @@ export class AliasedSelectStatement<
         });
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public join = <
         Selection2 extends string = never,
@@ -554,17 +566,20 @@ export class AliasedSelectStatement<
         );
 
     /**
-     * @since 1.1.1
+     * @since 2.0.0
      */
     public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
     /**
-     * @since 0.0.0
+     * @since 2.0.0
      */
     public stringify = (): string => printSelectStatement(this);
 
+    /**
+     * @since 2.0.0
+     */
     public as = <NewAlias extends string = never>(
         as: NewAlias
     ): AliasedSelectStatement<Selection, NewAlias, Scope, FlatScope> =>

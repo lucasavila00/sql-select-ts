@@ -1,12 +1,12 @@
 /**
- * @since 1.0.0
+ * @since 2.0.0
  */
 import { CTE, ScopeShape } from "../types";
 import { AliasedSelectStatement, SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
 /**
- * @since 1.0.0
+ * @since 2.0.0
  */
 export class CommonTableExpressionFactory<
     // Selection extends string = never,
@@ -71,7 +71,7 @@ export class CommonTableExpressionFactory<
         return this;
     };
     /**
-     * @since 1.0.0
+     * @since 2.0.0
      */
     public with_ = <NSelection extends string, NAlias extends string>(
         select: (acc: {
@@ -105,7 +105,7 @@ export class CommonTableExpressionFactory<
         ]) as any;
     };
     /**
-     * @since 1.0.0
+     * @since 2.0.0
      */
     public withR = <NSelection extends string, NAlias extends string>(
         select: (acc: {
@@ -141,7 +141,7 @@ export class CommonTableExpressionFactory<
     };
 
     /**
-     * @since 1.0.0
+     * @since 2.0.0
      */
     public do = <
         NSelection extends string,

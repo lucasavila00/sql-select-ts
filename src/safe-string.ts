@@ -1,7 +1,7 @@
 /**
  * Safe String and it's building mechanisms allows us to have painless, injection safe SQL string building.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 import { AliasedCompound, Compound } from "./classes/compound";
 import {
@@ -14,7 +14,7 @@ import { printCompoundInternal, printSelectStatementInternal } from "./print";
  *
  * Tag used to discriminate a SafeString object.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 export const SafeStringURI = "SafeString" as const;
 
@@ -22,7 +22,7 @@ export const SafeStringURI = "SafeString" as const;
  *
  * Type used to represent a string that is safe to use in a SQL query.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
 export type SafeString = {
     _tag: typeof SafeStringURI;
@@ -42,7 +42,7 @@ export type SafeString = {
  * assert.strictEqual(sql(";'abc'").content, "';\\'abc\\''");
  *
  * @category string-builder
- * @since 0.0.0
+ * @since 2.0.0
  */
 export const castSafe = (content: string): SafeString => ({
     _tag: SafeStringURI,
@@ -59,7 +59,7 @@ export const castSafe = (content: string): SafeString => ({
  * assert.strictEqual(isSafeString(sql(123)), true);
  *
  * @category string-builder
- * @since 0.0.0
+ * @since 2.0.0
  */
 export const isSafeString = (it: any): it is SafeString =>
     it?._tag === SafeStringURI;
@@ -172,7 +172,7 @@ type TemplateLiteralSql = [
 /**
  * A custom serializer for the SQL string builder.
  *
- * @since 0.0.1
+ * @since 2.0.0
  */
 export type Serializer<T> = {
     check: (it: unknown) => it is T;
@@ -188,7 +188,7 @@ type SerializerInnerType<T extends Serializer<any>> = T extends Serializer<
 /**
  * A `sql` builder generic overloaded function.
  *
- * @since 0.0.1
+ * @since 2.0.0
  */
 export interface SqlStringBuilderOverloadedFn<T> {
     (it: string | number | null | T): SafeString;
@@ -205,7 +205,7 @@ type ArgsOfSerializerList<T extends Serializer<any>[]> = SerializerInnerType<
 /**
  * A `sql` builder type based on the serializer types.
  *
- * @since 0.0.1
+ * @since 2.0.0
  */
 export type SqlStringBuilder<T extends Serializer<any>[]> =
     SqlStringBuilderOverloadedFn<ArgsOfSerializerList<T>>;
@@ -213,7 +213,7 @@ export type SqlStringBuilder<T extends Serializer<any>[]> =
  * Create one serializer.
  *
  * @category string-builder
- * @since 0.0.1
+ * @since 2.0.0
  */
 export const buildSerializer = <T>(args: {
     check: (it: unknown) => it is T;
@@ -225,7 +225,7 @@ export const buildSerializer = <T>(args: {
  * The types allowed in the string templates will be inferred from the serializers.
  *
  * @category string-builder
- * @since 0.0.1
+ * @since 2.0.0
  */
 export const buildSql =
     <T extends Serializer<any>[]>(serializers: T): SqlStringBuilder<T> =>
@@ -269,6 +269,6 @@ export const buildSql =
  * assert.strictEqual(sql`${name} IN ${q}`.content, "'A' IN (SELECT 123 AS `it`)");
  *
  * @category string-builder
- * @since 1.0.0
+ * @since 2.0.0
  */
 export const dsql = buildSql([]);

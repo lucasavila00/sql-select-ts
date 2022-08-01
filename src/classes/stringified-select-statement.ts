@@ -2,7 +2,7 @@
  *
  * Represents a select statement that was built from a raw string.
  *
- * @since 0.0.3
+ * @since 2.0.0
  */
 import { StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
@@ -23,7 +23,7 @@ import { SelectStatement } from "./select-statement";
  *
  * Represents a select statement that was built from a raw string.
  *
- * @since 0.0.3
+ * @since 2.0.0
  */
 export class StringifiedSelectStatement<
     // Selection extends string = never,
@@ -57,7 +57,7 @@ export class StringifiedSelectStatement<
         );
 
     /**
-     * @since 0.0.3
+     * @since 2.0.0
      */
     public selectStar = (): SelectStatement<
         Selection,
@@ -73,7 +73,7 @@ export class StringifiedSelectStatement<
         );
 
     /**
-     * @since 0.0.3
+     * @since 2.0.0
      */
     public select = <
         NewSelection extends string = never,
@@ -98,12 +98,15 @@ export class StringifiedSelectStatement<
     > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
 
     /**
-     * @since 1.1.1
+     * @since 2.0.0
      */
     public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
+    /**
+     * @since 2.0.0
+     */
     public as = <NewAlias extends string = never>(
         as: NewAlias
     ): AliasedStringifiedSelectStatement<
@@ -117,11 +120,14 @@ export class StringifiedSelectStatement<
         ) as any;
 
     /**
-     * @since 0.0.3
+     * @since 2.0.0
      */
     public stringify = (): string => this.__props.content.content;
 }
 
+/**
+ * @since 2.0.0
+ */
 export class AliasedStringifiedSelectStatement<
     // Selection extends string = never,
     // Alias extends string = never,
@@ -139,6 +145,9 @@ export class AliasedStringifiedSelectStatement<
         FlatScope
     > => new AliasedStringifiedSelectStatement({ ...this.__props });
 
+    /**
+     * @internal
+     */
     public __setAlias = (alias: string): this => {
         this.__props = {
             ...this.__props,
@@ -150,8 +159,9 @@ export class AliasedStringifiedSelectStatement<
         };
         return this;
     };
+
     /**
-     * @since 0.0.3
+     * @since 2.0.0
      */
     public join = <
         Selection2 extends string = never,
@@ -185,6 +195,9 @@ export class AliasedStringifiedSelectStatement<
             }
         );
 
+    /**
+     * @since 2.0.0
+     */
     public commaJoin = <
         Selection2 extends string = never,
         Alias2 extends string = never,
@@ -211,12 +224,15 @@ export class AliasedStringifiedSelectStatement<
         });
 
     /**
-     * @since 1.1.1
+     * @since 2.0.0
      */
     public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
+    /**
+     * @since 2.0.0
+     */
     public as = <NewAlias extends string = never>(
         as: NewAlias
     ): AliasedStringifiedSelectStatement<

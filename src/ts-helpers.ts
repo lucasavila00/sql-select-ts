@@ -1,20 +1,25 @@
 /**
  * Typescript helpers.
  *
- * @since 0.0.0
+ * @since 2.0.0
  */
-import { Compound } from "./classes/compound";
-import { SelectStatement } from "./classes/select-statement";
+import { AliasedCompound, Compound } from "./classes/compound";
+import {
+    AliasedSelectStatement,
+    SelectStatement,
+} from "./classes/select-statement";
 
 /**
- * @since 0.0.1
+ * @since 2.0.0
  */
 export type AnyPrintable =
     | SelectStatement<any, any, any, any>
-    | Compound<any, any, any, any>;
+    | AliasedSelectStatement<any, any, any, any>
+    | Compound<any, any, any, any>
+    | AliasedCompound<any, any, any, any>;
 
 /**
- * Given a stringifyable object, returns the union of the selection keys.
+ * Given a printable object, returns the union of the selection keys.
  *
  * @example
  *
@@ -27,18 +32,19 @@ export type AnyPrintable =
  * //@ts-expect-error
  * const k2: Key = 'abc';
  *
- * @since 0.0.1
+ * @since 2.0.0
  */
-export type SelectionOf<T extends AnyPrintable> = T extends SelectStatement<
-    any,
-    infer S,
-    any,
-    any
->
-    ? S
-    : T extends Compound<any, infer S2, any, any>
-    ? S2
-    : never;
+
+export type SelectionOf<T extends AnyPrintable> =
+    T extends AliasedSelectStatement<infer S, any, any, any>
+        ? S
+        : T extends AliasedCompound<infer S, any, any, any>
+        ? S
+        : T extends Compound<infer S, any, any, any>
+        ? S
+        : T extends SelectStatement<infer S, any, any, any>
+        ? S
+        : never;
 
 type RowOfSel<T extends string> = {
     [K in T]: string | number | undefined | null;
@@ -59,7 +65,7 @@ type RowOfSel<T extends string> = {
  * //@ts-expect-error
  * console.log(ret.abc)
  *
- * @since 0.0.1
+ * @since 2.0.0
  */
 export type RowOf<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>;
 
@@ -78,6 +84,6 @@ export type RowOf<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>;
  * //@ts-expect-error
  * console.log(ret?.[0]?.abc)
  *
- * @since 0.0.1
+ * @since 2.0.0
  */
 export type RowsArray<T extends AnyPrintable> = RowOfSel<SelectionOf<T>>[];
