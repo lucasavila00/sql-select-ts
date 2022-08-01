@@ -325,10 +325,13 @@ export const select = <
  * @category starter
  * @since 1.0.0
  */
-// export const selectStar = <
-//     FromAlias extends string = never,
-//     FromSelection extends string = never,
-//     FromScope extends string = never
-// >(
-//     from: TableOrSubquery<FromAlias, FromScope, FromSelection>
-// ): SelectStatement<FromSelection, FromSelection> => from.selectStar();
+export const selectStar = <
+    FromSelection extends string = never,
+    FromAlias extends string = never,
+    FromScope extends ScopeShape = never,
+    FromFlatScope extends string = never
+>(
+    from: TableOrSubquery<FromSelection, FromAlias, FromScope, FromFlatScope>
+): SelectStatement<FromSelection, never, never, FromSelection> =>
+    //@ts-expect-error
+    from.selectStar();

@@ -27,18 +27,6 @@ export class CommonTableExpressionFactory<
         }
     ) {}
 
-    // /*  @internal */
-    // public static defineRenamed = <
-    //     Selection extends string,
-    //     Alias extends string
-    // >(
-    //     alias: Alias,
-    //     columns: ReadonlyArray<Selection>,
-    //     select: SelectStatement<any, any, any>
-    // ): CommonTableExpressionFactory<`${Alias}.${Selection}`, Alias> =>
-    //     new CommonTableExpressionFactory({
-    //         ctes: [{ columns, alias, select }],
-    //     });
     /*  @internal */
     public static defineRenamed = <
         NSelection extends string,
@@ -51,12 +39,10 @@ export class CommonTableExpressionFactory<
         NAlias,
         { [key in NAlias]: NSelection },
         NSelection
-    > => {
-        console.error("should prevent no-alias");
-        return new CommonTableExpressionFactory({
+    > =>
+        new CommonTableExpressionFactory({
             ctes: [{ columns, select }],
         });
-    };
 
     /*  @internal */
     public static define = <NSelection extends string, NAlias extends string>(
@@ -66,12 +52,10 @@ export class CommonTableExpressionFactory<
         NAlias,
         { [key in NAlias]: NSelection },
         NSelection
-    > => {
-        console.error("should prevent no-alias");
-        return new CommonTableExpressionFactory({
+    > =>
+        new CommonTableExpressionFactory({
             ctes: [{ columns: [], select }],
         });
-    };
 
     private copy = (): CommonTableExpressionFactory<
         Selection,
@@ -104,11 +88,7 @@ export class CommonTableExpressionFactory<
         Alias,
         Scope & { [key in NAlias]: NSelection },
         FlatScope | NSelection
-    > => {
-        console.error("should prevent no-alias");
-
-        return hole();
-    };
+    > => hole();
     // public with_ = <Selection2 extends string, Alias2 extends string>(
     //     alias: Alias2,
     //     select: (acc: {
@@ -146,11 +126,7 @@ export class CommonTableExpressionFactory<
         Alias,
         Scope & { [key in NAlias]: NSelection },
         FlatScope | NSelection
-    > => {
-        console.error("should prevent no-alias");
-
-        return hole();
-    };
+    > => hole();
     // public withR = <Selection2 extends string, Alias2 extends string>(
     //     alias: Alias2,
     //     columns: ReadonlyArray<Selection2>,

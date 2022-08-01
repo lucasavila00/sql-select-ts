@@ -4,25 +4,22 @@
  *
  * @since 0.0.0
  */
-import { consumeArrayCallback, consumeRecordCallback } from "../consume-fields";
-import { StarOfAliasesSymbol, StarSymbol, AliasedRows } from "../data-wrappers";
+import { consumeArrayCallback } from "../consume-fields";
+import { StarOfAliasesSymbol, StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
 import {
-    TableOrSubquery,
-    NoSelectFieldsCompileError,
-    JoinConstraint,
-    ScopeShape,
-    SelectionOfScope,
-    ScopeStorage,
-    RecordOfSelection,
     Joinable,
+    JoinConstraint,
+    NoSelectFieldsCompileError,
+    RecordOfSelection,
+    ScopeShape,
+    ScopeStorage,
+    SelectionOfScope,
+    TableOrSubquery,
     ValidAliasInSelection,
 } from "../types";
-import { hole, makeNonEmptyArray } from "../utils";
-import { Compound } from "./compound";
+import { makeNonEmptyArray } from "../utils";
 import { SelectStatement } from "./select-statement";
-import { StringifiedSelectStatement } from "./stringified-select-statement";
-import { Table } from "./table";
 
 type CommaJoin = ReadonlyArray<Joinable<any, any, any, any>>;
 
@@ -135,7 +132,7 @@ export class JoinedFactory<
  */
 export class Joined<
     Selection extends string = never,
-    Alias extends string = never,
+    _Alias extends string = never,
     Scope extends ScopeShape = never,
     FlatScope extends string = never
 > {

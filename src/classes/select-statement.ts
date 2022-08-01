@@ -9,29 +9,29 @@ import {
     consumeRecordCallback,
     consumeReplaceCallback,
 } from "../consume-fields";
-import { AliasedRows, StarOfAliasSymbol, StarSymbol } from "../data-wrappers";
+import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { printSelectStatement } from "../print";
 import { SafeString } from "../safe-string";
 import {
-    TableOrSubquery,
-    NoSelectFieldsCompileError,
     ClickhouseWith,
     CTE,
-    ScopeShape,
+    Joinable,
+    NoSelectFieldsCompileError,
     RecordOfSelection,
+    ScopeShape,
+    ScopeStorage,
     SelectionOfScope,
     SelectionRecordCallbackShape,
     SelectionWrapperTypes,
-    ScopeStorage,
-    Joinable,
-    CompileError,
+    TableOrSubquery,
     ValidAliasInSelection,
 } from "../types";
-import { hole, makeArray } from "../utils";
-import { Compound } from "./compound";
+import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
-import { StringifiedSelectStatement } from "./stringified-select-statement";
-import { Table } from "./table";
+import {
+    AliasedStringifiedSelectStatement,
+    StringifiedSelectStatement,
+} from "./stringified-select-statement";
 
 type ReplaceT<Selection extends string> = ReadonlyArray<
     readonly [Selection, SafeString | number]
@@ -129,7 +129,7 @@ export class SelectStatement<
      */
     public static fromNothing = <NewSelection extends string = never>(
         it: Record<NewSelection, SafeString>
-    ): SelectStatement<NewSelection, never, never, never> =>
+    ): SelectStatement<NewSelection, never, Record<string, never>, never> =>
         new SelectStatement(
             //
             {
@@ -247,19 +247,27 @@ export class SelectStatement<
      * @since 0.0.0
      */
     public clickhouse = {
-        //     /**
-        //      * @since 0.0.0
-        //      */
-        //     with_: <NewSelection extends string>(
-        //         it: Record<
-        //             NewSelection,
-        //             SelectStatement<any, any, any> | StringifiedSelectStatement<any>
-        //         >
-        //     ): SelectStatement<Alias, Scope | NewSelection, Selection> =>
-        //         this.copy().setClickhouseWith([
-        //             ...this.__props.clickhouseWith,
-        //             it,
-        //         ]) as any,
+        /**
+         * @since 0.0.0
+         */
+        with_: <NewSelection extends string>(
+            it: Record<
+                NewSelection,
+                | SelectStatement<any, any, any, any>
+                | AliasedSelectStatement<any, any, any, any>
+                | StringifiedSelectStatement<any, any, any, any>
+                | AliasedStringifiedSelectStatement<any, any, any, any>
+            >
+        ): SelectStatement<
+            Selection | NewSelection,
+            Alias,
+            Scope,
+            FlatScope | NewSelection
+        > =>
+            this.copy().setClickhouseWith([
+                ...this.__props.clickhouseWith,
+                it,
+            ]) as any,
 
         /**
          * @since 0.0.0

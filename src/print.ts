@@ -30,7 +30,7 @@ const printLimit = (limit: number | SafeString | null): string =>
         : `LIMIT ${limit.content}`;
 
 export const printCompoundInternal = (
-    compound: Compound<any, any, any>,
+    compound: Compound<any, any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
     const sel = compound.__props.content
@@ -58,8 +58,8 @@ export const printCompoundInternal = (
 
 type PrintInternalRet = string;
 
-const printStringifiedSelectInternal = <Selection extends string>(
-    it: StringifiedSelectStatement<Selection>
+const printStringifiedSelectInternal = (
+    it: StringifiedSelectStatement<any, any, any, any>
 ): PrintInternalRet => {
     const alias =
         it.__props.alias != null ? ` AS ${wrapAlias(it.__props.alias)}` : "";
@@ -67,7 +67,9 @@ const printStringifiedSelectInternal = <Selection extends string>(
     return `(${it.__props.content.content})${alias}`;
 };
 
-const printTableInternal = (table: Table<any, any, any>): PrintInternalRet => {
+const printTableInternal = (
+    table: Table<any, any, any, any>
+): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
         return wrapAlias(table.__props.name) + final;
@@ -132,7 +134,9 @@ const printCtes = (ctes: ReadonlyArray<CTE>): string =>
                     ? `(${cte.columns.map(wrapAlias).join(", ")})`
                     : ``;
             const content = printInternal(cte.select, false);
-            return `${wrapAlias(cte.alias)}${cols} AS (${content})`;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const alias = cte.select.__props.alias!;
+            return `${wrapAlias(alias)}${cols} AS (${content})`;
         })
         .join(", ");
 
@@ -148,7 +152,7 @@ const printClickhouseWith = (withes: ReadonlyArray<ClickhouseWith>): string =>
         .join(", ");
 
 export const printSelectStatementInternal = (
-    selectStatement: SelectStatement<any, any, any>,
+    selectStatement: SelectStatement<any, any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
     const selection = selectStatement.__props.selection
@@ -255,7 +259,7 @@ export const printSelectStatementInternal = (
 };
 
 const printInternal = (
-    it: TableOrSubquery<any, any, any>,
+    it: TableOrSubquery<any, any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
     if (it instanceof SelectStatement) {
@@ -278,8 +282,8 @@ const printInternal = (
 };
 
 export const printSelectStatement = (
-    it: SelectStatement<any, any, any>
+    it: SelectStatement<any, any, any, any>
 ): string => printSelectStatementInternal(it, false);
 
-export const printCompound = (it: Compound<any, any, any>): string =>
+export const printCompound = (it: Compound<any, any, any, any>): string =>
     printCompoundInternal(it, false);
