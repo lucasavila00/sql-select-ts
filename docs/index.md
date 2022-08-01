@@ -46,7 +46,7 @@ Provides type checking for identifiers names, with optional source qualifier, am
 ```ts
 const t1 = table(/* columns: */ ["a", "b", "c"], /* db-name & alias: */ "t1");
 const t2 = table(/* columns: */ ["b", "c", "d"], /* db-name & alias: */ "t2");
-t1.joinTable("NATURAL", t2)
+t1.join("NATURAL", t2)
     .using(["b"])
     .select((f) => ({
         // (parameter) f: Record<
@@ -64,10 +64,10 @@ const admins = table(["id", "age", "name"], "adm", "admins");
 const analytics = table(["id", "clicks"], "analytics");
 
 users
-    .joinTable("LEFT", admins)
-    .on((f) => equals(f["adm.id"], f["users.id"]))
-    .joinTable("LEFT", analytics)
-    .on((f) => equals(f["analytics.id"], f["users.id"]))
+    .join("LEFT", admins)
+    .on((f) => equals(f.adm.id, f.users.id))
+    .join("LEFT", analytics)
+    .on((f) => equals(f.analytics.id, f.users.id))
     .selectStar()
     .stringify();
 ```
