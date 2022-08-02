@@ -11,7 +11,7 @@ import { isStarSymbol, isStarOfAliasSymbol } from "./data-wrappers";
 import type { SafeString } from "./safe-string";
 import { ClickhouseWith, CTE, JoinConstraint, TableOrSubquery } from "./types";
 import { absurd } from "./utils";
-import { wrapAlias } from "./wrap-alias";
+import { wrapAlias, wrapAliasSplitDots } from "./wrap-alias";
 
 // re-define to avoid circular dependency
 /* istanbul ignore next */
@@ -75,9 +75,9 @@ const printTableInternal = (
 ): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
-        return wrapAlias(table.__props.name) + final;
+        return wrapAliasSplitDots(table.__props.name) + final;
     }
-    return `${wrapAlias(table.__props.name)} AS ${wrapAlias(
+    return `${wrapAliasSplitDots(table.__props.name)} AS ${wrapAliasSplitDots(
         table.__props.alias
     )}${final}`;
 };
