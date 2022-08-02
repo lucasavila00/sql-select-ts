@@ -8,6 +8,7 @@ import {
     AliasedSelectStatement,
     SelectStatement,
 } from "./classes/select-statement";
+import { isTheProxyObject } from "./consume-fields";
 import { printCompoundInternal, printSelectStatementInternal } from "./print";
 
 /**
@@ -83,6 +84,9 @@ const escapeForSql = function (
     val: any,
     serializers: Serializer<any>[]
 ): string {
+    if (isTheProxyObject(val)) {
+        return (val as any).___base.content;
+    }
     const serializer = serializers.find((s) => s.check(val));
     if (serializer != null) {
         return serializer.serialize(val);
