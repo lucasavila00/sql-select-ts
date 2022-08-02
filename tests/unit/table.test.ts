@@ -10,7 +10,7 @@ describe("table", () => {
     it("dot in name", () => {
         const q = table(cols, "system.tables").selectStar();
         expect(q.stringify()).toMatchInlineSnapshot(
-            `"SELECT * FROM \`system.tables\`"`
+            `"SELECT * FROM \`system\`.\`tables\`"`
         );
     });
 

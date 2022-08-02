@@ -172,7 +172,10 @@ export const printSelectStatementInternal = (
             }
 
             return Object.entries(it.content).map(([k, v]) => {
-                return `${(v as SafeString).content} AS ${wrapAlias(k)}`;
+                if (isTheProxyObject(v)) {
+                    return `${(v as any).___base.content} AS ${wrapAlias(k)}`;
+                }
+                return `${v.content} AS ${wrapAlias(k)}`;
             });
         })
         // flatten

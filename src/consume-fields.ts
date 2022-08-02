@@ -16,9 +16,13 @@ export const prefixedProxy = (base: string) =>
     new Proxy(
         {
             SQL_PROXY_TARGET: true,
+            ___base: base,
         },
         {
             get: function (_target, prop, _receiver): SafeString {
+                if (prop === "___base") {
+                    return castSafe(wrapAlias(base));
+                }
                 return castSafe(
                     wrapAlias(base) + "." + wrapAlias(String(prop))
                 );

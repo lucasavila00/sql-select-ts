@@ -15,18 +15,22 @@ test("selectStarOfAliases", () => {
     );
 });
 
-test.only("alias name collision", () => {
+test("alias name collision", () => {
     const cols = ["a", "b"] as const;
-    // const q = table(cols, "a").select((f) => ({ a: f.a.a }));
+    const q = table(cols, "a").select((f) => ({ a: f.a.a }));
 
-    // expect(q.stringify()).toMatchInlineSnapshot(
-    //     `"SELECT \`a\`.\`a\` AS \`a\` FROM \`a\`"`
-    // );
+    expect(q.stringify()).toMatchInlineSnapshot(
+        `"SELECT \`a\`.\`a\` AS \`a\` FROM \`a\`"`
+    );
 
-    //@ts-expect-error
     const q0 = table(cols, "a").select((f) => ({ a: f.a }));
     expect(q0.stringify()).toMatchInlineSnapshot(
-        `"SELECT [object Object] AS \`a\` FROM \`a\`"`
+        `"SELECT \`a\` AS \`a\` FROM \`a\`"`
+    );
+
+    const q1 = table(cols, "a").select((f) => ({ a: dsql`SUM(${f.a})` }));
+    expect(q1.stringify()).toMatchInlineSnapshot(
+        `"SELECT SUM(\`a\`) AS \`a\` FROM \`a\`"`
     );
 });
 
