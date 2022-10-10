@@ -47,6 +47,17 @@ describe("clickhouse replace", () => {
         expect(await run(q)).toMatchInlineSnapshot(`Array []`);
     });
 
+    it("works with null", async () => {
+        const q = t3
+            .selectStar()
+            .clickhouse.replace((_f) => [["x", null]])
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `SELECT * REPLACE (NULL AS \`x\`) FROM \`t3_clickhouse\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`Array []`);
+    });
+
     it("checks column names", async () => {
         t3.selectStar()
             //@ts-expect-error

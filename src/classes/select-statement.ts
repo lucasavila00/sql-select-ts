@@ -34,7 +34,7 @@ import {
 } from "./stringified-select-statement";
 
 type ReplaceT<Selection extends string> = ReadonlyArray<
-    readonly [Selection, SafeString | number]
+    readonly [Selection, SafeString | number | null]
 >;
 
 /**
