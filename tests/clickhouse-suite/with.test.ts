@@ -22,7 +22,7 @@ describe("clickhouse with", () => {
             })
             .stringify();
         expect(q).toMatchInlineSnapshot(
-            `WITH (SELECT 20 AS \`it\`) AS \`wont_use\` SELECT 10 AS \`it\``
+            `WITH (20) AS \`wont_use\` SELECT 10 AS \`it\``
         );
         expect(await run(q)).toMatchInlineSnapshot(`
             Array [
