@@ -32,6 +32,23 @@ describe("clickhouse with", () => {
             ]
         `);
     });
+    it("from safe string", async () => {
+        const q = fromNothing({ it: dsql(10) })
+            .clickhouse.with_({
+                wont_use: dsql(20),
+            })
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `WITH (SELECT 20 AS \`it\`) AS \`wont_use\` SELECT 10 AS \`it\``
+        );
+        expect(await run(q)).toMatchInlineSnapshot(`
+            Array [
+              Array [
+                10,
+              ],
+            ]
+        `);
+    });
 
     it("from stringified select statement", async () => {
         const q = fromNothing({ it: dsql(10) })
