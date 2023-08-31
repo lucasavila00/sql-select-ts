@@ -218,6 +218,7 @@ clickhouse: {
   with_: <NewSelection extends string>(
     it: Record<
       NewSelection,
+      | SafeString
       | SelectStatement<any, any, any, any>
       | AliasedSelectStatement<any, any, any, any>
       | StringifiedSelectStatement<any, any, any, any>

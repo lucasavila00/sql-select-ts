@@ -11,7 +11,7 @@ import {
 } from "../consume-fields";
 import { AliasedRows, StarSymbol } from "../data-wrappers";
 import { printAliasedSelectStatement, printSelectStatement } from "../print";
-import { SafeString } from "../safe-string";
+import { SafeString, isSafeString } from "../safe-string";
 import {
     ClickhouseWith,
     CTE,
@@ -268,6 +268,7 @@ export class SelectStatement<
                 | AliasedSelectStatement<any, any, any, any>
                 | StringifiedSelectStatement<any, any, any, any>
                 | AliasedStringifiedSelectStatement<any, any, any, any>
+                | SafeString
             >
         ): SelectStatement<
             Selection | NewSelection,
@@ -277,7 +278,14 @@ export class SelectStatement<
         > =>
             this.copy().setClickhouseWith([
                 ...this.__props.clickhouseWith,
-                it,
+                Object.fromEntries(
+                    Object.entries(it).map(([key, value]) => [
+                        key,
+                        isSafeString(value)
+                            ? StringifiedSelectStatement.fromSafeString(value)
+                            : value,
+                    ])
+                ) as any,
             ]) as any,
 
         /**
