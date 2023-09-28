@@ -158,13 +158,27 @@ export const printSelectStatementInternal = (
     selectStatement: SelectStatement<any, any, any, any>,
     parenthesis: boolean
 ): PrintInternalRet => {
-    const selection = selectStatement.__props.selection
+    const selectionStar = selectStatement.__props.selection
+        .map((it) => {
+            if (isStarSymbol(it)) {
+                return [];
+            }
+            if (isStarOfAliasSymbol(it)) {
+                return it.aliases.map((alias) => `${alias}.*`);
+            }
+            return [];
+        })
+        // flatten
+        .reduce((p, c) => [...p, ...c], [])
+        .join(", ");
+
+    const selectionKvs = selectStatement.__props.selection
         .map((it) => {
             if (isStarSymbol(it)) {
                 return ["*"];
             }
             if (isStarOfAliasSymbol(it)) {
-                return it.aliases.map((alias) => `${alias}.*`);
+                return [];
             }
             // check if the proxy was returned in an identity function
             if (isTheProxyObject(it.content)) {
@@ -181,6 +195,13 @@ export const printSelectStatementInternal = (
         // flatten
         .reduce((p, c) => [...p, ...c], [])
         .join(", ");
+
+    const selection =
+        selectionStar.length > 0
+            ? selectionKvs.length > 0
+                ? `${selectionStar}, (${selectionKvs})`
+                : selectionStar
+            : selectionKvs;
 
     const replaceInner = selectStatement.__props.replace
         .map(([k, v]) => {
