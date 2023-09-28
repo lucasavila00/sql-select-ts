@@ -213,7 +213,11 @@ export const printSelectStatementInternal = (
                   .map((it) => it.content)
                   .join(" AND ")}`
             : "";
-
+    const vs = selectStatement.__props.except
+        .map((it) => it.content)
+        .join(", ");
+    const except =
+        selectStatement.__props.except.length > 0 ? `EXCEPT (${vs})` : "";
     const from =
         selectStatement.__props.from != null
             ? `FROM ${printInternal(selectStatement.__props.from, true)}`
@@ -241,6 +245,7 @@ export const printSelectStatementInternal = (
         "SELECT",
         distinct,
         selection,
+        except,
         replace,
         from,
         prewhere,
