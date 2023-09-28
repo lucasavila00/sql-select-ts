@@ -71,6 +71,7 @@ export class SelectStatement<
             readonly limit: SafeString | number | null;
             readonly where: ReadonlyArray<SafeString>;
             readonly prewhere: ReadonlyArray<SafeString>;
+            readonly except: ReadonlyArray<SafeString>;
             readonly having: ReadonlyArray<SafeString>;
             readonly distinct: boolean;
             readonly clickhouseWith: ReadonlyArray<ClickhouseWith>;
@@ -98,6 +99,7 @@ export class SelectStatement<
             limit: null,
             where: [],
             prewhere: [],
+            except: [],
             having: [],
             distinct: false,
             clickhouseWith: [],
@@ -124,6 +126,7 @@ export class SelectStatement<
             limit: null,
             where: [],
             prewhere: [],
+            except: [],
             having: [],
             distinct: false,
             clickhouseWith: [],
@@ -149,6 +152,7 @@ export class SelectStatement<
                 limit: null,
                 where: [],
                 prewhere: [],
+                except: [],
                 having: [],
                 distinct: false,
                 clickhouseWith: [],
@@ -243,6 +247,14 @@ export class SelectStatement<
         };
         return this;
     };
+    private setExcept = (except: ReadonlyArray<SafeString>): this => {
+        this.__props = {
+            ...this.__props,
+            except,
+        };
+        return this;
+    };
+
     private setHaving = (having: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,
@@ -305,6 +317,22 @@ export class SelectStatement<
                 ),
             ]),
 
+        /**
+         * @since 2.0.0
+         */
+        except: (
+            f:
+                | ReadonlyArray<Selection | FlatScope>
+                | ((
+                      fields: Record<Selection | FlatScope, SafeString>
+                  ) => ReadonlyArray<SafeString> | SafeString)
+        ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+            this.copy().setExcept([
+                ...this.__props.except,
+                ...makeArray(
+                    consumeArrayCallback(f as any, this.__props.scope)
+                ),
+            ]),
         /**
          * @since 2.0.0
          */

@@ -194,6 +194,7 @@ export declare class SelectStatement<Selection, Alias, Scope, FlatScope> {
       readonly limit: SafeString | number | null;
       readonly where: ReadonlyArray<SafeString>;
       readonly prewhere: ReadonlyArray<SafeString>;
+      readonly except: ReadonlyArray<SafeString>;
       readonly having: ReadonlyArray<SafeString>;
       readonly distinct: boolean;
       readonly clickhouseWith: ReadonlyArray<ClickhouseWith>;
@@ -226,6 +227,11 @@ clickhouse: {
     >
   ) => SelectStatement<Selection | NewSelection, Alias, Scope, FlatScope | NewSelection>
   prewhere: (
+    f:
+      | readonly (Selection | FlatScope)[]
+      | ((fields: Record<Selection | FlatScope, SafeString>) => ReadonlyArray<SafeString> | SafeString)
+  ) => SelectStatement<Selection, Alias, Scope, FlatScope>
+  except: (
     f:
       | readonly (Selection | FlatScope)[]
       | ((fields: Record<Selection | FlatScope, SafeString>) => ReadonlyArray<SafeString> | SafeString)
