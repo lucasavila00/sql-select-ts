@@ -5,7 +5,6 @@ addSimpleStringSerializer();
 describe("clickhouse replace", () => {
     const t3 = table(["x", "y"], "t3_clickhouse");
 
-    beforeAll(async () => {});
     it("works with 1 item", async () => {
         const q = t3
             .selectStar()
