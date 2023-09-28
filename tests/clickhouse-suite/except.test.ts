@@ -1,4 +1,4 @@
-import { dsql, table } from "../../src";
+import { table } from "../../src";
 import { addSimpleStringSerializer } from "../utils";
 addSimpleStringSerializer();
 

@@ -254,7 +254,7 @@ export class SelectStatement<
         };
         return this;
     };
-    
+
     private setHaving = (having: ReadonlyArray<SafeString>): this => {
         this.__props = {
             ...this.__props,
