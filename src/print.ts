@@ -21,9 +21,13 @@ const printOrderBy = (orderBy: ReadonlyArray<SafeString>): string =>
     orderBy.length > 0
         ? `ORDER BY ${orderBy.map((it) => it.content).join(", ")}`
         : "";
-const printGroupBy = (orderBy: ReadonlyArray<SafeString>): string =>
+const printGroupBy = (
+    orderBy: ReadonlyArray<SafeString>,
+    withRollup: boolean
+): string =>
     orderBy.length > 0
-        ? `GROUP BY ${orderBy.map((it) => it.content).join(", ")}`
+        ? `GROUP BY ${orderBy.map((it) => it.content).join(", ")}` +
+          (withRollup ? " WITH ROLLUP" : "")
         : "";
 const printLimit = (limit: number | SafeString | null): string =>
     limit == null
@@ -250,7 +254,10 @@ export const printSelectStatementInternal = (
         from,
         prewhere,
         where,
-        printGroupBy(selectStatement.__props.groupBy),
+        printGroupBy(
+            selectStatement.__props.groupBy,
+            selectStatement.__props.rollup
+        ),
         having,
         printOrderBy(selectStatement.__props.orderBy),
         printLimit(selectStatement.__props.limit),

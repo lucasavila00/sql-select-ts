@@ -78,6 +78,7 @@ export class SelectStatement<
             readonly ctes: ReadonlyArray<CTE>;
             readonly alias?: string;
             readonly scope: ScopeStorage;
+            readonly rollup: boolean;
         }
     ) {}
 
@@ -106,6 +107,7 @@ export class SelectStatement<
             ctes: [],
             alias,
             scope,
+            rollup: false,
         });
 
     /**
@@ -133,6 +135,7 @@ export class SelectStatement<
             ctes: [],
             alias,
             scope,
+            rollup: false,
         });
 
     /**
@@ -159,6 +162,7 @@ export class SelectStatement<
                 ctes: [],
                 scope: {},
                 alias: undefined,
+                rollup: false,
             }
         );
 
@@ -172,6 +176,14 @@ export class SelectStatement<
         this.__props = {
             ...this.__props,
             selection,
+        };
+        return this;
+    };
+
+    private setRollup = (rollup: boolean): this => {
+        this.__props = {
+            ...this.__props,
+            rollup,
         };
         return this;
     };
@@ -350,6 +362,9 @@ export class SelectStatement<
                     this.__props.scope
                 ) as any),
             ]),
+
+        withRollup: (): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+            this.copy().setRollup(true),
     };
 
     /**

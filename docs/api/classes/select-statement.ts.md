@@ -201,6 +201,7 @@ export declare class SelectStatement<Selection, Alias, Scope, FlatScope> {
       readonly ctes: ReadonlyArray<CTE>;
       readonly alias?: string;
       readonly scope: ScopeStorage;
+      readonly rollup: boolean;
     }
   );
 }
@@ -241,6 +242,7 @@ clickhouse: {
       f: Record<Selection | FlatScope, SafeString> & SelectionOfScope<Scope> & NoSelectFieldsCompileError
     ) => ReplaceT<Selection>
   ) => SelectStatement<Selection, Alias, Scope, FlatScope>
+  withRollup: () => SelectStatement<Selection, Alias, Scope, FlatScope>
 }
 ```
 
