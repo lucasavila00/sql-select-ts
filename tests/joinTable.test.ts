@@ -44,6 +44,32 @@ describe("join", () => {
         );
     });
 
+    it("table repro", async () => {
+        const q = t1
+            .select((f) => ({ a: f.a }))
+            .as("main_alias")
+            .join("inner", t2.select((f) => ({ b: f.b })).as("alias2"))
+            .on((f) => equals(f.main_alias.a, f.alias2.b))
+            .select((f) => ({ x: f.a }))
+            .stringify();
+
+        expect(q).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\` FROM (SELECT \`a\` AS \`a\` FROM \`t1\`) AS \`main_alias\` inner JOIN (SELECT \`b\` AS \`b\` FROM \`t2\`) AS \`alias2\` ON \`main_alias\`.\`a\` = \`alias2\`.\`b\``
+        );
+        const q2 = t1
+            .select((f) => ({ a: f.a }))
+            .as("main_alias")
+            .join("inner", t2.select((f) => ({ b: f.b })).as("alias2"))
+            .on((f) => equals(f.main_alias.a, f.alias2.b))
+            .selectStar()
+            .select((f) => ({ x: f.a }))
+            .stringify();
+
+        expect(q2).toMatchInlineSnapshot(
+            `SELECT \`a\` AS \`x\` FROM (SELECT * FROM (SELECT \`a\` AS \`a\` FROM \`t1\`) AS \`main_alias\` inner JOIN (SELECT \`b\` AS \`b\` FROM \`t2\`) AS \`alias2\` ON \`main_alias\`.\`a\` = \`alias2\`.\`b\`)`
+        );
+    });
+
     it("table -> table -- select", async () => {
         const q = t1
             .join("NATURAL", t2)
