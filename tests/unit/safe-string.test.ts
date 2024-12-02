@@ -65,7 +65,7 @@ describe("safe-string", () => {
             e: dsql("\\"),
         }).stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT '\\'' AS \`a\`, '\\0' AS \`b\`, '\\t' AS \`c\`, '\\"' AS \`d\`, '\\\\' AS \`e\``
+            `SELECT '''' AS \`a\`, '\\0' AS \`b\`, '\\t' AS \`c\`, '\\"' AS \`d\`, '\\\\' AS \`e\``
         );
     });
     it("handles escaped values, not at start", () => {
@@ -77,7 +77,7 @@ describe("safe-string", () => {
             e: dsql("\\abc\\abc"),
         }).stringify();
         expect(q).toMatchInlineSnapshot(
-            `SELECT '\\'abc\\'abc' AS \`a\`, '\\0abc\\0abc' AS \`b\`, '\\tabc\\tabc' AS \`c\`, '\\"abc\\"abc' AS \`d\`, '\\\\abc\\\\abc' AS \`e\``
+            `SELECT '''abc''abc' AS \`a\`, '\\0abc\\0abc' AS \`b\`, '\\tabc\\tabc' AS \`c\`, '\\"abc\\"abc' AS \`d\`, '\\\\abc\\\\abc' AS \`e\``
         );
     });
 });
