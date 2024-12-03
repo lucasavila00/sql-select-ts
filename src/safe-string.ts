@@ -26,7 +26,14 @@ export const SafeStringURI = "SafeString" as const;
  * @since 2.0.0
  */
 export class SafeString {
+    /**
+     * @since 2.0.8
+     */
     _tag: typeof SafeStringURI;
+
+    /**
+     * @since 2.0.8
+     */
     content: string;
 
     constructor(content: string) {
