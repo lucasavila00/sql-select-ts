@@ -25,10 +25,106 @@ export const SafeStringURI = "SafeString" as const;
  *
  * @since 2.0.0
  */
-export type SafeString = {
+export class SafeString {
+    /**
+     * @since 2.0.8
+     */
     _tag: typeof SafeStringURI;
+
+    /**
+     * @since 2.0.8
+     */
     content: string;
-};
+
+    constructor(content: string) {
+        this._tag = SafeStringURI;
+        this.content = content;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    equals(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} = ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    different(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} != ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    greaterThan(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} > ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    greaterThanOrEqual(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} >= ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    lessThan(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} < ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    lessThanOrEqual(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} <= ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    and(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} AND ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    or(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} OR ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    add(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} + ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    subtract(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} - ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    multiply(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} * ${other})`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    divide(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} / ${other})`;
+    }
+}
 
 /**
  * Creates a SafeString from a string.
@@ -45,10 +141,8 @@ export type SafeString = {
  * @category string-builder
  * @since 2.0.0
  */
-export const castSafe = (content: string): SafeString => ({
-    _tag: SafeStringURI,
-    content,
-});
+export const castSafe = (content: string): SafeString =>
+    new SafeString(content);
 
 /**
  * Type guard to check if the value is a SafeString.
@@ -63,7 +157,7 @@ export const castSafe = (content: string): SafeString => ({
  * @since 2.0.0
  */
 export const isSafeString = (it: any): it is SafeString =>
-    it?._tag === SafeStringURI;
+    it instanceof SafeString;
 
 // adapted from https://github.com/mysqljs/sqlstring/blob/master/lib/SqlString.js
 // eslint-disable-next-line no-useless-escape
