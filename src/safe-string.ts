@@ -25,10 +25,39 @@ export const SafeStringURI = "SafeString" as const;
  *
  * @since 2.0.0
  */
-export type SafeString = {
+export class SafeString {
     _tag: typeof SafeStringURI;
     content: string;
-};
+
+    constructor(content: string) {
+        this._tag = SafeStringURI;
+        this.content = content;
+    }
+
+    equals(other: SafeString | null | number | string): SafeString {
+        return dsql`${this.content} = ${other}`;
+    }
+
+    different(other: SafeString | null | number | string): SafeString {
+        return dsql`${this.content} <> ${other}`;
+    }
+
+    greaterThan(other: SafeString | null | number | string): SafeString {
+        return dsql`${this.content} > ${other}`;
+    }
+
+    greaterThanOrEqual(other: SafeString | null | number | string): SafeString {
+        return dsql`${this.content} >= ${other}`;
+    }
+
+    lessThan(other: SafeString | null | number | string): SafeString {
+        return dsql`${this.content} < ${other}`;
+    }
+
+    lessThanOrEqual(other: SafeString | null | number | string): SafeString {
+        return dsql`${this.content} <= ${other}`;
+    }
+}
 
 /**
  * Creates a SafeString from a string.
@@ -45,10 +74,8 @@ export type SafeString = {
  * @category string-builder
  * @since 2.0.0
  */
-export const castSafe = (content: string): SafeString => ({
-    _tag: SafeStringURI,
-    content,
-});
+export const castSafe = (content: string): SafeString =>
+    new SafeString(content);
 
 /**
  * Type guard to check if the value is a SafeString.
@@ -63,7 +90,7 @@ export const castSafe = (content: string): SafeString => ({
  * @since 2.0.0
  */
 export const isSafeString = (it: any): it is SafeString =>
-    it?._tag === SafeStringURI;
+    it instanceof SafeString;
 
 // adapted from https://github.com/mysqljs/sqlstring/blob/master/lib/SqlString.js
 // eslint-disable-next-line no-useless-escape

@@ -14,19 +14,19 @@ describe("isTheProxyObject", () => {
 describe("proxy", () => {
     it("works", () => {
         expect(proxy["a"]).toMatchInlineSnapshot(`
-            Object {
+            SafeString {
               "_tag": "SafeString",
               "content": "\`abc\`.\`a\`",
             }
         `);
         expect(proxy["123"]).toMatchInlineSnapshot(`
-            Object {
+            SafeString {
               "_tag": "SafeString",
               "content": "\`abc\`.\`123\`",
             }
         `);
         expect(proxy["123-456"]).toMatchInlineSnapshot(`
-            Object {
+            SafeString {
               "_tag": "SafeString",
               "content": "\`abc\`.\`123-456\`",
             }

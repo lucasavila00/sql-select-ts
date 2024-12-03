@@ -86,11 +86,11 @@ it("select qualified", () => {
           Object {
             "_tag": "AliasedRows",
             "content": Object {
-              "abc": Object {
+              "abc": SafeString {
                 "_tag": "SafeString",
                 "content": "\`id\`",
               },
-              "def": Object {
+              "def": SafeString {
                 "_tag": "SafeString",
                 "content": "\`users\`.\`id\`",
               },
@@ -113,7 +113,7 @@ it("select qualified", () => {
           Object {
             "_tag": "AliasedRows",
             "content": Object {
-              "id": Object {
+              "id": SafeString {
                 "_tag": "SafeString",
                 "content": "\`id\`",
               },
@@ -174,11 +174,11 @@ it("query alias", () => {
           Object {
             "_tag": "AliasedRows",
             "content": Object {
-              "col1": Object {
+              "col1": SafeString {
                 "_tag": "SafeString",
                 "content": "\`abc\`",
               },
-              "col2": Object {
+              "col2": SafeString {
                 "_tag": "SafeString",
                 "content": "\`alias2\`.\`def\`",
               },
