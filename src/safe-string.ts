@@ -34,50 +34,86 @@ export class SafeString {
         this.content = content;
     }
 
+    /**
+     * @since 2.0.8
+     */
     equals(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} = ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     different(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} != ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     greaterThan(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} > ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     greaterThanOrEqual(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} >= ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     lessThan(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} < ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     lessThanOrEqual(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} <= ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     and(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} AND ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     or(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} OR ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     add(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} + ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     subtract(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} - ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     multiply(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} * ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     divide(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} / ${other})`;
     }
