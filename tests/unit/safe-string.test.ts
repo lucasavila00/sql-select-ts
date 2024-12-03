@@ -9,6 +9,31 @@ describe("castSafe", () => {
     });
 });
 
+describe("chaining", () => {
+    it("works", () => {
+        const base = dsql`base`;
+        expect(
+            base.equals(1).greaterThan(2).lessThanOrEqual(3).content
+        ).toMatchInlineSnapshot(`(((base = 1) > 2) <= 3)`);
+
+        expect(
+            base.different(1).lessThan(2).greaterThanOrEqual(3).content
+        ).toMatchInlineSnapshot(`(((base != 1) < 2) >= 3)`);
+
+        expect(base.and(1).or(2).content).toMatchInlineSnapshot(
+            `((base AND 1) OR 2)`
+        );
+
+        expect(base.add(1).subtract(2).content).toMatchInlineSnapshot(
+            `((base + 1) - 2)`
+        );
+
+        expect(base.multiply(1).divide(2).content).toMatchInlineSnapshot(
+            `((base * 1) / 2)`
+        );
+    });
+});
+
 describe("isSafeString", () => {
     it("works", () => {
         expect(isSafeString(dsql(123))).toBe(true);

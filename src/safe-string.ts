@@ -35,27 +35,51 @@ export class SafeString {
     }
 
     equals(other: SafeString | null | number | string): SafeString {
-        return dsql`${this.content} = ${other}`;
+        return dsql`(${this} = ${other})`;
     }
 
     different(other: SafeString | null | number | string): SafeString {
-        return dsql`${this.content} <> ${other}`;
+        return dsql`(${this} != ${other})`;
     }
 
     greaterThan(other: SafeString | null | number | string): SafeString {
-        return dsql`${this.content} > ${other}`;
+        return dsql`(${this} > ${other})`;
     }
 
     greaterThanOrEqual(other: SafeString | null | number | string): SafeString {
-        return dsql`${this.content} >= ${other}`;
+        return dsql`(${this} >= ${other})`;
     }
 
     lessThan(other: SafeString | null | number | string): SafeString {
-        return dsql`${this.content} < ${other}`;
+        return dsql`(${this} < ${other})`;
     }
 
     lessThanOrEqual(other: SafeString | null | number | string): SafeString {
-        return dsql`${this.content} <= ${other}`;
+        return dsql`(${this} <= ${other})`;
+    }
+
+    and(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} AND ${other})`;
+    }
+
+    or(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} OR ${other})`;
+    }
+
+    add(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} + ${other})`;
+    }
+
+    subtract(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} - ${other})`;
+    }
+
+    multiply(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} * ${other})`;
+    }
+
+    divide(other: SafeString | null | number | string): SafeString {
+        return dsql`(${this} / ${other})`;
     }
 }
 
