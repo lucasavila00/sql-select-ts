@@ -124,6 +124,22 @@ export class SafeString {
     divide(other: SafeString | null | number | string): SafeString {
         return dsql`(${this} / ${other})`;
     }
+
+    /**
+     * @since 2.0.8
+     */
+    in(other: SafeString | null | number | string | SafeString[]): SafeString {
+        return dsql`(${this} IN (${other}))`;
+    }
+
+    /**
+     * @since 2.0.8
+     */
+    notIn(
+        other: SafeString | null | number | string | SafeString[]
+    ): SafeString {
+        return dsql`(${this} NOT IN (${other}))`;
+    }
 }
 
 /**
