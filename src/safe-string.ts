@@ -138,6 +138,14 @@ export class SafeString {
     notIn(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} NOT IN (${other}))`;
     }
+
+    asc(): SafeString {
+        return dsql`${this} ASC`;
+    }
+
+    desc(): SafeString {
+        return dsql`${this} DESC`;
+    }
 }
 
 /**
