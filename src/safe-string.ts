@@ -44,100 +44,98 @@ export class SafeString {
     /**
      * @since 2.0.8
      */
-    equals(other: SafeString | null | number | string): SafeString {
+    equals(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} = ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    different(other: SafeString | null | number | string): SafeString {
+    different(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} != ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    greaterThan(other: SafeString | null | number | string): SafeString {
+    greaterThan(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} > ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    greaterThanOrEqual(other: SafeString | null | number | string): SafeString {
+    greaterThanOrEqual(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} >= ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    lessThan(other: SafeString | null | number | string): SafeString {
+    lessThan(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} < ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    lessThanOrEqual(other: SafeString | null | number | string): SafeString {
+    lessThanOrEqual(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} <= ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    and(other: SafeString | null | number | string): SafeString {
+    and(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} AND ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    or(other: SafeString | null | number | string): SafeString {
+    or(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} OR ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    add(other: SafeString | null | number | string): SafeString {
+    add(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} + ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    subtract(other: SafeString | null | number | string): SafeString {
+    subtract(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} - ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    multiply(other: SafeString | null | number | string): SafeString {
+    multiply(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} * ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    divide(other: SafeString | null | number | string): SafeString {
+    divide(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} / ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
-    in(other: SafeString | null | number | string | SafeString[]): SafeString {
+    in(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} IN (${other}))`;
     }
 
     /**
      * @since 2.0.8
      */
-    notIn(
-        other: SafeString | null | number | string | SafeString[]
-    ): SafeString {
+    notIn(other: SqlSupportedTypes): SafeString {
         return dsql`(${this} NOT IN (${other}))`;
     }
 }
