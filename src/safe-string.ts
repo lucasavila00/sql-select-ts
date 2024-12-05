@@ -129,20 +129,26 @@ export class SafeString {
      * @since 2.0.8
      */
     in(other: SqlSupportedTypes): SafeString {
-        return dsql`(${this} IN (${other}))`;
+        return dsql`(${this} IN ${other})`;
     }
 
     /**
      * @since 2.0.8
      */
     notIn(other: SqlSupportedTypes): SafeString {
-        return dsql`(${this} NOT IN (${other}))`;
+        return dsql`(${this} NOT IN ${other})`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     asc(): SafeString {
         return dsql`${this} ASC`;
     }
 
+    /**
+     * @since 2.0.8
+     */
     desc(): SafeString {
         return dsql`${this} DESC`;
     }
