@@ -9,6 +9,14 @@ describe("castSafe", () => {
     });
 });
 
+describe("serialize array", () => {
+    it("works", () => {
+        expect(dsql(["a", "b", "c"]).content).toMatchInlineSnapshot(`abc`);
+        expect(dsql`${["a", "b", "c"]}`.content).toMatchInlineSnapshot(
+            `'a', 'b', 'c'`
+        );
+    });
+});
 describe("chaining", () => {
     it("works", () => {
         const base = dsql`base`;
@@ -30,6 +38,14 @@ describe("chaining", () => {
 
         expect(base.multiply(1).divide(2).content).toMatchInlineSnapshot(
             `((base * 1) / 2)`
+        );
+
+        expect(base.desc().content).toMatchInlineSnapshot(`base DESC`);
+        expect(base.asc().content).toMatchInlineSnapshot(`base ASC`);
+
+        expect(base.in("a").content).toMatchInlineSnapshot(`(base IN 'a')`);
+        expect(base.notIn("a").content).toMatchInlineSnapshot(
+            `(base NOT IN 'a')`
         );
     });
 });
