@@ -152,6 +152,14 @@ export class SafeString {
     desc(): SafeString {
         return dsql`${this} DESC`;
     }
+
+
+    /**
+     * @since 2.0.8
+     */
+    as(label: string): SafeString {
+        return dsql`${this} AS \`${castSafe(label)}\``;
+    }
 }
 
 /**
