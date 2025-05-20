@@ -158,7 +158,7 @@ export class SafeString {
      * @since 2.0.8
      */
     as(label: string): SafeString {
-        return dsql`${this} AS \`${castSafe(label)}\``;
+        return dsql`(${this} AS \`${castSafe(label)}\`)`;
     }
 }
 

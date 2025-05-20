@@ -49,7 +49,7 @@ describe("chaining", () => {
         );
 
         expect(base.as("alias").content).toMatchInlineSnapshot(
-            `base AS \`alias\``
+            `(base AS \`alias\`)`
         );
     });
 });
