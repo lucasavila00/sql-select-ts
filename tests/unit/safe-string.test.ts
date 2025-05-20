@@ -47,6 +47,10 @@ describe("chaining", () => {
         expect(base.notIn("a").content).toMatchInlineSnapshot(
             `(base NOT IN 'a')`
         );
+
+        expect(base.as("alias").content).toMatchInlineSnapshot(
+            `base AS \`alias\``
+        );
     });
 });
 
