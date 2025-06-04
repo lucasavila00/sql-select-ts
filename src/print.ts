@@ -188,7 +188,11 @@ export const printSelectStatementInternal = (
 
     const replaceInner = selectStatement.__props.replace
         .map(([k, v]) => {
-            const vContent: string | number = isSafeString(v) ? v.content : v;
+            const vContent: string | number = isSafeString(v)
+                ? v.content
+                : v == null
+                ? "NULL"
+                : v;
             return `${vContent} AS ${wrapAlias(k)}`;
         })
         .join(", ");
