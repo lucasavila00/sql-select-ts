@@ -51,6 +51,9 @@ describe("chaining", () => {
         expect(base.as("alias").content).toMatchInlineSnapshot(
             `(base AS \`alias\`)`
         );
+        expect(
+            base.over(dsql`PARTITION BY _date`).content
+        ).toMatchInlineSnapshot(`(base OVER (PARTITION BY _date))`);
     });
 });
 
