@@ -160,6 +160,13 @@ export class SafeString {
     as(label: string): SafeString {
         return dsql`(${this} AS \`${castSafe(label)}\`)`;
     }
+
+    /**
+     * @since 2.0.16
+     */
+    over(clause: SafeString): SafeString {
+        return dsql`(${this} OVER (${clause}))`;
+    }
 }
 
 /**
