@@ -27,14 +27,14 @@ const printGroupBy = (
 ): string =>
     orderBy.length > 0
         ? `GROUP BY ${orderBy.map((it) => it.content).join(", ")}` +
-          (withRollup ? " WITH ROLLUP" : "")
+        (withRollup ? " WITH ROLLUP" : "")
         : "";
 const printLimit = (limit: number | SafeString | null): string =>
     limit == null
         ? ""
         : typeof limit == "number"
-        ? `LIMIT ${limit}`
-        : `LIMIT ${limit.content}`;
+            ? `LIMIT ${limit}`
+            : `LIMIT ${limit.content}`;
 
 export const printCompoundInternal = (
     compound: Compound<any, any, any, any>,
@@ -71,7 +71,10 @@ const printStringifiedSelectInternal = (
     const alias =
         it.__props.alias != null ? ` AS ${wrapAlias(it.__props.alias)}` : "";
 
-    return `(${it.__props.content.content})${alias}`;
+    if (it.__props.printWrapped) {
+        return `(${it.__props.content.content})${alias}`;
+    }
+    return `${it.__props.content.content}${alias}`;
 };
 
 const printTableInternal = (
@@ -201,21 +204,21 @@ export const printSelectStatementInternal = (
     const where =
         selectStatement.__props.where.length > 0
             ? `WHERE ${selectStatement.__props.where
-                  .map((it) => it.content)
-                  .join(" AND ")}`
+                .map((it) => it.content)
+                .join(" AND ")}`
             : "";
 
     const prewhere =
         selectStatement.__props.prewhere.length > 0
             ? `PREWHERE ${selectStatement.__props.prewhere
-                  .map((it) => it.content)
-                  .join(" AND ")}`
+                .map((it) => it.content)
+                .join(" AND ")}`
             : "";
     const having =
         selectStatement.__props.having.length > 0
             ? `HAVING ${selectStatement.__props.having
-                  .map((it) => it.content)
-                  .join(" AND ")}`
+                .map((it) => it.content)
+                .join(" AND ")}`
             : "";
     const vs = selectStatement.__props.except
         .map((it) => it.content)
