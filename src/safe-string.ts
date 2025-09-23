@@ -153,7 +153,6 @@ export class SafeString {
         return dsql`${this} DESC`;
     }
 
-
     /**
      * @since 2.0.8
      */

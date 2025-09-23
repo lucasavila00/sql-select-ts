@@ -31,7 +31,7 @@ describe("StringifiedSelectStatement", () => {
             ]
         `);
     });
-   it("works wrapped without parens", async () => {
+    it("works wrapped without parens", async () => {
         const q = fromStringifiedSelectStatement<"a">(
             dsql`SELECT 10 AS a`,
             false

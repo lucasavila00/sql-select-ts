@@ -15,6 +15,7 @@
         "clear_jest": "jest --clearCache",
         "ts": "tsc --noEmit",
         "prettier-check": "prettier --check \"{src,scripts,tests,docs-api-template}/**/*.{js,jsx,ts,tsx,json,css,md}\" && prettier --check \"eval-mds/**/*.md\"",
+        "prettier-fix": "prettier --write \"{src,scripts,tests,docs-api-template}/**/*.{js,jsx,ts,tsx,json,css,md}\" && prettier --write \"eval-mds/**/*.md\"",
         "static": "npm run prettier-check && npm run ts && npm run lint",
         "docs": "docs-ts",
         "invert": "ts-node --transpileOnly ./scripts/invert-pipe.ts",
