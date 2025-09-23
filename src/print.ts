@@ -71,7 +71,10 @@ const printStringifiedSelectInternal = (
     const alias =
         it.__props.alias != null ? ` AS ${wrapAlias(it.__props.alias)}` : "";
 
-    return `(${it.__props.content.content})${alias}`;
+    if (it.__props.printWrapped) {
+        return `(${it.__props.content.content})${alias}`;
+    }
+    return `${it.__props.content.content}${alias}`;
 };
 
 const printTableInternal = (

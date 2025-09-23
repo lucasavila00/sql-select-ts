@@ -40,18 +40,21 @@ export class StringifiedSelectStatement<
         /* @internal */
         public __props: {
             readonly content: SafeString;
+            readonly printWrapped: boolean;
             readonly scope: ScopeStorage;
             readonly alias?: string;
         }
     ) {}
 
     public static fromSafeString = <NewSelection extends string = never>(
-        content: SafeString
+        content: SafeString,
+        printWrapped: boolean = true
     ): StringifiedSelectStatement<NewSelection, never, never, never> =>
         new StringifiedSelectStatement(
             //
             {
                 content,
+                printWrapped,
                 scope: {},
             }
         );
