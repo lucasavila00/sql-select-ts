@@ -48,7 +48,7 @@ export class StringifiedSelectStatement<
 
     public static fromSafeString = <NewSelection extends string = never>(
         content: SafeString,
-        printWrapped: boolean = true
+        printWrapped = true
     ): StringifiedSelectStatement<NewSelection, never, never, never> =>
         new StringifiedSelectStatement(
             //
