@@ -213,6 +213,12 @@ export class Table<
      */
     public as = <NewAlias extends string = never>(
         as: NewAlias
-    ): Table<Selection, NewAlias, Scope, FlatScope> =>
-        this.copy().setAlias(as) as any;
+    ): Table<
+        Selection,
+        NewAlias,
+        Scope & {
+            [key in NewAlias]: Selection;
+        },
+        FlatScope
+    > => this.copy().setAlias(as) as any;
 }

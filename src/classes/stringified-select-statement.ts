@@ -71,7 +71,7 @@ export class StringifiedSelectStatement<
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
-            {},
+            this.__props.scope,
             undefined
         );
 
@@ -98,7 +98,13 @@ export class StringifiedSelectStatement<
             [key in Alias]: Selection;
         },
         Selection
-    > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
+    > =>
+        SelectStatement.__fromTableOrSubquery(
+            this,
+            _ as any,
+            this.__props.scope,
+            undefined
+        );
 
     /**
      * @since 2.0.0
