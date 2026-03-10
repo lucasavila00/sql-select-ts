@@ -20,6 +20,18 @@ describe("select", () => {
     INSERT INTO t2 VALUES(3,4,5);
     */
 
+    it("append select qualified", async () => {
+        const q = t1
+            .as("t2")
+            .select((f) => ({ a: f.t2.a }))
+            .appendSelect((f) => ({ b: f.t2.b }))
+            .appendSelect((f) => ({ c: f.t2.c }))
+            .stringify();
+        expect(q).toMatchInlineSnapshot(
+            `"SELECT \`t2\`.\`a\` AS \`a\`, \`t2\`.\`b\` AS \`b\`, \`t2\`.\`c\` AS \`c\` FROM \`t1\` AS \`t2\`"`
+        );
+    });
+
     it("table - no identity function", async () => {
         // @ts-expect-error
         t1.select((f) => f);
