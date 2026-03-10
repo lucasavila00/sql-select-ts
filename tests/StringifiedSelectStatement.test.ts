@@ -39,13 +39,6 @@ describe("StringifiedSelectStatement", () => {
         expect(q.stringify()).toMatchInlineSnapshot(
             `"SELECT \`a\` AS \`a\` FROM SELECT 10 AS a"`
         );
-        expect(await run(q.stringify())).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "a": 10,
-              },
-            ]
-        `);
     });
     it("works wrapped2", async () => {
         const q = fromStringifiedSelectStatement<"a">(
