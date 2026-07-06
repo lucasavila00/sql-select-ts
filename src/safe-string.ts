@@ -299,10 +299,10 @@ type SqlSupportedTypes =
     | number
     | null
     | undefined
-    | SelectStatement<any, any, any, any>
-    | AliasedSelectStatement<any, any, any, any>
-    | Compound<any, any, any, any>
-    | AliasedCompound<any, any, any, any>;
+    | SelectStatement
+    | AliasedSelectStatement
+    | Compound
+    | AliasedCompound;
 
 type TemplateLiteralSql = [
     ReadonlyArray<string>,

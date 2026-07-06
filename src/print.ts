@@ -37,7 +37,7 @@ const printLimit = (limit: number | SafeString | null): string =>
         : `LIMIT ${limit.content}`;
 
 export const printCompoundInternal = (
-    compound: Compound<any, any, any, any>,
+    compound: Compound,
     parenthesis: boolean
 ): PrintInternalRet => {
     const sel = compound.__props.content
@@ -66,7 +66,7 @@ export const printCompoundInternal = (
 type PrintInternalRet = string;
 
 const printStringifiedSelectInternal = (
-    it: StringifiedSelectStatement<any, any, any, any>
+    it: StringifiedSelectStatement
 ): PrintInternalRet => {
     const alias =
         it.__props.alias != null ? ` AS ${wrapAlias(it.__props.alias)}` : "";
@@ -77,9 +77,7 @@ const printStringifiedSelectInternal = (
     return `${it.__props.content.content}${alias}`;
 };
 
-const printTableInternal = (
-    table: Table<any, any, any, any>
-): PrintInternalRet => {
+const printTableInternal = (table: Table): PrintInternalRet => {
     const final = table.__props.final ? ` FINAL` : "";
     if (table.__props.name === table.__props.alias) {
         return wrapAliasSplitDots(table.__props.name) + final;
@@ -111,9 +109,7 @@ const printConstraint = (c: JoinConstraint): { on: string; using: string } => {
     }
 };
 
-const printJoinedInternal = (
-    joined: Joined<any, any, any>
-): PrintInternalRet => {
+const printJoinedInternal = (joined: Joined): PrintInternalRet => {
     const head = joined.__props.commaJoins
         .map((it) => printInternal(it, true))
         .join(", ");
@@ -162,7 +158,7 @@ const printClickhouseWith = (withes: ReadonlyArray<ClickhouseWith>): string =>
         .join(", ");
 
 export const printSelectStatementInternal = (
-    selectStatement: SelectStatement<any, any, any, any>,
+    selectStatement: SelectStatement,
     parenthesis: boolean
 ): PrintInternalRet => {
     const selection = selectStatement.__props.selection
@@ -280,7 +276,7 @@ export const printSelectStatementInternal = (
 };
 
 const printInternal = (
-    it: TableOrSubquery<any, any, any, any>,
+    it: TableOrSubquery,
     parenthesis: boolean
 ): PrintInternalRet => {
     if (it instanceof SelectStatement) {
@@ -303,12 +299,12 @@ const printInternal = (
 };
 
 export const printSelectStatement = (
-    it: SelectStatement<any, any, any, any>
+    it: SelectStatement
 ): string => printSelectStatementInternal(it, false);
 
 export const printAliasedSelectStatement = (
-    it: AliasedSelectStatement<any, any, any, any>
+    it: AliasedSelectStatement
 ): string => printSelectStatementInternal(it, false);
 
-export const printCompound = (it: Compound<any, any, any, any>): string =>
+export const printCompound = (it: Compound): string =>
     printCompoundInternal(it, false);

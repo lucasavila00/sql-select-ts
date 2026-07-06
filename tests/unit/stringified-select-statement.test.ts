@@ -2,7 +2,7 @@ import { castSafe, fromStringifiedSelectStatement, table } from "../../src";
 const cols = ["a", "b"] as const;
 describe("select unit", () => {
     it("apply", () => {
-        const q = fromStringifiedSelectStatement<"a">(
+        const q = fromStringifiedSelectStatement(
             castSafe(table(cols, "a").selectStar().stringify())
         ).apply((it) => it.select(["a"]));
         expect(q.stringify()).toMatchInlineSnapshot(
@@ -11,7 +11,7 @@ describe("select unit", () => {
     });
 
     it("apply + alias", () => {
-        const q = fromStringifiedSelectStatement<"a">(
+        const q = fromStringifiedSelectStatement(
             castSafe(table(cols, "a").selectStar().stringify())
         )
             .as("alias1")
@@ -22,13 +22,12 @@ describe("select unit", () => {
     });
 
     it("apply type checks", () => {
-        fromStringifiedSelectStatement<"a">(
+        fromStringifiedSelectStatement(
             castSafe(table(cols, "a").selectStar().stringify())
         )
             .apply((it) => it.select(["a"]))
             .select((f) => ({
                 b:
-                    //@ts-expect-error
                     f.b,
             }));
 

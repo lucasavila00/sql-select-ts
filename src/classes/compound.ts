@@ -9,17 +9,12 @@ import { StarSymbol } from "../data-wrappers";
 import { printCompound } from "../print";
 import { SafeString } from "../safe-string";
 import {
+    Fields,
     Joinable,
     NoSelectFieldsCompileError,
-    RecordOfSelection,
-    ScopeOfSelectStatement,
-    ScopeShape,
     ScopeStorage,
-    SelectionOfScope,
-    SelectionOfSelectStatement,
+    SelectionRecord,
     TableOrSubquery,
-    UnionToIntersection,
-    ValidAliasInSelection,
 } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
@@ -32,23 +27,12 @@ import { AliasedSelectStatement, SelectStatement } from "./select-statement";
  *
  * @since 2.0.0
  */
-export class Compound<
-    // Selection extends string = never,
-    // Alias extends string = never,
-    // Scope extends ScopeShape = never,
-    // FlatScope extends string = never
-    Selection extends string,
-    Alias extends string,
-    Scope extends ScopeShape,
-    FlatScope extends string
-> {
+export class Compound {
     /* @internal */
     protected constructor(
         /* @internal */
         public __props: {
-            readonly content: ReadonlyArray<
-                TableOrSubquery<any, any, any, any>
-            >;
+            readonly content: ReadonlyArray<TableOrSubquery>;
             readonly qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
             readonly orderBy: ReadonlyArray<SafeString>;
             readonly limit: SafeString | number | null;
@@ -62,26 +46,9 @@ export class Compound<
      */
     public static __fromQualifier =
         (qualifier: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT") =>
-        <
-            C extends
-                | SelectStatement<any, any, any, any>
-                | AliasedSelectStatement<any, any, any, any>,
-            CS extends ReadonlyArray<
-                | SelectStatement<any, any, any, any>
-                | AliasedSelectStatement<any, any, any, any>
-            >
-        >(
-            content: CS & {
-                0: C;
-            }
-        ): Compound<
-            SelectionOfSelectStatement<C>,
-            never,
-            ScopeOfSelectStatement<C> &
-                UnionToIntersection<ScopeOfSelectStatement<CS[number]>>,
-            | SelectionOfSelectStatement<C>
-            | SelectionOfSelectStatement<CS[number]>
-        > =>
+        (content: ReadonlyArray<SelectStatement | AliasedSelectStatement> & {
+            0: SelectStatement | AliasedSelectStatement;
+        }): Compound =>
             new Compound({
                 content,
                 qualifier,
@@ -92,7 +59,7 @@ export class Compound<
                 ),
             });
 
-    private copy = (): Compound<Selection, Alias, Scope, FlatScope> =>
+    private copy = (): Compound =>
         new Compound({ ...this.__props });
 
     private setOrderBy = (orderBy: SafeString[]): this => {
@@ -116,11 +83,9 @@ export class Compound<
      */
     public orderBy = (
         f:
-            | ReadonlyArray<Selection | FlatScope>
-            | ((
-                  fields: Record<Selection | FlatScope, SafeString>
-              ) => ReadonlyArray<SafeString> | SafeString)
-    ): Compound<Selection, Alias, Scope, FlatScope> =>
+            | ReadonlyArray<string>
+            | ((fields: Fields) => ReadonlyArray<SafeString> | SafeString)
+    ): Compound =>
         this.copy().setOrderBy([
             ...this.__props.orderBy,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -131,24 +96,19 @@ export class Compound<
      */
     public limit = (
         limit: SafeString | number
-    ): Compound<Selection, Alias, Scope, FlatScope> =>
+    ): Compound =>
         this.copy().setLimit(limit);
 
     /**
      * @since 2.0.0
      */
-    public select = <
-        NewSelection extends string = never,
-        SubSelection extends Selection = never
-    >(
+    public select = (
         _:
-            | ReadonlyArray<SubSelection>
+            | ReadonlyArray<string>
             | ((
-                  fields: RecordOfSelection<FlatScope> &
-                      SelectionOfScope<Scope> &
-                      NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>)
-    ): SelectStatement<NewSelection | SubSelection, never, Scope, FlatScope> =>
+                  fields: Fields & NoSelectFieldsCompileError
+              ) => SelectionRecord)
+    ): SelectStatement =>
         SelectStatement.__fromTableOrSubquery(
             this,
             _ as any,
@@ -159,12 +119,7 @@ export class Compound<
     /**
      * @since 2.0.0
      */
-    public selectStar = (): SelectStatement<
-        Selection,
-        never,
-        { [key in Alias]: Selection },
-        Selection
-    > =>
+    public selectStar = (): SelectStatement =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
@@ -180,32 +135,21 @@ export class Compound<
     /**
      * @since 2.0.0
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery = TableOrSubquery>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
     /**
      * @since 2.0.0
      */
-    public as = <NewAlias extends string = never>(
-        as: NewAlias
-    ): AliasedCompound<Selection, NewAlias, Scope, FlatScope> =>
+    public as = (as: string): AliasedCompound =>
         new AliasedCompound(this.__props).__setAlias(as) as any;
 }
 
 /**
  * @since 2.0.0
  */
-export class AliasedCompound<
-    // Selection extends string = never,
-    // Alias extends string = never,
-    // Scope extends ScopeShape = never,
-    // FlatScope extends string = never
-    Selection extends string,
-    Alias extends string,
-    Scope extends ScopeShape,
-    FlatScope extends string
-> extends Compound<Selection, Alias, Scope, FlatScope> {
-    private __copy = (): AliasedCompound<Selection, Alias, Scope, FlatScope> =>
+export class AliasedCompound extends Compound {
+    private __copy = (): AliasedCompound =>
         new AliasedCompound({ ...this.__props });
 
     /**
@@ -226,25 +170,7 @@ export class AliasedCompound<
     /**
      * @since 2.0.0
      */
-    public join = <
-        Selection2 extends string = never,
-        Alias2 extends string = never,
-        Scope2 extends ScopeShape = never,
-        FlatScope2 extends string = never
-    >(
-        operator: string,
-        _: ValidAliasInSelection<
-            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
-            Alias2
-        >
-    ): JoinedFactory<
-        {
-            [key in Alias]: Selection;
-        } & {
-            [key in Alias2]: Selection2;
-        },
-        Extract<Selection, Selection2>
-    > =>
+    public join = (operator: string, _: Joinable): JoinedFactory =>
         JoinedFactory.__fromAll(
             [this],
             [],
@@ -261,26 +187,7 @@ export class AliasedCompound<
     /**
      * @since 2.0.0
      */
-    public commaJoin = <
-        Selection2 extends string = never,
-        Alias2 extends string = never,
-        Scope2 extends ScopeShape = never,
-        FlatScope2 extends string = never
-    >(
-        _: ValidAliasInSelection<
-            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
-            Alias2
-        >
-    ): Joined<
-        never,
-        never,
-        {
-            [key in Alias]: Selection;
-        } & {
-            [key in Alias2]: Selection2;
-        },
-        Selection | Selection2
-    > =>
+    public commaJoin = (_: Joinable): Joined =>
         Joined.__fromAll([this, _ as any], [], {
             [String(this.__props.alias)]: void 0,
             ...(_ as any).__props.scope,
@@ -289,15 +196,13 @@ export class AliasedCompound<
     /**
      * @since 2.0.0
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery = TableOrSubquery>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
     /**
      * @since 2.0.0
      */
-    public as = <NewAlias extends string = never>(
-        as: NewAlias
-    ): AliasedCompound<Selection, NewAlias, Scope, FlatScope> =>
+    public as = (as: string): AliasedCompound =>
         this.__copy().__setAlias(as) as any;
 }

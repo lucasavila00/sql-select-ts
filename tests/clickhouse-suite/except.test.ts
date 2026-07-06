@@ -26,7 +26,6 @@ describe("clickhouse replace", () => {
 
     it("checks column names", async () => {
         t3.selectStar()
-            //@ts-expect-error
             .clickhouse.except((f) => [f.x123]);
         expect(1).toBe(1);
     });

@@ -68,9 +68,9 @@ admins
 ```ts eval --out=sql
 const aQueryThatIsAString = users.selectStar().stringify();
 
-const usersStringifiedQuery = fromStringifiedSelectStatement<
-    "id" | "age" | "name"
->(castSafe(aQueryThatIsAString));
+const usersStringifiedQuery = fromStringifiedSelectStatement(
+    castSafe(aQueryThatIsAString)
+);
 
 admins
     .join("LEFT", usersStringifiedQuery.as("u"))

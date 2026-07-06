@@ -17,7 +17,7 @@ describe("StringifiedSelectStatement", () => {
     });
 
     it("append select qualified", async () => {
-        const q = fromStringifiedSelectStatement<"a" | "b" | "c">(
+        const q = fromStringifiedSelectStatement(
             dsql`SELECT 10 AS a, 11 as b, 12 as c`
         );
         const q2 = q
@@ -35,7 +35,7 @@ describe("StringifiedSelectStatement", () => {
     });
 
     it("works wrapped", async () => {
-        const q = fromStringifiedSelectStatement<"a">(
+        const q = fromStringifiedSelectStatement(
             dsql`SELECT 10 AS a`
         ).select((f) => ({ a: f.a }));
         expect(q.stringify()).toMatchInlineSnapshot(
@@ -50,7 +50,7 @@ describe("StringifiedSelectStatement", () => {
         `);
     });
     it("works wrapped without parens", async () => {
-        const q = fromStringifiedSelectStatement<"a">(
+        const q = fromStringifiedSelectStatement(
             dsql`SELECT 10 AS a`,
             false
         ).select((f) => ({ a: f.a }));
@@ -59,7 +59,7 @@ describe("StringifiedSelectStatement", () => {
         );
     });
     it("works wrapped2", async () => {
-        const q = fromStringifiedSelectStatement<"a">(
+        const q = fromStringifiedSelectStatement(
             dsql`SELECT 10 AS a`
         ).selectStar();
         expect(q.stringify()).toMatchInlineSnapshot(

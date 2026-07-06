@@ -14,13 +14,13 @@ describe("commaJoin", () => {
     const q2 = t2.selectStar();
     const q3 = t3.selectStar();
 
-    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str1 = fromStringifiedSelectStatement(
         castSafe(t1.selectStar().stringify())
     ).as("t1");
-    const str2 = fromStringifiedSelectStatement<"b" | "c" | "d">(
+    const str2 = fromStringifiedSelectStatement(
         castSafe(q2.stringify())
     ).as("t2");
-    const str3 = fromStringifiedSelectStatement<"c" | "d" | "e">(
+    const str3 = fromStringifiedSelectStatement(
         castSafe(q3.stringify())
     ).as("t3");
     /*

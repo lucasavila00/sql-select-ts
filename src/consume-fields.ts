@@ -48,7 +48,7 @@ const upperProxy = (scope: ScopeStorage): any =>
 export const consumeRecordCallback = (
     f: SelectionRecordCallbackShape,
     scope: ScopeStorage
-): AliasedRows<any> => {
+): AliasedRows => {
     if (Array.isArray(f)) {
         return AliasedRows(
             Object.fromEntries(f.map((it) => [it, castSafe(wrapAlias(it))]))

@@ -16,7 +16,7 @@ layout: default
 
 ```ts
 import sqlite from "sqlite3";
-import { table, AnyPrintable, RowsArray } from "../../src";
+import { table } from "../../src";
 ```
 
 With a DB connector
@@ -31,10 +31,10 @@ const runS = (q: string) =>
     );
 ```
 
-We can implement a version that is aware of the types
+We can implement a small runner for printable queries
 
 ```ts
-const run = <T extends AnyPrintable>(it: T): Promise<RowsArray<T>> =>
+const run = (it: { stringify: () => string }): Promise<any[]> =>
     runS(it.stringify());
 ```
 
@@ -57,15 +57,10 @@ value;
 [{ "a": 1, "b": 2, "c": 3 }]
 ```
 
-Typescript knows the identifiers
+The query builder keeps the SQL syntax ergonomic
 
 ```ts
 value.map((it) => it.a);
-```
-
-```ts
-//@ts-expect-error
-value.map((it) => it.u);
 ```
 
 ---

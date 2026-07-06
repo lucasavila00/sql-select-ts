@@ -15,16 +15,14 @@ import { SafeString, isSafeString } from "../safe-string";
 import {
     ClickhouseWith,
     CTE,
+    Fields,
     Joinable,
     NoSelectFieldsCompileError,
-    RecordOfSelection,
-    ScopeShape,
     ScopeStorage,
-    SelectionOfScope,
+    SelectionRecord,
     SelectionRecordCallbackShape,
     SelectionWrapperTypes,
     TableOrSubquery,
-    ValidAliasInSelection,
 } from "../types";
 import { makeArray } from "../utils";
 import { Joined, JoinedFactory } from "./joined";
@@ -33,9 +31,7 @@ import {
     StringifiedSelectStatement,
 } from "./stringified-select-statement";
 
-type ReplaceT<Selection extends string> = ReadonlyArray<
-    readonly [Selection, SafeString | number]
->;
+type ReplaceT = ReadonlyArray<readonly [string, SafeString | number]>;
 
 /**
  *
@@ -45,16 +41,7 @@ type ReplaceT<Selection extends string> = ReadonlyArray<
  *
  * @since 2.0.0
  */
-export class SelectStatement<
-    // Selection extends string = never,
-    // Alias extends string = never,
-    // Scope extends ScopeShape = never,
-    // FlatScope extends string = never
-    Selection extends string,
-    Alias extends string,
-    Scope extends ScopeShape,
-    FlatScope extends string
-> {
+export class SelectStatement {
     /**
      * @internal
      */
@@ -63,9 +50,9 @@ export class SelectStatement<
          * @internal
          */
         public __props: {
-            readonly from: TableOrSubquery<any, any, any, any> | null;
+            readonly from: TableOrSubquery | null;
             readonly selection: SelectionWrapperTypes;
-            readonly replace: ReplaceT<Selection>;
+            readonly replace: ReplaceT;
             readonly orderBy: ReadonlyArray<SafeString>;
             readonly groupBy: ReadonlyArray<SafeString>;
             readonly limit: SafeString | number | null;
@@ -86,11 +73,11 @@ export class SelectStatement<
      * @internal
      */
     public static __fromTableOrSubqueryAndSelectionArray = (
-        it: TableOrSubquery<any, any, any, any>,
+        it: TableOrSubquery,
         selection: SelectionWrapperTypes,
         scope: ScopeStorage,
         alias?: string
-    ): SelectStatement<any, any, any, any> =>
+    ): SelectStatement =>
         new SelectStatement({
             from: it,
             selection,
@@ -114,11 +101,11 @@ export class SelectStatement<
      * @internal
      */
     public static __fromTableOrSubquery = (
-        it: TableOrSubquery<any, any, any, any>,
+        it: TableOrSubquery,
         selection: SelectionRecordCallbackShape,
         scope: ScopeStorage,
         alias?: string
-    ): SelectStatement<any, any, any, any> =>
+    ): SelectStatement =>
         new SelectStatement({
             from: it,
             selection: [consumeRecordCallback(selection, it.__props.scope)],
@@ -141,9 +128,7 @@ export class SelectStatement<
     /**
      * @internal
      */
-    public static fromNothing = <NewSelection extends string = never>(
-        it: Record<NewSelection, SafeString>
-    ): SelectStatement<NewSelection, never, Record<string, never>, never> =>
+    public static fromNothing = (it: Record<string, SafeString>): SelectStatement =>
         new SelectStatement(
             //
             {
@@ -166,7 +151,7 @@ export class SelectStatement<
             }
         );
 
-    private copy = (): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+    private copy = (): SelectStatement =>
         new SelectStatement({ ...this.__props });
 
     /**
@@ -188,7 +173,7 @@ export class SelectStatement<
         return this;
     };
 
-    private setReplace = (replace: ReplaceT<Selection>): this => {
+    private setReplace = (replace: ReplaceT): this => {
         this.__props = {
             ...this.__props,
             replace,
@@ -285,21 +270,16 @@ export class SelectStatement<
         /**
          * @since 2.0.0
          */
-        with_: <NewSelection extends string>(
+        with_: (
             it: Record<
-                NewSelection,
-                | SelectStatement<any, any, any, any>
-                | AliasedSelectStatement<any, any, any, any>
-                | StringifiedSelectStatement<any, any, any, any>
-                | AliasedStringifiedSelectStatement<any, any, any, any>
+                string,
+                | SelectStatement
+                | AliasedSelectStatement
+                | StringifiedSelectStatement
+                | AliasedStringifiedSelectStatement
                 | SafeString
             >
-        ): SelectStatement<
-            Selection | NewSelection,
-            Alias,
-            Scope,
-            FlatScope | NewSelection
-        > =>
+        ): SelectStatement =>
             this.copy().setClickhouseWith([
                 ...this.__props.clickhouseWith,
                 Object.fromEntries(
@@ -317,11 +297,11 @@ export class SelectStatement<
          */
         prewhere: (
             f:
-                | ReadonlyArray<Selection | FlatScope>
+                | ReadonlyArray<string>
                 | ((
-                      fields: Record<Selection | FlatScope, SafeString>
+                      fields: Fields
                   ) => ReadonlyArray<SafeString> | SafeString)
-        ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+        ): SelectStatement =>
             this.copy().setPrewhere([
                 ...this.__props.prewhere,
                 ...makeArray(
@@ -334,11 +314,11 @@ export class SelectStatement<
          */
         except: (
             f:
-                | ReadonlyArray<Selection | FlatScope>
+                | ReadonlyArray<string>
                 | ((
-                      fields: Record<Selection | FlatScope, SafeString>
+                      fields: Fields
                   ) => ReadonlyArray<SafeString> | SafeString)
-        ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+        ): SelectStatement =>
             this.copy().setExcept([
                 ...this.__props.except,
                 ...makeArray(
@@ -350,11 +330,9 @@ export class SelectStatement<
          */
         replace: (
             _: (
-                f: Record<Selection | FlatScope, SafeString> &
-                    SelectionOfScope<Scope> &
-                    NoSelectFieldsCompileError
-            ) => ReplaceT<Selection>
-        ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+                f: Fields & NoSelectFieldsCompileError
+            ) => ReplaceT
+        ): SelectStatement =>
             this.copy().setReplace([
                 ...this.__props.replace,
                 ...(consumeReplaceCallback(
@@ -363,39 +341,26 @@ export class SelectStatement<
                 ) as any),
             ]),
 
-        withRollup: (): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+        withRollup: (): SelectStatement =>
             this.copy().setRollup(true),
     };
 
     /**
      * @since 2.0.0
      */
-    public select = <
-        NewSelection extends string = never,
-        SubSelection extends Selection = never
-    >(
+    public select = (
         _:
-            | ReadonlyArray<SubSelection>
+            | ReadonlyArray<string>
             | ((
-                  fields: RecordOfSelection<Selection> &
-                      NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>)
-    ): SelectStatement<
-        NewSelection | SubSelection,
-        never,
-        Record<string, never>,
-        Selection
-    > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
+                  fields: Fields & NoSelectFieldsCompileError
+              ) => SelectionRecord)
+    ): SelectStatement =>
+        SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
 
     /**
      * @since 2.0.0
      */
-    public selectStar = (): SelectStatement<
-        Selection,
-        never,
-        { [key in Alias]: Selection },
-        Selection
-    > =>
+    public selectStar = (): SelectStatement =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
@@ -406,26 +371,19 @@ export class SelectStatement<
     /**
      * @since 2.0.0
      */
-    public appendSelectStar = (): SelectStatement<
-        Selection,
-        Alias,
-        Scope,
-        Selection
-    > => this.copy().setSelection([...this.__props.selection, StarSymbol()]);
+    public appendSelectStar = (): SelectStatement =>
+        this.copy().setSelection([...this.__props.selection, StarSymbol()]);
 
     /**
      * @since 2.0.0
      */
-    public appendSelect = <NewSelection extends string = never>(
+    public appendSelect = (
         _:
-            | ReadonlyArray<Selection>
+            | ReadonlyArray<string>
             | ((
-                  fields: RecordOfSelection<Selection> &
-                      RecordOfSelection<FlatScope> &
-                      SelectionOfScope<Scope> &
-                      NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>)
-    ): SelectStatement<Selection | NewSelection, Alias, Scope, FlatScope> =>
+                  fields: Fields & NoSelectFieldsCompileError
+              ) => SelectionRecord)
+    ): SelectStatement =>
         this.copy().setSelection([
             ...(this.__props.selection as any),
             consumeRecordCallback(_ as any, this.__props.scope),
@@ -436,12 +394,11 @@ export class SelectStatement<
      */
     public where = (
         f:
-            | ReadonlyArray<Selection | FlatScope>
+            | ReadonlyArray<string>
             | ((
-                  fields: Record<Selection | FlatScope, SafeString> &
-                      SelectionOfScope<Scope>
+                  fields: Fields
               ) => ReadonlyArray<SafeString> | SafeString)
-    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+    ): SelectStatement =>
         this.copy().setWhere([
             ...this.__props.where,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -452,11 +409,9 @@ export class SelectStatement<
      */
     public having = (
         f:
-            | ReadonlyArray<Selection | FlatScope>
-            | ((
-                  fields: Record<Selection | FlatScope, SafeString>
-              ) => ReadonlyArray<SafeString> | SafeString)
-    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+            | ReadonlyArray<string>
+            | ((fields: Fields) => ReadonlyArray<SafeString> | SafeString)
+    ): SelectStatement =>
         this.copy().setHaving([
             ...this.__props.having,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -465,7 +420,7 @@ export class SelectStatement<
     /**
      * @since 2.0.0
      */
-    public distinct = (): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+    public distinct = (): SelectStatement =>
         this.copy().setDistinct(true);
 
     /**
@@ -473,12 +428,11 @@ export class SelectStatement<
      */
     public orderBy = (
         f:
-            | ReadonlyArray<Selection | FlatScope>
+            | ReadonlyArray<string>
             | ((
-                  fields: Record<Selection | FlatScope, SafeString> &
-                      SelectionOfScope<Scope>
+                  fields: Fields
               ) => ReadonlyArray<SafeString> | SafeString)
-    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+    ): SelectStatement =>
         this.copy().setOrderBy([
             ...this.__props.orderBy,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -489,11 +443,9 @@ export class SelectStatement<
      */
     public groupBy = (
         f:
-            | ReadonlyArray<Selection | FlatScope>
-            | ((
-                  fields: Record<Selection | FlatScope, SafeString>
-              ) => ReadonlyArray<SafeString> | SafeString)
-    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+            | ReadonlyArray<string>
+            | ((fields: Fields) => ReadonlyArray<SafeString> | SafeString)
+    ): SelectStatement =>
         this.copy().setGroupBy([
             ...this.__props.groupBy,
             ...makeArray(consumeArrayCallback(f as any, this.__props.scope)),
@@ -504,13 +456,13 @@ export class SelectStatement<
      */
     public limit = (
         limit: SafeString | number
-    ): SelectStatement<Selection, Alias, Scope, FlatScope> =>
+    ): SelectStatement =>
         this.copy().setLimit(limit);
 
     /**
      * @since 2.0.0
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery = TableOrSubquery>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
@@ -522,31 +474,16 @@ export class SelectStatement<
     /**
      * @since 2.0.0
      */
-    public as = <NewAlias extends string = never>(
-        as: NewAlias
-    ): AliasedSelectStatement<Selection, NewAlias, Scope, FlatScope> =>
+    public as = (as: string): AliasedSelectStatement =>
         new AliasedSelectStatement(this.__props).__setAlias(as) as any;
 }
 
 /**
  * @since 2.0.0
  */
-export class AliasedSelectStatement<
-    // Selection extends string = never,
-    // Alias extends string = never,
-    // Scope extends ScopeShape = never,
-    // FlatScope extends string = never
-    Selection extends string,
-    Alias extends string,
-    Scope extends ScopeShape,
-    FlatScope extends string
-> extends SelectStatement<Selection, Alias, Scope, FlatScope> {
-    private __copy = (): AliasedSelectStatement<
-        Selection,
-        Alias,
-        Scope,
-        FlatScope
-    > => new AliasedSelectStatement({ ...this.__props });
+export class AliasedSelectStatement extends SelectStatement {
+    private __copy = (): AliasedSelectStatement =>
+        new AliasedSelectStatement({ ...this.__props });
 
     /**
      * @internal
@@ -566,26 +503,7 @@ export class AliasedSelectStatement<
     /**
      * @since 2.0.0
      */
-    public commaJoin = <
-        Selection2 extends string = never,
-        Alias2 extends string = never,
-        Scope2 extends ScopeShape = never,
-        FlatScope2 extends string = never
-    >(
-        _: ValidAliasInSelection<
-            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
-            Alias2
-        >
-    ): Joined<
-        never,
-        never,
-        {
-            [key in Alias]: Selection;
-        } & {
-            [key in Alias2]: Selection2;
-        },
-        Selection | Selection2
-    > =>
+    public commaJoin = (_: Joinable): Joined =>
         Joined.__fromAll([this, _ as any], [], {
             [String(this.__props.alias)]: void 0,
             ...(_ as any).__props.scope,
@@ -594,25 +512,7 @@ export class AliasedSelectStatement<
     /**
      * @since 2.0.0
      */
-    public join = <
-        Selection2 extends string = never,
-        Alias2 extends string = never,
-        Scope2 extends ScopeShape = never,
-        FlatScope2 extends string = never
-    >(
-        operator: string,
-        _: ValidAliasInSelection<
-            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
-            Alias2
-        >
-    ): JoinedFactory<
-        {
-            [key in Alias]: Selection;
-        } & {
-            [key in Alias2]: Selection2;
-        },
-        Extract<Selection, Selection2>
-    > =>
+    public join = (operator: string, _: Joinable): JoinedFactory =>
         JoinedFactory.__fromAll(
             [this],
             [],
@@ -629,7 +529,7 @@ export class AliasedSelectStatement<
     /**
      * @since 2.0.0
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery = TableOrSubquery>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
@@ -641,37 +541,19 @@ export class AliasedSelectStatement<
     /**
      * @since 2.0.0
      */
-    public select = <
-        NewSelection extends string = never,
-        SubSelection extends Selection = never
-    >(
+    public select = (
         _:
-            | ReadonlyArray<SubSelection>
+            | ReadonlyArray<string>
             | ((
-                  fields: RecordOfSelection<Selection> &
-                      SelectionOfScope<{
-                          [key in Alias]: Selection;
-                      }> &
-                      NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>)
-    ): SelectStatement<
-        NewSelection | SubSelection,
-        never,
-        {
-            [key in Alias]: Selection;
-        },
-        Selection
-    > => SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
+                  fields: Fields & NoSelectFieldsCompileError
+              ) => SelectionRecord)
+    ): SelectStatement =>
+        SelectStatement.__fromTableOrSubquery(this, _ as any, {}, undefined);
 
     /**
      * @since 2.0.0
      */
-    public selectStar = (): SelectStatement<
-        Selection,
-        never,
-        { [key in Alias]: Selection },
-        Selection
-    > =>
+    public selectStar = (): SelectStatement =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
@@ -682,18 +564,12 @@ export class AliasedSelectStatement<
     /**
      * @since 2.0.0
      */
-    public appendSelectStar = (): AliasedSelectStatement<
-        Selection,
-        Alias,
-        Scope & { [key in Alias]: Selection },
-        Selection
-    > => this.__copy().setSelection([...this.__props.selection, StarSymbol()]);
+    public appendSelectStar = (): AliasedSelectStatement =>
+        this.__copy().setSelection([...this.__props.selection, StarSymbol()]);
 
     /**
      * @since 2.0.0
      */
-    public as = <NewAlias extends string = never>(
-        as: NewAlias
-    ): AliasedSelectStatement<Selection, NewAlias, Scope, FlatScope> =>
+    public as = (as: string): AliasedSelectStatement =>
         this.__copy().__setAlias(as) as any;
 }

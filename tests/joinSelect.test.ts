@@ -18,7 +18,7 @@ describe("joinSelect", () => {
     const q1 = t1.selectStar().as("q1");
     const q2 = t2.selectStar().as("q2");
     const q3 = t3.selectStar().as("q3");
-    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str1 = fromStringifiedSelectStatement(
         castSafe(q1.stringify())
     ).as("q1");
 

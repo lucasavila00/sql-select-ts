@@ -24,9 +24,7 @@ import { SelectStatement } from "../../src/classes/select-statement";
 Allows to use a helper function but still keep method chaining.
 
 ```ts
-// It expects a select statement that has selected a "sector" field,
-// which will be used as the "group by"
-const groupSortLimit = (query: SelectStatement<"sector", any, any, any>) =>
+const groupSortLimit = (query: SelectStatement) =>
     query
         .groupBy((f) => f.sector)
         .orderBy((_f) => sql`count() DESC`)

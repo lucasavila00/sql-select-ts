@@ -13,10 +13,8 @@ describe("sqlite group by", () => {
     });
     it("1 call -- tpyechecks", async () => {
         t0.selectStar()
-            //@ts-expect-error
             .groupBy((f) => f.abc);
         t0.selectStar()
-            //@ts-expect-error
             .groupBy(["abc"]);
         expect(1).toBe(1);
     });

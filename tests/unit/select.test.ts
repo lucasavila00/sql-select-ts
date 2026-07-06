@@ -6,9 +6,7 @@ it("alias from table", () => {
     t.select((f) => ({ abc: f.t.a }));
     select((f) => ({ abc: f.t.a }), t);
 
-    // @ts-expect-error
     t.select((f) => ({ abc: f.t.c }));
-    // @ts-expect-error
     select((f) => ({ abc: f.t.c }), t);
 
     expect(1).toBe(1);

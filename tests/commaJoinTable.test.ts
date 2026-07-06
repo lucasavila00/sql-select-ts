@@ -11,7 +11,7 @@ describe("commaJoin", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
-    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str1 = fromStringifiedSelectStatement(
         castSafe(t1.selectStar().stringify())
     ).as("q1");
     /*

@@ -5,7 +5,7 @@ exampleHeader("SQLite Usage", 50);
 
 ```ts eval
 import sqlite from "sqlite3";
-import { table, AnyPrintable, RowsArray } from "../../src";
+import { table } from "../../src";
 ```
 
 With a DB connector
@@ -20,10 +20,10 @@ const runS = (q: string) =>
     );
 ```
 
-We can implement a version that is aware of the types
+We can implement a small runner for printable queries
 
 ```ts eval
-const run = <T extends AnyPrintable>(it: T): Promise<RowsArray<T>> =>
+const run = (it: { stringify: () => string }): Promise<any[]> =>
     runS(it.stringify());
 ```
 
@@ -42,13 +42,8 @@ const value = await run(t1.selectStar());
 value;
 ```
 
-Typescript knows the identifiers
+The query builder keeps the SQL syntax ergonomic
 
 ```ts eval --out=hide
 value.map((it) => it.a);
-```
-
-```ts eval --out=hide
-//@ts-expect-error
-value.map((it) => it.u);
 ```

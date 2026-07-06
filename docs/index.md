@@ -39,9 +39,9 @@ const myString = sql`column = ${userInput}`;
 // column = '\';'
 ```
 
-## Typescript checking
+## Typescript-friendly builders
 
-Provides type checking for identifiers names, with optional source qualifier, among other features.
+Provides typed query-builder objects and ergonomic field access, without tracking concrete identifier names.
 
 ```ts
 const t1 = table(/* columns: */ ["a", "b", "c"], /* db-name & alias: */ "t1");
@@ -49,9 +49,6 @@ const t2 = table(/* columns: */ ["b", "c", "d"], /* db-name & alias: */ "t2");
 t1.join("NATURAL", t2)
     .using(["b"])
     .select((f) => ({
-        // (parameter) f: Record<
-        //   "a" | "d" | "t1.a" | "t1.b" | "t1.c" | "t2.b" | "t2.c" | "t2.d",
-        // SafeString>
         z: f["t1.c"],
     }));
 ```

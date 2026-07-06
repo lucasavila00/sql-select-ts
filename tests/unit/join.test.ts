@@ -10,7 +10,6 @@ describe("table", () => {
         q.join("LEFT", q)
             .using(["a"])
             .selectStar()
-            //@ts-expect-error
             .clickhouse.replace((_f) => [["m.a", 1]]);
 
         q.join("LEFT", q)
@@ -37,7 +36,6 @@ describe("table", () => {
             .apply((it) => it.select(["a"]))
             .select((f) => ({
                 b:
-                    //@ts-expect-error
                     f.b,
             }));
 

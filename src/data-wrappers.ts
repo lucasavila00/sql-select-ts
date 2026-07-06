@@ -26,14 +26,14 @@ export const StarOfAliasesSymbol = (
 });
 
 const AliasedRowsURI = "AliasedRows" as const;
-export type AliasedRows<Selection extends string> = {
+export type AliasedRows = {
     _tag: typeof AliasedRowsURI;
-    content: Record<Selection, SafeString>;
+    content: Record<string, SafeString>;
 };
 
-export const AliasedRows = <Selection extends string>(
-    content: Record<Selection, SafeString>
-): AliasedRows<Selection> => ({
+export const AliasedRows = (
+    content: Record<string, SafeString>
+): AliasedRows => ({
     _tag: AliasedRowsURI,
     content,
 });

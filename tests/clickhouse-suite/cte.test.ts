@@ -22,7 +22,6 @@ describe("clickhouse cte", () => {
             .do((acc) =>
                 select(
                     (f) => ({
-                        //@ts-expect-error
                         it: f.abc,
                     }),
                     acc.t0_alias
@@ -31,13 +30,11 @@ describe("clickhouse cte", () => {
             .stringify();
         try {
             with_(t0.selectStar().as("t0_alias"))
-                //@ts-expect-error
                 .do((acc) => select((_f) => ({ it: sql(10) }), acc.t5_alias))
                 .stringify();
 
             with_(t0.selectStar().as("t0_alias"))
                 .with_(
-                    //@ts-expect-error
                     (acc) => acc.abc.selectStar().as("t1_alias")
                 )
                 .do((acc) => select((_f) => ({ it: sql(10) }), acc.t0_alias))
