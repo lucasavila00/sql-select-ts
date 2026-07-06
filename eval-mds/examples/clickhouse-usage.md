@@ -5,7 +5,7 @@ exampleHeader("Clickhouse Usage", 80);
 
 ```ts eval
 const ClickHouse = require("@apla/clickhouse");
-import { table, AnyPrintable, RowsArray } from "../../src";
+import { table } from "../../src";
 ```
 
 With a DB connector
@@ -23,10 +23,10 @@ const runS = async (q: string): Promise<any[]> =>
     db.querying(q).then((it: any) => it.data);
 ```
 
-We can implement a version that is aware of the types
+We can implement a small runner for printable queries
 
 ```ts eval
-const run = <T extends AnyPrintable>(it: T): Promise<RowsArray<T>> =>
+const run = (it: { stringify: () => string }): Promise<any[]> =>
     runS(it.stringify());
 ```
 
@@ -46,13 +46,8 @@ const value = await run(t1.selectStar());
 value;
 ```
 
-Typescript knows the identifiers
+The query builder keeps the SQL syntax ergonomic
 
 ```ts eval --out=hide
 value.map((it) => it.x);
-```
-
-```ts eval --out=hide
-//@ts-expect-error
-value.map((it) => it.u);
 ```

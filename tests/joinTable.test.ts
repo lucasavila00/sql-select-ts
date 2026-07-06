@@ -15,7 +15,7 @@ describe("join", () => {
     const t1 = table(["a", "b", "c"], "t1");
     const t2 = table(["b", "c", "d"], "t2");
     const t3 = table(["c", "d", "e"], "t3");
-    const str2 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str2 = fromStringifiedSelectStatement(
         castSafe(t1.selectStar().stringify())
     ).as("q1");
     /*

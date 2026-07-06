@@ -13,7 +13,7 @@ describe("commaJoin", () => {
     const t3 = table(["c", "d", "e"], "t3");
     const q2 = t2.selectStar().as("t2");
     const q3 = t3.selectStar().as("t3");
-    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str1 = fromStringifiedSelectStatement(
         castSafe(t1.selectStar().stringify())
     );
     /*

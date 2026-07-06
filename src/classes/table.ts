@@ -1,22 +1,18 @@
 /**
  *
  * Represents a table in the database.
- * It stores type information of the table Alias and Selection.
  * It also stores the table name and the alias.
  *
  * @since 2.0.0
  */
 import { StarSymbol } from "../data-wrappers";
-import { SafeString } from "../safe-string";
 import {
+    Fields,
     Joinable,
     NoSelectFieldsCompileError,
-    RecordOfSelection,
-    ScopeShape,
     ScopeStorage,
-    SelectionOfScope,
+    SelectionRecord,
     TableOrSubquery,
-    ValidAliasInSelection,
 } from "../types";
 import { Joined, JoinedFactory } from "./joined";
 import { SelectStatement } from "./select-statement";
@@ -24,23 +20,13 @@ import { SelectStatement } from "./select-statement";
 /**
  *
  * Represents a table in the database.
- * It stores type information of the table Alias and Selection.
  * It also stores the table name and the alias.
  *
  * This class is not meant to be used directly, but rather through the `table` function.
  *
  * @since 2.0.0
  */
-export class Table<
-    // Selection extends string = never,
-    // Alias extends string = never,
-    // Scope extends ScopeShape = never,
-    // FlatScope extends string = never
-    Selection extends string,
-    Alias extends string,
-    Scope extends ScopeShape,
-    FlatScope extends string
-> {
+export class Table {
     /* @internal */
     private constructor(
         /* @internal */
@@ -54,11 +40,11 @@ export class Table<
     ) {}
 
     /*  @internal */
-    public static define = <Selection extends string, Alias extends string>(
-        columns: ReadonlyArray<Selection>,
-        alias: Alias,
+    public static define = (
+        columns: ReadonlyArray<string>,
+        alias: string,
         name: string = alias
-    ): Table<Selection, Alias, { [key in Alias]: Selection }, Selection> =>
+    ): Table =>
         new Table({
             columns,
             alias,
@@ -67,7 +53,7 @@ export class Table<
             scope: { [alias]: void 0 },
         });
 
-    private copy = (): Table<Selection, Alias, Scope, FlatScope> =>
+    private copy = (): Table =>
         new Table({ ...this.__props });
 
     private setFinal = (final: boolean): this => {
@@ -93,25 +79,20 @@ export class Table<
         /**
          * @since 2.0.0
          */
-        final: (): Table<Selection, Alias, Scope, FlatScope> =>
+        final: (): Table =>
             this.copy().setFinal(true),
     };
 
     /**
      * @since 2.0.0
      */
-    public select = <
-        NewSelection extends string = never,
-        SubSelection extends Selection = never
-    >(
+    public select = (
         _:
-            | ReadonlyArray<SubSelection>
+            | ReadonlyArray<string>
             | ((
-                  fields: RecordOfSelection<Selection> &
-                      SelectionOfScope<Scope> &
-                      NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>)
-    ): SelectStatement<NewSelection | SubSelection, never, Scope, FlatScope> =>
+                  fields: Fields & NoSelectFieldsCompileError
+              ) => SelectionRecord)
+    ): SelectStatement =>
         SelectStatement.__fromTableOrSubquery(
             this,
             _ as any,
@@ -124,12 +105,7 @@ export class Table<
     /**
      * @since 2.0.0
      */
-    public selectStar = (): SelectStatement<
-        Selection,
-        never,
-        Scope,
-        FlatScope
-    > =>
+    public selectStar = (): SelectStatement =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
@@ -142,26 +118,7 @@ export class Table<
     /**
      * @since 2.0.0
      */
-    public commaJoin = <
-        Selection2 extends string = never,
-        Alias2 extends string = never,
-        Scope2 extends ScopeShape = never,
-        FlatScope2 extends string = never
-    >(
-        _: ValidAliasInSelection<
-            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
-            Alias2
-        >
-    ): Joined<
-        never,
-        never,
-        {
-            [key in Alias]: Selection;
-        } & {
-            [key in Alias2]: Selection2;
-        },
-        Selection | Selection2
-    > =>
+    public commaJoin = (_: Joinable): Joined =>
         Joined.__fromAll([this, _ as any], [], {
             [String(this.__props.alias)]: void 0,
             ...(_ as any).__props.scope,
@@ -170,25 +127,7 @@ export class Table<
     /**
      * @since 2.0.0
      */
-    public join = <
-        Selection2 extends string = never,
-        Alias2 extends string = never,
-        Scope2 extends ScopeShape = never,
-        FlatScope2 extends string = never
-    >(
-        operator: string,
-        _: ValidAliasInSelection<
-            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
-            Alias2
-        >
-    ): JoinedFactory<
-        {
-            [key in Alias]: Selection;
-        } & {
-            [key in Alias2]: Selection2;
-        },
-        Extract<Selection, Selection2>
-    > =>
+    public join = (operator: string, _: Joinable): JoinedFactory =>
         JoinedFactory.__fromAll(
             [this],
             [],
@@ -204,21 +143,12 @@ export class Table<
     /**
      * @since 2.0.0
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery = TableOrSubquery>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 
     /**
      * @since 2.0.0
      */
-    public as = <NewAlias extends string = never>(
-        as: NewAlias
-    ): Table<
-        Selection,
-        NewAlias,
-        Scope & {
-            [key in NewAlias]: Selection;
-        },
-        FlatScope
-    > => this.copy().setAlias(as) as any;
+    public as = (as: string): Table => this.copy().setAlias(as) as any;
 }

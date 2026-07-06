@@ -52,7 +52,6 @@ describe("sqlite select1", () => {
         unionAll([q1, q1, q1])
             .apply((it) => it.select(["f1"]))
             .select((f) => ({
-                //@ts-expect-error
                 b: f.f2,
             }))
             .stringify();
@@ -61,7 +60,6 @@ describe("sqlite select1", () => {
         unionAll([q1, q1, q1])
             .select(["f1"])
             .select((f) => ({
-                //@ts-expect-error
                 b: f.f2,
             }))
             .stringify();
@@ -166,7 +164,6 @@ describe("sqlite select1", () => {
         const q = test1
             .select((f) => ({
                 f1:
-                    //@ts-expect-error
                     f.f3,
             }))
             .stringify();
@@ -589,7 +586,6 @@ describe("sqlite select1", () => {
             .select(({ f1 }) => ({ f3: f1 }))
             .where(
                 ({
-                    //@ts-expect-error
                     f5,
                 }) => dsql`${f5} < 11`
             )
@@ -1306,7 +1302,6 @@ describe("sqlite select1", () => {
             .select((f) => ({
                 a: f.f1,
                 b: f.f2,
-                //@ts-expect-error
                 c: f["it.r1"],
             }))
             .stringify();

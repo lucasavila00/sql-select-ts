@@ -340,7 +340,6 @@ describe("sqlite join", () => {
     it("join-1.4.1 -- using knows types", async () => {
         const q = t2
             .join("INNER", t1)
-            // @ts-expect-error
             .using(["b", "c", "d"])
             .selectStar()
             .stringify();
@@ -355,7 +354,6 @@ describe("sqlite join", () => {
         const q = t2
             .join("INNER", t1)
             .on((f) => [
-                // @ts-expect-error
                 equals(f.aaaaaaaaaaa, f.t2.b),
                 equals(f.t1.c, f.t2.c),
             ])

@@ -18,13 +18,13 @@ describe("join", () => {
     const q1 = t1.selectStar().as("q1");
     const q2 = t2.selectStar();
     const q3 = t3.selectStar();
-    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str1 = fromStringifiedSelectStatement(
         castSafe(q1.stringify())
     ).as("q1");
-    const str2 = fromStringifiedSelectStatement<"b" | "c" | "d">(
+    const str2 = fromStringifiedSelectStatement(
         castSafe(q2.stringify())
     ).as("q2");
-    const str3 = fromStringifiedSelectStatement<"c" | "d" | "e">(
+    const str3 = fromStringifiedSelectStatement(
         castSafe(q3.stringify())
     ).as("q3");
     /*

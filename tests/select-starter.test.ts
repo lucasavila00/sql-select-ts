@@ -7,7 +7,6 @@ const fromTable1 = table(cols, "t1");
 it("type checks", () => {
     select(
         (f) => ({
-            //@ts-expect-error
             col3: f.e,
         }),
         fromTable1
@@ -23,7 +22,6 @@ it("type checks2", () => {
     );
     x.select((f) => ({
         x:
-            //@ts-expect-error
             f.abc,
     }));
     expect(1).toBe(1);
@@ -97,7 +95,6 @@ it("shorthand - type checks sample", () => {
         fromTable1
     )
         .selectStar()
-        //@ts-expect-error
         .select((f) => ({ abc: f.c }))
         .stringify();
 
@@ -107,7 +104,6 @@ it("shorthand - type checks sample", () => {
 it("shorthand -- type checks", () => {
     select(["a", "b"], fromTable1)
         .selectStar()
-        //@ts-expect-error
         .select((f) => ({ abc: f.c }))
         .stringify();
 

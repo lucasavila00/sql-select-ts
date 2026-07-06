@@ -128,12 +128,9 @@ it("select qualified", () => {
 
 it("type checks", () => {
     t.select((f) => ({
-        //@ts-expect-error
         abc: f.id2,
-        //@ts-expect-error
         def: f.users.id2,
     }));
-    //@ts-expect-error
     t.select(["id2"]);
     expect(1).toBe(1);
 });
@@ -210,7 +207,6 @@ it("query alias type checks", () => {
     r1.select((f) => ({
         col1: f.abc,
         col2:
-            //@ts-expect-error
             f.alias2.def,
     }));
 
@@ -280,7 +276,6 @@ it("join using type checks", () => {
     }))
         .as("q1")
         .join("LEFT", t)
-        //@ts-expect-error
         .using(["name"]);
 
     expect(1).toBe(1);

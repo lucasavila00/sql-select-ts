@@ -8,23 +8,21 @@ import { consumeArrayCallback } from "../consume-fields";
 import { StarOfAliasesSymbol, StarSymbol } from "../data-wrappers";
 import { SafeString } from "../safe-string";
 import {
+    Fields,
     Joinable,
     JoinConstraint,
     NoSelectFieldsCompileError,
-    RecordOfSelection,
-    ScopeShape,
     ScopeStorage,
-    SelectionOfScope,
+    SelectionRecord,
     TableOrSubquery,
-    ValidAliasInSelection,
 } from "../types";
 import { makeNonEmptyArray } from "../utils";
 import { SelectStatement } from "./select-statement";
 
-type CommaJoin = ReadonlyArray<Joinable<any, any, any, any>>;
+type CommaJoin = ReadonlyArray<Joinable>;
 
 type ProperJoinItem = {
-    readonly code: Joinable<any, any, any, any>;
+    readonly code: Joinable;
     readonly operator: string;
     readonly constraint: JoinConstraint;
 };
@@ -38,10 +36,7 @@ type ProperJoin = ReadonlyArray<ProperJoinItem>;
  *
  * @since 2.0.0
  */
-export class JoinedFactory<
-    Scope extends ScopeShape = never,
-    Using extends string = never
-> {
+export class JoinedFactory {
     /* @internal */
     private constructor(
         /* @internal */
@@ -59,13 +54,13 @@ export class JoinedFactory<
         properJoins: ProperJoin,
         newProperJoin: Omit<ProperJoinItem, "constraint">,
         scope: ScopeStorage
-    ): JoinedFactory<any, any> =>
+    ): JoinedFactory =>
         new JoinedFactory({ commaJoins, properJoins, newProperJoin, scope });
 
     /**
      * @since 2.0.0
      */
-    public noConstraint = (): Joined<never, never, Scope, Scope[keyof Scope]> =>
+    public noConstraint = (): Joined =>
         Joined.__fromAll(
             this.__props.commaJoins,
             [
@@ -83,10 +78,9 @@ export class JoinedFactory<
      */
     public on = (
         _: (
-            fields: RecordOfSelection<Scope[keyof Scope]> &
-                SelectionOfScope<Scope>
+            fields: Fields
         ) => SafeString | ReadonlyArray<SafeString>
-    ): Joined<never, never, Scope, Scope[keyof Scope]> =>
+    ): Joined =>
         Joined.__fromAll(
             this.__props.commaJoins,
             [
@@ -108,8 +102,8 @@ export class JoinedFactory<
      * @since 2.0.0
      */
     public using = (
-        keys: ReadonlyArray<Using>
-    ): Joined<never, never, Scope, Scope[keyof Scope]> =>
+        keys: ReadonlyArray<string>
+    ): Joined =>
         Joined.__fromAll(
             this.__props.commaJoins,
             [
@@ -130,12 +124,7 @@ export class JoinedFactory<
  *
  * @since 2.0.0
  */
-export class Joined<
-    Selection extends string = never,
-    _Alias extends string = never,
-    Scope extends ScopeShape = never,
-    FlatScope extends string = never
-> {
+export class Joined {
     private constructor(
         /* @internal */
         public __props: {
@@ -150,23 +139,18 @@ export class Joined<
         commaJoins: CommaJoin,
         properJoins: ProperJoin,
         scope: ScopeStorage
-    ): Joined<any, any, any> => new Joined({ commaJoins, properJoins, scope });
+    ): Joined => new Joined({ commaJoins, properJoins, scope });
 
     /**
      * @since 2.0.0
      */
-    public select = <
-        NewSelection extends string = never,
-        SubSelection extends Selection | FlatScope = never
-    >(
+    public select = (
         _:
-            | ReadonlyArray<SubSelection>
+            | ReadonlyArray<string>
             | ((
-                  fields: RecordOfSelection<Scope[keyof Scope]> &
-                      SelectionOfScope<Scope> &
-                      NoSelectFieldsCompileError
-              ) => Record<NewSelection, SafeString>)
-    ): SelectStatement<NewSelection | SubSelection, never, Scope, FlatScope> =>
+                  fields: Fields & NoSelectFieldsCompileError
+              ) => SelectionRecord)
+    ): SelectStatement =>
         SelectStatement.__fromTableOrSubquery(
             this,
             _ as any,
@@ -177,12 +161,7 @@ export class Joined<
     /**
      * @since 2.0.0
      */
-    public selectStar = (): SelectStatement<
-        Scope[keyof Scope],
-        never,
-        Scope,
-        FlatScope
-    > =>
+    public selectStar = (): SelectStatement =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarSymbol()],
@@ -193,9 +172,9 @@ export class Joined<
     /**
      * @since 2.0.0
      */
-    public selectStarOfAliases = <TheAliases extends keyof Scope>(
-        aliases: ReadonlyArray<TheAliases>
-    ): SelectStatement<Scope[TheAliases], never, Scope, FlatScope> =>
+    public selectStarOfAliases = (
+        aliases: ReadonlyArray<string>
+    ): SelectStatement =>
         SelectStatement.__fromTableOrSubqueryAndSelectionArray(
             this,
             [StarOfAliasesSymbol(aliases as any)],
@@ -205,23 +184,7 @@ export class Joined<
     /**
      * @since 2.0.0
      */
-    public join = <
-        Selection2 extends string = never,
-        Alias2 extends string = never,
-        Scope2 extends ScopeShape = never,
-        FlatScope2 extends string = never
-    >(
-        operator: string,
-        _: ValidAliasInSelection<
-            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
-            Alias2
-        >
-    ): JoinedFactory<
-        Scope & {
-            [key in Alias2]: Selection2;
-        },
-        Extract<Selection | Scope[keyof Scope], Selection2>
-    > =>
+    public join = (operator: string, _: Joinable): JoinedFactory =>
         JoinedFactory.__fromAll(
             this.__props.commaJoins,
             this.__props.properJoins,
@@ -237,23 +200,7 @@ export class Joined<
     /**
      * @since 2.0.0
      */
-    public commaJoin = <
-        Selection2 extends string = never,
-        Alias2 extends string = never,
-        Scope2 extends ScopeShape = never,
-        FlatScope2 extends string = never
-    >(
-        _: ValidAliasInSelection<
-            Joinable<Selection2, Alias2, Scope2, FlatScope2>,
-            Alias2
-        >
-    ): Joined<
-        never,
-        never,
-        Scope & {
-            [key in Alias2]: Selection2;
-        }
-    > =>
+    public commaJoin = (_: Joinable): Joined =>
         Joined.__fromAll(
             [...this.__props.commaJoins, _ as any],
             this.__props.properJoins,
@@ -266,7 +213,7 @@ export class Joined<
     /**
      * @since 2.0.0
      */
-    public apply = <Ret extends TableOrSubquery<any, any, any, any> = never>(
+    public apply = <Ret extends TableOrSubquery = TableOrSubquery>(
         fn: (it: this) => Ret
     ): Ret => fn(this);
 }

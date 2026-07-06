@@ -1,23 +1,14 @@
 /**
  * @since 2.0.0
  */
-import { CTE, ScopeShape } from "../types";
+import { CTE } from "../types";
 import { AliasedSelectStatement, SelectStatement } from "./select-statement";
 import { Table } from "./table";
 
 /**
  * @since 2.0.0
  */
-export class CommonTableExpressionFactory<
-    // Selection extends string = never,
-    // Alias extends string = never,
-    // Scope extends ScopeShape = never,
-    // FlatScope extends string = never
-    Selection extends string,
-    Alias extends string,
-    Scope extends ScopeShape,
-    FlatScope extends string
-> {
+export class CommonTableExpressionFactory {
     /* @internal */
     private constructor(
         /* @internal */
@@ -27,41 +18,24 @@ export class CommonTableExpressionFactory<
     ) {}
 
     /*  @internal */
-    public static defineRenamed = <
-        NSelection extends string,
-        NAlias extends string
-    >(
-        select: AliasedSelectStatement<any, NAlias, any, any>,
-        columns: ReadonlyArray<NSelection>
-    ): CommonTableExpressionFactory<
-        NSelection,
-        NAlias,
-        { [key in NAlias]: NSelection },
-        NSelection
-    > =>
+    public static defineRenamed = (
+        select: AliasedSelectStatement,
+        columns: ReadonlyArray<string>
+    ): CommonTableExpressionFactory =>
         new CommonTableExpressionFactory({
             ctes: [{ columns, select }],
         });
 
     /*  @internal */
-    public static define = <NSelection extends string, NAlias extends string>(
-        select: AliasedSelectStatement<NSelection, NAlias, any, any>
-    ): CommonTableExpressionFactory<
-        NSelection,
-        NAlias,
-        { [key in NAlias]: NSelection },
-        NSelection
-    > =>
+    public static define = (
+        select: AliasedSelectStatement
+    ): CommonTableExpressionFactory =>
         new CommonTableExpressionFactory({
             ctes: [{ columns: [], select }],
         });
 
-    private copy = (): CommonTableExpressionFactory<
-        Selection,
-        Alias,
-        Scope,
-        FlatScope
-    > => new CommonTableExpressionFactory({ ...this.__props });
+    private copy = (): CommonTableExpressionFactory =>
+        new CommonTableExpressionFactory({ ...this.__props });
 
     private setCtes = (ctes: ReadonlyArray<CTE>): this => {
         this.__props = {
@@ -73,21 +47,9 @@ export class CommonTableExpressionFactory<
     /**
      * @since 2.0.0
      */
-    public with_ = <NSelection extends string, NAlias extends string>(
-        select: (acc: {
-            [K in keyof Scope]: Table<
-                Scope[K],
-                never,
-                { [k in K]: Scope[K] },
-                Scope[K]
-            >;
-        }) => AliasedSelectStatement<NSelection, NAlias, any, any>
-    ): CommonTableExpressionFactory<
-        Selection,
-        Alias,
-        Scope & { [key in NAlias]: NSelection },
-        FlatScope | NSelection
-    > => {
+    public with_ = (
+        select: (acc: Record<string, Table>) => AliasedSelectStatement
+    ): CommonTableExpressionFactory => {
         const oldMap: any = {};
         for (const cte of this.__props.ctes) {
             oldMap[
@@ -107,22 +69,10 @@ export class CommonTableExpressionFactory<
     /**
      * @since 2.0.0
      */
-    public withR = <NSelection extends string, NAlias extends string>(
-        select: (acc: {
-            [K in keyof Scope]: Table<
-                Scope[K],
-                never,
-                { [k in K]: Scope[K] },
-                Scope[K]
-            >;
-        }) => AliasedSelectStatement<any, NAlias, any, any>,
-        columns: ReadonlyArray<NSelection>
-    ): CommonTableExpressionFactory<
-        Selection,
-        Alias,
-        Scope & { [key in NAlias]: NSelection },
-        FlatScope | NSelection
-    > => {
+    public withR = (
+        select: (acc: Record<string, Table>) => AliasedSelectStatement,
+        columns: ReadonlyArray<string>
+    ): CommonTableExpressionFactory => {
         const oldMap: any = {};
         for (const cte of this.__props.ctes) {
             oldMap[
@@ -143,21 +93,9 @@ export class CommonTableExpressionFactory<
     /**
      * @since 2.0.0
      */
-    public do = <
-        NSelection extends string,
-        NAlias extends string,
-        NScope extends ScopeShape,
-        NFlatScope extends string
-    >(
-        _: (acc: {
-            [K in keyof Scope]: Table<
-                Scope[K],
-                never,
-                { [k in K]: Scope[K] },
-                Scope[K]
-            >;
-        }) => SelectStatement<NSelection, NAlias, NScope, NFlatScope>
-    ): SelectStatement<NSelection, NAlias, NScope, NFlatScope> => {
+    public do = (
+        _: (acc: Record<string, Table>) => SelectStatement
+    ): SelectStatement => {
         const oldMap: any = {};
         for (const cte of this.__props.ctes) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

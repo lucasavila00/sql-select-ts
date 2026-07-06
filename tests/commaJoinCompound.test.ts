@@ -14,7 +14,7 @@ describe("commaJoin", () => {
     const q2 = t2.selectStar();
     const q3 = t3.selectStar();
     const u1 = unionAll([q2, q3]).as("t2");
-    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str1 = fromStringifiedSelectStatement(
         castSafe(t1.selectStar().stringify())
     );
     /*

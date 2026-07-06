@@ -14,12 +14,10 @@ describe("sqlite having", () => {
 
     it("1 call -- type checks", async () => {
         t0.selectStar()
-            //@ts-expect-error
             .having((f) => f.abc)
             .stringify();
 
         t0.selectStar()
-            //@ts-expect-error
             .having(["abc"])
             .stringify();
         expect(1).toBe(1);

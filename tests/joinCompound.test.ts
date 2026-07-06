@@ -20,7 +20,7 @@ describe("join", () => {
     const q3 = t3.selectStar().as("q3");
 
     const u = unionAll([q1, q2]).as("u");
-    const str1 = fromStringifiedSelectStatement<"a" | "b" | "c">(
+    const str1 = fromStringifiedSelectStatement(
         castSafe(q1.stringify())
     ).as("t1");
 

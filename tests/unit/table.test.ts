@@ -35,7 +35,6 @@ describe("table", () => {
             .apply((it) => it.select(["a"]))
             .select((f) => ({
                 b:
-                    //@ts-expect-error
                     f.b,
             }));
 

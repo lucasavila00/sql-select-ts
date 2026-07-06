@@ -19,7 +19,7 @@ import {
 # From Raw String (Stringified Select Statement)
 
 ```ts eval --out=sql
-const q = fromStringifiedSelectStatement<"a">(sql`SELECT 1 AS a`);
+const q = fromStringifiedSelectStatement(sql`SELECT 1 AS a`);
 
 q.selectStar()
     .orderBy((f) => f.a)
